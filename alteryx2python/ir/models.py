@@ -23,6 +23,7 @@ class NodeIR:
     outgoing_edges: list[str] = field(default_factory=list)
     expected_input_schema: dict[str, Any] = field(default_factory=dict)
     expected_output_schema: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
     execution_semantics_version: str = "0.1.0"
     supported_status: str = "L1_PARSED_ONLY"
     warnings: list[str] = field(default_factory=list)

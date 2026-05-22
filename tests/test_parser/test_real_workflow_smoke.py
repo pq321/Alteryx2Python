@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from alteryx2python.ir.validators import validate_workflow_ir
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 
 
@@ -21,4 +22,14 @@ def test_real_workflow_can_be_loaded_by_current_xml_parser():
     assert workflow.source_file.endswith("MIFID II.yxwz")
     assert workflow.source_hash
     assert workflow.classification == "CLASS_D_PARTIAL_MIGRATION_ONLY"
-    assert workflow.warnings == ["XML parsed but node/tool extraction is not implemented yet."]
+    assert len(workflow.nodes) == 43
+    assert len(workflow.edges) == 40
+    assert any("Deferred interface node" in warning for warning in workflow.warnings)
+    assert any("Deferred action node" in warning for warning in workflow.warnings)
+    select_nodes = [node for node in workflow.nodes if node.tool_type == "Select"]
+    assert select_nodes
+    assert "select_fields" in select_nodes[0].config["normalized"]
+    db_input_nodes = [node for node in workflow.nodes if node.tool_type == "DbFileInput"]
+    assert db_input_nodes
+    assert "file" in db_input_nodes[0].config["normalized"]
+    assert validate_workflow_ir(workflow) == []

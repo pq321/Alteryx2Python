@@ -120,23 +120,23 @@ Upgrade the parser from workflow-shell parsing to real node/edge/config extracti
 
 ### Task Checklist
 
-- [ ] Expand `alteryx2python/parser/xml_parser.py` to parse `<Nodes>` and `<Connections>`.
-- [ ] Map Alteryx `ToolID` to `NodeIR.node_id` and preserve original source tool ID.
-- [ ] Parse plugin strings from `<GuiSettings Plugin="...">`.
-- [ ] Capture raw node configuration into `NodeIR.config`.
-- [ ] Extract input/output anchor details where the XML exposes them.
-- [ ] Extract `MetaInfo/RecordInfo/Field` metadata into a schema-friendly structure.
-- [ ] Parse `ChildNodes` under tool containers.
-- [ ] Detect non-executable UI-only nodes and classify them separately.
-- [ ] Detect action/interface-style nodes and record them as unsupported or deferred.
-- [ ] Populate `WorkflowIR.warnings` and `NodeIR.supported_status` instead of silently dropping unknown structures.
-- [ ] Add parser contract tests for:
+- [x] Expand `alteryx2python/parser/xml_parser.py` to parse `<Nodes>` and `<Connections>`.
+- [x] Map Alteryx `ToolID` to `NodeIR.node_id` and preserve original source tool ID.
+- [x] Parse plugin strings from `<GuiSettings Plugin="...">`.
+- [x] Capture raw node configuration into `NodeIR.config`.
+- [x] Extract input/output anchor details where the XML exposes them.
+- [x] Extract `MetaInfo/RecordInfo/Field` metadata into a schema-friendly structure.
+- [x] Parse `ChildNodes` under tool containers.
+- [x] Detect non-executable UI-only nodes and classify them separately.
+- [x] Detect action/interface-style nodes and record them as unsupported or deferred.
+- [x] Populate `WorkflowIR.warnings` and `NodeIR.supported_status` instead of silently dropping unknown structures.
+- [x] Add parser contract tests for:
   - minimal workflow shell
   - workflow with connections
   - workflow with tool container children
   - workflow with `MetaInfo`
   - workflow with unsupported plugin types
-- [ ] Add a snapshot-style test against the real sample workflow that checks node/edge counts and key plugin types.
+- [x] Add a snapshot-style test against the real sample workflow that checks node/edge counts and key plugin types.
 
 ### Files To Touch
 
@@ -150,9 +150,11 @@ Upgrade the parser from workflow-shell parsing to real node/edge/config extracti
 
 ### Exit Criteria
 
-- [ ] The real workflow parses into a populated `WorkflowIR`.
-- [ ] IR validation passes on the real workflow or fails only for explicitly documented unsupported reasons.
-- [ ] Parser tests cover both synthetic XML and the real sample workflow.
+- [x] The real workflow parses into a populated `WorkflowIR`.
+- [x] IR validation passes on the real workflow or fails only for explicitly documented unsupported reasons.
+- [x] Parser tests cover both synthetic XML and the real sample workflow.
+
+Note: `M2` stops at raw XML-to-IR extraction. Tool-specific config normalization remains part of `M3`.
 
 ## M3 - Tool Mapping Layer And Parser Specialization
 
@@ -162,10 +164,10 @@ Create a clean boundary between raw XML parsing and tool-specific semantic parsi
 
 ### Task Checklist
 
-- [ ] Define a plugin-to-tool-type normalization strategy.
-- [ ] Introduce parser dispatch from XML parser to tool-specific parsers.
-- [ ] Keep `Select` as the first fully parsed tool config.
-- [ ] Add new parser modules for the first execution tools:
+- [x] Define a plugin-to-tool-type normalization strategy.
+- [x] Introduce parser dispatch from XML parser to tool-specific parsers.
+- [x] Keep `Select` as the first fully parsed tool config.
+- [x] Add new parser modules for the first execution tools:
   - `DbFileInput`
   - `Formula`
   - `Filter`
@@ -173,8 +175,8 @@ Create a clean boundary between raw XML parsing and tool-specific semantic parsi
   - `Union`
   - `Transpose`
   - `RecordID`
-- [ ] Decide what fields belong in normalized config versus preserved raw config.
-- [ ] Ensure every tool parser can emit warnings when it only partially understands a config.
+- [x] Decide what fields belong in normalized config versus preserved raw config.
+- [x] Ensure every tool parser can emit warnings when it only partially understands a config.
 - [ ] Document the plugin mapping table in docs.
 
 ### Files To Touch
@@ -188,9 +190,9 @@ Create a clean boundary between raw XML parsing and tool-specific semantic parsi
 
 ### Exit Criteria
 
-- [ ] XML parser no longer hardcodes tool understanding in one place.
-- [ ] At least `Select` plus one additional execution tool have dedicated config parsers.
-- [ ] Tool parser tests prove normalized config output shape.
+- [x] XML parser no longer hardcodes tool understanding in one place.
+- [x] At least `Select` plus one additional execution tool have dedicated config parsers.
+- [x] Tool parser tests prove normalized config output shape.
 
 ## M4 - Expression Engine Foundation
 
