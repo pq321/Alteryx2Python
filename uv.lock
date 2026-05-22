@@ -1,0 +1,435 @@
+version = 1
+revision = 3
+requires-python = ">=3.11"
+resolution-markers = [
+    "python_full_version >= '3.14' and sys_platform == 'win32'",
+    "python_full_version >= '3.14' and sys_platform == 'emscripten'",
+    "python_full_version >= '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'win32'",
+    "python_full_version < '3.14' and sys_platform == 'emscripten'",
+    "python_full_version < '3.14' and sys_platform != 'emscripten' and sys_platform != 'win32'",
+]
+
+[[package]]
+name = "alteryx-migration-python"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "pandas" },
+]
+
+[package.optional-dependencies]
+test = [
+    { name = "pytest" },
+    { name = "pytest-cov" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "pandas", specifier = ">=2.2.0" },
+    { name = "pytest", marker = "extra == 'test'", specifier = ">=8.0.0" },
+    { name = "pytest-cov", marker = "extra == 'test'", specifier = ">=5.0.0" },
+]
+provides-extras = ["test"]
+
+[[package]]
+name = "colorama"
+version = "0.4.6"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/colorama/0.4.6/colorama-0.4.6.tar.gz", hash = "sha256:08695f5cb7ed6e0531a20572697297273c47b8cae5a63ffc6d6ed5c201be6e44" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/colorama/0.4.6/colorama-0.4.6-py2.py3-none-any.whl", hash = "sha256:4f1d9991f5acc0ca119f9d443620b77f9d6b33703e51011c16baf57afb285fc6" },
+]
+
+[[package]]
+name = "coverage"
+version = "7.14.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0.tar.gz", hash = "sha256:057a6af2f160a85384cde4ab36f0d2777bae1057bae255f95413cdd382aa5c74" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:6a78e2a9d9c5e3b8d4ab9b9d28c985ea66fced0a7d7c2aec1f216e03a2011480" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:a1816c505187592dcd1c5a5f226601a549f70365fbd00930ac88b0c225b76bb4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:d8e1762f0e9cbc26ec315471e7b47855218e833cd5a032d706fbf43845d878c7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:9336e23e8bb3a3925398261385e2a1533957d3e760e91070dcb0e98bfa514eed" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9cd1169b2230f9cbe9c638ba38022ed7a2b1e641cc07f7cea0365e4be2a74980" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:d1bb3543b58fea74d2cd1abc4054cc927e4724687cb4560cd2ed88d2c7d820c0" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:a93bac2cb577ef60074999ed56d8a1535894398e2ed920d4185c3ec0c8864742" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:5904abf7e18cddc463219b17552229650c6b79e061d31a1059283051169cf7d5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-musllinux_1_2_i686.whl", hash = "sha256:741f57cddc9004a8c81b084660215f33a6b597dbe62c31386b983ee26310e327" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-musllinux_1_2_ppc64le.whl", hash = "sha256:664123feb0929d7affc135717dbd70d61d98688a08ab1e5ba464739620c6252d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-musllinux_1_2_riscv64.whl", hash = "sha256:c83d2399a51bbec8429266905d33616f04bc5726b1138c35844d5fcd896b2e20" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:bcb2e855b87321259a037429288ae85216d191c74de3e79bf57cd2bc0761992c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-win32.whl", hash = "sha256:731dc15b385ac52289743d476245b61e1a2927e803bef655b52bc3b2a75a21f3" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-win_amd64.whl", hash = "sha256:bfb0ed8ec5d25e93face268115d7964db9df8b9aae8edcde9ec6b16c726a7cc1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp311-cp311-win_arm64.whl", hash = "sha256:7ebb1c6df9f78046a1b1e0a89674cd4bf73b7c648914eebcf976a57fd99a5627" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:7ffd19fc8aed057fd686a17a4935eef5f9859d69208f96310e893e64b9b6ccf5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:829994cfe1aeb773ca27bf246d4badc1e764893e3bfb98fff820fcecd1ca4662" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:b4f07cf7edcb7ec39431a5074d7ea83b29a9f71fcfc494f0f40af4e65180420f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:ca3d9cf2c32b521bd9518385608787fa86f38daf993695307531822c3430ed67" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:92af52828e7f29d827346b0294e5a0853fa206db77db0395b282918d41e28db9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:7b2bb6c9d7e769360d0f20a0f219603fd64f0c8f97de17ab25853261602be0fb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:1c9ed6ef99f88fb8c14aa8e2bf8eb0fe55fa2edfea68f8675d78741df1a5ac0e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:8231ade007f37959fbf58acc677f26b922c02eda6f0428ea307da0fd39681bf3" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-musllinux_1_2_i686.whl", hash = "sha256:d8b013632cc1ce1d09dbe4f32667b4d320ec2f54fc326ebeffcd0b0bcc2bb6c4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-musllinux_1_2_ppc64le.whl", hash = "sha256:1733198802d71ec4c524f322e2867ee05c62e9e75df86bdca545407a221827d1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-musllinux_1_2_riscv64.whl", hash = "sha256:72a305291fa8ee01332f1aaf38b348ca34097f6aa0b0ef627eef2837e57bbba5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:fcaba850dd317c65423a9d63d88f9573c53b00354d6dd95724576cc98a131595" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-win32.whl", hash = "sha256:5ac83957a80d0701310e96d8bec68cdcf4f90a7674b7d13f15a344315b41ab27" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-win_amd64.whl", hash = "sha256:70390b0da32cb90b501953716302906e8bcce087cb283e70d8c97729f22e92b2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp312-cp312-win_arm64.whl", hash = "sha256:91b993743d959b8be85b4abf9d5478216a69329c321efe5be0433c1a841d691d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:f2bbb8254370eb4c628ff3d6fa8a7f74ddc40565394d4f7ab791d1fe568e37ef" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:23b81107f46d3f21d0cbce30664fcec0f5d9f585638a67081750f99738f6bf66" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:22a7e06a5f11a757cdfe79018e9095f9f69ae283c5cd8123774c788deec8717b" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:9d1aa57a1dc8e05bdc42e81c5d671d849577aeedf279f4c449d6d286f9ed88ca" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:90c1a51bcfddf645b3bb7ec333d9e94393a8e94f55642380fa8a9a5a9e636cb7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:a841fae2fadcae4f438d43b6ccc4aac2ad609f47cdb6cfdce60cbb3fe5ca7bc2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:c79d2319cabef1fe8e86df73371126931550804738f78ad7d31e3aad85a67367" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:1b23b0c6f0b1db6ad769b7050c8b641c0bf215ded26c1816955b17b7f26edfa9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-musllinux_1_2_i686.whl", hash = "sha256:55d3089079ce181a4566b1065ab28d2575eb76d8ac8f81f4fcda2bf037fee087" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-musllinux_1_2_ppc64le.whl", hash = "sha256:49c005cba1e2f9677fb2845dcdf9a2e72a52a17d63e8231aaaae35d9f50215ef" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-musllinux_1_2_riscv64.whl", hash = "sha256:9117377b823daa28aa8635fbb08cda1cd6be3d7143257345459559aeef852d52" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:7b79d646cf46d5cf9a9f40281d4441df5849e445726e369006d2b117710b33fe" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-win32.whl", hash = "sha256:fb609b3658479e33f9516d46f1a89dbb9b6c261366e3a11844a96ec487533dae" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-win_amd64.whl", hash = "sha256:0773d8329cf32b6fd222e4b52622c61fe8d503eb966cfc8d3c3c10c96266d50e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313-win_arm64.whl", hash = "sha256:b4e26a0f1b696faf283bffe5b8569e44e336c582439df5d53281ab89ee0cba96" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:953f521ca9445300397e65fda3dca58b2dbd68fee983777420b57ac3c77e9f90" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:98af83fd65ae24b1fdd03aaead967a9f523bcd2f1aab2d4f3ffda65bb568a6f1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:668b92e6958c4db7cf92e81caac328dfbbdbb215db2850ad28f0cbe1eea0bfbd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:9fbd898551762dea00d3fef2b1c4f99afd2c6a3ff952ea07d60a9bd5ed4f34bc" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:68af363c07ecd8d4b7d4043d85cb376d7d227eceb54e5323ee45da73dbd3e426" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:6e57054a583da8ac55edf24117ea4c9133032cfc4cf72aa2d48c1e5d4b52f899" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:cc3499459bbcdd51a65b64c35ab7ed2764eaf3cba826e0df3f1d7fe2e102b70b" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:45899ec2138a4346ed34d601dedf5076fb74edf2d1dd9dc76a78e82397edee90" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-musllinux_1_2_i686.whl", hash = "sha256:8767486808c436f05b23ab98eb963fb29185e32a9357a166971685cb3459900f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-musllinux_1_2_ppc64le.whl", hash = "sha256:a3b5ddfd6aa7ddad53ee3edb231e88a2151507a43229b7d71b953916deca127d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-musllinux_1_2_riscv64.whl", hash = "sha256:63df0fe568e698e1045792399f8ab6da3a6c2dce3182813fb92afa2641087b47" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:827d6397dbd95144939b18f89edf31f63e1f99633e8d5f32f22ba8bdda567477" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-win32.whl", hash = "sha256:7bf43e000d24012599b879791cff41589af90674722421ef11b11a5431920bab" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-win_amd64.whl", hash = "sha256:3f5549365af25d770e06b1f8f5682d9a5637d06eb494db91c6fa75d3950cc917" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp313-cp313t-win_arm64.whl", hash = "sha256:6d160217ec6fe890f16ad3a9531761589443749e448f91986c972714fad361c8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:9aed9fa983514ca032790f3fe0d1c0e42ca7e16b42432af1706b50a9a46bef5d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:ba3b8390db29296dbbf49e91b6fe08f990743a90c8f447ba4c2ffc29670dfa63" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:3a5d8e876dfa2f102e970b183863d6dedd023d3c0eeca1fe7a9787bc5f28b212" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:5ebb8f4614a3787d567e610bbfdf96a4798dd69a1afb1bd8ad228d4111fe6ff3" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:6b9bf47223dd8db3d4c4b2e443b02bace480d428f0822c3f991600448a176c97" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:3485a836550b303d006d57cc06e3d5afaabc642c77050b7c985a97b13e3776b8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:3e7e88110bae996d199d1693ca8ec3fd52441d426401ae963437598667b4c5eb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:15228a6800ce7bdf1b74800595e56db7138cecb338fdbf044806e10dcf182dfe" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-musllinux_1_2_i686.whl", hash = "sha256:9d26ac7f5398bafc5b57421ad994e8a4749e8a7a0e62d05ec7d53014d5963bfa" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-musllinux_1_2_ppc64le.whl", hash = "sha256:2fb73254ff43c911c967a899e1359bc5049b4b115d6e8fbdde4937d0a2246cd5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-musllinux_1_2_riscv64.whl", hash = "sha256:454a380af72c6adada298ed270d38c7a391288198dbfb8467f786f588751a90c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:65c86fb646d2bd2972e96bd1a8b45817ed907cee68655d6295fe7ec031d04cca" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-win32.whl", hash = "sha256:6a6516b02a6101398e19a3f44820f69bab2590697f7def4331f668b14adaf828" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-win_amd64.whl", hash = "sha256:45e0f79d8351fa76e256716df91eab12890d32678b9590df7ae1042e4bd4cf5d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314-win_arm64.whl", hash = "sha256:4b899594a8b2d81e5cc064a0d7f9cac2081fed91049456cae7676787e41549c9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:f580f8c80acd94ac72e863efe2cab791d8c38d153e0b463b92dfa000d5c84cd1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:a2bd259c442cd43c49b30fbafc51776eb19ea396faf159d26a83e6a0a5f13b0c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-manylinux1_i686.manylinux_2_28_i686.manylinux_2_5_i686.whl", hash = "sha256:a706b908dfa85538863504c624b237a3cc34232bf403c057414ebfdb3b4d9f84" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:7333cd944ee4393b9b3d3c1b598c936d4fc8d70573a4c7dacfec5590dd50e436" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0f162bc9a15b82d947b02651b0c7e1609d6f7a8735ca330cfadec8481dd97d5a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-manylinux2014_ppc64le.manylinux_2_17_ppc64le.manylinux_2_28_ppc64le.whl", hash = "sha256:362cb78e01a5dc82009d88004cf60f2e6b6d6fcbfdec05b05af73b0abf40118f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-manylinux_2_31_riscv64.manylinux_2_39_riscv64.whl", hash = "sha256:acebd068fca5512c3a6fde9c045f901613478781a73f0e82b307b214daef23fb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:29fe3da551dface75deb2ccbf87b6b66e2e7ef38f6d89050b428be94afff3490" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-musllinux_1_2_i686.whl", hash = "sha256:b4cc4fce8672fffcb09b0eafc167b396b3ba53c4a7230f54b7aaffbf6c835fa9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-musllinux_1_2_ppc64le.whl", hash = "sha256:5d4a51aad8ba8bdcd2b8bd8f03d4aca19693fa2327a3470e4718a25b03481020" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-musllinux_1_2_riscv64.whl", hash = "sha256:9f323af3e1e4f68b60b7b247e37b8515563a61375518fa59de1af48ba28a3db6" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:1a0abc7342ea9711c469dd8b821c6c311e6bc6aac1442e5fbd6b27fae0a8f3db" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-win32.whl", hash = "sha256:a9f864ef57b7172e2db87a096642dd51e179e085ab6b2c371c29e885f65c8fb2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-win_amd64.whl", hash = "sha256:29943e552fdc08e082eb51400fb2f58e118a83b5542bd06531214e084399b644" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-cp314-cp314t-win_arm64.whl", hash = "sha256:742a73ea621953b012f2c4c2219b512180dd84489acf5b1596b0aafc55b9100b" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/coverage/7.14.0/coverage-7.14.0-py3-none-any.whl", hash = "sha256:8de5b61163aee3d05c8a2beab6f47913df7981dad1baf82c414d99158c286ab1" },
+]
+
+[package.optional-dependencies]
+toml = [
+    { name = "tomli", marker = "python_full_version <= '3.11'" },
+]
+
+[[package]]
+name = "iniconfig"
+version = "2.3.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/iniconfig/2.3.0/iniconfig-2.3.0.tar.gz", hash = "sha256:c76315c77db068650d49c5b56314774a7804df16fee4402c1f19d6d15d8c4730" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/iniconfig/2.3.0/iniconfig-2.3.0-py3-none-any.whl", hash = "sha256:f631c04d2c48c52b84d0d0549c99ff3859c98df65b3101406327ecc7d53fbf12" },
+]
+
+[[package]]
+name = "numpy"
+version = "2.4.6"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6.tar.gz", hash = "sha256:f3a3570c4a2a16746ac2c31a7c7c7b0c186b95ce902e33db6f28094ed7387dda" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:0280e0356c0829a18d9de1cb7eee50ec22ca639878d7240307ca0943d73cd2c4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:110f8b71aacb688ec69062bb7f6938a0f8acb01b7c1c4beb453c65b6d234584d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-macosx_14_0_arm64.whl", hash = "sha256:4cfe66903cc32a9921a6733d96b19bb6abf310397581bbad89c228f5abaf0ee8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-macosx_14_0_x86_64.whl", hash = "sha256:8155154c7c691289fe18f510b5d4657c68c67989f293f0535a91360392ff6538" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0ab0a9c4ffb1a6d95ef519fe4247dba8eb6b18ad93999f76b7f657039acabd47" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:89cd468399cfd2504718f0ba50e410dca55a170b61a02ad92bb18c8a65186e93" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:c2d37ab77531417474168eb79d6d80b14f821a966818505d03013d0833edb7a8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:f407cb6b8e9d6d8c626bc73c945db1706035af8fd632295547bf1c9e46d092d6" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-win32.whl", hash = "sha256:ddea102b48f9e339f3948bf22040944184627a30fdf7f858667673b9c5f033c8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-win_amd64.whl", hash = "sha256:1e254a00cdf42b1e4d5b3d68d33af63268d41340d8885df2ab6470f2e1500147" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp311-cp311-win_arm64.whl", hash = "sha256:ed9749eef4cbd126da3dc1d6bcb3a57f5eb7ac6a6484146bdbf743f552dfc577" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:001fbb8e08d942dd57599e781f2472269ee7f2755fae407b4f67b2f0b17da3f1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:ebfb099f8dcf083deef3ac1ca4c1503f387cf76296fcb3816b66f5ecb5f54fdb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-macosx_14_0_arm64.whl", hash = "sha256:3213d622a0283a39a93d188f3cf72b26862df52fbb4ca3697f51705016523d41" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-macosx_14_0_x86_64.whl", hash = "sha256:357cc07a6d7b0b182ff02249616a03742827ebb1277546b5c7cd7f7620a45698" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5f9fb9157b4ce2971008323afe46053787b526ef624fea915b261468a8421a0f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:90f9849678c75fe7afa2d348ac842c168b0a4d3d61919687216dfc547976d853" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:c1a2af6c6ef86344a6b0db6b97834208bf598db514f2b155042439b62605601a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:e5805d5a22fd19c8ccff10a9561f9df94436b0545619ea579db2d3c35294bce2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-win32.whl", hash = "sha256:e3eeb0aabd6bd5ce64faae67e9935203a6991b4bc2a485a767fbafb2c5125f45" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-win_amd64.whl", hash = "sha256:d8e8286dd7cea7895157318d1b91cdacac64c479f3cbc8dce548331728484751" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp312-cp312-win_arm64.whl", hash = "sha256:4081eb135ac24158bd51cdfbef16f1c64df7063b1143f24731387137c092bec8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:511dbaf848decaaaf4b4ca48032619fb3138710c4bf7da7617765edad1ef96b0" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:bf162abab1c1a736333192707cef898e735a5ca00f38f27eeedf44b39d9e85eb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-macosx_14_0_arm64.whl", hash = "sha256:043191bfa8eab18c776647b62723ac9dddece59743b13f49b2016094129c2b3f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-macosx_14_0_x86_64.whl", hash = "sha256:6180d8b35af935aed8ece3a85e0a43f87393ae0ac87c8d2c8bd2c993f7270ef3" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:72fbe16c6fac95aedf5937fa873445cec2110be35d8a4e9433d7501fd98dae6b" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a7830bab239b79cda9c08c2da014761cafb48da6150e1da17ac06283f43b6089" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:ef4aea96ce4d3b074422cb4f2f64e216bf9e213004bb58ecfdf50ea02ea8eb9a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:dfa20cc6ca228e6b155b11da03825975ce66aea520985dbbddf0f2a5a495c605" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-win32.whl", hash = "sha256:56b39e5e0622a09a25bf5baf62f4bcf0cb8a41ae6e2819cf49bbc5a74c083f91" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-win_amd64.whl", hash = "sha256:c4fc99836233ea196540b17ab0983aff60ed07941751930f5f4d05bc3b3b7359" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313-win_arm64.whl", hash = "sha256:a7c711e21628b52034bb5ab8d1bce291f752fcc5e92accc615778acee1ff4778" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:112b06a867b235ef466ed3508ddf0238050df9c727cafb5301ac385b899189a1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-macosx_14_0_arm64.whl", hash = "sha256:eaf7fa2de5c0be8ae6ff8e9bea2ccd725e980541244521d8d4b5f3354a27babe" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-macosx_14_0_x86_64.whl", hash = "sha256:7265a2f3d436e54ef9f2b52b5c937e6be778781bd97a590319d7348f1c1ca997" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:f74a575920ab21fe304421a3fc28793d82e299cae9eccb37084e9fc7f3617c20" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:ede83e07a75dd06bc501566c1eca2afc0d61677c1472ac9ad93fdee6e638a48d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:68bb27509ac1b9a3443094260f6326150663b06abe40b73a2f81160623da5b67" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:a0df0043bdb289bde1f62da130d20df23d58b45429f752bc7a8fc5325a225ecd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-win32.whl", hash = "sha256:29a287e0cf63ff528da061de6b9f64a4618da591ca1046aafc54062e40ca7eab" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-win_amd64.whl", hash = "sha256:25c692919ac5a01f170a3bfcd62d745b24fd095c353d50812637d6fcab442e75" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp313-cp313t-win_arm64.whl", hash = "sha256:1e978ec1e8bd0e0e4de6bb75de9d30cbb74db6b6a2bb727618613703ca0167dd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:06ca2f61ec4385a07a6977c55ba998a4466c123642b4a32694d3128fce18c079" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:38efbc8de75c7a0fc1ac190162d892787f3f47b57cc291231aafee36b80982b7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-macosx_14_0_arm64.whl", hash = "sha256:d581b735e177fdcdce6fed8e7e8880a3fb6ee4e3653a3ac6af01c6f4c03effc5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-macosx_14_0_x86_64.whl", hash = "sha256:0a041d3d761dc3c35cc56ce0351506a02bcbc25f7b169f652435141a17db9096" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:40fdc1ae7125e518ea98e53e69a4ebc27e1fd50510c47b7ea130cf21e5e1d42b" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a2c306dea656c12c68f51f4cea133cbe78ca7435eb28c735eac1d3ebe73be6e8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:33111801a01c12a8a1e3721f0a9232f8cfc8ae2c6b7098167e6f623c6073f402" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:ae506e6902902557576a26ff33eda8695e7ecb3cb36c3b573a0765dee114ebdb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-win32.whl", hash = "sha256:aaf159caa35993cb1f56fb9b8e4610d35758e7ca005412eb1daa856a78c9c4b1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-win_amd64.whl", hash = "sha256:b507f5c4c1d508876d1819b6bf9a49d365b96320b5d4993426b33a23ca4b8261" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314-win_arm64.whl", hash = "sha256:6f41ae150c4e32db4f3310cdaf64b1593a03dbabe29eec77fc9b50fe64061df6" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:ece3d2cfe132e7d51f44a832b303895e6f2d499c5e74dfbdb06ee246147a304a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-macosx_14_0_arm64.whl", hash = "sha256:e3e5193ef5a3dc73bceee50f7fdc2c90dbb76c42df8d8fae3d1067a583df579e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-macosx_14_0_x86_64.whl", hash = "sha256:17f9ade344e7d9b464a084d69bcf18fc691cb1db67c62ed80820bf4926d78f0e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:9cd5ffd25db4e7ba6a375693b3fc0fc1791ec636c17db3720da19bde7180ec43" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7d92c3819208a60205a12a245c91ad70cb0a85336659b19b834205573ac8456e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:e85b752a1e912b70eaad4fafbd4d1238007ab221de2009b9a2f5ae7461239895" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:29cb7f67d10b479ff07c17d33e39f78c07f71c40ef30d63c153d340e96cd3fb4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-win32.whl", hash = "sha256:260a5d70215b61ab4fadf5c7baacd64821842975eea312125ed3c39a6391b063" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-win_amd64.whl", hash = "sha256:81a1cca95ed5bb92aa8b10dd2cdc9a0d3853a50fad926c28b5d7e8ea54389627" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-cp314-cp314t-win_arm64.whl", hash = "sha256:0c9136e14ed34a9e343a31c533d78a9813a69a3148332bce5e9821cb2f996e66" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-macosx_10_15_x86_64.whl", hash = "sha256:55cced7c52e981362f708ad635198e97a752dfba412cc03c23bbf3bd8d5cd662" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-macosx_11_0_arm64.whl", hash = "sha256:d6da64deb6b8ed903e7560180a92f2d804ee1ba5eeb849ac2748b8c1aba1f6d7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-macosx_14_0_arm64.whl", hash = "sha256:68a5124b13fa6cc2086764a20005d30bc0548146f7f5322f02fce212ca14317f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-macosx_14_0_x86_64.whl", hash = "sha256:948424b06129ce883307e8cff868c31396d8dc7630a59c61d70d98dbe70f222c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-manylinux_2_27_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:5dbbdb29840ca3d91ee0fece42fc29278886d908280bfec0a5846c6f901a3eb0" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8ad03c0965fb3c692200e74d458ca28c1dbb4ce96f9a479a8aa041ad5fabca02" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/numpy/2.4.6/numpy-2.4.6-pp311-pypy311_pp73-win_amd64.whl", hash = "sha256:2803abfebfc990042cd494d8ce2d5f82e9d847af6d35ec486923aa19dbad5e73" },
+]
+
+[[package]]
+name = "packaging"
+version = "26.2"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/packaging/26.2/packaging-26.2.tar.gz", hash = "sha256:ff452ff5a3e828ce110190feff1178bb1f2ea2281fa2075aadb987c2fb221661" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/packaging/26.2/packaging-26.2-py3-none-any.whl", hash = "sha256:5fc45236b9446107ff2415ce77c807cee2862cb6fac22b8a73826d0693b0980e" },
+]
+
+[[package]]
+name = "pandas"
+version = "3.0.3"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "python-dateutil" },
+    { name = "tzdata", marker = "sys_platform == 'emscripten' or sys_platform == 'win32'" },
+]
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3.tar.gz", hash = "sha256:696a4a00a2a2a35d4e5deb3fc946641b96c944f02230e4f76137fe35d806c4fc" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:455f6f8139d4282188f526868dbc3c828470e88a3d9d59a891bd46a455f21b98" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:4e15135e2ee5df1063313e2425ceef8ac0f4ae775893815b0923651b806a5639" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:05f1f1752b8533ea03f7f39a9c15b1a058d067bb48f4748948e7a8691e0510f2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:8a1e45c80cceb3b4a21bc5939d52e8cbd8d9b7305309219d59e9754d9ce09e27" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:14da8316da4d0c5a77618425996bfb1248ca87fc2c1486e6fde4652bd18b5824" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:a55066a0505dae0ba2b50a46637db34b46f9094c65c5d4800794ef6335010938" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-win_amd64.whl", hash = "sha256:6674ab18ad8c57802867264b00e15e7bb904700cdd9046e3b2fa1fce237439ea" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp311-cp311-win_arm64.whl", hash = "sha256:5cc09a68b3120e0f54870dede8287a7bb1fa463907e4fcec1ea77cab6179bf7a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:fed2ff7fd9779120e388e285fc029bd5cf9490cdd2e4166a9ee22c0e49a9ab09" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:b168fc218fd80a6cbdbdbc1a97ddc7889ed057d7eb45f50d866ceab5f39904c4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:0383c72c75cdcca61a9e116e611143902dbfd08bff356829c2f6d1cf40a9ca8c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:6dc0b3fd2169c9157deed50b4d519553a3655c8c6a96027136d654592be973a9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:7e65d5407dc0b394f509699650e4a2ec01c0514f21850f453fa60f3be79a5dbf" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:f8894dc474d648fe7b6ff0ca9b0bd73950d19952bc1a6534540762c5d79d305c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-win_amd64.whl", hash = "sha256:c7be265b62cef88e253a941e4698604973736dcfe242fdb5198f0f7bc473cdcc" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp312-cp312-win_arm64.whl", hash = "sha256:557409bc4178e70ee8d9ddb494798e51ebf6ea59330f6be22c51bab2a7db6c49" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:67b3b64c11910cfa29f4e94a14d3bff9ee693b6fc76055e7cad549cee0aec5fa" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:39436b377d56d2a2e52d0395bdbee171f01068e99af5250509aceeb929f765c7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:d4be06d68f9ddcfc645b87534911da79a8fbffc7573c80e0edcf42a5020624d8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:a4eeb6830daf35a71cc09649bd823e2b542dac246cdee9614c6e4bd65028cd6a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:1928e07221f82db493cd4af1e23c1bfca524a19a4699887975bff68f49a72bfb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:51b1fe551acb77dac643c6fda86084d8d446c10fe64b06a9cc29c4cc8540e7f2" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-win_amd64.whl", hash = "sha256:a82d532a3351d435432cd913edbccaf8b8e01d4dd0e5ced5a8d2e8ecd94c7e44" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313-win_arm64.whl", hash = "sha256:275c14e0fce14a2ec20eee474aecd305478ea3c1e6f6a9d8fe219a165542717e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:46997386d528eb40376ecd6b033cf4a8a1e5282580f68f43de875b78cba2199d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:261e308dfb22448384b7580cf719d2f998fe2966c92893c3e77d14008af1f066" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:dd1a5d1def6a46002e964510bdc67c368aa0951df5d1d9f8365336f5a1f490cd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:d72828c20c6d6e83e1e22a6a3b47b326b71664112fa9705dcbccfd7a39b62085" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:d26cbe1fcfc12e8fd900e2454163e466b2d3af84f7c75481df7683ffc073d870" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:3e91cec1879ada0624fc3dc9953c5cbd60208e59c0db28f540c5d6d47502422f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp313-cp313t-win_amd64.whl", hash = "sha256:08d789b41f87e0905880e293cedf6197ce71fe67cc081358b1e148a491b9bd13" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:3650109c0f22879df8bd6179ab9ee3d7f1d1d4e7e0094a3f0032d9f51e2e64ac" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:bab900348131a7db1f69a7309ef141fd5680f1487094193bcbbb61791573bf8f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ba7e08b9ac1d54569cd1e256e3668975ed624d6826f7b68df0342b012007bddb" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:9d71c63ae4ebdbf70209742096f1fc46a83a0613c99d4b23766cced9ff8cd62a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:e3a2ec42c98ffa2565a67e08e218d06d72576d758d90facb7c00805194d8f360" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:335f62418ed562cfc3c49e9e196375c28b729dcef8543abf4f9438e381bf3c76" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-win_amd64.whl", hash = "sha256:3c20a521bbb85902f79f7270c80a59e1b5452d96d170c034f207181870f97ac5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314-win_arm64.whl", hash = "sha256:a2d2dff8a04f3917b55ab3910c32990f8ddf7eceba114947838cefa976a68977" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:0d589105b3c14645af1738ff279b2995102d8f7a03b0a66dc8d95550eb513e04" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:13fc1e853d9e04743d11ba75a985ccbc2a317fe07d8af61e445a6fd24dacd6a6" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:819959dab7bbd0049c15623fbac4e29a191b9528160a61fb1032242d8ced2d9c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:60ae316d3fd75d1858d450d0db0103ea2be3e7d4a95ec2f064f7e2ae63f7b028" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:bd3a518890b400d32f9023722dc9a9a5c969f00b415419a3c06c043f09bb5d7d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:9c39be2d709d01fa972a0cabc522389fceca4f3969332ba25a7d6c5802cf976a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-win_amd64.whl", hash = "sha256:4db8c527972a821cf5286b40ccc57642a39bc62e62022b42f99f8a67fca8c3a1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pandas/3.0.3/pandas-3.0.3-cp314-cp314t-win_arm64.whl", hash = "sha256:b2c95f8bfc1ee412bf482605d7bfd30c12d1d26bd59fdd91efeef1d4718decb1" },
+]
+
+[[package]]
+name = "pluggy"
+version = "1.6.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pluggy/1.6.0/pluggy-1.6.0.tar.gz", hash = "sha256:7dcc130b76258d33b90f61b658791dede3486c3e6bfb003ee5c9bfb396dd22f3" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pluggy/1.6.0/pluggy-1.6.0-py3-none-any.whl", hash = "sha256:e920276dd6813095e9377c0bc5566d94c932c33b27a3e3945d8389c374dd4746" },
+]
+
+[[package]]
+name = "pygments"
+version = "2.20.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pygments/2.20.0/pygments-2.20.0.tar.gz", hash = "sha256:6757cd03768053ff99f3039c1a36d6c0aa0b263438fcab17520b30a303a82b5f" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pygments/2.20.0/pygments-2.20.0-py3-none-any.whl", hash = "sha256:81a9e26dd42fd28a23a2d169d86d7ac03b46e2f8b59ed4698fb4785f946d0176" },
+]
+
+[[package]]
+name = "pytest"
+version = "9.0.3"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+dependencies = [
+    { name = "colorama", marker = "sys_platform == 'win32'" },
+    { name = "iniconfig" },
+    { name = "packaging" },
+    { name = "pluggy" },
+    { name = "pygments" },
+]
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pytest/9.0.3/pytest-9.0.3.tar.gz", hash = "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pytest/9.0.3/pytest-9.0.3-py3-none-any.whl", hash = "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9" },
+]
+
+[[package]]
+name = "pytest-cov"
+version = "7.1.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+dependencies = [
+    { name = "coverage", extra = ["toml"] },
+    { name = "pluggy" },
+    { name = "pytest" },
+]
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pytest-cov/7.1.0/pytest_cov-7.1.0.tar.gz", hash = "sha256:30674f2b5f6351aa09702a9c8c364f6a01c27aae0c1366ae8016160d1efc56b2" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/pytest-cov/7.1.0/pytest_cov-7.1.0-py3-none-any.whl", hash = "sha256:a0461110b7865f9a271aa1b51e516c9a95de9d696734a2f71e3e78f46e1d4678" },
+]
+
+[[package]]
+name = "python-dateutil"
+version = "2.9.0.post0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+dependencies = [
+    { name = "six" },
+]
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/python-dateutil/2.9.0.post0/python-dateutil-2.9.0.post0.tar.gz", hash = "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/python-dateutil/2.9.0.post0/python_dateutil-2.9.0.post0-py2.py3-none-any.whl", hash = "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427" },
+]
+
+[[package]]
+name = "six"
+version = "1.17.0"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/six/1.17.0/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/six/1.17.0/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274" },
+]
+
+[[package]]
+name = "tomli"
+version = "2.4.1"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1.tar.gz", hash = "sha256:7c7e1a961a0b2f2472c1ac5b69affa0ae1132c39adcb67aba98568702b9cc23f" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:f8f0fc26ec2cc2b965b7a3b87cd19c5c6b8c5e5f436b984e85f486d652285c30" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:4ab97e64ccda8756376892c53a72bd1f964e519c77236368527f758fbc36a53a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:96481a5786729fd470164b47cdb3e0e58062a496f455ee41b4403be77cb5a076" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:5a881ab208c0baf688221f8cecc5401bd291d67e38a1ac884d6736cbcd8247e9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:47149d5bd38761ac8be13a84864bf0b7b70bc051806bc3669ab1cbc56216b23c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:ec9bfaf3ad2df51ace80688143a6a4ebc09a248f6ff781a9945e51937008fcbc" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-win32.whl", hash = "sha256:ff2983983d34813c1aeb0fa89091e76c3a22889ee83ab27c5eeb45100560c049" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-win_amd64.whl", hash = "sha256:5ee18d9ebdb417e384b58fe414e8d6af9f4e7a0ae761519fb50f721de398dd4e" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp311-cp311-win_arm64.whl", hash = "sha256:c2541745709bad0264b7d4705ad453b76ccd191e64aa6f0fc66b69a293a45ece" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-macosx_10_13_x86_64.whl", hash = "sha256:c742f741d58a28940ce01d58f0ab2ea3ced8b12402f162f4d534dfe18ba1cd6a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:7f86fd587c4ed9dd76f318225e7d9b29cfc5a9d43de44e5754db8d1128487085" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:ff18e6a727ee0ab0388507b89d1bc6a22b138d1e2fa56d1ad494586d61d2eae9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:136443dbd7e1dee43c68ac2694fde36b2849865fa258d39bf822c10e8068eac5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:5e262d41726bc187e69af7825504c933b6794dc3fbd5945e41a79bb14c31f585" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:5cb41aa38891e073ee49d55fbc7839cfdb2bc0e600add13874d048c94aadddd1" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-win32.whl", hash = "sha256:da25dc3563bff5965356133435b757a795a17b17d01dbc0f42fb32447ddfd917" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-win_amd64.whl", hash = "sha256:52c8ef851d9a240f11a88c003eacb03c31fc1c9c4ec64a99a0f922b93874fda9" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp312-cp312-win_arm64.whl", hash = "sha256:f758f1b9299d059cc3f6546ae2af89670cb1c4d48ea29c3cacc4fe7de3058257" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:36d2bd2ad5fb9eaddba5226aa02c8ec3fa4f192631e347b3ed28186d43be6b54" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:eb0dc4e38e6a1fd579e5d50369aa2e10acfc9cace504579b2faabb478e76941a" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:c7f2c7f2b9ca6bdeef8f0fa897f8e05085923eb091721675170254cbc5b02897" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:f3c6818a1a86dd6dca7ddcaaf76947d5ba31aecc28cb1b67009a5877c9a64f3f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:d312ef37c91508b0ab2cee7da26ec0b3ed2f03ce12bd87a588d771ae15dcf82d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:51529d40e3ca50046d7606fa99ce3956a617f9b36380da3b7f0dd3dd28e68cb5" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-win32.whl", hash = "sha256:2190f2e9dd7508d2a90ded5ed369255980a1bcdd58e52f7fe24b8162bf9fedbd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-win_amd64.whl", hash = "sha256:8d65a2fbf9d2f8352685bc1364177ee3923d6baf5e7f43ea4959d7d8bc326a36" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp313-cp313-win_arm64.whl", hash = "sha256:4b605484e43cdc43f0954ddae319fb75f04cc10dd80d830540060ee7cd0243cd" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-macosx_10_15_x86_64.whl", hash = "sha256:fd0409a3653af6c147209d267a0e4243f0ae46b011aa978b1080359fddc9b6cf" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:a120733b01c45e9a0c34aeef92bf0cf1d56cfe81ed9d47d562f9ed591a9828ac" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:559db847dc486944896521f68d8190be1c9e719fced785720d2216fe7022b662" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:01f520d4f53ef97964a240a035ec2a869fe1a37dde002b57ebc4417a27ccd853" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:7f94b27a62cfad8496c8d2513e1a222dd446f095fca8987fceef261225538a15" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:ede3e6487c5ef5d28634ba3f31f989030ad6af71edfb0055cbbd14189ff240ba" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-win32.whl", hash = "sha256:3d48a93ee1c9b79c04bb38772ee1b64dcf18ff43085896ea460ca8dec96f35f6" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-win_amd64.whl", hash = "sha256:88dceee75c2c63af144e456745e10101eb67361050196b0b6af5d717254dddf7" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314-win_arm64.whl", hash = "sha256:b8c198f8c1805dc42708689ed6864951fd2494f924149d3e4bce7710f8eb5232" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-macosx_10_15_x86_64.whl", hash = "sha256:d4d8fe59808a54658fcc0160ecfb1b30f9089906c50b23bcb4c69eddc19ec2b4" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:7008df2e7655c495dd12d2a4ad038ff878d4ca4b81fccaf82b714e07eae4402c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:1d8591993e228b0c930c4bb0db464bdad97b3289fb981255d6c9a41aedc84b2d" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:734e20b57ba95624ecf1841e72b53f6e186355e216e5412de414e3c51e5e3c41" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-musllinux_1_2_aarch64.whl", hash = "sha256:8a650c2dbafa08d42e51ba0b62740dae4ecb9338eefa093aa5c78ceb546fcd5c" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-musllinux_1_2_x86_64.whl", hash = "sha256:504aa796fe0569bb43171066009ead363de03675276d2d121ac1a4572397870f" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-win32.whl", hash = "sha256:b1d22e6e9387bf4739fbe23bfa80e93f6b0373a7f1b96c6227c32bef95a4d7a8" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-win_amd64.whl", hash = "sha256:2c1c351919aca02858f740c6d33adea0c5deea37f9ecca1cc1ef9e884a619d26" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-cp314-cp314t-win_arm64.whl", hash = "sha256:eab21f45c7f66c13f2a9e0e1535309cee140182a9cdae1e041d02e47291e8396" },
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tomli/2.4.1/tomli-2.4.1-py3-none-any.whl", hash = "sha256:0d85819802132122da43cb86656f8d1f8c6587d54ae7dcaf30e90533028b49fe" },
+]
+
+[[package]]
+name = "tzdata"
+version = "2026.2"
+source = { registry = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/simple" }
+sdist = { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tzdata/2026.2/tzdata-2026.2.tar.gz", hash = "sha256:9173fde7d80d9018e02a662e168e5a2d04f87c41ea174b139fbef642eda62d10" }
+wheels = [
+    { url = "https://it4it-nexus-tp-repo.swissbank.com/repository/public-lib-python-pypi/packages/tzdata/2026.2/tzdata-2026.2-py2.py3-none-any.whl", hash = "sha256:bbe9af844f658da81a5f95019480da3a89415801f6cc966806612cc7169bffe7" },
+]

@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "alteryx-migration-python"
+version = "0.1.0"
+description = "Foundational Alteryx-to-Python migration framework"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas>=2.2.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.0.0",
+    "pytest-cov>=5.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--cov=alteryx2python.tools.select --cov=alteryx2python.runtime.context --cov=alteryx2python.comparison.schema_diff --cov-report=term-missing"
+
+[tool.coverage.run]
+branch = false
+source = [
+    "alteryx2python.tools.select",
+    "alteryx2python.runtime.context",
+    "alteryx2python.comparison.schema_diff",
+]
+
+[tool.coverage.report]
+fail_under = 100
+show_missing = true
+
+[tool.setuptools.packages.find]
+include = ["alteryx2python*", "alteryx_runtime*"]

@@ -1,0 +1,4 @@
+*.xlsx !text !filter !merge !diff
+*.xls !text !filter !merge !diff
+*.xlsm !text !filter !merge !diff
+*.xlsb !text !filter !merge !diff
