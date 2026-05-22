@@ -18,3 +18,5 @@ Key package responsibilities:
 - `alteryx2python.comparison`: schema/value comparison and reporting.
 - `alteryx2python.generator`: code generation from validated IR.
 - `alteryx2python.optimizer`: intentionally disabled for baseline migration.
+
+Real workflow intake starts with the inventory in `docs/workflow_inventory.md`. That document is the authoritative summary of sample-workflow structure, plugin distribution, and external dependency surface for parser and integration planning.
