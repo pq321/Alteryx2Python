@@ -1,0 +1,3 @@
+RecordID,Value,OutputOrder,TargetField,FinalValue,OrderedTargetField
+1.0,EQ,1,Asset_Class,EQ,001_Asset_Class
+1.0,BUYER-1,2,Buyer_ID,BUYER-1,002_Buyer_ID

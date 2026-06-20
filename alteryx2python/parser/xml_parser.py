@@ -9,12 +9,17 @@ from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 from alteryx2python.parser.base_parser import BaseWorkflowParser
 from alteryx2python.parser.tool_parsers import (
     parse_dbfileinput_config,
+    parse_dbfileoutput_config,
+    parse_crosstab_config,
+    parse_dynamicrename_config,
     parse_filter_config,
     parse_formula_config,
     parse_join_config,
     parse_jsonparse_config,
     parse_recordid_config,
     parse_select_config,
+    parse_sort_config,
+    parse_textinput_config,
     parse_transpose_config,
     parse_union_config,
 )
@@ -96,13 +101,18 @@ def _element_to_dict(element: ElementTree.Element) -> dict[str, object]:
 
 
 TOOL_PARSERS = {
+    "CrossTab": parse_crosstab_config,
     "DbFileInput": parse_dbfileinput_config,
+    "DbFileOutput": parse_dbfileoutput_config,
+    "DynamicRename": parse_dynamicrename_config,
     "Filter": parse_filter_config,
     "Formula": parse_formula_config,
     "Join": parse_join_config,
     "JSONParse": parse_jsonparse_config,
     "RecordID": parse_recordid_config,
     "Select": parse_select_config,
+    "Sort": parse_sort_config,
+    "TextInput": parse_textinput_config,
     "Transpose": parse_transpose_config,
     "Union": parse_union_config,
 }
@@ -273,6 +283,8 @@ class XmlWorkflowParser(BaseWorkflowParser):
                     warnings.extend(
                         [f"Node {node_id} ({tool_type}): {message}" for message in parsed.warnings]
                     )
+                if isinstance(normalized_config, dict):
+                    normalized_config = {**normalized_config, "base_dir": str(source_path.parent)}
 
                 for dependency in _extract_external_dependencies(node_element):
                     external_dependencies.add(dependency)

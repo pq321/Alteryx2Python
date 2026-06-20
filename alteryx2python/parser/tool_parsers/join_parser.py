@@ -22,7 +22,13 @@ def parse_join_config(raw_config: dict[str, Any]) -> ToolParserResult:
         "select_fields": [
             {
                 "source": attributes(select_field).get("field", ""),
-                "rename": attributes(select_field).get("rename", attributes(select_field).get("field", "")),
+                "rename": attributes(select_field).get(
+                    "rename",
+                    _default_join_output_name(
+                        attributes(select_field).get("field", ""),
+                        attributes(select_field).get("input", ""),
+                    ),
+                ),
                 "input": attributes(select_field).get("input", ""),
                 "selected": str(attributes(select_field).get("selected", "True")).lower() == "true",
             }
@@ -30,3 +36,12 @@ def parse_join_config(raw_config: dict[str, Any]) -> ToolParserResult:
         ],
     }
     return ToolParserResult(normalized_config=normalized)
+
+
+def _default_join_output_name(field: str, input_prefix: str) -> str:
+    if input_prefix and field.startswith(input_prefix):
+        return field.removeprefix(input_prefix)
+    for prefix in ("Left_", "Right_"):
+        if field.startswith(prefix):
+            return field.removeprefix(prefix)
+    return field

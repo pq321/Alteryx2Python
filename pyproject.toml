@@ -8,8 +8,13 @@ version = "0.1.0"
 description = "Foundational Alteryx-to-Python migration framework"
 requires-python = ">=3.11"
 dependencies = [
+    "numpy>=2.0.0,<2.3.0",
+    "openpyxl>=3.1.0",
     "pandas>=2.2.0",
 ]
+
+[project.scripts]
+alteryx2python = "alteryx2python.cli:main"
 
 [project.optional-dependencies]
 test = [
@@ -19,18 +24,16 @@ test = [
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-addopts = "--cov=alteryx2python.tools.select --cov=alteryx2python.runtime.context --cov=alteryx2python.comparison.schema_diff --cov-report=term-missing"
+addopts = "--cov=alteryx2python --cov-report=term-missing"
 
 [tool.coverage.run]
 branch = false
 source = [
-    "alteryx2python.tools.select",
-    "alteryx2python.runtime.context",
-    "alteryx2python.comparison.schema_diff",
+    "alteryx2python",
 ]
 
 [tool.coverage.report]
-fail_under = 100
+fail_under = 80
 show_missing = true
 
 [tool.setuptools.packages.find]

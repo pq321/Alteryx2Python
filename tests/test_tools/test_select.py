@@ -54,6 +54,34 @@ def test_select_applies_type_conversions(null_heavy_frame, workflow_context):
     assert pd.isna(output.loc[1, "flag"])
 
 
+def test_select_honors_deselected_fields_and_unknown_passthrough(workflow_context):
+    frame = pd.DataFrame(
+        {
+            "Cookie": ["drop"],
+            "DownloadData": ["keep"],
+            "URL": ["drop"],
+            "Extra": ["also keep"],
+        }
+    )
+
+    result = select_tool(
+        inputs={"Input": frame},
+        config={
+            "node_id": "real-select",
+            "select_fields": [
+                {"source": "Cookie", "rename": "Cookie", "selected": False},
+                {"source": "URL", "rename": "URL", "selected": False},
+                {"source": "*Unknown", "rename": "*Unknown", "selected": True},
+            ],
+        },
+        context=workflow_context,
+    )
+
+    output = result["Output"]
+    assert list(output.columns) == ["DownloadData", "Extra"]
+    assert output.to_dict("records") == [{"DownloadData": "keep", "Extra": "also keep"}]
+
+
 def test_select_preserves_empty_input(empty_frame, workflow_context):
     result = select_tool(
         inputs={"Input": empty_frame},

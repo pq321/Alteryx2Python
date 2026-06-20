@@ -1,11 +1,12 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import pandas as pd
 
-from alteryx2python.runtime.context import WorkflowContext
+if TYPE_CHECKING:
+    from alteryx2python.runtime.context import WorkflowContext
 
 
 class BaseTool(ABC):
@@ -18,6 +19,6 @@ class BaseTool(ABC):
         self,
         inputs: dict[str, pd.DataFrame],
         config: dict[str, Any],
-        context: WorkflowContext,
+        context: "WorkflowContext",
     ) -> dict[str, pd.DataFrame]:
         raise NotImplementedError
