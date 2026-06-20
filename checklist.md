@@ -16,19 +16,22 @@
 - [x] Initial IR models and validators exist.
 - [x] `Select` first slice is implemented and documented.
 - [x] Basic `Select` and runtime tests exist under `tests/`.
-- [ ] Parser can extract real nodes/edges/config from a real workflow file.
-- [ ] Runtime can execute a graph from IR.
-- [ ] Generator can emit runnable workflow Python from IR.
-- [ ] Real workflow fixtures and golden outputs are checked in and tested.
-- [ ] Certification-grade workflow comparison loop exists.
+- [x] Parser can extract real nodes/edges/config from a real workflow file.
+- [x] Runtime can execute a graph from IR.
+- [x] Generator can emit runnable workflow Python from IR.
+- [x] Real workflow fixtures for the first executable subgraph are checked in and tested.
+- [x] Certification-grade workflow comparison loop exists.
+- [x] First complete official one-tool workflow data-output certification exists for `Text_Input.yxmd` target `98`.
+- [x] First complete official multi-tool Basic workflow certification exists for `01 Combine 2 Spreadsheets Containing Customer Data.yxmd`.
+- [x] Lightweight JSON-first CLI exists for inspect, run, compare, and certify.
 
 ## Global Rules For Every Milestone
 
-- [ ] Add or update tests before claiming a milestone is complete.
-- [ ] Update docs when behavior or scope changes.
-- [ ] Record unsupported behavior explicitly instead of approximating it.
-- [ ] Keep optimizer code disabled unless a milestone explicitly enables a certified optimized layer.
-- [ ] Run verification commands and read the output before marking checklist items done.
+- [x] Add or update tests before claiming a milestone is complete.
+- [x] Update docs when behavior or scope changes.
+- [x] Record unsupported behavior explicitly instead of approximating it.
+- [x] Keep optimizer code disabled unless a milestone explicitly enables a certified optimized layer.
+- [x] Run verification commands and read the output before marking checklist items done.
 
 ## M0 - Preserve And Stabilize The Existing Select Slice
 
@@ -52,12 +55,12 @@ Lock the current `Select` slice as the known-good baseline that later milestones
 - [x] Keep `tests/test_tools/test_select_failures.py` passing.
 - [x] Keep `tests/test_tools/test_registry.py` passing.
 - [x] Keep `tests/test_runtime/test_executor.py` passing.
-- [ ] Replace environment-specific verification notes with a stable repo verification recipe once package download issues are resolved.
+- [x] Replace environment-specific verification notes with a stable repo verification recipe once package download issues are resolved.
 
 ### Exit Criteria
 
-- [ ] The project can run the current baseline tests in a reproducible environment.
-- [ ] The repo has one documented command sequence for baseline verification.
+- [x] The project can run the current baseline tests in a reproducible environment.
+- [x] The repo has one documented command sequence for baseline verification.
 
 ## M1 - Real Workflow Fixture Intake
 
@@ -98,7 +101,7 @@ The project now has abstractions but no grounded end-to-end target. This milesto
 
 - [x] One real workflow file is present and documented in the repo.
 - [x] A test proves the workflow file can be loaded as XML without hand-editing.
-- [ ] The repo documents the workflow's external dependency surface.
+- [x] The repo documents the workflow's external dependency surface.
 
 ## M2 - XML Parser To Canonical IR
 
@@ -177,7 +180,7 @@ Create a clean boundary between raw XML parsing and tool-specific semantic parsi
   - `RecordID`
 - [x] Decide what fields belong in normalized config versus preserved raw config.
 - [x] Ensure every tool parser can emit warnings when it only partially understands a config.
-- [ ] Document the plugin mapping table in docs.
+- [x] Document the plugin mapping table in docs.
 
 ### Files To Touch
 
@@ -202,9 +205,9 @@ Make formula and filter work on a controlled Alteryx-like expression layer inste
 
 ### Task Checklist
 
-- [ ] Audit the existing files under `alteryx2python/expressions/` for completeness versus placeholders.
-- [ ] Define the minimum supported expression subset needed for the first real workflow branch.
-- [ ] Add parser/evaluator tests for:
+- [x] Audit the existing files under `alteryx2python/expressions/` for completeness versus placeholders.
+- [x] Define the minimum supported expression subset needed for the first real workflow branch.
+- [x] Add parser/evaluator tests for:
   - field references
   - string literals
   - numeric literals
@@ -212,8 +215,8 @@ Make formula and filter work on a controlled Alteryx-like expression layer inste
   - null-aware behavior
   - `StartsWith`
   - `REGEX_Replace`
-- [ ] Implement explicit unsupported-function errors for everything outside the initial subset.
-- [ ] Document Alteryx-vs-Python semantic differences for the supported subset.
+- [x] Implement explicit unsupported-function errors for everything outside the initial subset.
+- [x] Document Alteryx-vs-Python semantic differences for the supported subset.
 
 ### Files To Touch
 
@@ -226,8 +229,8 @@ Make formula and filter work on a controlled Alteryx-like expression layer inste
 
 ### Exit Criteria
 
-- [ ] The expression layer can support the first real `Formula` and `Filter` nodes needed by the sample workflow.
-- [ ] Unsupported expression features fail explicitly.
+- [x] The expression layer can support the first real `Formula` and `Filter` nodes needed by the sample workflow.
+- [x] Unsupported expression features fail explicitly.
 
 ## M5 - Core Tool Semantics For First Real Subgraph
 
@@ -249,15 +252,15 @@ The real sample workflow starts with this sequence and it is the shortest path t
 
 ### Task Checklist
 
-- [ ] Implement `DbFileInput` baseline semantics with explicit limits on supported file types and options.
-- [ ] Expand `Select` only if real workflow configs expose missing semantics.
-- [ ] Implement `JSONParse` baseline semantics for the observed configuration shape.
-- [ ] Implement `Formula` baseline semantics backed by the controlled expression engine.
-- [ ] Implement `Filter` baseline semantics with true/false anchor outputs.
-- [ ] Register each tool in `alteryx2python/tools/registry.py`.
-- [ ] Add tool docs under `docs/tools/`.
-- [ ] Add success and failure tests for each tool.
-- [ ] Add tests for row order, row count, anchor shape, and schema shape.
+- [x] Implement `DbFileInput` baseline semantics with explicit limits on supported file types and options.
+- [x] Expand `Select` only if real workflow configs expose missing semantics.
+- [x] Implement `JSONParse` baseline semantics for the observed configuration shape.
+- [x] Implement `Formula` baseline semantics backed by the controlled expression engine.
+- [x] Implement `Filter` baseline semantics with true/false anchor outputs.
+- [x] Register each tool in `alteryx2python/tools/registry.py`.
+- [x] Add tool docs under `docs/tools/`.
+- [x] Add success and failure tests for each tool.
+- [x] Add tests for row order, row count, anchor shape, and schema shape.
 
 ### Files To Touch
 
@@ -268,8 +271,8 @@ The real sample workflow starts with this sequence and it is the shortest path t
 
 ### Exit Criteria
 
-- [ ] The first real subgraph tools are implemented, registered, and tested.
-- [ ] Each tool has an explicit list of supported and deferred semantics.
+- [x] The first real subgraph tools are implemented, registered, and tested.
+- [x] Each tool has an explicit list of supported and deferred semantics.
 
 ## M6 - DAG Runtime Execution From IR
 
@@ -279,14 +282,14 @@ Execute a parsed workflow graph from IR rather than invoking isolated tools manu
 
 ### Task Checklist
 
-- [ ] Extend `alteryx2python/runtime/executor.py` from single-node helper to graph executor.
-- [ ] Add topological ordering based on `WorkflowIR.edges`.
-- [ ] Add anchor-aware input routing between nodes.
-- [ ] Preserve multi-output anchor behavior.
-- [ ] Decide how to store intermediate node outputs in memory.
-- [ ] Propagate node failures with enough context for debugging.
-- [ ] Distinguish fatal errors from workflow warnings.
-- [ ] Add executor tests for:
+- [x] Extend `alteryx2python/runtime/executor.py` from single-node helper to graph executor.
+- [x] Add topological ordering based on `WorkflowIR.edges`.
+- [x] Add anchor-aware input routing between nodes.
+- [x] Preserve multi-output anchor behavior.
+- [x] Decide how to store intermediate node outputs in memory.
+- [x] Propagate node failures with enough context for debugging.
+- [x] Distinguish fatal errors from workflow warnings.
+- [x] Add executor tests for:
   - linear pipeline
   - branching outputs
   - missing upstream anchor
@@ -304,8 +307,8 @@ Execute a parsed workflow graph from IR rather than invoking isolated tools manu
 
 ### Exit Criteria
 
-- [ ] A small synthetic `WorkflowIR` graph can execute end-to-end.
-- [ ] Runtime traces show node order, inputs, outputs, warnings, and errors.
+- [x] A small synthetic `WorkflowIR` graph can execute end-to-end.
+- [x] Runtime traces show node order, inputs, outputs, warnings, and errors.
 
 ## M7 - First Real Workflow Subgraph Execution
 
@@ -319,11 +322,11 @@ Run a real parsed portion of `MIFID II.yxwz` through the canonical runtime.
 
 ### Task Checklist
 
-- [ ] Build a fixture input dataset for the first real subgraph.
-- [ ] Add a focused integration test that parses the workflow and executes only the supported node chain.
-- [ ] Add a mechanism to select a subgraph or stop execution at unsupported nodes.
-- [ ] Capture output schema and output rows for the supported subgraph.
-- [ ] Record explicit warnings for skipped nodes beyond the supported frontier.
+- [x] Build a fixture input dataset for the first real subgraph.
+- [x] Add a focused integration test that parses the workflow and executes only the supported node chain.
+- [x] Add a mechanism to select a subgraph or stop execution at unsupported nodes.
+- [x] Capture output schema and output rows for the supported subgraph.
+- [x] Record explicit warnings for skipped nodes beyond the supported frontier.
 
 ### Files To Touch
 
@@ -335,8 +338,8 @@ Run a real parsed portion of `MIFID II.yxwz` through the canonical runtime.
 
 ### Exit Criteria
 
-- [ ] One real subgraph from the sample workflow executes through parser -> IR -> runtime.
-- [ ] The integration test is stable and reproducible.
+- [x] One real subgraph from the sample workflow executes through parser -> IR -> runtime.
+- [x] The integration test is stable and reproducible.
 
 ## M8 - Tabular Reshaping Tool Family
 
@@ -355,16 +358,16 @@ Support the next cluster of tools needed by the sample workflow's middle section
 
 ### Task Checklist
 
-- [ ] Parse configs for each reshaping/join tool.
-- [ ] Implement baseline semantics for observed sample-workflow usage first.
-- [ ] Add isolated tool tests.
-- [ ] Add integration tests for a real multi-tool branch using these tools.
-- [ ] Document edge cases that remain unsupported.
+- [x] Parse configs for each reshaping/join tool.
+- [x] Implement baseline semantics for observed sample-workflow usage first.
+- [x] Add isolated tool tests.
+- [x] Add integration tests for a real multi-tool branch using these tools.
+- [x] Document edge cases that remain unsupported.
 
 ### Exit Criteria
 
-- [ ] The sample workflow's central transformation branch is largely executable.
-- [ ] Join/union/reshape behavior is verified at tool and integration level.
+- [x] The sample workflow's central transformation branch is largely executable.
+- [x] Join/union/reshape behavior is verified at tool and integration level.
 
 ## M9 - File IO And Output Certification Inputs
 
@@ -374,10 +377,10 @@ Handle enough file IO to compare real outputs and support repeatable workflow te
 
 ### Task Checklist
 
-- [ ] Implement baseline output tool semantics for the observed sample workflow.
-- [ ] Decide on repo-safe fixture formats for workflow input/output data.
-- [ ] Add helper utilities for loading fixture data and expected outputs.
-- [ ] Add a repeatable test harness that can compare produced outputs with golden outputs.
+- [x] Implement baseline output tool semantics for the observed sample workflow.
+- [x] Decide on repo-safe fixture formats for workflow input/output data.
+- [x] Add helper utilities for loading fixture data and expected outputs.
+- [x] Add a repeatable test harness that can compare produced outputs with golden outputs.
 
 ### Files To Touch
 
@@ -390,7 +393,7 @@ Handle enough file IO to compare real outputs and support repeatable workflow te
 
 ### Exit Criteria
 
-- [ ] The repo can run at least one workflow branch and compare produced output with expected evidence.
+- [x] The repo can run at least one workflow branch and compare produced output with expected evidence.
 
 ## M10 - Comparison And Certification Layer
 
@@ -400,18 +403,18 @@ Turn execution into evidence, not just successful code paths.
 
 ### Task Checklist
 
-- [ ] Expand `alteryx2python/comparison/dataframe_diff.py` beyond placeholder status if needed.
-- [ ] Define the canonical comparison report format.
-- [ ] Compare:
+- [x] Expand `alteryx2python/comparison/dataframe_diff.py` beyond placeholder status if needed.
+- [x] Define the canonical comparison report format.
+- [x] Compare:
   - row count
   - column order
   - dtypes
   - cell-level differences
   - null differences
   - ordering differences
-- [ ] Add machine-readable comparison output and human-readable summary output.
-- [ ] Add report generation tests.
-- [ ] Update certification docs with required evidence for a workflow slice.
+- [x] Add machine-readable comparison output and human-readable summary output.
+- [x] Add report generation tests.
+- [x] Update certification docs with required evidence for a workflow slice.
 
 ### Files To Touch
 
@@ -421,8 +424,8 @@ Turn execution into evidence, not just successful code paths.
 
 ### Exit Criteria
 
-- [ ] Every integration run can emit comparison evidence.
-- [ ] Certification docs describe exactly what qualifies as baseline-equivalent for a workflow slice.
+- [x] Every integration run can emit comparison evidence.
+- [x] Certification docs describe exactly what qualifies as baseline-equivalent for a workflow slice.
 
 ## M11 - Generator From Validated IR
 
@@ -432,21 +435,21 @@ Generate runnable Python from a validated workflow IR after runtime semantics ex
 
 ### Task Checklist
 
-- [ ] Redesign `alteryx2python/generator/python_generator.py` so it emits executable node-by-node code.
-- [ ] Keep generation aligned with canonical tool boundaries.
-- [ ] Decide whether generated code calls registered tool functions directly or emits inlined wrappers.
-- [ ] Add generator tests for:
+- [x] Redesign `alteryx2python/generator/python_generator.py` so it emits executable node-by-node code.
+- [x] Keep generation aligned with canonical tool boundaries.
+- [x] Decide whether generated code calls registered tool functions directly or emits inlined wrappers.
+- [x] Add generator tests for:
   - imports
   - node ordering
   - anchor variable naming
   - config embedding
   - execution-report return shape
-- [ ] Add a round-trip test: parse -> generate -> execute generated code -> compare outputs.
+- [x] Add a round-trip test: parse -> generate -> execute generated code -> compare outputs.
 
 ### Exit Criteria
 
-- [ ] The generator emits runnable baseline code for at least one supported workflow slice.
-- [ ] Generated code stays traceable to original node IDs.
+- [x] The generator emits runnable baseline code for at least one supported workflow slice.
+- [x] Generated code stays traceable to original node IDs.
 
 ## M12 - Unsupported Features, Governance, And Scale-Out
 
@@ -456,34 +459,224 @@ Make the system safe to extend without losing rigor.
 
 ### Task Checklist
 
-- [ ] Formalize unsupported classifications in one shared module or doc.
-- [ ] Add repo-level workflow triage guidance:
+- [x] Formalize unsupported classifications in one shared module or doc.
+- [x] Add repo-level workflow triage guidance:
   - safe to auto-migrate
   - partial migration only
   - owner review required
   - custom code required
-- [ ] Add a process for introducing a new tool:
+- [x] Add a process for introducing a new tool:
   - parser contract
   - tool semantics doc
   - isolated tests
   - integration target
   - certification notes
-- [ ] Decide when optimizer work may begin and what certification gate it must pass.
-- [ ] Add a project roadmap section to `README.md`.
+- [x] Decide when optimizer work may begin and what certification gate it must pass.
+- [x] Add a project roadmap section to `README.md`.
 
 ### Exit Criteria
 
-- [ ] A future agent can add a new tool or workflow slice without rediscovering process.
-- [ ] Governance around unsupported behavior is explicit and enforceable.
+- [x] A future agent can add a new tool or workflow slice without rediscovering process.
+- [x] Governance around unsupported behavior is explicit and enforceable.
 
 ## Future Optional Milestones
 
+- [x] M13 - First complete official one-tool workflow certification
+- [x] M14 - First complete official multi-tool Basic workflow certification
 - [ ] Additional real workflow samples beyond `MIFID II`
 - [ ] Macro handling
 - [ ] Interface/action node support
 - [ ] Better type-system emulation
 - [ ] Optimized non-canonical generation path
-- [ ] CLI for parse/execute/compare workflows
+- [ ] Batch CLI suite files for repeated parse/execute/compare runs
+- [x] M15 - Lightweight CLI for repeatable certification
+- [x] M16 - Node-level tool contracts and evidence
+- [x] M17 - Topology-preserving compact workflow JSON
+
+## M13 - First Complete Official One-Tool Workflow Certification
+
+### Goal
+
+Prove at least one official Alteryx sample workflow can be parsed, executed, generated, and compared against a golden output without replacing external dependencies.
+
+### Target
+
+- `D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Text_Input.yxmd`
+- executable target node: `98`
+
+### Task Checklist
+
+- [x] Inspect the official sample XML and identify the executable data node.
+- [x] Implement `TextInput` config parsing for fields, rows, row count, and empty cells.
+- [x] Implement `TextInput` runtime semantics with one `Output` anchor.
+- [x] Register `TextInput` in the tool registry and package exports.
+- [x] Add parser, tool, registry, integration, and generator roundtrip tests.
+- [x] Add `tests/fixtures/real_workflows/text_input_expected.csv`.
+- [x] Compare parsed runtime output to the golden CSV.
+- [x] Compare generated-code runtime output to the golden CSV.
+- [x] Document `TextInput` semantics and deferred type-system behavior.
+- [x] Update certification and testing strategy docs.
+
+### Exit Criteria
+
+- [x] The official sample parses without hand editing.
+- [x] Target node `98` executes through parser -> IR -> runtime.
+- [x] Generated Python executes the same target node through the canonical runtime.
+- [x] Output rows, column order, and cell values match the golden fixture.
+
+### Known Gaps
+
+- [ ] This certifies the embedded data-output sample only, not arbitrary Alteryx workflows.
+- [ ] Full Alteryx Text Input type inference and Results metadata behavior remain deferred.
+- [ ] Documentation-only `TextBox` nodes are skipped by target selection rather than modeled as no-op workflow nodes.
+
+## M14 - First Complete Official Multi-Tool Basic Workflow Certification
+
+### Goal
+
+Prove an official multi-tool Alteryx workflow can be parsed, executed, generated, and compared 1:1 against an Alteryx output oracle.
+
+### Target
+
+- `D:/Alteryx/Samples/en/04 Basic/01 Combine 2 Spreadsheets Containing Customer Data.yxmd`
+- output node: `23`
+
+### Task Checklist
+
+- [x] Inventory Basic/Advanced workflows and tool types.
+- [x] Identify Basic `01 Combine 2 Spreadsheets...` as the next certification target.
+- [x] Add `openpyxl` for real `.xlsx` input support.
+- [x] Preserve workflow-relative file resolution through parser-provided `base_dir`.
+- [x] Preserve repo/test relative fixture overrides when the relative path exists from the current working directory.
+- [x] Implement Excel no-header input as Alteryx-style `F1`, `F2`, ... fields.
+- [x] Implement `Sort` parser and runtime tool.
+- [x] Expand `Select` dtype conversion for observed Alteryx type names such as `Int32`.
+- [x] Expand Join default output naming to strip `Left_` and `Right_` prefixes.
+- [x] Expand `DbFileOutput` path handling for `%temp%`.
+- [x] Copy the Alteryx Engine CSV oracle into `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`.
+- [x] Add parser/tool/registry tests for new Sort support.
+- [x] Add Excel input tests for header and no-header sheet reads.
+- [x] Add full runtime E2E test: parse -> execute target `23` -> compare CSV oracle.
+- [x] Add generated-code E2E test: parse -> generate -> execute target `23` -> compare CSV oracle.
+- [x] Add byte-for-byte CSV oracle comparison for runtime and generated-code E2E.
+- [x] Add certification precheck for executed node paths.
+- [x] Add `docs/basic_advanced_inventory.md`.
+- [x] Update certification and testing docs.
+
+### Exit Criteria
+
+- [x] Official workflow parses without hand editing.
+- [x] Runtime executes node order `1, 2, 7, 3, 4, 6, 23`.
+- [x] Runtime output has 1000 rows and 12 columns matching the Alteryx oracle after CSV parsing.
+- [x] Runtime and generated CSV bytes match the Alteryx oracle bytes for this workflow.
+- [x] Executed node path passes the certifiable-tool precheck.
+- [x] Generated Python writes the same CSV-equivalent output.
+
+### Known Gaps
+
+- [ ] Excel output remains deferred.
+- [ ] YXDB input/output remains deferred.
+- [ ] `TextBox` documentation nodes are omitted via target execution rather than modeled as no-op tools.
+- [ ] This certifies one Basic workflow, not all Basic/Advanced workflows.
+
+## M15 - Lightweight CLI For Repeatable Certification
+
+### Goal
+
+Make repeated workflow certification and edge-case debugging reproducible from the command line.
+
+### Task Checklist
+
+- [x] Add `alteryx2python.cli` module.
+- [x] Add `alteryx2python` console script in `pyproject.toml`.
+- [x] Add `inspect` command for workflow nodes, edges, tools, dependencies, unsupported nodes, and warnings.
+- [x] Add `run` command for target-node execution.
+- [x] Add `compare` command with `bytes` and `csv` modes.
+- [x] Add `certify` command for run + config-aware certification gate + compare.
+- [x] Add `--override-output NODE=PATH` to redirect output nodes to controlled test paths.
+- [x] Add `--log PATH` structured JSON logging to every command.
+- [x] Ensure unsupported/incomplete behavior emits structured JSON errors with type, message, and traceback.
+- [x] Add CLI subprocess tests for inspect, certify, compare mismatch, and unsupported tool behavior.
+- [x] Verify CLI certification on the Basic Combine workflow.
+
+### Exit Criteria
+
+- [x] `uv run alteryx2python certify ... --compare bytes` returns `certified` for the Basic Combine workflow.
+- [x] CLI byte comparison matches the manual E2E result.
+- [x] CLI logs are machine-readable JSON.
+- [x] Unsupported behavior is recorded instead of silently passing.
+
+### Known Gaps
+
+- [ ] No batch runner yet.
+- [ ] No YAML/JSON suite file format yet.
+- [ ] No automatic target/output discovery yet.
+
+## M16 - Node-Level Tool Contracts And Evidence
+
+### Goal
+
+Make each executed Alteryx tool boundary produce machine-checkable contract evidence, so schema and data-shape failures are caught at the first bad intermediate node instead of only at final output comparison.
+
+### Task Checklist
+
+- [x] Define contract evidence structures for assertions, input schemas, and output schemas.
+- [x] Attach contract evidence to `NodeResult`.
+- [x] Validate declared output anchors for every registered tool.
+- [x] Validate parser-provided expected output schema when strict mode is enabled.
+- [x] Add inferred contracts for the first high-value tools:
+  - `Select`
+  - `Formula`
+  - `Filter`
+  - `Union`
+  - `Join`
+- [x] Add runtime tests proving successful contract evidence is emitted.
+- [x] Add failure tests proving bad schema or anchor output fails fast.
+- [x] Include contract evidence in generated-code/runtime certification paths without changing the canonical execution model.
+- [x] Update tool docs with contract sections.
+
+### Exit Criteria
+
+- [x] A workflow run exposes per-node contract evidence.
+- [x] Schema and row-count assertions are tested for at least `Select`, `Formula`, `Filter`, `Union`, and `Join`.
+- [x] Contract failures stop execution before downstream tools consume invalid intermediate data.
+- [x] Existing golden-output certification tests still pass.
+
+### Known Gaps
+
+- [ ] Contract assertions are intentionally narrower than full Alteryx semantic parity.
+- [ ] Intermediate Alteryx oracle exports are not required for inferred contracts.
+- [ ] Full dtype/nullability parity remains a later type-system milestone.
+
+## M17 - Topology-Preserving Compact Workflow JSON
+
+### Goal
+
+Provide an AI-facing workflow representation that saves tokens without deleting logical topology.
+
+### Task Checklist
+
+- [x] Add `build_compact_workflow` for `WorkflowIR`.
+- [x] Preserve all node IDs, tool types, anchors, and edges.
+- [x] Include graph roots, leaves, and topological order.
+- [x] Include per-node incoming and outgoing links.
+- [x] Include compact config summaries for core tools.
+- [x] Strip raw XML, GUI shell metadata, annotations, and verbose source metadata.
+- [x] Add `alteryx2python compact` CLI command.
+- [x] Add `inspect --compact` alias.
+- [x] Add unit and CLI tests.
+- [x] Document compact JSON usage.
+
+### Exit Criteria
+
+- [x] Compact JSON is sufficient to reconstruct the logical workflow graph.
+- [x] Compact JSON avoids raw Alteryx UI/config shell payloads.
+- [x] Existing runtime and certification tests still pass.
+
+### Known Gaps
+
+- [ ] Compact config summaries are intentionally tool-specific and should expand as more tools are implemented.
+- [ ] Compact JSON is for analysis/planning, not a lossless serialized IR.
 
 ## Verification Log Template
 
