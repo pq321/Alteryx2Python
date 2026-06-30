@@ -1,0 +1,2 @@
+Trade ref,regulation,Trade Domain,Trade ID,Trade version,Cookie,URL,JSON,DownloadHeaders,DownloadData
+TR-1,MIFID,EQ,TRADE-1,1,drop-cookie,https://example.invalid,,drop-headers,"{""result"":{""exceptions"":[{""assetClass"":""EQ"",""buyerId"":""BUYER-1""}]},""status"":""ok""}"

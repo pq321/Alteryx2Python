@@ -24,3 +24,22 @@ class BinaryExpression(ExpressionNode):
     left: ExpressionNode
     operator: str
     right: ExpressionNode
+
+
+@dataclass(slots=True, frozen=True)
+class UnaryExpression(ExpressionNode):
+    operator: str
+    operand: ExpressionNode
+
+
+@dataclass(slots=True, frozen=True)
+class FunctionExpression(ExpressionNode):
+    name: str
+    args: list[ExpressionNode]
+
+
+@dataclass(slots=True, frozen=True)
+class ConditionalExpression(ExpressionNode):
+    condition: ExpressionNode
+    true_value: ExpressionNode
+    false_value: ExpressionNode

@@ -15,12 +15,29 @@ class ValueDifference:
     left: Any
     right: Any
 
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "row_index": self.row_index,
+            "column": self.column,
+            "left": self.left,
+            "right": self.right,
+        }
+
 
 @dataclass(slots=True)
 class DataFrameDiff:
     matches: bool
     issues: list[str] = field(default_factory=list)
     value_differences: list[ValueDifference] = field(default_factory=list)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "matches": self.matches,
+            "issues": list(self.issues),
+            "value_differences": [
+                difference.to_dict() for difference in self.value_differences
+            ],
+        }
 
 
 def compare_dataframes(left: pd.DataFrame, right: pd.DataFrame) -> DataFrameDiff:

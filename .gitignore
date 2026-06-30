@@ -13,3 +13,5 @@ build/
 dist/
 reports/
 *.log
+.cc-connect/
+.omx/
