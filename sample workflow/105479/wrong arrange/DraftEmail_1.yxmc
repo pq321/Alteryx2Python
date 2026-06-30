@@ -1,0 +1,2210 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<AlteryxDocument yxmdVer="2024.1" RunE2="T">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxGuiToolkit.Questions.Tab.Tab">
+        <Position x="0" y="0" width="59" height="59" />
+      </GuiSettings>
+      <Properties>
+        <Configuration />
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+    </Node>
+    <Node ToolID="56">
+      <GuiSettings Plugin="AlteryxGuiToolkit.ToolContainer.ToolContainer">
+        <Position x="54" y="54" width="2519" height="2317" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Caption>Email Table</Caption>
+          <Style TextColor="#314c4a" FillColor="#ecf2f2" BorderColor="#314c4a" Transparency="25" Margin="25" />
+          <Disabled value="False" />
+          <Folded value="False" />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <ChildNodes>
+        <Node ToolID="29">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+            <Position x="820" y="1735" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <FormulaFields>
+                <FormulaField expression="&quot;&lt;tr&gt;&quot;&#xA;&#xA;+&#xA;&#xA;&#xA;&quot;&lt;td&gt;&quot;+[Account ID]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&quot;&lt;td&gt;&quot;+[ISIN]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&quot;&lt;td&gt;&quot;+[Security ID]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Quantity]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Client Ref.]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Contractual Settlement Dt or Payable Dt]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[TD]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&#xA;&#xA;&#xA;&quot;&lt;/tr&gt;&quot;" field="Field1" size="1073741823" type="V_WString" />
+              </FormulaFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>Field1 = "&lt;tr&gt;"
+
++
+
+
+"&lt;td&gt;"+[Account ID]+"&lt;/td&gt;"+
+
+"&lt;td&gt;"+[ISIN]+"&lt;/td&gt;"+
+
+"&lt;td&gt;...</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Field1" size="1073741823" source="Formula: &quot;&lt;tr&gt;&quot;&#xA;&#xA;+&#xA;&#xA;&#xA;&quot;&lt;td&gt;&quot;+[Account ID]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&quot;&lt;td&gt;&quot;+[ISIN]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&quot;&lt;td&gt;&quot;+[Security ID]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Quantity]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Client Ref.]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Contractual Settlement Dt or Payable Dt]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[TD]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&#xA;&#xA;&#xA;&quot;&lt;/tr&gt;&quot;" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+        </Node>
+        <Node ToolID="30">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="915" y="1734" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Field1" selected="True" />
+                <SelectField field="*Unknown" selected="False" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="1073741823" source="Formula: &quot;&lt;tr&gt;&quot;&#xA;&#xA;+&#xA;&#xA;&quot;&lt;td&gt;&quot;+[Txn Reference]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Excalibur Ref]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Trade Trans Type]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Security Short Name]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Sedol No]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[ISIN No]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Trade Nominal]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Trade Amount]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Trade CCY]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Trade Date]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Value Date]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[Broker CIS Code]+&quot;&lt;/td&gt;&quot;+&#xA;&quot;&lt;td&gt;&quot;+[External Account]+&quot;&lt;/td&gt;&quot;+&#xA;&#xA;&#xA;&quot;&lt;/tr&gt;&quot;" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="31">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="700" y="1471" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="2" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>&lt;table&gt;</c>
+                </r>
+                <r>
+                  <c>&lt;tr&gt;</c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+        <Node ToolID="32">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Union.Union">
+            <Position x="1396" y="1687" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <ByName_ErrorMode>Warning</ByName_ErrorMode>
+              <ByName_OutputMode>All</ByName_OutputMode>
+              <Mode>ByPos</Mode>
+              <SetOutputOrder value="True" />
+              <OutputOrder>
+                <Connection>#1</Connection>
+                <Connection>#2</Connection>
+                <Connection>#3</Connection>
+              </OutputOrder>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="1073741823" source="(Multiple Sources)" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxUnion" />
+        </Node>
+        <Node ToolID="33">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="1012" y="1567" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Name" selected="True" type="V_WString" size="255" />
+                <SelectField field="*Unknown" selected="False" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Name" size="255" source="Transpose:" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="34">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="712" y="1663" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="1" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>&lt;/tr&gt;</c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+        <Node ToolID="35">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+            <Position x="1108" y="1567" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <FormulaFields>
+                <FormulaField expression="IF [Name]=&quot;Contractual Settlement Dt or Payable Dt&quot; THEN &quot;&lt;th&gt;SD&lt;/th&gt;&quot; ELSE &quot;&lt;th&gt;&quot;+[Name]+&quot;&lt;/th&gt;&quot; ENDIF" field="Field1" size="1073741823" type="V_WString" />
+              </FormulaFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText><![CDATA[Field1 = IF [Name]="Contractual Settlement Dt or Payable Dt" THEN "<th>SD</th>" ELSE "<th>"+[Name]+"</th>" ENDIF
+]]></DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Name" size="255" source="Transpose:" type="V_WString" />
+                <Field name="Field1" size="1073741823" source="Formula: IF [Name]=&quot;Contractual Settlement Dt or Payable Dt&quot; THEN &quot;&lt;th&gt;SD&lt;/th&gt;&quot; ELSE &quot;&lt;th&gt;&quot;+[Name]+&quot;&lt;/th&gt;&quot; ENDIF" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+        </Node>
+        <Node ToolID="36">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Union.Union">
+            <Position x="1300" y="1567" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <ByName_ErrorMode>Warning</ByName_ErrorMode>
+              <ByName_OutputMode>All</ByName_OutputMode>
+              <Mode>ByName</Mode>
+              <SetOutputOrder value="True" />
+              <OutputOrder>
+                <Connection>#1</Connection>
+                <Connection>#2</Connection>
+                <Connection>#3</Connection>
+              </OutputOrder>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="1073741823" source="(Multiple Sources)" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxUnion" />
+        </Node>
+        <Node ToolID="37">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="1203" y="1567" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Field1" selected="True" />
+                <SelectField field="*Unknown" selected="False" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="1073741823" source="Formula: &quot;&lt;th&gt;&quot;+[Name]+&quot;&lt;/th&gt;&quot;" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="38">
+          <GuiSettings>
+            <Position x="819" y="1566" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Value name="Number">True</Value>
+              <Value name="NNumber">1</Value>
+              <Value name="Percent">False</Value>
+              <Value name="NPercent">10</Value>
+              <Value name="Deterministic">False</Value>
+              <Value name="Seed">458676342</Value>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <Dependencies>
+              <Implicit />
+            </Dependencies>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings Macro="RandomRecords.yxmc" />
+        </Node>
+        <Node ToolID="39">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="1528" y="1663" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Field1" selected="True" />
+                <SelectField field="*Unknown" selected="False" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="1073741823" source="(Multiple Sources)" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="40">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.MacroInput.MacroInput">
+            <Position x="112" y="1627" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <UseFileInput value="False" />
+              <Name>data</Name>
+              <Abbrev />
+              <ShowFieldMap value="True" />
+              <Optional value="False" />
+              <TextInput>
+                <Configuration>
+                  <NumRows value="23" />
+                  <Fields>
+                    <Field name="Group ID" />
+                    <Field name="RowNumber" />
+                    <Field name="Account ID" />
+                    <Field name="Account Name" />
+                    <Field name="Status" />
+                    <Field name="Contractual Settlement Dt or Payable Dt" />
+                    <Field name="TD" />
+                    <Field name="Txn Type" />
+                    <Field name="Description" />
+                    <Field name="ISIN" />
+                    <Field name="Security ID Type" />
+                    <Field name="Security ID" />
+                    <Field name="Base Currency" />
+                    <Field name="Quantity" />
+                    <Field name="Principal Cash - Local" />
+                    <Field name="Counterparty" />
+                    <Field name="Client Ref." />
+                    <Field name="Fail Description" />
+                    <Field name="Fail Text" />
+                    <Field name="Fail Text(Contd.)" />
+                    <Field name="Citibank Reference Number" />
+                    <Field name="UniqueStockRef" />
+                    <Field name="Final_Nar" />
+                  </Fields>
+                  <Data>
+                    <r>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                      <c>placedd</c>
+                    </r>
+                    <r>
+                      <c>1</c>
+                      <c>000000005</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>MCMILLAN SHAKESPEARE LTD</c>
+                      <c>AU000000MMS5</c>
+                      <c>SEDOL</c>
+                      <c>B00G1Q0</c>
+                      <c>AUD</c>
+                      <c>396</c>
+                      <c>6142.46</c>
+                      <c>J.P. MORGAN FINANCIAL SERVICES</c>
+                      <c>NGWPZR3HZ4/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456526134</c>
+                      <c>AU000000MMS5</c>
+                      <c>Pending SBL coverage on NP1L2B8WV0/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>1</c>
+                      <c>000000353</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>MCMILLAN SHAKESPEARE LTD</c>
+                      <c>AU000000MMS5</c>
+                      <c>SEDOL</c>
+                      <c>B00G1Q0</c>
+                      <c>AUD</c>
+                      <c>396</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WV0/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718925</c>
+                      <c>AU000000MMS5</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>2</c>
+                      <c>000000137</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>ACCENT GROUP LIMITED</c>
+                      <c>AU000000AX19</c>
+                      <c>SEDOL</c>
+                      <c>BD20RS5</c>
+                      <c>AUD</c>
+                      <c>60201</c>
+                      <c>140649.56</c>
+                      <c>INSTINET AUSTRALIA CLEARING</c>
+                      <c>NGWQPEWEQ5/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456703981</c>
+                      <c>AU000000AX19</c>
+                      <c>Pending SBL coverage on NP1L2B8WQU/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>2</c>
+                      <c>000000346</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>ACCENT GROUP LIMITED</c>
+                      <c>AU000000AX19</c>
+                      <c>SEDOL</c>
+                      <c>BD20RS5</c>
+                      <c>AUD</c>
+                      <c>60201</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WQU/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718928</c>
+                      <c>AU000000AX19</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>3</c>
+                      <c>000000037</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>RESMED INC-CDI</c>
+                      <c>AU000000RMD6</c>
+                      <c>SEDOL</c>
+                      <c>6221667</c>
+                      <c>AUD</c>
+                      <c>700</c>
+                      <c>24541.64</c>
+                      <c>UBS SECURITIES AUSTRALIA</c>
+                      <c>NGWPZRR28P/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456530459</c>
+                      <c>AU000000RMD6</c>
+                      <c>Pending SBL coverage on NP1L2A5BJ3/001,NP1L1CKOB1/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>3</c>
+                      <c>000000128</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>RESMED INC-CDI</c>
+                      <c>AU000000RMD6</c>
+                      <c>SEDOL</c>
+                      <c>6221667</c>
+                      <c>AUD</c>
+                      <c>27557</c>
+                      <c>968233.16</c>
+                      <c>UBS SECURITIES AUSTRALIA</c>
+                      <c>NGWQD0VCN9/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456535807</c>
+                      <c>AU000000RMD6</c>
+                      <c>Pending SBL coverage on NP1L2A5BJ3/001,NP1L1CKOB1/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>3</c>
+                      <c>000000317</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>RESMED INC-CDI</c>
+                      <c>AU000000RMD6</c>
+                      <c>SEDOL</c>
+                      <c>6221667</c>
+                      <c>AUD</c>
+                      <c>27557</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2A5BJ3/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718915</c>
+                      <c>AU000000RMD6</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>3</c>
+                      <c>000000299</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>RF</c>
+                      <c>RESMED INC-CDI</c>
+                      <c>AU000000RMD6</c>
+                      <c>SEDOL</c>
+                      <c>6221667</c>
+                      <c>AUD</c>
+                      <c>700</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L1CKOB1/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456715916</c>
+                      <c>AU000000RMD6</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>4</c>
+                      <c>000000158</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>FLEETPARTNERS GROUP LTD</c>
+                      <c>AU0000272924</c>
+                      <c>SEDOL</c>
+                      <c>BN7HDZ0</c>
+                      <c>AUD</c>
+                      <c>6895</c>
+                      <c>21136.53</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NGWQPSN55X/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c>CP ALLEGED</c>
+                      <c />
+                      <c>46456703922</c>
+                      <c>AU0000272924</c>
+                      <c>Pending SBL coverage on NP1L2B8WV4/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>4</c>
+                      <c>000000354</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>FLEETPARTNERS GROUP LTD</c>
+                      <c>AU0000272924</c>
+                      <c>SEDOL</c>
+                      <c>BN7HDZ0</c>
+                      <c>AUD</c>
+                      <c>6895</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WV4/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718910</c>
+                      <c>AU0000272924</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>6</c>
+                      <c>000000119</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>TPG TELECOM LTD</c>
+                      <c>AU0000090128</c>
+                      <c>SEDOL</c>
+                      <c>BMB2257</c>
+                      <c>AUD</c>
+                      <c>49896</c>
+                      <c>250661.43</c>
+                      <c>UBS SECURITIES AUSTRALIA</c>
+                      <c>NGWQBO05GN/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456532944</c>
+                      <c>AU0000090128</c>
+                      <c>Pending SBL coverage on NP1L2B8WSL/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>6</c>
+                      <c>000000349</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>TPG TELECOM LTD</c>
+                      <c>AU0000090128</c>
+                      <c>SEDOL</c>
+                      <c>BMB2257</c>
+                      <c>AUD</c>
+                      <c>49896</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WSL/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718914</c>
+                      <c>AU0000090128</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>7</c>
+                      <c>000000118</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>AMCOR PLC-CDI</c>
+                      <c>AU000000AMC4</c>
+                      <c>SEDOL</c>
+                      <c>6066608</c>
+                      <c>AUD</c>
+                      <c>1979</c>
+                      <c>32384.89</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NGWQBNXRG9/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c>CP ALLEGED</c>
+                      <c />
+                      <c>46456532410</c>
+                      <c>AU000000AMC4</c>
+                      <c>Pending SBL coverage on NP1L2B8WU8/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>7</c>
+                      <c>000000352</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>AMCOR PLC-CDI</c>
+                      <c>AU000000AMC4</c>
+                      <c>SEDOL</c>
+                      <c>6066608</c>
+                      <c>AUD</c>
+                      <c>1979</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WU8/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718933</c>
+                      <c>AU000000AMC4</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000121</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>31110</c>
+                      <c>284371.84</c>
+                      <c>UBS SECURITIES AUSTRALIA</c>
+                      <c>NGWQBLT1GP/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456532941</c>
+                      <c>AU000000GNC9</c>
+                      <c>Pending SBL coverage on NP1L2AP43R/001,NP1L2A5AYI/001;Pending client buy on NGWQBO05HX/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000313</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>12907</c>
+                      <c>118003.54</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NGWQBO05HI/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c>CP ALLEGED</c>
+                      <c />
+                      <c>46456532948</c>
+                      <c>AU000000GNC9</c>
+                      <c>Pending SBL coverage on NP1L2AP43R/001,NP1L2A5AYI/001;Pending client buy on NGWQBO05HX/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000122</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>4949</c>
+                      <c>45287.51</c>
+                      <c>MACQUARIE SECURITIES AUSTRALIA LTD</c>
+                      <c>NGWQBO05GV/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456532947</c>
+                      <c>AU000000GNC9</c>
+                      <c>Pending SBL coverage on NP1L2AP43R/001,NP1L2A5AYI/001;Pending client buy on NGWQBO05HX/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000371</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>26029</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2AP43R/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718922</c>
+                      <c>AU000000GNC9</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000329</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>22937</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2A5AYI/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718900</c>
+                      <c>AU000000GNC9</c>
+                      <c />
+                    </r>
+                    <r>
+                      <c>8</c>
+                      <c>000000372</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>RVP</c>
+                      <c>GRAINCORP LTD-A</c>
+                      <c>AU000000GNC9</c>
+                      <c>SEDOL</c>
+                      <c>6102331</c>
+                      <c>AUD</c>
+                      <c>500</c>
+                      <c>118003.54</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NGWQBO05HX/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c>CP ALLEGED</c>
+                      <c>46456532948</c>
+                      <c />
+                      <c>AU000000GNC9</c>
+                      <c>Trade NGWQBLT1GP/001;NGWQBO05HI/001;NGWQBO05GV/001 are pending on it (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>12</c>
+                      <c>000000095</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-09</c>
+                      <c>DVP</c>
+                      <c>QANTAS AIRWAYS LTD</c>
+                      <c>AU000000QAN2</c>
+                      <c>SEDOL</c>
+                      <c>6710347</c>
+                      <c>AUD</c>
+                      <c>86156</c>
+                      <c>614292.28</c>
+                      <c>HONG KONG BANK NOMINEES</c>
+                      <c>NGWQA5HZNN/001</c>
+                      <c>INSUFFICIENT POSITION TO DELIVER</c>
+                      <c />
+                      <c />
+                      <c>46456521276</c>
+                      <c>AU000000QAN2</c>
+                      <c>Pending SBL coverage on NP1L2B8WQP/001; (2024-11-07)</c>
+                    </r>
+                    <r>
+                      <c>12</c>
+                      <c>000000344</c>
+                      <c>2081220001</c>
+                      <c>UBS AG LDN BRANCH A/C CLIENT - AUD</c>
+                      <c>FAIL</c>
+                      <c>2024-10-11</c>
+                      <c>2024-10-10</c>
+                      <c>RF</c>
+                      <c>QANTAS AIRWAYS LTD</c>
+                      <c>AU000000QAN2</c>
+                      <c>SEDOL</c>
+                      <c>6710347</c>
+                      <c>AUD</c>
+                      <c>86156</c>
+                      <c>0</c>
+                      <c>CITICORP NOMINEES PTY LIMITED</c>
+                      <c>NP1L2B8WQP/001</c>
+                      <c>COUNTERPARTY INSUFFICIENT SECURITIES</c>
+                      <c />
+                      <c />
+                      <c>46456718912</c>
+                      <c>AU000000QAN2</c>
+                      <c />
+                    </r>
+                  </Data>
+                </Configuration>
+              </TextInput>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <AnnotationText>Input</AnnotationText>
+              <DefaultAnnotationText />
+              <Left value="True" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Group ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Principal Cash - Local" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Citibank Reference Number" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxMacroInput" />
+        </Node>
+        <Node ToolID="41">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="555" y="1627" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Quantity" selected="True" type="V_WString" size="2550" />
+                <SelectField field="*Unknown" selected="True" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="42">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Transpose.Transpose">
+            <Position x="916" y="1567" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <ErrorWarn>Warn</ErrorWarn>
+              <KeyFields />
+              <DataFields>
+                <Field field="Group ID" selected="False" />
+                <Field field="RowNumber" selected="False" />
+                <Field field="Account ID" selected="True" />
+                <Field field="Account Name" selected="False" />
+                <Field field="Status" selected="False" />
+                <Field field="Txn Type" selected="False" />
+                <Field field="Description" selected="False" />
+                <Field field="ISIN" selected="True" />
+                <Field field="Security ID Type" selected="False" />
+                <Field field="Security ID" selected="True" />
+                <Field field="Base Currency" selected="False" />
+                <Field field="Quantity" selected="True" />
+                <Field field="Principal Cash - Local" selected="False" />
+                <Field field="Counterparty" selected="False" />
+                <Field field="Client Ref." selected="True" />
+                <Field field="Contractual Settlement Dt or Payable Dt" selected="True" />
+                <Field field="TD" selected="True" />
+                <Field field="Fail Description" selected="False" />
+                <Field field="Fail Text" selected="False" />
+                <Field field="Fail Text(Contd.)" selected="False" />
+                <Field field="Citibank Reference Number" selected="False" />
+                <Field field="UniqueStockRef" selected="False" />
+                <Field field="Final_Nar" selected="False" />
+                <Field field="*Unknown" selected="False" />
+              </DataFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Name" size="39" source="Transpose:" type="String" />
+                <Field name="Value" size="1073741823" source="TextInput:" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTranspose" />
+        </Node>
+        <Node ToolID="45">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="364" y="1627" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Group ID" selected="True" type="Int64" size="8" />
+                <SelectField field="RowNumber" selected="True" />
+                <SelectField field="Account ID" selected="True" type="V_WString" size="2550" />
+                <SelectField field="Account Name" selected="True" />
+                <SelectField field="Status" selected="True" />
+                <SelectField field="Contractual Settlement Dt or Payable Dt" selected="True" />
+                <SelectField field="TD" selected="True" />
+                <SelectField field="Txn Type" selected="True" />
+                <SelectField field="Description" selected="True" />
+                <SelectField field="ISIN" selected="True" />
+                <SelectField field="Security ID Type" selected="True" />
+                <SelectField field="Security ID" selected="True" />
+                <SelectField field="Base Currency" selected="True" />
+                <SelectField field="Quantity" selected="True" type="Int64" size="8" />
+                <SelectField field="Principal Cash - Local" selected="True" type="V_WString" size="2550" />
+                <SelectField field="Counterparty" selected="True" />
+                <SelectField field="Client Ref." selected="True" />
+                <SelectField field="Fail Description" selected="True" />
+                <SelectField field="Fail Text" selected="True" />
+                <SelectField field="Fail Text(Contd.)" selected="True" type="V_WString" size="2550" />
+                <SelectField field="Citibank Reference Number" selected="True" type="V_WString" size="2550" />
+                <SelectField field="UniqueStockRef" selected="True" />
+                <SelectField field="Final_Nar" selected="True" />
+                <SelectField field="*Unknown" selected="False" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" source="TextInput:" type="Int64" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="51">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="808" y="2263" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="1" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>&lt;/table&gt;</c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+        <Node ToolID="57">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Filter.Filter">
+            <Position x="459" y="1627" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Expression>StartsWith([Client Ref.], "NP")</Expression>
+              <Mode>Custom</Mode>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>StartsWith([Client Ref.], "NP")</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="True">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" source="TextInput:" type="Int64" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+            <MetaInfo connection="False">
+              <RecordInfo>
+                <Field name="Group ID" source="TextInput:" type="Int64" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" source="TextInput:" type="Int64" />
+                <Field name="Principal Cash - Local" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="Citibank Reference Number" size="2550" source="TextInput:" type="V_WString" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFilter" />
+        </Node>
+        <Node ToolID="58">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Filter.Filter">
+            <Position x="268" y="1626" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Expression>StartsWith([Txn Type], "R")</Expression>
+              <Mode>Custom</Mode>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>StartsWith([Txn Type], "R")</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="True">
+              <RecordInfo>
+                <Field name="Group ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Principal Cash - Local" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Citibank Reference Number" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+            <MetaInfo connection="False">
+              <RecordInfo>
+                <Field name="Group ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="RowNumber" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Account Name" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Status" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Contractual Settlement Dt or Payable Dt" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="TD" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Txn Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="ISIN" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID Type" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Security ID" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Base Currency" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Quantity" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Principal Cash - Local" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Counterparty" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Client Ref." size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Description" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Fail Text(Contd.)" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Citibank Reference Number" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="UniqueStockRef" size="2147483647" source="TextInput:" type="V_String" />
+                <Field name="Final_Nar" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFilter" />
+        </Node>
+        <Node ToolID="2">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="1108" y="559" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="58" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>MIME-Version: 1.0</c>
+                </r>
+                <r>
+                  <c>X-Unsent: 1</c>
+                </r>
+                <r>
+                  <c>To: sh-prime-apac@ubs.com</c>
+                </r>
+                <r>
+                  <c>Cc:sh-ipb-apac-setts@ubs.com</c>
+                </r>
+                <r>
+                  <c>Subject:  **Pot fail fee** AU - Please check cover -  VD_Date</c>
+                </r>
+                <r>
+                  <c>Content-Type: multipart/mixed; boundary="email_boundary"</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>--email_boundary</c>
+                </r>
+                <r>
+                  <c>Content-Type: multipart/alternative; boundary="html_boundary"</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>--html_boundary</c>
+                </r>
+                <r>
+                  <c>Content-Type: text/plain; charset=ISO-8859-1</c>
+                </r>
+                <r>
+                  <c>Content-Transfer-Encoding: quoted-printable</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>This is an HTML message. Please use an HTML capable mail program to read</c>
+                </r>
+                <r>
+                  <c>this message.</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>--html_boundary</c>
+                </r>
+                <r>
+                  <c>Content-Type: text/html; charset=ISO-8859-1</c>
+                </r>
+                <r>
+                  <c>Content-Transfer-Encoding: quoted-printable</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>&lt;style&gt;</c>
+                </r>
+                <r>
+                  <c>table {</c>
+                </r>
+                <r>
+                  <c><![CDATA[  width: 55%;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  table-layout:auto;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  width:auto;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  border-collapse: collapse;]]></c>
+                </r>
+                <r>
+                  <c>}</c>
+                </r>
+                <r>
+                  <c>th, td {</c>
+                </r>
+                <r>
+                  <c><![CDATA[  border: 1px solid black;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  padding: 8px;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  text-align: left;]]></c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c>}</c>
+                </r>
+                <r>
+                  <c>th {</c>
+                </r>
+                <r>
+                  <c><![CDATA[  background-color: yellow;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  font-weight: normal;]]></c>
+                </r>
+                <r>
+                  <c>}</c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c>body {</c>
+                </r>
+                <r>
+                  <c><![CDATA[  font-family: Calibri, Arial, sans-serif;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  font-size: 10pt;]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[  color: #000000;]]></c>
+                </r>
+                <r>
+                  <c>}</c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c>&lt;/style&gt;</c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c>&lt;html&gt;&lt;body&gt;</c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c><![CDATA[    <div>]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[      Hi Team,<br><br>]]></c>
+                </r>
+                <r>
+                  <c><![CDATA[      Please help to check below covers and follow up settlement. Thanks.<br><br>]]></c>
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c />
+                </r>
+                <r>
+                  <c><![CDATA[    </div>]]></c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+        <Node ToolID="3">
+          <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+            <Position x="1864" y="571" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <SummarizeFields>
+                <SummarizeField field="Field1" action="Concat" rename="Concat_Field1">
+                  <Concat_Start />
+                  <Separator>\r\n</Separator>
+                  <Concat_End />
+                </SummarizeField>
+              </SummarizeFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Concat_Field1" size="2147483647" source="Summarize: Concat - Field1" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+        </Node>
+        <Node ToolID="6">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Union.Union">
+            <Position x="2080" y="895" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <ByName_ErrorMode>Warning</ByName_ErrorMode>
+              <ByName_OutputMode>All</ByName_OutputMode>
+              <Mode>ByPos</Mode>
+              <SetOutputOrder value="True" />
+              <OutputOrder>
+                <Connection>#1</Connection>
+                <Connection>#2</Connection>
+                <Connection>#3</Connection>
+                <Connection>#4</Connection>
+              </OutputOrder>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Concat_Field1" size="1073741823" source="(Multiple Sources)" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxUnion" />
+        </Node>
+        <Node ToolID="7">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+            <Position x="2272" y="895" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <FormulaFields>
+                <FormulaField expression="Replace([Concat_Concat_Field1], &quot;[BLANK LINE]&quot;, &quot;&quot;)" field="Concat_Concat_Field1" size="1073741823" type="V_WString" />
+              </FormulaFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText><![CDATA[Concat_Concat_Field1 = Replace([Concat_Concat_Field1], "[BLANK LINE]", "")
+]]></DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Concat_Concat_Field1" size="1073741823" source="Formula: Replace([Concat_Concat_Field1], &quot;[BLANK LINE]&quot;, &quot;&quot;)" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+        </Node>
+        <Node ToolID="8">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+            <Position x="2392" y="895" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <File MaxRecords="" FileFormat="0">..\..\_externals\5\DraftEmail.eml</File>
+              <Passwords />
+              <Disable>False</Disable>
+              <FormatSpecificOptions>
+                <LineEndStyle>CRLF</LineEndStyle>
+                <Delimeter>|</Delimeter>
+                <ForceQuotes>Never</ForceQuotes>
+                <HeaderRow>False</HeaderRow>
+                <CodePage>28591</CodePage>
+                <WriteBOM>False</WriteBOM>
+              </FormatSpecificOptions>
+              <MultiFile value="False" />
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>DraftEmail.eml</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+            <Dependencies>
+              <Implicit />
+            </Dependencies>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+        </Node>
+        <Node ToolID="9">
+          <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+            <Position x="2176" y="895" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <SummarizeFields>
+                <SummarizeField field="Concat_Field1" action="Concat" rename="Concat_Concat_Field1">
+                  <Concat_Start />
+                  <Separator>\r\n</Separator>
+                  <Concat_End />
+                </SummarizeField>
+              </SummarizeFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Concat_Concat_Field1" size="1073741823" source="Summarize: Concat - Concat_Field1" type="V_WString" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+        </Node>
+        <Node ToolID="12">
+          <GuiSettings Plugin="AlteryxGuiToolkit.TextBox.TextBox">
+            <Position x="2248" y="859" width="108" height="40" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Text>Convert the text [BLANK LINE] to actual blank lines</Text>
+              <Font name="Arial" size="8.25" style="0" />
+              <TextColor name="Black" />
+              <FillColor name="White" />
+              <Shape shape="0" />
+              <Justification Justification="4" />
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="13">
+          <GuiSettings Plugin="AlteryxGuiToolkit.TextBox.TextBox">
+            <Position x="2368" y="859" width="180" height="40" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Text>This will write to an eml file. After that you use the Email tool to attach this and send to yourself</Text>
+              <Font name="Arial" size="8.25" style="0" />
+              <TextColor name="Black" />
+              <FillColor name="White" />
+              <Shape shape="0" />
+              <Justification Justification="4" />
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="16">
+          <GuiSettings Plugin="AlteryxGuiToolkit.Questions.ControlParam.ControlParam">
+            <Position x="2380" y="546" width="59" height="59" />
+          </GuiSettings>
+          <Properties>
+            <Configuration />
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText>FullAddress_DraftEmail</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="17">
+          <GuiSettings Plugin="AlteryxGuiToolkit.Action.Action">
+            <Position x="2392" y="655" width="59" height="59" />
+          </GuiSettings>
+          <Properties>
+            <Configuration />
+            <Annotation DisplayMode="0">
+              <Name />
+              <AnnotationText>Update Value</AnnotationText>
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="19">
+          <GuiSettings Plugin="AlteryxGuiToolkit.Questions.ControlParam.ControlParam">
+            <Position x="1120" y="103" width="59" height="59" />
+          </GuiSettings>
+          <Properties>
+            <Configuration />
+            <Annotation DisplayMode="0">
+              <Name />
+              <AnnotationText>VD_Date</AnnotationText>
+              <DefaultAnnotationText>VD_Date</DefaultAnnotationText>
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="20">
+          <GuiSettings Plugin="AlteryxGuiToolkit.Action.Action">
+            <Position x="1132" y="259" width="59" height="59" />
+          </GuiSettings>
+          <Properties>
+            <Configuration />
+            <Annotation DisplayMode="0">
+              <Name />
+              <AnnotationText>Update Value</AnnotationText>
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="4">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="1576" y="2287" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="1" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>--email_boundary--</c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+        <Node ToolID="5">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect">
+            <Position x="1672" y="2287" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <OrderChanged value="False" />
+              <CommaDecimal value="False" />
+              <SelectFields>
+                <SelectField field="Field1" selected="True" rename="Concat_Field1" />
+                <SelectField field="*Unknown" selected="True" />
+              </SelectFields>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Concat_Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSelect" />
+        </Node>
+        <Node ToolID="11">
+          <GuiSettings Plugin="AlteryxGuiToolkit.TextBox.TextBox">
+            <Position x="1336" y="2299" width="240" height="40" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <Text>This is the footer of the entire email</Text>
+              <Font name="Arial" size="8.25" style="0" />
+              <TextColor name="Black" />
+              <FillColor name="White" />
+              <Shape shape="0" />
+              <Justification Justification="4" />
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+          </Properties>
+        </Node>
+        <Node ToolID="18">
+          <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+            <Position x="1636" y="2143" />
+          </GuiSettings>
+          <Properties>
+            <Configuration>
+              <NumRows value="7" />
+              <Fields>
+                <Field name="Field1" />
+              </Fields>
+              <Data>
+                <r>
+                  <c>&lt;/body&gt;&lt;/html&gt;</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>--html_boundary--</c>
+                </r>
+                <r>
+                  <c>Content-Type: text/html; charset=ISO-8859-1</c>
+                </r>
+                <r>
+                  <c>Content-Transfer-Encoding: quoted-printable</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+                <r>
+                  <c>[BLANK LINE]</c>
+                </r>
+              </Data>
+            </Configuration>
+            <Annotation DisplayMode="0">
+              <Name />
+              <DefaultAnnotationText />
+              <Left value="False" />
+            </Annotation>
+            <MetaInfo connection="Output">
+              <RecordInfo>
+                <Field name="Field1" size="2147483647" source="TextInput:" type="V_String" />
+              </RecordInfo>
+            </MetaInfo>
+          </Properties>
+          <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+        </Node>
+      </ChildNodes>
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="29" Connection="Output" />
+      <Destination ToolID="30" Connection="Input" />
+    </Connection>
+    <Connection name="#2">
+      <Origin ToolID="30" Connection="Output" />
+      <Destination ToolID="32" Connection="Input" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="36" Connection="Output" />
+      <Destination ToolID="32" Connection="Input" />
+    </Connection>
+    <Connection name="#4">
+      <Origin ToolID="51" Connection="Output" />
+      <Destination ToolID="32" Connection="Input" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="31" Connection="Output" />
+      <Destination ToolID="36" Connection="Input" />
+    </Connection>
+    <Connection name="#3">
+      <Origin ToolID="34" Connection="Output" />
+      <Destination ToolID="36" Connection="Input" />
+    </Connection>
+    <Connection name="#2">
+      <Origin ToolID="37" Connection="Output" />
+      <Destination ToolID="36" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="32" Connection="Output" />
+      <Destination ToolID="39" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="33" Connection="Output" />
+      <Destination ToolID="35" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="35" Connection="Output" />
+      <Destination ToolID="37" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="38" Connection="Output" />
+      <Destination ToolID="42" Connection="Input" />
+    </Connection>
+    <Connection name="#2">
+      <Origin ToolID="39" Connection="Output" />
+      <Destination ToolID="6" Connection="Input" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="3" Connection="Output" />
+      <Destination ToolID="6" Connection="Input" />
+    </Connection>
+    <Connection name="#4">
+      <Origin ToolID="5" Connection="Output" />
+      <Destination ToolID="6" Connection="Input" />
+    </Connection>
+    <Connection name="#3">
+      <Origin ToolID="18" Connection="Output" />
+      <Destination ToolID="6" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="40" Connection="Output" />
+      <Destination ToolID="58" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="41" Connection="Output" />
+      <Destination ToolID="29" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="41" Connection="Output" />
+      <Destination ToolID="38" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="42" Connection="Output" />
+      <Destination ToolID="33" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="45" Connection="Output" />
+      <Destination ToolID="57" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="57" Connection="True" />
+      <Destination ToolID="41" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="58" Connection="True" />
+      <Destination ToolID="45" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="6" Connection="Output" />
+      <Destination ToolID="9" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="7" Connection="Output" />
+      <Destination ToolID="8" Connection="Input" />
+    </Connection>
+    <Connection name="#2">
+      <Origin ToolID="17" Connection="Action" />
+      <Destination ToolID="8" Connection="Action" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="9" Connection="Output" />
+      <Destination ToolID="7" Connection="Input" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="16" Connection="Question" />
+      <Destination ToolID="17" Connection="Question" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="19" Connection="Question" />
+      <Destination ToolID="20" Connection="Question" />
+    </Connection>
+    <Connection name="#1">
+      <Origin ToolID="20" Connection="Action" />
+      <Destination ToolID="2" Connection="Action" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="4" Connection="Output" />
+      <Destination ToolID="5" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <Memory default="True" />
+    <GlobalRecordLimit value="0" />
+    <TempFiles default="True" />
+    <Annotation on="True" includeToolName="False" />
+    <ConvErrorLimit value="10" />
+    <ConvErrorLimit_Stop value="False" />
+    <CancelOnError value="False" />
+    <DisableBrowse value="False" />
+    <EnablePerformanceProfiling value="False" />
+    <RunWithE2 value="True" />
+    <PredictiveToolsCodePage value="1252" />
+    <DisableAllOutput value="False" />
+    <ShowAllMacroMessages value="False" />
+    <ShowConnectionStatusIsOn value="True" />
+    <ShowConnectionStatusOnlyWhenRunning value="True" />
+    <ZoomLevel value="0" />
+    <LayoutType>Horizontal</LayoutType>
+    <IsTemplate value="False" />
+    <Constants>
+      <Constant>
+        <Namespace>Question</Namespace>
+        <Name>ControlParam.Control Parameter (16)</Name>
+        <Value />
+        <IsNumeric value="False" />
+      </Constant>
+      <Constant>
+        <Namespace>Question</Namespace>
+        <Name>ControlParam.Control Parameter (19)</Name>
+        <Value />
+        <IsNumeric value="False" />
+      </Constant>
+    </Constants>
+    <MetaInfo>
+      <NameIsFileName value="True" />
+      <Name>DraftEmail_1</Name>
+      <Description />
+      <RootToolName />
+      <ToolVersion />
+      <ToolInDb value="False" />
+      <CategoryName />
+      <SearchTags />
+      <Author />
+      <Company />
+      <Copyright />
+      <DescriptionLink actual="" displayed="" />
+      <Example>
+        <Description />
+        <File />
+      </Example>
+      <WorkflowId value="169106f0-613d-4ef8-9717-5ea4b52c3ada" />
+      <Telemetry>
+        <PreviousWorkflowId value="2c5d332c-adc6-4aad-bff1-fd48bade4b10" />
+        <OriginWorkflowId value="fb04f8e8-b92a-4f6e-bbe5-78bb54407ae7" />
+      </Telemetry>
+      <PlatformWorkflowId value="" />
+    </MetaInfo>
+    <Events>
+      <Enabled value="False" />
+    </Events>
+    <RuntimeProperties>
+      <Actions>
+        <NoCondition>
+          <Type>NoCondition</Type>
+          <Description>(Always Run)</Description>
+          <True>
+            <Action>
+              <Type>UpdateValue</Type>
+              <Description />
+              <ToolId value="17" />
+              <Mode>Simple</Mode>
+              <Variable />
+              <Replace value="False" />
+              <Destination>8/File</Destination>
+            </Action>
+            <Action>
+              <Type>UpdateValue</Type>
+              <Description />
+              <ToolId value="20" />
+              <Mode>Simple</Mode>
+              <Variable />
+              <Replace value="True" />
+              <ReplaceText>VD_Date</ReplaceText>
+              <Destination>2/Data/r[5]/c</Destination>
+            </Action>
+          </True>
+        </NoCondition>
+      </Actions>
+      <Questions>
+        <Question>
+          <Type>Tab</Type>
+          <Description>Questions</Description>
+          <Name>Tab (1)</Name>
+          <ToolId value="1" />
+          <Questions>
+            <Question>
+              <Type>ControlParam</Type>
+              <Description>FullAddress_DraftEmail</Description>
+              <Name>Control Parameter (16)</Name>
+              <ToolId value="16" />
+            </Question>
+            <Question>
+              <Type>MacroInput</Type>
+              <Description>Macro Input (56)</Description>
+              <Name>Macro Input (40)</Name>
+              <ToolId value="40" />
+            </Question>
+            <Question>
+              <Type>ControlParam</Type>
+              <Description>VD_Date</Description>
+              <Name>Control Parameter (19)</Name>
+              <ToolId value="19" />
+            </Question>
+          </Questions>
+        </Question>
+      </Questions>
+      <ModuleType>Macro</ModuleType>
+      <MacroCustomHelp value="False" />
+      <MacroDynamicOutputFields value="False" />
+      <MacroImageStd value="39" />
+      <MacroInputs />
+      <MacroOutputs />
+      <BatchMacro>
+        <OutputMode>AllSame</OutputMode>
+        <ControlParams>
+          <ControlParam>
+            <Name>Control Parameter (16)</Name>
+            <Description>FullAddress_DraftEmail</Description>
+          </ControlParam>
+          <ControlParam>
+            <Name>Control Parameter (19)</Name>
+            <Description>VD_Date</Description>
+          </ControlParam>
+        </ControlParams>
+      </BatchMacro>
+      <Wiz_CustomHelp value="False" />
+      <Wiz_CustomGraphic value="False" />
+      <Wiz_ShowOutput value="True" />
+      <Wiz_OpenOutputTools />
+      <Wiz_OutputMessage />
+      <Wiz_NoOutputFilesMessage />
+      <Wiz_ChainRunWizard />
+    </RuntimeProperties>
+  </Properties>
+</AlteryxDocument>

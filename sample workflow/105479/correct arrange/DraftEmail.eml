@@ -1,0 +1,77 @@
+MIME-Version: 1.0
+X-Unsent: 1
+To: sh-prime-apac@ubs.com
+Cc:sh-ipb-apac-setts@ubs.com
+Subject:  **Pot fail fee** AU - Please check cover -  VD_Date
+Content-Type: multipart/mixed; boundary="email_boundary"
+
+--email_boundary
+Content-Type: multipart/alternative; boundary="html_boundary"
+
+--html_boundary
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+This is an HTML message. Please use an HTML capable mail program to read
+this message.
+
+--html_boundary
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+<style>
+table {
+  width: 55%;
+  table-layout:auto;
+  width:auto;
+  border-collapse: collapse;
+}
+th, td {
+  border: 1px solid black;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background-color: yellow;
+  font-weight: normal;
+}
+body {
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 10pt;
+  color: #000000;
+}
+</style>
+<html><body>
+    <div>
+      Hi Team,<br><br>
+      Please help to check below covers and follow up settlement. Thanks.<br><br>
+    </div>
+<table>
+<tr>
+<th>Account ID</th>
+<th>ISIN</th>
+<th>Security ID</th>
+<th>Quantity</th>
+<th>Client Ref.</th>
+<th>SD</th>
+<th>TD</th>
+</tr>
+<tr><td>2081220001</td><td>AU000000MMS5</td><td>B00G1Q0</td><td>396</td><td>NP1L2B8WV0/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000AX19</td><td>BD20RS5</td><td>60201</td><td>NP1L2B8WQU/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000RMD6</td><td>6221667</td><td>27557</td><td>NP1L2A5BJ3/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000RMD6</td><td>6221667</td><td>700</td><td>NP1L1CKOB1/001</td><td>2024-10-11</td><td>2024-10-09</td></tr>
+<tr><td>2081220001</td><td>AU0000272924</td><td>BN7HDZ0</td><td>6895</td><td>NP1L2B8WV4/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU0000090128</td><td>BMB2257</td><td>49896</td><td>NP1L2B8WSL/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000AMC4</td><td>6066608</td><td>1979</td><td>NP1L2B8WU8/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000GNC9</td><td>6102331</td><td>26029</td><td>NP1L2AP43R/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000GNC9</td><td>6102331</td><td>22937</td><td>NP1L2A5AYI/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+<tr><td>2081220001</td><td>AU000000QAN2</td><td>6710347</td><td>86156</td><td>NP1L2B8WQP/001</td><td>2024-10-11</td><td>2024-10-10</td></tr>
+</table>
+</body></html>
+
+--html_boundary--
+Content-Type: text/html; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
+
+
+--email_boundary--
