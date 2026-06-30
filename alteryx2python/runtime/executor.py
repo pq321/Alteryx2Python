@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 import pandas as pd
 
 from alteryx2python.contracts import validate_node_contract
+from alteryx2python.diagnostics import build_node_failure_diagnostic, build_routing_failure_diagnostic
 from alteryx2python.runtime.node_result import NodeResult, WorkflowGraphResult
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
@@ -70,23 +71,42 @@ def run_workflow_graph(
         for edge in incoming_edges.get(node_id, []):
             upstream = node_results.get(edge.source_node_id)
             if upstream is None:
-                raise KeyError(f"Missing upstream result for node {edge.source_node_id}")
+                exc = KeyError(f"Missing upstream result for node {edge.source_node_id}")
+                config = _execution_config(node)
+                _record_node_failure(workflow, context, node, inputs, config, exc)
+                raise exc
             if edge.source_anchor not in upstream.outputs:
-                raise KeyError(
+                exc = KeyError(
                     f"Missing output anchor {edge.source_anchor} from node {edge.source_node_id}"
                 )
+                context.record_error(str(exc))
+                context.record_diagnostic(
+                    build_routing_failure_diagnostic(
+                        workflow=workflow,
+                        node=node,
+                        edge=edge,
+                        exc=exc,
+                        upstream_outputs=upstream.outputs,
+                    )
+                )
+                _record_failed_trace(context, node, inputs, _execution_config(node), exc)
+                raise exc
             target_anchor = _next_input_anchor_name(inputs, edge.target_anchor)
             inputs[target_anchor] = upstream.outputs[edge.source_anchor]
 
-        metadata = _metadata_for_node(node, context)
         config = _execution_config(node)
-        node_results[node_id] = run_tool_node(
-            metadata,
-            inputs,
-            config,
-            context,
-            expected_output_schema=node.expected_output_schema,
-        )
+        try:
+            metadata = _metadata_for_node(node, context)
+            node_results[node_id] = run_tool_node(
+                metadata,
+                inputs,
+                config,
+                context,
+                expected_output_schema=node.expected_output_schema,
+            )
+        except Exception as exc:
+            _record_node_failure(workflow, context, node, inputs, config, exc)
+            raise
 
     warnings = _record_frontier_warnings(workflow, context, executable_node_ids, outgoing_edges, nodes_by_id)
     skipped_node_ids = [node.node_id for node in workflow.nodes if node.node_id not in executable_node_ids]
@@ -115,7 +135,53 @@ def _execution_config(node: "NodeIR") -> dict[str, object]:
         **normalized,
         "node_id": node.node_id,
         "source_tool_id": node.source_tool_id,
+        "node_input_anchors": [anchor.name for anchor in node.input_anchors],
+        "node_output_anchors": [anchor.name for anchor in node.output_anchors],
     }
+
+
+def _record_node_failure(
+    workflow: "WorkflowIR",
+    context: "WorkflowContext",
+    node: "NodeIR",
+    inputs: dict[str, pd.DataFrame],
+    config: dict[str, object],
+    exc: Exception,
+) -> None:
+    if str(exc) and str(exc) not in context.errors:
+        context.record_error(str(exc))
+    context.record_diagnostic(
+        build_node_failure_diagnostic(
+            workflow=workflow,
+            node=node,
+            exc=exc,
+            inputs=inputs,
+            config=config,
+        )
+    )
+    _record_failed_trace(context, node, inputs, config, exc)
+
+
+def _record_failed_trace(
+    context: "WorkflowContext",
+    node: "NodeIR",
+    inputs: dict[str, pd.DataFrame],
+    config: dict[str, object],
+    exc: Exception,
+) -> None:
+    context.record_node(
+        node_id=node.node_id,
+        tool_type=node.tool_type,
+        source_tool_id=node.source_tool_id,
+        inputs=inputs,
+        outputs={},
+        status="failed",
+        config={
+            **config,
+            "error_type": type(exc).__name__,
+            "error_message": str(exc),
+        },
+    )
 
 
 def _next_input_anchor_name(inputs: dict[str, pd.DataFrame], target_anchor: str) -> str:

@@ -9,11 +9,12 @@ def tokenize(expression: str) -> list[str]:
         if char.isspace():
             index += 1
             continue
-        if char == '"':
+        if char in {'"', "'"}:
+            quote = char
             end = index + 1
             escaped = False
             while end < len(expression):
-                if expression[end] == '"' and not escaped:
+                if expression[end] == quote and not escaped:
                     break
                 escaped = expression[end] == "\\" and not escaped
                 if expression[end] != "\\":
@@ -37,7 +38,7 @@ def tokenize(expression: str) -> list[str]:
             tokens.append(expression[index : index + 2])
             index += 2
             continue
-        if char in "(),+-*/><!":
+        if char in "(),+-*/><!=":
             tokens.append(char)
             index += 1
             continue

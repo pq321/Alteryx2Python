@@ -24,12 +24,21 @@ def test_real_workflow_can_be_loaded_by_current_xml_parser():
     assert workflow.classification == "CLASS_D_PARTIAL_MIGRATION_ONLY"
     assert len(workflow.nodes) == 43
     assert len(workflow.edges) == 40
-    assert any("Deferred interface node" in warning for warning in workflow.warnings)
-    assert any("Deferred action node" in warning for warning in workflow.warnings)
+    assert not any("Deferred action node" in warning for warning in workflow.warnings)
+    assert any(node.tool_type == "Action" and node.supported_status == "L1_PARSED_ONLY" for node in workflow.nodes)
+    assert any(node.tool_type == "QuestionFileBrowse" and node.supported_status == "L1_PARSED_ONLY" for node in workflow.nodes)
     select_nodes = [node for node in workflow.nodes if node.tool_type == "Select"]
     assert select_nodes
     assert "select_fields" in select_nodes[0].config["normalized"]
     db_input_nodes = [node for node in workflow.nodes if node.tool_type == "DbFileInput"]
     assert db_input_nodes
     assert "file" in db_input_nodes[0].config["normalized"]
+    download_nodes = [node for node in workflow.nodes if node.tool_type == "Download"]
+    assert len(download_nodes) == 1
+    assert download_nodes[0].config["normalized"]["url_field"] == "URL"
+    assert download_nodes[0].config["normalized"]["payload"] == {
+        "http_action": "POST",
+        "body_mode": "Field",
+        "field": "JSON",
+    }
     assert validate_workflow_ir(workflow) == []

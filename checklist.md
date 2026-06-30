@@ -553,7 +553,7 @@ Prove an official multi-tool Alteryx workflow can be parsed, executed, generated
 - [x] Expand `Select` dtype conversion for observed Alteryx type names such as `Int32`.
 - [x] Expand Join default output naming to strip `Left_` and `Right_` prefixes.
 - [x] Expand `DbFileOutput` path handling for `%temp%`.
-- [x] Copy the Alteryx Engine CSV oracle into `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`.
+- [x] Copy the externally captured Alteryx CSV oracle into `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`.
 - [x] Add parser/tool/registry tests for new Sort support.
 - [x] Add Excel input tests for header and no-header sheet reads.
 - [x] Add full runtime E2E test: parse -> execute target `23` -> compare CSV oracle.

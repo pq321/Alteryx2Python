@@ -12,9 +12,11 @@ import pandas as pd
 from alteryx2python.certification import assert_nodes_certifiable, certification_issues_for_nodes
 from alteryx2python.compact import build_compact_workflow
 from alteryx2python.comparison.dataframe_diff import compare_dataframes
+from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.executor import run_workflow_graph
+from alteryx2python.support_surfaces import build_support_map
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
 
@@ -44,6 +46,26 @@ def _build_parser() -> argparse.ArgumentParser:
     compact_parser.add_argument("workflow")
     compact_parser.add_argument("--log")
     compact_parser.set_defaults(func=_compact_command)
+
+    support_parser = subparsers.add_parser("support-map", help="Emit a change-request support surface map")
+    support_parser.add_argument("workflow")
+    support_parser.add_argument("--log")
+    support_parser.set_defaults(func=_support_map_command)
+
+    generate_parser = subparsers.add_parser("generate", help="Generate a Python script for one workflow")
+    generate_parser.add_argument("workflow")
+    generate_parser.add_argument("--output", required=True)
+    generate_parser.add_argument("--log")
+    generate_parser.set_defaults(func=_generate_command)
+
+    generate_samples_parser = subparsers.add_parser(
+        "generate-samples",
+        help="Recursively generate Python scripts for Alteryx sample workflows",
+    )
+    generate_samples_parser.add_argument("sample_root")
+    generate_samples_parser.add_argument("--output-dir", required=True)
+    generate_samples_parser.add_argument("--log")
+    generate_samples_parser.set_defaults(func=_generate_samples_command)
 
     run_parser = subparsers.add_parser("run", help="Run a workflow target node through the canonical runtime")
     run_parser.add_argument("workflow")
@@ -108,12 +130,83 @@ def _compact_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     return _compact_report(workflow), 0
 
 
+def _support_map_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    workflow = XmlWorkflowParser().parse(Path(args.workflow))
+    return {
+        "command": "support-map",
+        "status": "ok",
+        "support_map": build_support_map(workflow),
+    }, 0
+
+
 def _compact_report(workflow: Any) -> dict[str, Any]:
     return {
         "command": "compact",
         "status": "ok",
         "compact_workflow": build_compact_workflow(workflow),
+        "support_map": build_support_map(workflow),
     }
+
+
+def _generate_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    workflow_path = Path(args.workflow)
+    output_path = Path(args.output)
+    workflow = XmlWorkflowParser().parse(workflow_path)
+    generated = _write_generated_workflow(workflow, output_path)
+    return {
+        "command": "generate",
+        "status": "ok",
+        "workflow": _workflow_summary(workflow),
+        "output": str(generated),
+        "tool_types": sorted({node.tool_type for node in workflow.nodes}),
+        "unsupported_nodes": _unsupported_nodes(workflow),
+        "warnings": list(workflow.warnings),
+    }, 0
+
+
+def _generate_samples_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    sample_root = Path(args.sample_root)
+    output_dir = Path(args.output_dir)
+    workflow_paths = _workflow_paths(sample_root)
+    generated: list[dict[str, Any]] = []
+    errors: list[dict[str, Any]] = []
+    parser = XmlWorkflowParser()
+
+    for workflow_path in workflow_paths:
+        try:
+            workflow = parser.parse(workflow_path)
+            output_path = output_dir / _generated_relative_path(sample_root, workflow_path)
+            generated_path = _write_generated_workflow(workflow, output_path)
+            generated.append(
+                {
+                    "source": str(workflow_path),
+                    "output": str(generated_path),
+                    "workflow": _workflow_summary(workflow),
+                    "tool_types": sorted({node.tool_type for node in workflow.nodes}),
+                    "unsupported_nodes": _unsupported_nodes(workflow),
+                    "warnings": list(workflow.warnings),
+                }
+            )
+        except Exception as exc:
+            errors.append(
+                {
+                    "source": str(workflow_path),
+                    "error": {"type": type(exc).__name__, "message": str(exc)},
+                }
+            )
+
+    return {
+        "command": "generate-samples",
+        "status": "ok" if not errors else "partial",
+        "sample_root": str(sample_root),
+        "output_dir": str(output_dir),
+        "workflow_count": len(workflow_paths),
+        "generated_count": len(generated),
+        "error_count": len(errors),
+        "generated": generated,
+        "errors": errors,
+        "unsupported_tool_types": _unsupported_tool_type_counts(generated),
+    }, 0 if not errors else 1
 
 
 def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
@@ -141,6 +234,7 @@ def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "warnings": list(result.warnings),
         "context_warnings": list(context.warnings),
         "context_errors": list(context.errors),
+        "diagnostics": list(context.diagnostics),
         "output_overrides": overrides,
         "outputs": _result_outputs(result),
         "contract_evidence": _result_contract_evidence(result),
@@ -186,6 +280,7 @@ def _certify_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "warnings": list(result.warnings),
         "context_warnings": list(context.warnings),
         "context_errors": list(context.errors),
+        "diagnostics": list(context.diagnostics),
         "output_overrides": overrides,
         "certification_issues": certification_issues,
         "compare": compare_report,
@@ -280,6 +375,41 @@ def _workflow_summary(workflow: Any) -> dict[str, Any]:
     }
 
 
+def _workflow_paths(path: Path) -> list[Path]:
+    if path.is_file():
+        return [path]
+    return sorted([*path.rglob("*.yxmd"), *path.rglob("*.yxwz")])
+
+
+def _generated_relative_path(sample_root: Path, workflow_path: Path) -> Path:
+    if sample_root.is_file():
+        relative = Path(workflow_path.name)
+    else:
+        relative = workflow_path.relative_to(sample_root)
+    return relative.with_suffix(".py")
+
+
+def _write_generated_workflow(workflow: Any, output_path: Path) -> Path:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    code = PythonGenerator().generate(workflow)
+    output_path.write_text(code + "\n", encoding="utf-8")
+    return output_path
+
+
+def _unsupported_nodes(workflow: Any) -> list[dict[str, Any]]:
+    registered = set(TOOL_REGISTRY.list_tool_types())
+    return [_node_summary(node) for node in workflow.nodes if node.tool_type not in registered]
+
+
+def _unsupported_tool_type_counts(generated: list[dict[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for item in generated:
+        for node in item["unsupported_nodes"]:
+            tool_type = str(node["tool_type"])
+            counts[tool_type] = counts.get(tool_type, 0) + 1
+    return dict(sorted(counts.items(), key=lambda entry: (-entry[1], entry[0])))
+
+
 def _node_summary(node: Any) -> dict[str, Any]:
     return {
         "node_id": node.node_id,
@@ -340,6 +470,7 @@ def _command_error_report(
         "output_overrides": output_overrides,
         "context_warnings": list(context.warnings),
         "context_errors": list(context.errors),
+        "diagnostics": list(context.diagnostics),
         "trace": context.execution_report(),
     }
 

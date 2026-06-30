@@ -37,4 +37,4 @@ None of those external files are currently present in the repository, so M1 only
 - The mapping fixture is intentionally small: it maps only `assetClass` and `buyerId`, which are the fields needed to prove the first reshape/join/union slice.
 - `mifid_target36_expected.csv` is the first golden evidence fixture. It captures the stable output columns produced by the real parsed MIFID branch through node `36`.
 - `text_input_expected.csv` is the first complete official one-tool workflow golden fixture. It captures the embedded output of `Text_Input.yxmd` node `98` with empty cells preserved as empty strings.
-- `combine_customer_profile_expected.csv` is the first complete official multi-tool workflow oracle. It was copied from an Alteryx Engine CSV output for Basic `01 Combine 2 Spreadsheets Containing Customer Data.yxmd`.
+- `combine_customer_profile_expected.csv` is the first complete official multi-tool workflow oracle. It was copied from an externally captured Alteryx CSV output for Basic `01 Combine 2 Spreadsheets Containing Customer Data.yxmd`.

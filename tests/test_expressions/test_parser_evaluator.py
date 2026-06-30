@@ -39,6 +39,20 @@ def test_expression_evaluates_mifid_reshape_functions():
     assert eval_expr('IF IsEmpty([Value]) THEN "" ELSE ToString([Value]) ENDIF', {"Value": 10}) == "10"
 
 
+def test_expression_evaluates_multirow_sample_functions():
+    row = {"Clicks": "2026-06-22 12:00:20", "Row-1:Clicks": "2026-06-22 12:00:00"}
+
+    assert eval_expr("DateTimeDiff([Clicks],[Row-1:Clicks],'seconds')", row) == 20
+    assert eval_expr("Average([Sales],[Row-1:Sales],[Row-2:Sales])", {"Sales": 10, "Row-1:Sales": 20, "Row-2:Sales": 30}) == 20
+    assert eval_expr("trim([Row-1:DownloadData],'<>')", {"Row-1:DownloadData": "<headers>"}) == "headers"
+    assert eval_expr("null()", {}) is None
+
+
+def test_expression_evaluates_dynamicselect_name_helpers():
+    assert eval_expr("LEFT([Name],6)=='datum_'", {"Name": "datum_price"}) is True
+    assert eval_expr("RIGHT([Name],4) != 'type'", {"Name": "datum_price"}) is True
+
+
 def test_expression_rejects_unsupported_functions_explicitly():
     with pytest.raises(UnsupportedExpressionError, match="Unsupported expression function"):
         eval_expr("DateTimeToday()", {})

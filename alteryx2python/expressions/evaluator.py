@@ -43,6 +43,10 @@ def _evaluate_binary(node: BinaryExpression, row: dict[str, Any]) -> Any:
     left = evaluate_expression(node.left, row)
     right = evaluate_expression(node.right, row)
     if node.operator == "+":
+        if left is None and isinstance(right, (int, float)):
+            left = 0
+        if right is None and isinstance(left, (int, float)):
+            right = 0
         return left + right
     if node.operator == "-":
         return left - right
@@ -51,14 +55,22 @@ def _evaluate_binary(node: BinaryExpression, row: dict[str, Any]) -> Any:
     if node.operator == "/":
         return left / right
     if node.operator == ">":
+        if left is None or right is None:
+            return False
         return left > right
     if node.operator == ">=":
+        if left is None or right is None:
+            return False
         return left >= right
     if node.operator == "<":
+        if left is None or right is None:
+            return False
         return left < right
     if node.operator == "<=":
+        if left is None or right is None:
+            return False
         return left <= right
-    if node.operator == "==":
+    if node.operator in {"=", "=="}:
         return left == right
     if node.operator == "!=":
         return left != right

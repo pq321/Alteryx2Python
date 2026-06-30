@@ -13,16 +13,23 @@ from alteryx2python.expressions.lexer import tokenize
 
 
 SUPPORTED_FUNCTIONS = {
+    "DATETIMEADD",
+    "DATETIMEDIFF",
+    "AVERAGE",
     "ISNULL",
     "ISEMPTY",
+    "LEFT",
     "PADLEFT",
     "REPLACE",
     "REGEX_MATCH",
     "REGEX_REPLACE",
     "ROUND",
+    "RIGHT",
     "STARTSWITH",
     "TITLECASE",
+    "TRIM",
     "TOSTRING",
+    "NULL",
     "UPPERCASE",
 }
 
@@ -43,10 +50,24 @@ class _ExpressionParser:
     def _parse_if(self):
         condition = self._parse_or()
         self._expect_keyword("THEN")
-        true_value = self._parse_or(stop_keywords={"ELSE"})
-        self._expect_keyword("ELSE")
-        false_value = self._parse_or(stop_keywords={"ENDIF"})
+        true_value = self._parse_or(stop_keywords={"ELSE", "ELSEIF"})
+        if self._match_keyword("ELSEIF"):
+            false_value = self._parse_if_tail()
+        else:
+            self._expect_keyword("ELSE")
+            false_value = self._parse_or(stop_keywords={"ENDIF"})
         self._expect_keyword("ENDIF")
+        return ConditionalExpression(condition=condition, true_value=true_value, false_value=false_value)
+
+    def _parse_if_tail(self):
+        condition = self._parse_or()
+        self._expect_keyword("THEN")
+        true_value = self._parse_or(stop_keywords={"ELSE", "ELSEIF"})
+        if self._match_keyword("ELSEIF"):
+            false_value = self._parse_if_tail()
+        else:
+            self._expect_keyword("ELSE")
+            false_value = self._parse_or(stop_keywords={"ENDIF"})
         return ConditionalExpression(condition=condition, true_value=true_value, false_value=false_value)
 
     def _parse_or(self, stop_keywords: set[str] | None = None):
@@ -63,7 +84,7 @@ class _ExpressionParser:
 
     def _parse_comparison(self, stop_keywords: set[str] | None = None):
         node = self._parse_additive(stop_keywords)
-        while self._peek() in {">", ">=", "<", "<=", "==", "!="}:
+        while self._peek() in {">", ">=", "<", "<=", "=", "==", "!="}:
             operator = self._advance()
             node = BinaryExpression(node, operator, self._parse_additive(stop_keywords))
         return node
@@ -102,7 +123,7 @@ class _ExpressionParser:
         if token.startswith("[") and token.endswith("]"):
             self._advance()
             return FieldReference(token[1:-1])
-        if token.startswith('"') and token.endswith('"'):
+        if (token.startswith('"') and token.endswith('"')) or (token.startswith("'") and token.endswith("'")):
             self._advance()
             return LiteralExpression(token[1:-1].replace('\\"', '"'))
         if _is_number(token):
@@ -110,6 +131,9 @@ class _ExpressionParser:
             return LiteralExpression(float(token) if "." in token else int(token))
         if self._looks_like_function():
             return self._parse_function()
+        if _is_identifier(token):
+            self._advance()
+            return FieldReference(token)
         raise UnsupportedExpressionError(f"Unsupported expression token: {token}")
 
     def _parse_function(self):
@@ -171,6 +195,10 @@ def _is_number(token: str) -> bool:
     except ValueError:
         return False
     return True
+
+
+def _is_identifier(token: str) -> bool:
+    return token.replace("_", "").isalnum() and not token[0].isdigit()
 
 
 def parse_expression(expression: str):

@@ -1,6 +1,6 @@
 # Alteryx Migration Python
 
-This repository is being structured as a constitution-driven Alteryx-to-Python migration framework.
+This repository is being structured as a constitution-driven Alteryx-to-Python migration pipeline and support runtime.
 
 Current priorities:
 
@@ -8,6 +8,7 @@ Current priorities:
 2. enforce a canonical IR between parsing and generation
 3. keep tool semantics modular and metadata-driven
 4. validate equivalence through tests, trace, and comparison layers
+5. make production support, bug fixes, and change requests diagnosable without raw XML spelunking
 
 Canonical package root:
 
@@ -28,6 +29,7 @@ Current implemented slices:
 - Official `Text_Input.yxmd` one-tool workflow golden comparison evidence for node `98`
 - Official Basic `01 Combine 2 Spreadsheets Containing Customer Data.yxmd` multi-tool workflow certification against an Alteryx CSV oracle
 - Baseline Python generation that rebuilds `WorkflowIR` and delegates to canonical runtime execution
+- Support diagnostics for failed runtime nodes, including schema drift, missing anchors/files, unsupported tools, graph context, likely cause, and suggested fix
 
 Current architectural scaffolding introduced:
 
@@ -39,6 +41,9 @@ Current architectural scaffolding introduced:
 - migration governance and triage guidance
 - Basic/Advanced official sample inventory
 - lightweight JSON-first CLI for inspect, run, compare, and certify
+- Python script generation for single workflows and recursive sample directories
+- pipeline support diagnostics documented in `docs/support_diagnostics.md`
+- change-request support maps for report/email maintenance surfaces via `support-map` and compact JSON
 
 Important constraint:
 
@@ -51,6 +56,8 @@ Verification:
 CLI example:
 
 - `uv run alteryx2python certify "D:/Alteryx/Samples/en/04 Basic/01 Combine 2 Spreadsheets Containing Customer Data.yxmd" --target-node 23 --override-output 23=E:/tmp/Excel.CustomerProfileOutput.csv --expect tests/fixtures/real_workflows/combine_customer_profile_expected.csv --compare bytes --log E:/tmp/certify.json`
+- `uv run alteryx2python generate-samples "D:/Alteryx/Samples/en" --output-dir reports/generated_workflows/all_samples --log reports/generated_workflows/all_samples_manifest.json`
+- `uv run alteryx2python support-map "examples/sample_workflows/w1.yxmd" --log E:/tmp/support-map.json`
 
 Roadmap:
 

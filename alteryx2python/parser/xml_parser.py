@@ -8,20 +8,98 @@ from xml.etree import ElementTree
 from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 from alteryx2python.parser.base_parser import BaseWorkflowParser
 from alteryx2python.parser.tool_parsers import (
+    parse_action_config,
+    parse_apioutput_config,
+    parse_appendfields_config,
+    parse_arrange_config,
+    parse_autofield_config,
+    parse_basicdataprofile_config,
+    parse_blobconvert_config,
+    parse_blobinput_config,
+    parse_bloboutput_config,
+    parse_buffer_config,
+    parse_condition_config,
+    parse_createpoints_config,
     parse_dbfileinput_config,
     parse_dbfileoutput_config,
+    parse_detour_config,
+    parse_detourend_config,
+    parse_download_config,
     parse_crosstab_config,
+    parse_datacleansepro_config,
+    parse_datacleansing_config,
+    parse_datetime_config,
+    parse_datetimenow_config,
+    parse_dynamicinput_config,
     parse_dynamicrename_config,
+    parse_dynamicselect_config,
+    parse_distance_config,
+    parse_directory_config,
+    parse_error_config,
+    parse_expectequal_config,
     parse_filter_config,
+    parse_fieldinfo_config,
+    parse_findnearest_config,
+    parse_findreplace_config,
     parse_formula_config,
+    parse_fuzzymatch_config,
     parse_join_config,
+    parse_joinmultiple_config,
+    parse_alteryx_report_chart_config,
+    parse_interface_layout_config,
+    parse_interface_value_config,
     parse_jsonparse_config,
+    parse_jupytercode_config,
+    parse_overlay_config,
+    parse_generaterows_config,
+    parse_generalize_config,
+    parse_makecolumns_config,
+    parse_makegrid_config,
+    parse_makegroup_config,
+    parse_mapinput_config,
+    parse_multifieldformula_config,
+    parse_multirowformula_config,
+    parse_pearsoncorrelation_config,
+    parse_pdfinput_config,
+    parse_pdftotext_config,
+    parse_polybuild_config,
+    parse_polysplit_config,
     parse_recordid_config,
+    parse_rank_config,
+    parse_regex_config,
+    parse_plotly_charting_config,
+    parse_report_image_config,
+    parse_report_layout_config,
+    parse_report_footer_config,
+    parse_report_header_config,
+    parse_report_legend_builder_config,
+    parse_report_legend_splitter_config,
+    parse_report_map_config,
+    parse_report_render_config,
+    parse_report_table_config,
+    parse_report_text_config,
+    parse_runningtotal_config,
+    parse_runcommand_config,
+    parse_sample_config,
     parse_select_config,
+    parse_spatialinfo_config,
+    parse_spatialmatch_config,
+    parse_smooth_config,
+    parse_spatialprocess_config,
     parse_sort_config,
+    parse_summarize_config,
+    parse_test_config,
     parse_textinput_config,
+    parse_texttocolumns_config,
+    parse_throttle_config,
+    parse_tile_config,
+    parse_tradearea_config,
     parse_transpose_config,
     parse_union_config,
+    parse_unique_config,
+    parse_visual_layout_config,
+    parse_xmlparse_config,
+    parse_dynamicreplace_config,
 )
 
 
@@ -39,6 +117,42 @@ INPUT_ANCHOR_HINTS = {
 INTERFACE_PLUGIN_PREFIX = "AlteryxGuiToolkit.Questions."
 ACTION_PLUGIN = "AlteryxGuiToolkit.Action.Action"
 CONTAINER_PLUGIN = "AlteryxGuiToolkit.ToolContainer.ToolContainer"
+DOWNLOAD_PLUGIN = "AlteryxConnectorGui.Download.Download"
+INTERFACE_BASELINE_PLUGINS = {
+    "AlteryxGuiToolkit.Questions.CheckBoxGroup.CheckBoxGroup",
+    "AlteryxGuiToolkit.Questions.Date.Date",
+    "AlteryxGuiToolkit.Questions.DropDownListBox.DropDown",
+    "AlteryxGuiToolkit.Questions.DropDownListBox.ListBox",
+    "AlteryxGuiToolkit.Questions.FileBrowse.FileBrowse",
+    "AlteryxGuiToolkit.Questions.FolderBrowse.FolderBrowse",
+    "AlteryxGuiToolkit.Questions.Label.Label",
+    "AlteryxGuiToolkit.Questions.LabelGroup.LabelGroup",
+    "AlteryxGuiToolkit.Questions.Link.Link",
+    "AlteryxGuiToolkit.Questions.Map.Map",
+    "AlteryxGuiToolkit.Questions.NumericUpDown.NumericUpDown",
+    "AlteryxGuiToolkit.Questions.RadioButtonGroup.RadioButtonGroup",
+    "AlteryxGuiToolkit.Questions.Tab.Tab",
+    "AlteryxGuiToolkit.Questions.TextBox.QuestionTextBox",
+    "AlteryxGuiToolkit.Questions.Tree.Tree",
+}
+INTERFACE_CONFIG_TOOL_TYPES = {
+    "CheckBoxGroup",
+    "Date",
+    "DropDown",
+    "FolderBrowse",
+    "Label",
+    "LabelGroup",
+    "Link",
+    "ListBox",
+    "Map",
+    "NumericUpDown",
+    "QuestionFileBrowse",
+    "QuestionTab",
+    "QuestionTextBox",
+    "RadioButtonGroup",
+    "Tree",
+    "Condition",
+}
 
 
 def _normalize_tool_type(plugin_name: str) -> str:
@@ -46,6 +160,8 @@ def _normalize_tool_type(plugin_name: str) -> str:
         return "ToolContainer"
     if plugin_name == ACTION_PLUGIN:
         return "Action"
+    if plugin_name == DOWNLOAD_PLUGIN:
+        return "Download"
     if plugin_name.startswith(INTERFACE_PLUGIN_PREFIX):
         suffix = plugin_name.removeprefix(INTERFACE_PLUGIN_PREFIX)
         if suffix == "FileBrowse.FileBrowse":
@@ -71,11 +187,68 @@ def _normalize_tool_type(plugin_name: str) -> str:
     return plugin_name.split(".")[-1] if plugin_name else "UNKNOWN"
 
 
+def _normalize_macro_tool_type(macro_name: str) -> str | None:
+    if Path(macro_name).name.lower() == "cleanse.yxmc":
+        return "DataCleansing"
+    return None
+
+
+def _normalize_config_only_tool_type(raw_config: dict[str, object]) -> str | None:
+    values = raw_config.get("Value")
+    if isinstance(values, dict):
+        value_items = [values]
+    elif isinstance(values, list):
+        value_items = values
+    else:
+        return None
+    names = {
+        item.get("attributes", {}).get("name")
+        for item in value_items
+        if isinstance(item, dict) and isinstance(item.get("attributes"), dict)
+    }
+    if {
+        "HeaderText",
+        "IncludeDate",
+        "DateFormat",
+        "IncludeImage",
+        "AlteryxLogo",
+        "OwnLogo",
+        "ImageFile",
+    }.issubset(names):
+        return "ReportHeader"
+    if {"CopyrightText", "InfoText", "PageNumbers"}.issubset(names):
+        return "ReportFooter"
+    if {"Legend Field"}.issubset(names):
+        return "ReportLegendSplitter"
+    if {"Text Field", "Image Field", "Text Style Field", "Image Style Field"}.issubset(names):
+        return "ReportLegendBuilder"
+    cleanse_names = {
+        "List Box (11)",
+        "Check Box (84)",
+        "Check Box (117)",
+        "Check Box (15)",
+        "Check Box (109)",
+        "Check Box (122)",
+        "Check Box (53)",
+        "Check Box (58)",
+        "Check Box (70)",
+        "Check Box (77)",
+        "Drop Down (81)",
+    }
+    if cleanse_names.issubset(names):
+        return "DataCleansing"
+    return None
+
+
 def _node_supported_status(plugin_name: str) -> tuple[str, str | None]:
     if plugin_name == CONTAINER_PLUGIN:
         return "L1_CONTAINER_ONLY", None
     if plugin_name == ACTION_PLUGIN:
-        return "L0_DEFERRED_ACTION_NODE", "Deferred action node requires interface/update semantics"
+        return "L1_PARSED_ONLY", None
+    if plugin_name == DOWNLOAD_PLUGIN:
+        return "L1_PARSED_ONLY", None
+    if plugin_name in INTERFACE_BASELINE_PLUGINS:
+        return "L1_PARSED_ONLY", None
     if plugin_name.startswith(INTERFACE_PLUGIN_PREFIX):
         return "L0_DEFERRED_INTERFACE_NODE", "Deferred interface node requires app/question semantics"
     if plugin_name.startswith("AlteryxConnectorGui."):
@@ -101,20 +274,111 @@ def _element_to_dict(element: ElementTree.Element) -> dict[str, object]:
 
 
 TOOL_PARSERS = {
+    "Action": parse_action_config,
+    "AppendFields": parse_appendfields_config,
+    "AlteryxReportChartGui": parse_alteryx_report_chart_config,
+    "APIOutput": parse_apioutput_config,
+    "Arrange": parse_arrange_config,
+    "AutoField": parse_autofield_config,
+    "BasicDataProfile": parse_basicdataprofile_config,
+    "BlobConvert": parse_blobconvert_config,
+    "BlobInput": parse_blobinput_config,
+    "BlobOutput": parse_bloboutput_config,
+    "Buffer": parse_buffer_config,
+    "Condition": parse_condition_config,
+    "CreatePoints": parse_createpoints_config,
     "CrossTab": parse_crosstab_config,
+    "DataCleansePro": parse_datacleansepro_config,
+    "DataCleansing": parse_datacleansing_config,
+    "DateTime": parse_datetime_config,
+    "DateTimeNow": parse_datetimenow_config,
     "DbFileInput": parse_dbfileinput_config,
     "DbFileOutput": parse_dbfileoutput_config,
+    "Detour": parse_detour_config,
+    "DetourEnd": parse_detourend_config,
+    "Distance": parse_distance_config,
+    "Directory": parse_directory_config,
+    "Download": parse_download_config,
+    "DynamicInput": parse_dynamicinput_config,
+    "DynamicReplace": parse_dynamicreplace_config,
     "DynamicRename": parse_dynamicrename_config,
+    "DynamicSelect": parse_dynamicselect_config,
+    "Error": parse_error_config,
+    "ExpectEqual": parse_expectequal_config,
     "Filter": parse_filter_config,
+    "FieldInfo": parse_fieldinfo_config,
+    "FindNearest": parse_findnearest_config,
+    "FindReplace": parse_findreplace_config,
     "Formula": parse_formula_config,
+    "FuzzyMatch": parse_fuzzymatch_config,
+    "CheckBoxGroup": parse_interface_value_config,
+    "Date": parse_interface_value_config,
+    "DropDown": parse_interface_value_config,
+    "FolderBrowse": parse_interface_value_config,
+    "Label": parse_interface_layout_config,
+    "LabelGroup": parse_interface_layout_config,
+    "Link": parse_interface_layout_config,
     "Join": parse_join_config,
+    "JoinMultiple": parse_joinmultiple_config,
     "JSONParse": parse_jsonparse_config,
+    "JupyterCode": parse_jupytercode_config,
+    "ListBox": parse_interface_value_config,
+    "Map": parse_interface_value_config,
+    "GenerateRows": parse_generaterows_config,
+    "Generalize": parse_generalize_config,
+    "MakeColumns": parse_makecolumns_config,
+    "MakeGrid": parse_makegrid_config,
+    "MakeGroup": parse_makegroup_config,
+    "MapInput": parse_mapinput_config,
+    "MultiFieldFormula": parse_multifieldformula_config,
+    "MultiRowFormula": parse_multirowformula_config,
+    "NumericUpDown": parse_interface_value_config,
+    "Overlay": parse_overlay_config,
+    "PearsonCorrelation": parse_pearsoncorrelation_config,
+    "PDFInput": parse_pdfinput_config,
+    "PDFToText": parse_pdftotext_config,
+    "PolyBuild": parse_polybuild_config,
+    "PolySplit": parse_polysplit_config,
+    "PlotlyCharting": parse_plotly_charting_config,
+    "PortfolioComposerImage": parse_report_image_config,
+    "PortfolioComposerLayout": parse_report_layout_config,
+    "PortfolioComposerRender": parse_report_render_config,
+    "PortfolioComposerTable": parse_report_table_config,
+    "PortfolioComposerText": parse_report_text_config,
+    "QuestionFileBrowse": parse_interface_value_config,
+    "QuestionTab": parse_interface_layout_config,
+    "QuestionTextBox": parse_interface_value_config,
+    "RadioButtonGroup": parse_interface_value_config,
+    "Tree": parse_interface_value_config,
     "RecordID": parse_recordid_config,
+    "Rank": parse_rank_config,
+    "RegEx": parse_regex_config,
+    "ReportFooter": parse_report_footer_config,
+    "ReportHeader": parse_report_header_config,
+    "ReportLegendBuilder": parse_report_legend_builder_config,
+    "ReportLegendSplitter": parse_report_legend_splitter_config,
+    "ReportMap": parse_report_map_config,
+    "RunningTotal": parse_runningtotal_config,
+    "RunCommand": parse_runcommand_config,
+    "Sample": parse_sample_config,
     "Select": parse_select_config,
+    "SpatialInfo": parse_spatialinfo_config,
+    "SpatialMatch": parse_spatialmatch_config,
+    "Smooth": parse_smooth_config,
+    "SpatialProcess": parse_spatialprocess_config,
     "Sort": parse_sort_config,
+    "Summarize": parse_summarize_config,
+    "Test": parse_test_config,
     "TextInput": parse_textinput_config,
+    "TextToColumns": parse_texttocolumns_config,
+    "Throttle": parse_throttle_config,
+    "Tile": parse_tile_config,
+    "TradeArea": parse_tradearea_config,
     "Transpose": parse_transpose_config,
     "Union": parse_union_config,
+    "Unique": parse_unique_config,
+    "VisualLayout": parse_visual_layout_config,
+    "XMLParse": parse_xmlparse_config,
 }
 
 
@@ -235,12 +499,25 @@ class XmlWorkflowParser(BaseWorkflowParser):
                 gui_settings = node_element.find("GuiSettings")
                 plugin_name = gui_settings.attrib.get("Plugin", "UNKNOWN") if gui_settings is not None else "UNKNOWN"
                 tool_type = _normalize_tool_type(plugin_name)
+                engine_settings = node_element.find("./Properties/EngineSettings")
+                macro_name = engine_settings.attrib.get("Macro", "") if engine_settings is not None else ""
+                macro_tool_type = _normalize_macro_tool_type(macro_name)
+                if macro_tool_type is not None:
+                    tool_type = macro_tool_type
+                    plugin_name = macro_name
                 supported_status, warning = _node_supported_status(plugin_name)
                 if warning:
                     warnings.append(f"Node {node_id} ({tool_type}): {warning}")
 
                 configuration = node_element.find("./Properties/Configuration")
                 raw_config = _element_to_dict(configuration) if configuration is not None else {}
+                annotation = node_element.find("./Properties/Annotation")
+                annotation_config = _element_to_dict(annotation) if annotation is not None else {}
+                if tool_type in INTERFACE_CONFIG_TOOL_TYPES.union({"Action", "Error"}) and annotation_config:
+                    raw_config["annotation"] = annotation_config
+                config_tool_type = _normalize_config_only_tool_type(raw_config)
+                if config_tool_type is not None and tool_type == "UNKNOWN":
+                    tool_type = config_tool_type
                 if container_id is not None:
                     raw_config["container_id"] = container_id
 
@@ -264,9 +541,8 @@ class XmlWorkflowParser(BaseWorkflowParser):
                     "raw_gui_settings": _element_to_dict(gui_settings) if gui_settings is not None else {},
                     "meta_info": schema_by_connection,
                 }
-                annotation = node_element.find("./Properties/Annotation")
-                if annotation is not None:
-                    metadata["annotation"] = _element_to_dict(annotation)
+                if annotation_config:
+                    metadata["annotation"] = annotation_config
 
                 input_anchors, output_anchors = _extract_node_anchors(
                     node_element,

@@ -129,7 +129,7 @@ def test_xml_parser_extracts_tool_container_children(tmp_path: Path):
     assert workflow.external_dependencies == ["child.csv"]
 
 
-def test_xml_parser_marks_interface_and_action_nodes_as_deferred(tmp_path: Path):
+def test_xml_parser_marks_baseline_interface_and_action_nodes_parsed(tmp_path: Path):
     source_path = _write_workflow(
         tmp_path,
         "ui_nodes.yxmd",
@@ -156,11 +156,11 @@ def test_xml_parser_marks_interface_and_action_nodes_as_deferred(tmp_path: Path)
     workflow = XmlWorkflowParser().parse(source_path)
 
     assert [node.supported_status for node in workflow.nodes] == [
-        "L0_DEFERRED_INTERFACE_NODE",
-        "L0_DEFERRED_ACTION_NODE",
+        "L1_PARSED_ONLY",
+        "L1_PARSED_ONLY",
     ]
-    assert any("interface node" in warning.lower() for warning in workflow.warnings)
-    assert any("action node" in warning.lower() for warning in workflow.warnings)
+    assert not any("interface node" in warning.lower() for warning in workflow.warnings)
+    assert not any("action node" in warning.lower() for warning in workflow.warnings)
 
 
 def test_xml_parser_extracts_real_workflow_snapshot():

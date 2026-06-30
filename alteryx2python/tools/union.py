@@ -17,13 +17,22 @@ def union_tool(
     if not inputs:
         raise KeyError("Union tool requires at least one input anchor")
     mode = str(config.get("mode", "ByName"))
-    if mode.lower() != "byname":
-        raise NotImplementedError("Union currently supports only ByName mode")
 
     ordered_frames = [inputs[anchor] for anchor in sorted(inputs)]
-    columns = list(dict.fromkeys(column for frame in ordered_frames for column in frame.columns))
-    aligned = [frame.reindex(columns=columns) for frame in ordered_frames]
-    output = pd.concat(aligned, ignore_index=True).astype(object).where(pd.notna(pd.concat(aligned, ignore_index=True)), None)
+    if mode.lower() == "byname":
+        columns = list(dict.fromkeys(column for frame in ordered_frames for column in frame.columns))
+        aligned = [frame.reindex(columns=columns) for frame in ordered_frames]
+    elif mode.lower() == "bypos":
+        columns = list(ordered_frames[0].columns)
+        aligned = []
+        for frame in ordered_frames:
+            renamed = frame.copy()
+            renamed.columns = columns[: len(renamed.columns)]
+            aligned.append(renamed.reindex(columns=columns))
+    else:
+        raise NotImplementedError("Union currently supports ByName and ByPos modes")
+    concatenated = pd.concat(aligned, ignore_index=True)
+    output = concatenated.astype(object).where(pd.notna(concatenated), None)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

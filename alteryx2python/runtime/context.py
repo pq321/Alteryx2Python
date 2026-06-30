@@ -14,12 +14,16 @@ class WorkflowContext:
     traces: list[NodeExecutionTrace] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
+    diagnostics: list[dict[str, Any]] = field(default_factory=list)
 
     def record_warning(self, message: str) -> None:
         self.warnings.append(message)
 
     def record_error(self, message: str) -> None:
         self.errors.append(message)
+
+    def record_diagnostic(self, diagnostic: dict[str, Any]) -> None:
+        self.diagnostics.append(diagnostic)
 
     def record_node(
         self,
@@ -52,4 +56,5 @@ class WorkflowContext:
             "traces": [trace.to_dict() for trace in self.traces],
             "warnings": self.warnings,
             "errors": self.errors,
+            "diagnostics": self.diagnostics,
         }

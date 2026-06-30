@@ -33,7 +33,7 @@ Certification reports should distinguish these layers:
 4. schema evidence: each output anchor matched inferred columns and dtypes, plus parser-provided expected schema when strict enforcement is enabled
 5. shape evidence: row-count invariants held for row-preserving, partitioning, joining, or unioning tools
 6. semantic evidence: tool-specific assertions passed where implemented
-7. oracle evidence: target/final output matched an Alteryx-generated fixture or file
+7. oracle evidence: target/final output matched a fixture produced by Alteryx outside this Python runtime
 
 A node can be useful without full oracle evidence. For example, a `Select` node can pass inferred contract assertions for column order and row preservation even when no separate Alteryx intermediate export exists.
 
@@ -87,12 +87,12 @@ The first complete official multi-tool workflow certification is Basic `01 Combi
   - `D:/Alteryx/Samples/data/StartHereData/Excel.CustomerResponderData.xlsx`
 - tools executed: `DbFileInput -> Select -> Join -> Sort -> DbFileOutput`
 - executed node order: `1, 2, 7, 3, 4, 6, 23`
-- Alteryx oracle: `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`
+- Alteryx oracle fixture: `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`
 - comparison helper: `compare_dataframes`
 - generator evidence: parse -> generate -> execute generated Python -> write CSV -> compare to oracle
 - file evidence: generated CSV bytes match the oracle CSV bytes for this workflow
 
-This is the first evidence that a real multi-tool official workflow can be converted through the canonical generated Python path and reproduce the Alteryx CSV oracle byte-for-byte for the observed configuration.
+This is the first evidence that a real multi-tool official workflow can be converted through the canonical generated Python path and reproduce an externally captured Alteryx CSV oracle byte-for-byte for the observed configuration.
 
 Certification precheck:
 
@@ -111,4 +111,4 @@ Known current limits:
 - YXDB, spatial, reporting, macro, and many Advanced tools remain deferred.
 - The Basic Combine byte match proves this CSV output configuration, not all `DbFileOutput` CSV options.
 - MIFID and Text Input golden fixtures were produced from the implemented slice semantics.
-- Basic Combine golden output was copied from an Alteryx Engine CSV output supplied for this certification pass.
+- Basic Combine golden output was copied from an Alteryx CSV output supplied for this certification pass. The project does not invoke Alteryx Engine APIs or `AlteryxEngineCmd`; oracle fixtures are captured manually or by external environments.

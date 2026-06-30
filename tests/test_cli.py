@@ -8,6 +8,9 @@ COMBINE_WORKFLOW = "D:/Alteryx/Samples/en/04 Basic/01 Combine 2 Spreadsheets Con
 COMBINE_EXPECTED = "tests/fixtures/real_workflows/combine_customer_profile_expected.csv"
 TEXT_INPUT_WORKFLOW = "D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Text_Input.yxmd"
 NORMALIZE_STRING_WORKFLOW = "D:/Alteryx/Samples/en/04 Basic/01 Normalize_a_string_field.yxmd"
+XML_PARSE_WORKFLOW = "D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/04 Parse/XML_Parse.yxmd"
+DYNAMIC_INPUT_WORKFLOW = "D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Dynamic_Input.yxmd"
+W1_WORKFLOW = "examples/sample_workflows/w1.yxmd"
 
 
 def _run_cli(*args):
@@ -75,7 +78,55 @@ def test_cli_inspect_compact_uses_compact_report_shape():
     report = _json(result.stdout)
     assert report["command"] == "compact"
     assert "compact_workflow" in report
+    assert "support_map" in report
     assert "nodes" not in report
+
+
+def test_cli_support_map_reports_change_request_surfaces():
+    result = _run_cli("support-map", W1_WORKFLOW)
+
+    assert result.returncode == 0, result.stderr
+    report = _json(result.stdout)
+    assert report["status"] == "ok"
+    support_map = report["support_map"]
+    assert support_map["format"] == "alteryx2python.support_map"
+    assert support_map["change_request_index"]["inputs"] == []
+    assert support_map["change_request_index"]["outputs"] == ["5"]
+    assert support_map["change_request_index"]["attachment_candidates"] == ["5"]
+
+
+def test_cli_generate_writes_python_script_and_manifest(tmp_path):
+    output_path = tmp_path / "w1.py"
+    log_path = tmp_path / "generate.json"
+
+    result = _run_cli("generate", W1_WORKFLOW, "--output", str(output_path), "--log", str(log_path))
+
+    assert result.returncode == 0, result.stderr
+    report = _json(result.stdout)
+    assert report["status"] == "ok"
+    assert report["command"] == "generate"
+    assert report["output"] == str(output_path)
+    assert report["workflow"]["workflow_name"] == "w1"
+    assert "def run_workflow(runtime_config=None, initial_inputs=None, target_node_ids=None):" in output_path.read_text(
+        encoding="utf-8"
+    )
+    assert json.loads(log_path.read_text(encoding="utf-8")) == report
+
+
+def test_cli_generate_samples_writes_python_scripts_for_directory(tmp_path):
+    output_dir = tmp_path / "generated"
+
+    result = _run_cli("generate-samples", "examples/sample_workflows", "--output-dir", str(output_dir))
+
+    assert result.returncode == 0, result.stderr
+    report = _json(result.stdout)
+    assert report["status"] == "ok"
+    assert report["workflow_count"] == 2
+    assert report["generated_count"] == 2
+    generated_outputs = {Path(item["output"]).name for item in report["generated"]}
+    assert generated_outputs == {"MIFID II.py", "w1.py"}
+    assert (output_dir / "w1.py").exists()
+    assert report["unsupported_tool_types"] == {}
 
 
 def test_console_script_entrypoint_is_wired():
@@ -133,28 +184,31 @@ def test_cli_compare_returns_nonzero_for_byte_mismatch(tmp_path):
     assert report["first_difference"]["index"] is not None
 
 
-def test_cli_run_records_unimplemented_behavior_as_structured_error(tmp_path):
-    log_path = tmp_path / "unsupported.json"
+def test_cli_run_records_dynamicinput_baseline_success(tmp_path):
+    log_path = tmp_path / "dynamicinput.json"
 
     result = _run_cli(
         "run",
-        NORMALIZE_STRING_WORKFLOW,
+        DYNAMIC_INPUT_WORKFLOW,
         "--target-node",
-        "97",
+        "52",
         "--log",
         str(log_path),
     )
 
-    assert result.returncode == 2
+    assert result.returncode == 0
     report = _json(result.stdout)
-    assert report["status"] == "error"
-    assert report["error"]["type"] == "NotImplementedError"
-    assert "Unsupported workflow tool: RegEx" in report["error"]["message"]
-    assert report["workflow"]["source_file"].endswith("01 Normalize_a_string_field.yxmd")
-    assert report["target_node"] == "97"
+    assert report["status"] == "ok"
+    assert report["workflow"]["source_file"].endswith("Dynamic_Input.yxmd")
+    assert report["target_node"] == "52"
     assert report["output_overrides"] == {}
-    assert report["context_errors"] == ["Unsupported workflow tool: RegEx (node 97)"]
-    assert report["trace"]["errors"] == ["Unsupported workflow tool: RegEx (node 97)"]
+    assert report["context_errors"] == []
+    assert report["runtime_result"]["node_results"]["52"]["tool_type"] == "DynamicInput"
+    assert (
+        report["runtime_result"]["node_results"]["52"]["trace"]["config"]["external_input_read_performed"]
+        is False
+    )
+    assert report["runtime_result"]["node_results"]["52"]["outputs"]["Output"]["row_count"] == 1
     assert json.loads(log_path.read_text(encoding="utf-8")) == report
 
 
@@ -172,6 +226,64 @@ def test_cli_run_includes_contract_evidence_for_successful_nodes():
     assert report["contract_evidence"]["98"]["passed"] is True
     assert report["runtime_result"]["node_results"]["98"]["contract_evidence"]["passed"] is True
     assert report["runtime_result"]["node_results"]["98"]["outputs"]["Output"]["row_count"] == 6
+
+
+def test_cli_run_executes_w1_cleanse_macro_mapping(tmp_path):
+    output_path = tmp_path / "w1-output.csv"
+
+    result = _run_cli(
+        "run",
+        W1_WORKFLOW,
+        "--target-node",
+        "5",
+        "--override-output",
+        f"5={output_path}",
+    )
+
+    assert result.returncode == 0, result.stderr
+    report = _json(result.stdout)
+    assert report["status"] == "ok"
+    assert report["execution_order"] == ["2", "3", "4", "5"]
+    assert report["outputs"]["4"]["Output26"]["row_count"] == 3
+    assert report["outputs"]["4"]["Output26"]["columns"] == ["rename_col2", "col1", "col3"]
+    assert output_path.read_text(encoding="utf-8").splitlines() == [
+        "rename_col2,col1,col3",
+        "3,1,",
+        "4,2,ok",
+        "5,3,okay",
+    ]
+
+
+def test_cli_run_reports_support_diagnostics_for_schema_drift(tmp_path):
+    workflow_path = tmp_path / "schema_drift.yxmd"
+    workflow_text = Path(W1_WORKFLOW).read_text(encoding="utf-8")
+    workflow_path.write_text(
+        workflow_text.replace('field="col2"', 'field="col_2"', 1),
+        encoding="utf-8",
+    )
+
+    result = _run_cli("run", str(workflow_path), "--target-node", "3")
+
+    assert result.returncode == 2
+    report = _json(result.stdout)
+    assert report["status"] == "error"
+    diagnostic = report["diagnostics"][0]
+    assert diagnostic["code"] == "missing_input_fields"
+    assert diagnostic["node"]["id"] == "3"
+    assert diagnostic["node"]["tool_type"] == "Select"
+    assert diagnostic["missing_fields"] == ["col_2"]
+    assert "col2" in diagnostic["field_suggestions"]["col_2"]
+    assert diagnostic["inputs"]["Input"]["columns"] == ["col1", "col2", "col3"]
+    assert diagnostic["graph_context"]["incoming"] == [
+        {
+            "id": "2:Output->3:Input",
+            "from": "2:Output",
+            "to": "3:Input",
+            "source_tool_type": "TextInput",
+        }
+    ]
+    assert report["trace"]["traces"][-1]["node_id"] == "3"
+    assert report["trace"]["traces"][-1]["status"] == "failed"
 
 
 def test_cli_run_override_error_preserves_structured_context(tmp_path):

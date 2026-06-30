@@ -176,17 +176,82 @@ def test_workflow_graph_raises_for_missing_upstream_anchor(workflow_context):
             workflow_context,
             initial_inputs={"filter": {"Input": pd.DataFrame({"amount": [1]})}},
         )
+    assert workflow_context.diagnostics[0]["code"] == "missing_upstream_output_anchor"
+    assert workflow_context.traces[-1].status == "failed"
+
+
+def test_workflow_graph_records_schema_drift_diagnostic(workflow_context):
+    workflow = _workflow(
+        nodes=[
+            _node("select", "Select", {"select_fields": [{"source": "customer_id"}]}),
+        ],
+        edges=[],
+    )
+
+    with pytest.raises(KeyError, match="Missing input fields"):
+        run_workflow_graph(
+            workflow,
+            workflow_context,
+            initial_inputs={"select": {"Input": pd.DataFrame({"client_id": ["A1"]})}},
+        )
+
+    diagnostic = workflow_context.diagnostics[0]
+    assert diagnostic["code"] == "missing_input_fields"
+    assert diagnostic["node"]["id"] == "select"
+    assert diagnostic["missing_fields"] == ["customer_id"]
+    assert diagnostic["inputs"]["Input"]["columns"] == ["client_id"]
+    assert diagnostic["field_suggestions"]["customer_id"] == ["client_id"]
+    assert workflow_context.traces[-1].status == "failed"
+
+
+def test_workflow_graph_records_missing_input_file_diagnostic(workflow_context, tmp_path):
+    missing_path = tmp_path / "missing.csv"
+    workflow = _workflow(
+        nodes=[
+            _node(
+                "input",
+                "DbFileInput",
+                {
+                    "file": str(missing_path),
+                    "file_attributes": {"FileFormat": "0"},
+                },
+            ),
+        ],
+        edges=[],
+    )
+
+    with pytest.raises(FileNotFoundError):
+        run_workflow_graph(workflow, workflow_context)
+
+    diagnostic = workflow_context.diagnostics[0]
+    assert diagnostic["code"] == "missing_input_file"
+    assert diagnostic["node"]["id"] == "input"
+    assert diagnostic["node"]["tool_type"] == "DbFileInput"
+    assert diagnostic["node"]["config_summary"]["file"] == str(missing_path)
+    assert "input path is missing" in diagnostic["likely_cause"]
+    assert workflow_context.traces[-1].status == "failed"
 
 
 def test_workflow_graph_stops_on_unsupported_tool(workflow_context):
     workflow = _workflow(
-        nodes=[_node("1", "UnsupportedTool", {})],
+        nodes=[
+            NodeIR(
+                node_id="1",
+                source_tool_id="1",
+                tool_type="UnsupportedTool",
+                tool_name="CustomMacro.yxmc",
+                config={"normalized": {}},
+                metadata={"plugin_name": "CustomMacro.yxmc"},
+            )
+        ],
         edges=[],
     )
 
     with pytest.raises(NotImplementedError, match="Unsupported workflow tool"):
         run_workflow_graph(workflow, workflow_context)
     assert workflow_context.errors == ["Unsupported workflow tool: UnsupportedTool (node 1)"]
+    assert workflow_context.diagnostics[0]["code"] == "unsupported_tool"
+    assert workflow_context.diagnostics[0]["node"]["macro_context"]["macro_name"] == "CustomMacro.yxmc"
 
 
 def test_workflow_graph_rejects_cycles(workflow_context):

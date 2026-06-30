@@ -88,10 +88,12 @@ M14 adds the first complete official multi-tool workflow golden comparison:
 - inputs:
   - `D:/Alteryx/Samples/data/StartHereData/Excel.CustomerLocationData.xlsx`
   - `D:/Alteryx/Samples/data/StartHereData/Excel.CustomerResponderData.xlsx`
-- oracle output: `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`
+- oracle fixture: `tests/fixtures/real_workflows/combine_customer_profile_expected.csv`
 - runtime path: parse -> execute target node `23` -> write CSV -> compare with `compare_dataframes`
 - generator path: parse -> generate -> execute generated code target node `23` -> write CSV -> compare
 - file-level evidence: generated CSV bytes must match the oracle bytes
 - certification gate: executed node order must pass `assert_nodes_certifiable`
 
 This test covers a real multi-tool workflow using Excel input, Select, Join, Sort, and CSV output.
+
+Oracle fixtures are captured outside the Python runtime, typically by running the workflow manually in Alteryx Designer and committing the resulting CSV or Excel output. The test suite intentionally does not invoke Alteryx Engine APIs or `AlteryxEngineCmd`.
