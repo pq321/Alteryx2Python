@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from alteryx2python.workflow_generator import WorkflowBuilder
+from alteryx2python.workflow_generator import WorkflowBuilder, escape
 
 
 def compile_graph_to_yxmd(graph: dict[str, Any]) -> str:
@@ -42,6 +42,14 @@ def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:
         fields = [str(field) for field in config.get("fields", [])]
         rows = [list(row) for row in config.get("rows", [])]
         return builder.add_text_input(fields, rows, position)
+    if kind == "DbFileInput":
+        return builder._node(
+            "DbFileInput",
+            f'<File FileFormat="0">{escape(config.get("file", ""))}</File>'
+            '<FormatSpecificOptions><HeaderRow>True</HeaderRow>'
+            '<Delimeter>,</Delimeter><CodePage>65001</CodePage></FormatSpecificOptions>',
+            position,
+        )
     if kind == "Formula":
         expressions = [
             (str(item.get("field", "")), str(item.get("type", "String")), str(item.get("size", "")), str(item.get("expression", "")))
@@ -63,13 +71,19 @@ def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:
         ]
         return builder.add_summarize(actions, position)
     if kind == "Join":
-        return builder.add_join(
-            str(config.get("leftField", "")), str(config.get("rightField", "")), position
+        return builder._node(
+            "Join", f'<JoinInfo connection="Left"><Field field="{escape(config.get("leftField", ""))}" /></JoinInfo>'
+            f'<JoinInfo connection="Right"><Field field="{escape(config.get("rightField", ""))}" /></JoinInfo>',
+            position,
         )
     if kind == "Union":
         return builder.add_union(position)
     if kind == "RecordID":
-        return builder.add_record_id(position)
+        return builder._node(
+            "RecordID", f'<FieldName>{escape(config.get("fieldName", "RecordID"))}</FieldName>'
+            '<StartValue>1</StartValue><FieldType>Int64</FieldType><FieldSize>6</FieldSize><Position>0</Position>',
+            position,
+        )
     if kind == "Sample":
         return builder.add_sample(str(config.get("mode", "First")), str(config.get("n", "10")), position)
     if kind == "Unique":
@@ -99,7 +113,7 @@ def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:
         return builder.add_datetime(
             str(config.get("inputField", "")),
             str(config.get("outputField", "")),
-            str(config.get("format", "yyyy-MM-dd")),
+            str(config.get("format", "yyyy-MM-dd")).replace("yyyy", "%Y").replace("MM", "%m").replace("dd", "%d"),
             position,
         )
     if kind == "MultiRowFormula":
@@ -111,9 +125,18 @@ def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:
     if kind == "Rank":
         return builder.add_rank(str(config.get("field", "")), str(config.get("order", "Descending")), position)
     if kind == "TextToColumns":
-        return builder.add_text_to_columns(
-            str(config.get("field", "")), str(config.get("delimiter", ",")), position
+        count = int(config.get("numFields", "3"))
+        if not 1 <= count <= 100:
+            raise ValueError("Text to Columns: column count must be between 1 and 100")
+        return builder._node(
+            "TextToColumns", f'<Field>{escape(config.get("field", ""))}</Field>'
+            f'<Delimeters value="{escape(config.get("delimiter", ","))}" />'
+            f'<NumFields value="{count}" /><Flags value="0" /><ErrorHandling>Last</ErrorHandling>'
+            f'<RootName>{escape(config.get("rootName") or config.get("field", ""))}</RootName>',
+            position,
         )
     if kind == "DbFileOutput":
-        return builder.add_csv_output(str(config.get("file", "output.csv")), position)
+        tool_id = builder.add_csv_output(str(config.get("file", "output.csv")), position)
+        builder.nodes_xml[-1] = builder.nodes_xml[-1].replace('<CodePage>28591</CodePage>', '<CodePage>65001</CodePage>')
+        return tool_id
     raise ValueError(f"unsupported editor tool type: {kind}")

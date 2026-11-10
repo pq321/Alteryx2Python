@@ -16,3 +16,7 @@ reports/
 .cc-connect/
 .omx/
 python-runtime.local.json
+webapp/node_modules/
+webapp/.uploads/
+!webapp/static/dist/
+!webapp/static/dist/*.js

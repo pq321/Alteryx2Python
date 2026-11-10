@@ -1,0 +1,73 @@
+import {type Cell, type Config, pasteCells, rows, strings, uniqueField} from './model.js';
+export function el<K extends keyof HTMLElementTagNameMap>(tag: K, className = '', text = ''): HTMLElementTagNameMap[K] {
+  const node = document.createElement(tag); node.className = className; node.textContent = text; return node;
+}
+export function byId<T extends HTMLElement = HTMLElement>(id: string): T {
+  const node = document.getElementById(id); if (!node) throw new Error('Missing element: ' + id); return node as T;
+}
+export function button(label: string, action: () => void, className = '', title = label): HTMLButtonElement {
+  const node = el('button', className, label); node.type = 'button'; node.title = title; node.addEventListener('click', action); return node;
+}
+export function readTable(fields: string[], data: Cell[][]): HTMLTableElement {
+  const table = el('table'), head = el('thead'), header = el('tr');
+  header.append(el('th', 'row-number', '#'), ...fields.map(field => el('th', '', field))); head.append(header); table.append(head);
+  const body = el('tbody');
+  data.forEach((row, index) => { const tr = el('tr'); tr.append(el('td', 'row-number', String(index + 1)), ...fields.map((_, c) => { const cell = el('td', '', String(row[c] ?? '')); cell.title = String(row[c] ?? ''); return cell; })); body.append(tr); });
+  table.append(body); return table;
+}
+export function editGrid(parent: HTMLElement, config: Config, changed: () => void): void {
+  const fields = strings(config, 'fields'), data = rows(config);
+  config.fields = fields; config.rows = data;
+  const redraw = (): void => { parent.replaceChildren(); editGrid(parent, config, changed); };
+  const wrap = el('div', 'table-wrap'), table = el('table', 'data-grid'), head = el('thead'), hr = el('tr');
+  hr.append(el('th', 'row-number', '#'));
+  fields.forEach((name, c) => {
+    const th = el('th'), group = el('div', 'column-head'), input = el('input'); input.value = name; input.setAttribute('aria-label', '字段 ' + (c + 1));
+    input.addEventListener('input', () => { fields[c] = input.value; changed(); });
+    const remove = button('×', () => { fields.splice(c, 1); data.forEach(row => row.splice(c, 1)); changed(); redraw(); }, '', '删除字段 ' + (c + 1)); remove.disabled = fields.length === 1;
+    group.append(input, remove); th.append(group); hr.append(th);
+  }); head.append(hr); table.append(head);
+  const tbody = el('tbody');
+  const focusCell = (r: number, c: number): void => { parent.querySelector<HTMLTextAreaElement>('[data-row="' + r + '"][data-col="' + c + '"]')?.focus(); };
+  data.forEach((row, r) => {
+    const tr = el('tr'), number = el('td', 'row-number'); number.append(button(String(r + 1), () => { data.splice(r, 1); changed(); redraw(); }, '', '删除第 ' + (r + 1) + ' 行')); tr.append(number);
+    fields.forEach((_, c) => {
+      const td = el('td'), input = el('textarea'); input.rows = 1; input.value = String(row[c] ?? ''); input.dataset.row = String(r); input.dataset.col = String(c); input.setAttribute('aria-label', '第 ' + (r + 1) + ' 行第 ' + (c + 1) + ' 列');
+      const height = (): void => { input.style.height = Math.min(106, Math.max(34, input.value.split('\n').length * 18 + 16)) + 'px'; };
+      height(); input.addEventListener('input', () => { row[c] = input.value; height(); changed(); });
+      input.addEventListener('paste', event => {
+        const source = event.clipboardData?.getData('text/plain');
+        if (!source || !/[\t\r\n]/.test(source)) return;
+        event.preventDefault(); pasteCells(config, source, r, c); changed(); redraw(); focusCell(r, c);
+      });
+      input.addEventListener('keydown', event => {
+        const last = r === data.length - 1 && c === fields.length - 1;
+        if ((event.key === 'Enter' && !event.shiftKey) || (event.key === 'Tab' && !event.shiftKey && last)) {
+          event.preventDefault();
+          const next = r + 1;
+          if (next < 0) return;
+          if (next >= data.length) { data.push(fields.map(() => '')); changed(); redraw(); }
+          focusCell(next, event.key === 'Tab' ? 0 : c);
+        }
+      }); td.append(input); tr.append(td);
+    }); tbody.append(tr);
+  });
+  table.append(tbody); wrap.append(table); parent.append(wrap);
+  const actions = el('div', 'grid-actions');
+  actions.append(button('+ 行', () => { data.push(fields.map(() => '')); changed(); redraw(); focusCell(data.length - 1, 0); }, '', '添加一行'), button('+ 列', () => { fields.push(uniqueField(fields)); data.forEach(row => row.push('')); changed(); redraw(); }, '', '添加一列'), el('span', 'grid-count', data.length + ' 行 · ' + fields.length + ' 列'));
+  parent.append(actions);
+}
+export async function request<T>(url: string, payload?: unknown): Promise<T> {
+  const response = await fetch(url, payload === undefined ? {} : {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
+  const data: unknown = await response.json();
+  if (!response.ok) throw new Error(typeof data === 'object' && data && 'error' in data ? String(data.error) : '请求失败 (' + response.status + ')');
+  return data as T;
+}
+export function download(name: string, content: string, type = 'text/plain;charset=utf-8'): void {
+  const url = URL.createObjectURL(new Blob([content], {type})), link = el('a'); link.href = url; link.download = name; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+export function confirmReplace(title: string): Promise<boolean> {
+  const dialog = byId<HTMLDialogElement>('confirmDialog'); byId('confirmTitle').textContent = title; byId('confirmMessage').textContent = '当前工作流已自动保存在本地。替换后可使用撤销恢复，也可以先下载 JSON 保存。';
+  return new Promise(resolve => { dialog.addEventListener('close', () => resolve(dialog.returnValue === 'confirm'), {once: true}); dialog.showModal(); });
+}
+

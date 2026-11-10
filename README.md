@@ -44,7 +44,7 @@ Current architectural scaffolding introduced:
 - Basic/Advanced official sample inventory
 - lightweight JSON-first CLI for inspect, run, compare, and certify
 - General CLI graph construction/editing, native node templates, question/Action configuration, standard/batch/iterative macro profiles, runnable generated Python with embedded local macros, headless EngineCmd and per-node proof ledgers. The undocumented Designer/Task Scheduler fallback is disabled. See [Workflow CLI](docs/workflow_cli.md)
-- visual drag-and-drop workflow editor (vanilla JS + stdlib server) that compiles a drawn graph into official .yxmd plus standalone native-pandas code (docs/visual_editor.md).
+- visual workflow editor (strict TypeScript + stdlib Python server) with editable input tables, CSV/Excel drag-and-drop, node previews and standalone Python/XML export; see [Visual Editor](docs/visual_editor.md).
 - Python script generation for single workflows and recursive sample directories
 - pipeline support diagnostics documented in `docs/support_diagnostics.md`
 - change-request support maps for report/email maintenance surfaces via `support-map` and compact JSON

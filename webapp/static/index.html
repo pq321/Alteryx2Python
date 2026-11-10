@@ -1,41 +1,70 @@
-<!DOCTYPE html>
-<html lang="zh">
+<!doctype html>
+<html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<title>Alteryx2Python Visual Workflow Editor</title>
-<link rel="stylesheet" href="/style.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Alteryx2Python · 工作流</title><link rel="stylesheet" href="/style.css">
 </head>
 <body>
-<header id="topbar">
-  <span id="logo">Alteryx2Python</span>
-  <input id="wfName" value="my_workflow" title="Workflow name">
-  <button id="btnCompile">Save / Compile</button>
-  <button id="btnRun">Run</button>
-  <button id="btnClear">Clear</button>
-  <span id="status"></span>
+<header class="topbar">
+  <a class="brand" href="/" aria-label="Alteryx2Python 首页"><span class="brand-mark" aria-hidden="true">a²p</span><strong>Alteryx2Python</strong></a>
+  <span class="top-divider"></span><input id="wfName" aria-label="工作流名称" value="未命名工作流" maxlength="120"><span id="saveState" class="muted">本地草稿</span>
+  <div class="top-actions">
+    <button id="btnOpen" title="打开工作流 JSON">↥ <span class="action-label">打开</span></button>
+    <button id="btnSave" title="保存工作流 JSON">↧ <span class="action-label">保存</span></button>
+    <button id="btnCompile" class="secondary">生成代码</button><button id="btnRun" class="primary">▶ 运行</button>
+  </div>
 </header>
-<main>
-  <aside id="palette"></aside>
-  <section id="canvasWrap">
-    <svg id="canvas"></svg>
+<div class="workspace-bar">
+  <button id="btnToggleTools" class="icon-button mobile-tools" aria-label="展开工具库" title="工具库">☰</button><div class="workspace-title"><span class="live-dot"></span>工作流编辑器 <span class="badge">Python</span></div>
+  <div class="history-actions">
+    <button id="btnUndo" class="icon-button" title="撤销 (Ctrl+Z)" aria-label="撤销" disabled>↶</button>
+    <button id="btnRedo" class="icon-button" title="重做 (Ctrl+Shift+Z)" aria-label="重做" disabled>↷</button>
+    <span class="small-divider"></span><button id="btnNew">新建</button><button id="btnExample">示例</button>
+  </div><span id="graphCount" class="muted">0 个节点</span>
+</div>
+<main id="workspace">
+  <aside id="palettePanel" aria-label="工具库">
+    <div class="panel-heading"><h2>工具库</h2><button id="btnPalette" class="icon-button" title="折叠工具库" aria-label="折叠工具库">‹</button></div>
+    <label class="search-box"><span aria-hidden="true">⌕</span><input id="toolSearch" type="search" placeholder="搜索工具…" aria-label="搜索工具"></label>
+    <div id="palette"></div><button id="btnImport" class="import-button">↥ 导入数据</button>
+  </aside>
+  <section id="canvasWrap" aria-label="工作流画布" tabindex="0">
+    <svg id="canvas" aria-label="工作流节点与连线"><g id="scene"></g></svg>
+    <div id="canvasEmpty" class="canvas-empty">
+      <div class="empty-art" aria-hidden="true"><span>▦</span><i></i><span>ƒ</span><i></i><span>≡</span></div>
+      <h1>从数据开始</h1><div class="empty-actions"><button id="btnStartTable" class="primary">新建数据表</button><button id="btnStartFile" class="secondary">导入文件</button></div>
+      <button id="btnStartExample" class="text-button">打开销售分析示例 →</button>
+    </div>
+    <div id="dropOverlay" aria-hidden="true"><span>↥</span><strong>导入数据文件</strong><small>CSV · TSV · XLSX</small></div>
+    <div class="canvas-tools">
+      <button id="btnExpandPalette" class="icon-button" title="展开工具库" aria-label="展开工具库" hidden>›</button>
+      <button id="btnZoomOut" class="icon-button" title="缩小" aria-label="缩小">−</button><output id="zoomValue">100%</output><button id="btnZoomIn" class="icon-button" title="放大" aria-label="放大">+</button>
+      <span class="small-divider"></span><button id="btnFit" class="icon-button" title="适应画布" aria-label="适应画布">⛶</button>
+    </div><div id="canvasMeta" class="canvas-meta">工作流</div>
   </section>
-  <aside id="configPanel">
-    <h3 id="configTitle">Configuration</h3>
-    <div id="configBody"><p class="hint">Select a node to configure it.</p></div>
+  <div id="configResize" class="resize-handle vertical" role="separator" aria-label="调整配置区宽度" aria-orientation="vertical" tabindex="0"></div>
+  <aside id="configPanel" aria-label="节点配置">
+    <div class="panel-heading config-heading"><div><span id="configCategory" class="eyebrow">工作流</span><h2 id="configTitle">节点配置</h2></div><div class="config-actions"><button id="btnDeleteNode" class="danger" title="删除节点" aria-label="删除节点" hidden>删除</button><button id="btnCloseConfig" class="icon-button" title="关闭配置" aria-label="关闭配置">×</button></div></div>
+    <div id="configBody"></div>
   </aside>
 </main>
-<section id="bottomPanel">
-  <div id="tabs">
-    <button data-tab="result" class="active">Result</button>
-    <button data-tab="python">Python</button>
-    <button data-tab="yxmd">YXMD</button>
-    <button id="btnDownloadPy">Download .py</button>
-    <button id="btnDownloadYxmd">Download .yxmd</button>
+<div id="resultResize" class="resize-handle horizontal" role="separator" aria-label="调整结果区高度" aria-orientation="horizontal" tabindex="0"></div>
+<section id="bottomPanel" aria-label="工作流结果">
+  <div class="result-toolbar">
+    <div class="tabs" role="tablist" aria-label="结果视图">
+      <button id="tab-result" data-tab="result" role="tab" aria-controls="tabResult" aria-selected="true" class="active">数据结果 <span id="resultBadge" class="badge">0</span></button>
+      <button id="tab-python" data-tab="python" role="tab" aria-controls="tabPython" aria-selected="false">Python</button>
+      <button id="tab-yxmd" data-tab="yxmd" role="tab" aria-controls="tabYxmd" aria-selected="false">Alteryx XML</button>
+    </div>
+    <div class="result-actions"><select id="previewSelect" aria-label="选择节点输出" hidden></select><button id="btnDownload" title="下载当前结果" disabled>↧ <span id="downloadLabel">CSV</span></button><button id="btnCollapseResult" class="icon-button" title="折叠结果区" aria-label="折叠结果区">⌄</button></div>
   </div>
-  <div id="tabResult" class="tabPage active"></div>
-  <pre id="tabPython" class="tabPage"></pre>
-  <pre id="tabYxmd" class="tabPage"></pre>
+  <div id="resultNotice" class="result-notice" hidden></div>
+  <div id="tabResult" class="tab-page active" role="tabpanel" aria-labelledby="tab-result"><div class="result-empty"><span aria-hidden="true">▤</span><p>暂无运行结果</p></div></div>
+  <pre id="tabPython" class="tab-page" role="tabpanel" aria-labelledby="tab-python"></pre><pre id="tabYxmd" class="tab-page" role="tabpanel" aria-labelledby="tab-yxmd"></pre>
+  <div class="result-footer"><span id="resultCount">0 行 · 0 列</span><span id="runTime"></span></div>
 </section>
-<script src="/app.js"></script>
-</body>
-</html>
+<footer class="statusbar"><span id="status" role="status" aria-live="polite">正在连接…</span><span id="connectionStatus">本地执行</span></footer>
+<input id="dataFile" type="file" accept=".csv,.tsv,.txt,.xlsx" multiple hidden><input id="workflowFile" type="file" accept=".json" hidden>
+<dialog id="confirmDialog"><form method="dialog"><h2 id="confirmTitle"></h2><p id="confirmMessage"></p><div class="dialog-actions"><button value="cancel">取消</button><button value="confirm" class="primary">确认</button></div></form></dialog>
+<script type="module" src="/dist/app.js"></script>
+</body></html>
