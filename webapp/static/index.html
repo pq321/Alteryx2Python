@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>Alteryx2Python Visual Workflow Editor</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header id="topbar">
+  <span id="logo">Alteryx2Python</span>
+  <input id="wfName" value="my_workflow" title="Workflow name">
+  <button id="btnCompile">Save / Compile</button>
+  <button id="btnRun">Run</button>
+  <button id="btnClear">Clear</button>
+  <span id="status"></span>
+</header>
+<main>
+  <aside id="palette"></aside>
+  <section id="canvasWrap">
+    <svg id="canvas"></svg>
+  </section>
+  <aside id="configPanel">
+    <h3 id="configTitle">Configuration</h3>
+    <div id="configBody"><p class="hint">Select a node to configure it.</p></div>
+  </aside>
+</main>
+<section id="bottomPanel">
+  <div id="tabs">
+    <button data-tab="result" class="active">Result</button>
+    <button data-tab="python">Python</button>
+    <button data-tab="yxmd">YXMD</button>
+    <button id="btnDownloadPy">Download .py</button>
+    <button id="btnDownloadYxmd">Download .yxmd</button>
+  </div>
+  <div id="tabResult" class="tabPage active"></div>
+  <pre id="tabPython" class="tabPage"></pre>
+  <pre id="tabYxmd" class="tabPage"></pre>
+</section>
+<script src="/app.js"></script>
+</body>
+</html>
