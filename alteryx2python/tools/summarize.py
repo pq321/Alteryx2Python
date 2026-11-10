@@ -35,7 +35,7 @@ def _mode(series: pd.Series) -> Any:
 
 
 def _concat(series: pd.Series, field_config: dict[str, Any]) -> str:
-    values = ["" if pd.isna(value) else str(value) for value in series.tolist()]
+    values = [str(value) for value in series.tolist() if not _is_blank(value)]
     return f"{field_config.get('concat_start', '')}{field_config.get('separator', '').join(values)}{field_config.get('concat_end', '')}"
 
 

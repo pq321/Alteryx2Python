@@ -10,6 +10,7 @@ from alteryx2python.tools.base_tool import BaseTool
 
 VALUE_TOOL_TYPES = {
     "CheckBoxGroup",
+    "ControlParam",
     "Date",
     "DropDown",
     "FolderBrowse",
@@ -70,6 +71,12 @@ def checkboxgroup_tool(
     inputs: dict[str, pd.DataFrame], config: dict[str, Any], context: WorkflowContext
 ) -> dict[str, pd.DataFrame]:
     return _record_interface_node(tool_type="CheckBoxGroup", inputs=inputs, config=config, context=context)
+
+
+def controlparam_tool(
+    inputs: dict[str, pd.DataFrame], config: dict[str, Any], context: WorkflowContext
+) -> dict[str, pd.DataFrame]:
+    return _record_interface_node(tool_type="ControlParam", inputs=inputs, config=config, context=context)
 
 
 def date_tool(inputs: dict[str, pd.DataFrame], config: dict[str, Any], context: WorkflowContext) -> dict[str, pd.DataFrame]:
@@ -141,6 +148,15 @@ class CheckBoxGroupTool(BaseTool):
 
     def execute(self, inputs: dict[str, pd.DataFrame], config: dict[str, Any], context: WorkflowContext) -> dict[str, pd.DataFrame]:
         return checkboxgroup_tool(inputs, config, context)
+
+
+class ControlParamTool(BaseTool):
+    tool_type = "ControlParam"
+    input_anchors = ()
+    output_anchors = ("Question",)
+
+    def execute(self, inputs: dict[str, pd.DataFrame], config: dict[str, Any], context: WorkflowContext) -> dict[str, pd.DataFrame]:
+        return controlparam_tool(inputs, config, context)
 
 
 class DateTool(BaseTool):

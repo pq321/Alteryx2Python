@@ -1,0 +1,14 @@
+										537398 item (settable, string) Row 1 Column 2 Value: Designer x64
+										537399 item (settable, string) Row 1 Column 3 Value: Started running E:\Automation\Alteryx2Python\reports\parity\designer-error\instrumented.yxmd at 11/09/2026 16:35:52
+										537402 item (settable, string) Row 2 Column 2 Value: Designer x64
+										537403 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1825.4 MB of memory.
+										537406 item (settable, string) Row 3 Column 2 Value: Designer x64
+										537407 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.
+										537410 item (settable, string) Row 4 Column 2 Value: Text Input (1)
+										537411 item (settable, string) Row 4 Column 3 Value: 4 records were output
+										537414 item (settable, string) Row 5 Column 2 Value: Filter (2)
+										537415 item (settable, string) Row 5 Column 3 Value: Parse Error at char(1): Unknown variable "missing_field"
+										537418 item (settable, string) Row 6 Column 2 Value: Output Data (4)
+										537419 item (settable, string) Row 6 Column 3 Value: 4 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-error\probe-0000.yxdb"
+										537422 item (settable, string) Row 7 Column 2 Value: Designer x64
+										537423 item (settable, string) Row 7 Column 3 Value: Finished running instrumented.yxmd in 0.6 seconds with 1 error

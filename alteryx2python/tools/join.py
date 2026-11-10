@@ -49,20 +49,22 @@ def join_tool(
     ensure_fields_exist(left, [left_field])
     ensure_fields_exist(right, [right_field])
 
-    left_indexed = left.reset_index(drop=False).rename(columns={"index": "__left_index"})
-    right_indexed = right.reset_index(drop=False).rename(columns={"index": "__right_index"})
+    left_indexed = _prefix_frame(left.reset_index(drop=True), "Left")
+    right_indexed = _prefix_frame(right.reset_index(drop=True), "Right")
+    left_indexed["__left_index"] = range(len(left))
+    right_indexed["__right_index"] = range(len(right))
     merged = left_indexed.merge(
         right_indexed,
         how="inner",
-        left_on=left_field,
-        right_on=right_field,
-        suffixes=("_LeftRaw", "_RightRaw"),
+        left_on=f"Left_{left_field}",
+        right_on=f"Right_{right_field}",
+        sort=True,  # Original engine emits key-sorted groups (native SortInfo).
     )
     left_matched = set(merged["__left_index"].tolist())
     right_matched = set(merged["__right_index"].tolist())
 
-    left_prefixed = _prefix_frame(merged[left.columns], "Left")
-    right_prefixed = _prefix_frame(merged[right.columns], "Right")
+    left_prefixed = merged[[f"Left_{column}" for column in left.columns]]
+    right_prefixed = merged[[f"Right_{column}" for column in right.columns]]
     joined = pd.concat([left_prefixed, right_prefixed], axis=1)
     select_fields = [field for field in config.get("select_fields", []) if isinstance(field, dict)]
     if select_fields:
@@ -71,8 +73,8 @@ def join_tool(
         output = joined
     outputs = {
         "Join": output.reset_index(drop=True),
-        "Left": left.loc[[idx for idx in left.index if idx not in left_matched]].reset_index(drop=True),
-        "Right": right.loc[[idx for idx in right.index if idx not in right_matched]].reset_index(drop=True),
+        "Left": left.iloc[[idx for idx in range(len(left)) if idx not in left_matched]].reset_index(drop=True),
+        "Right": right.iloc[[idx for idx in range(len(right)) if idx not in right_matched]].reset_index(drop=True),
     }
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

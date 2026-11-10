@@ -1,0 +1,166 @@
+{
+  "commands": [
+    {
+      "args": [
+        "generate-workflow",
+        "--spec",
+        "examples/cli/branch.json",
+        "--output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch.yxmd",
+        "--python-output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch.py"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "run-python",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch.yxmd",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "workflow-export",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch.yxmd",
+        "--output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch-export.json"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "node-template",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch.yxmd",
+        "--node",
+        "3",
+        "--output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\formula-template.json"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "questions",
+        "examples/cli/parameter-app.yxwz"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "configure-workflow",
+        "examples/cli/parameter-app.yxwz",
+        "--answers",
+        "examples/cli/answers.json",
+        "--output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\configured.yxmd"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "run-python",
+        "examples/cli/parameter-app.yxwz",
+        "--answers",
+        "examples/cli/answers.json",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\parameter-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "run-python",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\configured.yxmd",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\configured-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "generate",
+        "examples/cli/parameter-app.yxwz",
+        "--answers",
+        "examples/cli/answers.json",
+        "--output",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\parameter.py"
+      ],
+      "exit_code": 0,
+      "status": "ok"
+    },
+    {
+      "args": [
+        "run-python",
+        "examples/cli/standard-macro.yxmd",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\standard-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "run-python",
+        "examples/cli/batch-macro.yxmd",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\batch-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "run-python",
+        "examples/cli/iterative-macro.yxmd",
+        "--output-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\iterative-results"
+      ],
+      "exit_code": 0,
+      "status": "success"
+    },
+    {
+      "args": [
+        "proof-suite",
+        "--cases",
+        "examples/cli/proof-cases.json",
+        "--out-dir",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\native-proof"
+      ],
+      "exit_code": 2,
+      "status": {
+        "blocked": 3,
+        "incomplete": 0,
+        "match": 0,
+        "mismatch": 0
+      }
+    }
+  ],
+  "converted_python_exit_code": 0,
+  "source_sha256": {
+    "answers.json": "4fb15be5f423d50086f57da1876b94e285cd5c895baa09701ee516b54a51e061",
+    "batch-macro.yxmd": "592518892e7d59f61b7d9affa30aed43a93477842f6e6f7af3a9bd339ce587fd",
+    "BatchFactor.yxmc": "cbb40e756bad0f910e3fd143e3324ae6f1a447e211a5fc2741b1b5b5bab8599d",
+    "branch.json": "a0e0968c9cd30275f489dc645d407fca839ce96148252988b05c87bcfc8f2010",
+    "Countdown.yxmc": "adb360ef1818a0d5e0fa0a05467f8fc1f760b8333f5c07ae5c33ef146e12cd71",
+    "Factor.yxmc": "96955840a9c39f414b6c3e39db9cf12fc9b199314d905b3889ea5f81818262fb",
+    "iterative-macro.yxmd": "ee223914e018ff2d4891e3594af6ebbc153a473940c3e1c52df53dafb8678ab9",
+    "parameter-app.yxwz": "1799391c03a66e68c28b01e92b5c8e6a0277730e8c14f1ec94814b0893754612",
+    "proof-cases.json": "3c92d8bd1bac261a679fb61092c46c3ff7253677eac5d376881369440627b33f",
+    "standard-macro.yxmd": "4aa7c6f5df8c21d9ad6bfdf25bf440c31f8c93ae58b020cba2732ace4d87116e"
+  },
+  "gui_launched": false,
+  "scheduled_tasks_modified": false,
+  "user_profile_modified": false,
+  "universal_equivalence_proven": false
+}

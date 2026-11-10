@@ -1,0 +1,17 @@
+{
+  "tests_passed": 649,
+  "warnings": 4,
+  "coverage_percent": 84.12020561486753,
+  "runtime_sha256": "43fd7f5e373915c4f890fc9549eb5198accd24ef3a984a25d64f98827f58138f",
+  "test_log_sha256": "e067eb5d64441b5254e63e369b716a4a6f624d9145e3895656e471e740b6e416",
+  "official_unique_ids": 321,
+  "official_rows": 323,
+  "official_id_changes_since_previous_snapshot": [],
+  "native_macro_cases": {
+    "match": 0,
+    "blocked": 3
+  },
+  "native_original_engine_version": "2025.1.2.165",
+  "case_scope": "Python execution, CLI composition/configuration and licensing evidence; not all-tool native certification",
+  "universal_equivalence_proven": false
+}

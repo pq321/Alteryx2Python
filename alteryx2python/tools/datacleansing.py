@@ -88,7 +88,9 @@ def _clean_series(series: pd.Series, config: dict[str, Any]) -> pd.Series:
     if config.get("replace_numeric_nulls"):
         cleaned = cleaned.fillna(0)
 
-    if _uses_text_operations(config):
+    # Native DataCleansing text options (whitespace, case, strip letters or
+    # digits) only apply to string fields; numeric columns pass through.
+    if _uses_text_operations(config) and not pd.api.types.is_numeric_dtype(cleaned):
         cleaned = cleaned.map(lambda value: _clean_text_value(value, config))
     return cleaned
 

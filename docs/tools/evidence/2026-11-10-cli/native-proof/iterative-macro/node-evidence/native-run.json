@@ -1,0 +1,12 @@
+{
+  "status": "blocked",
+  "returncode": 2,
+  "reason": "engine_license_unavailable",
+  "command": [
+    "D:\\Alteryx\\bin\\AlteryxEngineCmd.exe",
+    "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\native-proof\\iterative-macro\\node-evidence\\instrumented.yxmd"
+  ],
+  "engine_sha256": "f7d5349d336b383defb185e43f7348530f2e9fb44ea3e16f1deee0ca8da1d39b",
+  "console_sha256": "1f12725909d0eaeeea742b79d8b5aa791eee4ef2c330b55a53f34f30a5435fa2",
+  "output_sha256": {}
+}

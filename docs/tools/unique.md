@@ -6,12 +6,12 @@ Supported anchors:
 
 - Input: `Input`
 - Unique output: `Unique`
-- Duplicate output: `Duplicate`
+- Duplicate output: `Duplicates` (native connection name; previously misspelled `Duplicate`)
 
 Implemented semantics:
 
 - first row for each configured key goes to `Unique`
-- later rows with the same configured key go to `Duplicate`
+- later rows with the same configured key go to `Duplicates`
 - all columns are preserved
 
 Deferred semantics:

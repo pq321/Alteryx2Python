@@ -1,0 +1,258 @@
+{
+  "source_sha256": "e7e64d84d75c3744a4d6bec4e4b26242bfae521b85750cfa1adbecbf79a445ce",
+  "producer": "python",
+  "runtime_sha256": "821d97edaaaee82bc1aa71469f16358282bde9368c1a72f074d82e1e2393ae4e",
+  "status": "success",
+  "failure": null,
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "status": "success",
+      "inputs": {},
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    },
+    "2": {
+      "tool_type": "CountRecords",
+      "status": "success",
+      "inputs": {
+        "Input8": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "outputs": {
+        "Output9": {
+          "columns": [
+            "Count"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "int64"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "int",
+                "value": "4"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    },
+    "3": {
+      "tool_type": "SelectRecords",
+      "status": "success",
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "warnings": [],
+  "errors": [],
+  "environment": {
+    "python": "3.12.11 (main, Jun 12 2025, 12:44:17) [MSC v.1943 64 bit (AMD64)]",
+    "pandas": "3.0.3",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "locale": "LC_COLLATE=C;LC_CTYPE=English_United States.936;LC_MONETARY=C;LC_NUMERIC=C;LC_TIME=C",
+    "timezone": [
+      "China Standard Time",
+      "China Daylight Time"
+    ]
+  }
+}

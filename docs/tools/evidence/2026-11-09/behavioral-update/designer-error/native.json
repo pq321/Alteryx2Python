@@ -1,0 +1,202 @@
+{
+  "producer": "alteryx",
+  "source_sha256": "e534d80b310c8093f2df50a316fcb0243f4fbfe48031804d62b2b96fb8cf0c14",
+  "status": "failed",
+  "run": {
+    "status": "failed",
+    "source_sha256": "e534d80b310c8093f2df50a316fcb0243f4fbfe48031804d62b2b96fb8cf0c14",
+    "instrumented_sha256": "824648197a69345ed0998364c9e60c847a8001f16d48a7f6a91fdad70c0b16fe",
+    "output_sha256": {
+      "probe-0000.yxdb": "1b1ca58239059adab7805838718d4c43970d92227776d3f6415a9948fa714a51"
+    },
+    "node_outcomes": {
+      "1": "success",
+      "2": "failed",
+      "3": "not_run"
+    },
+    "reviewer": "Codex observed Designer GUI",
+    "note": "Outcome previously observed during this session; see preserved designer-messages.txt. Recomparison uses unchanged native YXDB files, not regenerated expected outputs.",
+    "method": "Designer/manual outcome attestation",
+    "recorded_at": "2026-11-09T09:56:51.520005+00:00"
+  },
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {},
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    },
+    "2": {
+      "tool_type": "Filter",
+      "outputs": {},
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "failed",
+      "errors": null,
+      "warnings": null
+    },
+    "3": {
+      "tool_type": "Unique",
+      "outputs": {},
+      "inputs": {},
+      "status": "not_run",
+      "errors": null,
+      "warnings": null
+    }
+  },
+  "missing": [
+    {
+      "node_id": "2",
+      "anchor": "False",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "2",
+      "anchor": "True",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Duplicates",
+      "file": "probe-0003.yxdb",
+      "probe_id": "7"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Unique",
+      "file": "probe-0004.yxdb",
+      "probe_id": "8"
+    }
+  ],
+  "unreadable": [],
+  "errors": null,
+  "warnings": null,
+  "raw_designer_messages": "\t\t\t\t\t\t\t\t\t\t537398 item (settable, string) Row 1 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t537399 item (settable, string) Row 1 Column 3 Value: Started running E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-error\\instrumented.yxmd at 11/09/2026 16:35:52\n\t\t\t\t\t\t\t\t\t\t537402 item (settable, string) Row 2 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t537403 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1825.4 MB of memory.\n\t\t\t\t\t\t\t\t\t\t537406 item (settable, string) Row 3 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t537407 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.\n\t\t\t\t\t\t\t\t\t\t537410 item (settable, string) Row 4 Column 2 Value: Text Input (1)\n\t\t\t\t\t\t\t\t\t\t537411 item (settable, string) Row 4 Column 3 Value: 4 records were output\n\t\t\t\t\t\t\t\t\t\t537414 item (settable, string) Row 5 Column 2 Value: Filter (2)\n\t\t\t\t\t\t\t\t\t\t537415 item (settable, string) Row 5 Column 3 Value: Parse Error at char(1): Unknown variable \"missing_field\"\n\t\t\t\t\t\t\t\t\t\t537418 item (settable, string) Row 6 Column 2 Value: Output Data (4)\n\t\t\t\t\t\t\t\t\t\t537419 item (settable, string) Row 6 Column 3 Value: 4 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-error\\probe-0000.yxdb\"\n\t\t\t\t\t\t\t\t\t\t537422 item (settable, string) Row 7 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t537423 item (settable, string) Row 7 Column 3 Value: Finished running instrumented.yxmd in 0.6 seconds with 1 error"
+}

@@ -1,0 +1,65 @@
+{
+  "manifest_sha256": "3c92d8bd1bac261a679fb61092c46c3ff7253677eac5d376881369440627b33f",
+  "summary": {
+    "match": 0,
+    "mismatch": 0,
+    "blocked": 3,
+    "incomplete": 0
+  },
+  "cases": [
+    {
+      "name": "standard-macro",
+      "workflow": "E:\\Automation\\Alteryx2Python\\examples\\cli\\standard-macro.yxmd",
+      "source_sha256": "4aa7c6f5df8c21d9ad6bfdf25bf440c31f8c93ae58b020cba2732ace4d87116e",
+      "tools": [
+        "Macro_Factor"
+      ],
+      "status": "blocked",
+      "proven_scope": "none",
+      "report": "standard-macro/report.json"
+    },
+    {
+      "name": "batch-macro",
+      "workflow": "E:\\Automation\\Alteryx2Python\\examples\\cli\\batch-macro.yxmd",
+      "source_sha256": "592518892e7d59f61b7d9affa30aed43a93477842f6e6f7af3a9bd339ce587fd",
+      "tools": [
+        "Macro_BatchFactor"
+      ],
+      "status": "blocked",
+      "proven_scope": "none",
+      "report": "batch-macro/report.json"
+    },
+    {
+      "name": "iterative-macro",
+      "workflow": "E:\\Automation\\Alteryx2Python\\examples\\cli\\iterative-macro.yxmd",
+      "source_sha256": "ee223914e018ff2d4891e3594af6ebbc153a473940c3e1c52df53dafb8678ab9",
+      "tools": [
+        "Macro_Countdown"
+      ],
+      "status": "blocked",
+      "proven_scope": "none",
+      "report": "iterative-macro/report.json"
+    }
+  ],
+  "tool_cases": {
+    "Macro_Factor": [
+      {
+        "case": "standard-macro",
+        "status": "blocked"
+      }
+    ],
+    "Macro_BatchFactor": [
+      {
+        "case": "batch-macro",
+        "status": "blocked"
+      }
+    ],
+    "Macro_Countdown": [
+      {
+        "case": "iterative-macro",
+        "status": "blocked"
+      }
+    ]
+  },
+  "universal_equivalence_proven": false
+}

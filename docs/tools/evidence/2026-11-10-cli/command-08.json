@@ -1,0 +1,23 @@
+{
+  "command": "generate",
+  "output": "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\parameter.py",
+  "representation": "source-xml-and-complete-ir",
+  "semantic_equivalence_proven": false,
+  "status": "ok",
+  "tool_types": [
+    "Formula",
+    "TextInput"
+  ],
+  "unsupported_nodes": [],
+  "warnings": [
+    "parameter_manifest={\"factor\": 3}"
+  ],
+  "workflow": {
+    "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+    "edge_count": 1,
+    "node_count": 2,
+    "source_file": "examples\\cli\\parameter-app.yxwz",
+    "workflow_id": "parameter-app",
+    "workflow_name": "parameter-app"
+  }
+}

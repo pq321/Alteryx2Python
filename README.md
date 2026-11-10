@@ -20,6 +20,8 @@ Compatibility-only package:
 
 Current implemented slices:
 
+- Tool catalog with 347 entries, including all 321 unique identifiers in the pinned official tools list; mappings, executable profiles and native equivalence evidence are tracked separately in [the catalog](docs/tools/catalog.md).
+- Every catalog tool type has a config parser (dedicated semantic parsers plus a lossless catalog canonical parser) and a runtime registry entry
 - Parser extraction for real workflow nodes, edges, anchors, configs, metadata, containers, and unsupported classifications
 - Runtime DAG execution from `WorkflowIR`
 - Targeted subgraph execution with skipped frontier warnings
@@ -41,6 +43,7 @@ Current architectural scaffolding introduced:
 - migration governance and triage guidance
 - Basic/Advanced official sample inventory
 - lightweight JSON-first CLI for inspect, run, compare, and certify
+- General CLI graph construction/editing, native node templates, question/Action configuration, standard/batch/iterative macro profiles, runnable generated Python with embedded local macros, headless EngineCmd and per-node proof ledgers. The undocumented Designer/Task Scheduler fallback is disabled. See [Workflow CLI](docs/workflow_cli.md).
 - Python script generation for single workflows and recursive sample directories
 - pipeline support diagnostics documented in `docs/support_diagnostics.md`
 - change-request support maps for report/email maintenance surfaces via `support-map` and compact JSON
@@ -51,7 +54,9 @@ Important constraint:
 
 Verification:
 
-- `uv run python -m pytest -q`
+- Install the `local`, `parity`, `test`, `nlp` and `notebooks` extras, then run `.venv/Scripts/python.exe -m pytest -q`: 649 passed, 84.12% coverage (80% required), 2026-11-10. Four dependency/numerical warnings remain in the fixtures.
+- `uv run python scripts/sweep_all_languages.py` parses all 1,344 official sample workflows across 9 languages with 0 errors and 0 unknown tool nodes
+- Parser/registration coverage is independent of semantic acceptance. A registered unavailable adapter must not count as native equivalence.
 
 CLI example:
 

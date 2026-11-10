@@ -27,7 +27,7 @@ def unique_tool(
     duplicate_mask = input_frame.duplicated(subset=unique_fields, keep="first")
     unique_output = input_frame.loc[~duplicate_mask].copy()
     duplicate_output = input_frame.loc[duplicate_mask].copy()
-    outputs = {"Unique": unique_output, "Duplicate": duplicate_output}
+    outputs = {"Unique": unique_output, "Duplicates": duplicate_output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
         tool_type="Unique",
@@ -48,7 +48,7 @@ def unique_tool(
 class UniqueTool(BaseTool):
     tool_type = "Unique"
     input_anchors = ("Input",)
-    output_anchors = ("Unique", "Duplicate")
+    output_anchors = ("Unique", "Duplicates")
 
     def execute(
         self,

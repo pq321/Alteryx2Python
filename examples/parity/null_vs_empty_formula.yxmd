@@ -1,0 +1,64 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2025.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field name="key" />
+            <Field name="label" />
+          </Fields>
+          <Data>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c />
+            </r>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>c</c>
+              <c>é🙂</c>
+            </r>
+          </Data>
+          <NumRows value="4" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="300" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="&quot;&quot;" field="empty_text" type="V_WString" size="16" />
+          </FormulaFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+  </Nodes>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+      <DisableAllOutput value="False" />
+    </RuntimeProperties>
+  </Properties>
+  <EngineSettings EngineDll="" EngineDllEntryPoint="" Macro="" />
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+  </Connections>
+</AlteryxDocument>

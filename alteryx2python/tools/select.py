@@ -107,7 +107,10 @@ def select_tool(
     output_fields = [{"source": name, "rename": name, "dtype": None} for name in output_names]
     _validate_unique_output_names(output_fields)
 
-    output_frame = pd.DataFrame(output_columns, index=input_frame.index)
+    output_frame = _order_output_frame(
+        pd.DataFrame(output_columns, index=input_frame.index),
+        config.get("expected_output_schema"),
+    )
     outputs = {"Output": output_frame}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
@@ -125,6 +128,32 @@ def select_tool(
         },
     )
     return outputs
+
+
+def _order_output_frame(output_frame: pd.DataFrame, expected_output_schema: Any) -> pd.DataFrame:
+    expected_columns = _expected_output_columns(expected_output_schema)
+    if not expected_columns:
+        return output_frame
+    ordered = [column for column in expected_columns if column in output_frame.columns]
+    extras = [column for column in output_frame.columns if column not in ordered]
+    return output_frame.reindex(columns=[*ordered, *extras])
+
+
+def _expected_output_columns(schema: Any) -> list[str]:
+    if not isinstance(schema, dict):
+        return []
+    if "fields" in schema:
+        return _field_names(schema.get("fields"))
+    output_schema = schema.get("Output")
+    if isinstance(output_schema, dict):
+        return _field_names(output_schema.get("fields"))
+    return []
+
+
+def _field_names(fields: Any) -> list[str]:
+    if not isinstance(fields, list):
+        return []
+    return [str(field["name"]) for field in fields if isinstance(field, dict) and "name" in field]
 
 
 class SelectTool(BaseTool):

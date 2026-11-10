@@ -1,0 +1,216 @@
+{
+  "source_sha256": "d3085962ebaa39dae3b6d4305bfe9c14d88337fc1f113dddd0f7fce3d8ea1fd0",
+  "producer": "python",
+  "runtime_sha256": "00dc080e683435c6aa960e605b1e0b940e014c00e145375586a7e96a5d95246b",
+  "status": "success",
+  "failure": null,
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "status": "success",
+      "inputs": {},
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    },
+    "2": {
+      "tool_type": "Formula",
+      "status": "success",
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label",
+            "empty_text"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "object",
+            "object",
+            "str"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": ""
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              },
+              {
+                "kind": "string",
+                "value": ""
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": ""
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              },
+              {
+                "kind": "string",
+                "value": ""
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "warnings": [],
+  "errors": [],
+  "environment": {
+    "python": "3.12.11 (main, Jun 12 2025, 12:44:17) [MSC v.1943 64 bit (AMD64)]",
+    "pandas": "3.0.3",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "locale": "LC_COLLATE=C;LC_CTYPE=English_United States.936;LC_MONETARY=C;LC_NUMERIC=C;LC_TIME=C",
+    "timezone": [
+      "China Standard Time",
+      "China Daylight Time"
+    ]
+  }
+}

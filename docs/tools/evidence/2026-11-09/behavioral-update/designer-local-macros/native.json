@@ -1,0 +1,305 @@
+{
+  "producer": "alteryx",
+  "source_sha256": "e7e64d84d75c3744a4d6bec4e4b26242bfae521b85750cfa1adbecbf79a445ce",
+  "status": "success",
+  "run": {
+    "status": "success",
+    "source_sha256": "e7e64d84d75c3744a4d6bec4e4b26242bfae521b85750cfa1adbecbf79a445ce",
+    "instrumented_sha256": "f03525542a4cf7ded4d3fe079ad38ea255a348516b171f8883a32caf06236772",
+    "output_sha256": {
+      "probe-0000.yxdb": "4fbb8a51dcf3c74706cd27c6aa3ca57c6bee3a1230e99439549cf65e6610f5c9",
+      "probe-0001.yxdb": "86051acf4b57a10853fecdc122080c1e5b439af4a7434e9b60fea6d8fe91fa32",
+      "probe-0002.yxdb": "74c779425cc8d4abc2cfa8682a006dbdcc5111616d70d2c316d961236b32e8a8"
+    },
+    "node_outcomes": {
+      "1": "success",
+      "2": "success",
+      "3": "success"
+    },
+    "reviewer": "Codex observed Designer GUI",
+    "note": "Outcome previously observed during this session; see preserved designer-messages.txt. Recomparison uses unchanged native YXDB files, not regenerated expected outputs.",
+    "method": "Designer/manual outcome attestation",
+    "recorded_at": "2026-11-09T09:56:51.586621+00:00"
+  },
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {},
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    },
+    "2": {
+      "tool_type": "CountRecords",
+      "outputs": {
+        "Output9": {
+          "columns": [
+            "Count"
+          ],
+          "schema": [
+            {
+              "name": "Count",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "int",
+                "value": "4"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {
+        "Input8": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    },
+    "3": {
+      "tool_type": "SelectRecords",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    }
+  },
+  "missing": [],
+  "unreadable": [],
+  "errors": null,
+  "warnings": null,
+  "raw_designer_messages": "\t\t\t\t\t\t\t\t\t\t1269447 item (settable, string) Row 1 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t1269448 item (settable, string) Row 1 Column 3 Value: Started running E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-local-macros\\Count_Select_Review.yxmd at 11/09/2026 17:29:49\n\t\t\t\t\t\t\t\t\t\t1269451 item (settable, string) Row 2 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t1269452 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1801.3 MB of memory.\n\t\t\t\t\t\t\t\t\t\t1269455 item (settable, string) Row 3 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t1269456 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.\n\t\t\t\t\t\t\t\t\t\t1269459 item (settable, string) Row 4 Column 2 Value: Text Input (1)\n\t\t\t\t\t\t\t\t\t\t1269460 item (settable, string) Row 4 Column 3 Value: 4 records were output\n\t\t\t\t\t\t\t\t\t\t1269463 item (settable, string) Row 5 Column 2 Value: Output Data (4)\n\t\t\t\t\t\t\t\t\t\t1269464 item (settable, string) Row 5 Column 3 Value: 4 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-local-macros\\probe-0000.yxdb\"\n\t\t\t\t\t\t\t\t\t\t1269467 item (settable, string) Row 6 Column 2 Value: Output Data (5)\n\t\t\t\t\t\t\t\t\t\t1269468 item (settable, string) Row 6 Column 3 Value: 1 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-local-macros\\probe-0001.yxdb\"\n\t\t\t\t\t\t\t\t\t\t1269471 item (settable, string) Row 7 Column 2 Value: Output Data (6)\n\t\t\t\t\t\t\t\t\t\t1269472 item (settable, string) Row 7 Column 3 Value: 2 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-local-macros\\probe-0002.yxdb\"\n\t\t\t\t\t\t\t\t\t\t1269475 item (settable, string) Row 8 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t1269476 item (settable, string) Row 8 Column 3 Value: Finished running Count_Select_Review.yxmd in 0.8 seconds"
+}

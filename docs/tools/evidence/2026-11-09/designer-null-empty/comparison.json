@@ -1,0 +1,57 @@
+{
+  "status": "incomplete",
+  "universal_equivalence_proven": false,
+  "native_status": "incomplete",
+  "python_status": "success",
+  "issues": [],
+  "incomplete_evidence": [
+    "global_errors_unverified",
+    "global_warnings_unverified",
+    "node_1_status_unverified",
+    "node_1_errors_unverified",
+    "node_1_warnings_unverified",
+    "node_2_status_unverified",
+    "node_2_errors_unverified",
+    "node_2_warnings_unverified"
+  ],
+  "comparisons": [
+    {
+      "node_id": "1",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "incomplete",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "inputs",
+      "anchor": "Input",
+      "status": "incomplete",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "incomplete",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    }
+  ],
+  "missing_native_outputs": [],
+  "unreadable_native_outputs": []
+}

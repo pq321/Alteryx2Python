@@ -1,0 +1,93 @@
+{
+  "native_version": "2025.1.2.165",
+  "runs": [
+    {
+      "run": "designer-fixed",
+      "strict_status": "incomplete",
+      "data_checks": 7,
+      "data_matches": 7,
+      "python_status": "success",
+      "missing_outputs": 0,
+      "issues": []
+    },
+    {
+      "run": "designer-join",
+      "strict_status": "incomplete",
+      "data_checks": 7,
+      "data_matches": 7,
+      "python_status": "success",
+      "missing_outputs": 0,
+      "issues": []
+    },
+    {
+      "run": "designer-empty",
+      "strict_status": "incomplete",
+      "data_checks": 7,
+      "data_matches": 7,
+      "python_status": "success",
+      "missing_outputs": 0,
+      "issues": []
+    },
+    {
+      "run": "designer-null-empty",
+      "strict_status": "incomplete",
+      "data_checks": 3,
+      "data_matches": 3,
+      "python_status": "success",
+      "missing_outputs": 0,
+      "issues": []
+    },
+    {
+      "run": "designer-error",
+      "strict_status": "incomplete",
+      "data_checks": 3,
+      "data_matches": 2,
+      "python_status": "failed",
+      "missing_outputs": 4,
+      "issues": []
+    },
+    {
+      "run": "engine-license-check",
+      "strict_status": "blocked",
+      "data_checks": 7,
+      "data_matches": 0,
+      "python_status": "success",
+      "missing_outputs": 5,
+      "issues": [
+        "errors_mismatch"
+      ]
+    }
+  ],
+  "native_fixtures": [
+    {
+      "file": "tests\\fixtures\\parity\\native_textinput.yxdb",
+      "sha256": "e47b51a46361a0e74669c76d9ce5931da5ae1c16069be378797edcf30fdc5156",
+      "source_sha256": "619bdc4c436f9be17a6abfd18cf5ff52d64dcc208dee8e3210074eaf157dc2e4",
+      "native_version": "2025.1.2.165",
+      "mode": "original",
+      "origin": "actual Designer GUI run",
+      "run": "designer-fixed"
+    },
+    {
+      "file": "tests\\fixtures\\parity\\native_join.yxdb",
+      "sha256": "0b735638dea3a541f844d20dfe3d59cb6f64c8041b723a43400127d6305c1c80",
+      "source_sha256": "cf5dc598a02d8a0684dd20a4b20bef457757332af7c4ec5af73f70b947fdbb8e",
+      "native_version": "2025.1.2.165",
+      "mode": "original",
+      "origin": "actual Designer GUI run",
+      "run": "designer-join"
+    }
+  ],
+  "tests": {
+    "passed": 525,
+    "coverage_percent": 85.88329887433953,
+    "required_percent": 80
+  },
+  "universal_equivalence_proven": false,
+  "observed_error_gap": {
+    "node_id": "2",
+    "native": "Parse Error at char(1): Unknown variable \"missing_field\"",
+    "python_exception": "KeyError",
+    "python_message": "'missing_field'"
+  }
+}

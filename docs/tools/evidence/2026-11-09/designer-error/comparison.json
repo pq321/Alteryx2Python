@@ -1,0 +1,75 @@
+{
+  "status": "incomplete",
+  "universal_equivalence_proven": false,
+  "native_status": "incomplete",
+  "python_status": "failed",
+  "issues": [],
+  "incomplete_evidence": [
+    "global_errors_unverified",
+    "global_warnings_unverified",
+    "node_1_status_unverified",
+    "node_1_errors_unverified",
+    "node_1_warnings_unverified",
+    "node_2_status_unverified",
+    "node_2_errors_unverified",
+    "node_2_warnings_unverified"
+  ],
+  "comparisons": [
+    {
+      "node_id": "1",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "incomplete",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "inputs",
+      "anchor": "Input",
+      "status": "incomplete",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "3",
+      "status": "incomplete",
+      "reason": "missing_node"
+    }
+  ],
+  "missing_native_outputs": [
+    {
+      "node_id": "2",
+      "anchor": "False",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "2",
+      "anchor": "True",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Duplicates",
+      "file": "probe-0003.yxdb",
+      "probe_id": "7"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Unique",
+      "file": "probe-0004.yxdb",
+      "probe_id": "8"
+    }
+  ],
+  "unreadable_native_outputs": []
+}

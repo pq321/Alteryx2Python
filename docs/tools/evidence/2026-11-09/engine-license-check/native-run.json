@@ -1,0 +1,12 @@
+{
+  "status": "blocked",
+  "returncode": 2,
+  "reason": "engine_license_unavailable",
+  "command": [
+    "D:\\Alteryx\\bin\\AlteryxEngineCmd.exe",
+    "E:\\Automation\\Alteryx2Python\\reports\\parity\\engine-license-check\\instrumented.yxmd"
+  ],
+  "engine_sha256": "f7d5349d336b383defb185e43f7348530f2e9fb44ea3e16f1deee0ca8da1d39b",
+  "console_sha256": "ed13e6da2b05a3ebd9a76fe1e7165d915f7246154b77c5d5a9500e95c9808d94",
+  "output_sha256": {}
+}

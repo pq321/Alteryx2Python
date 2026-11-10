@@ -1,0 +1,16 @@
+										1269447 item (settable, string) Row 1 Column 2 Value: Designer x64
+										1269448 item (settable, string) Row 1 Column 3 Value: Started running E:\Automation\Alteryx2Python\reports\parity\designer-local-macros\Count_Select_Review.yxmd at 11/09/2026 17:29:49
+										1269451 item (settable, string) Row 2 Column 2 Value: Designer x64
+										1269452 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1801.3 MB of memory.
+										1269455 item (settable, string) Row 3 Column 2 Value: Designer x64
+										1269456 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.
+										1269459 item (settable, string) Row 4 Column 2 Value: Text Input (1)
+										1269460 item (settable, string) Row 4 Column 3 Value: 4 records were output
+										1269463 item (settable, string) Row 5 Column 2 Value: Output Data (4)
+										1269464 item (settable, string) Row 5 Column 3 Value: 4 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-local-macros\probe-0000.yxdb"
+										1269467 item (settable, string) Row 6 Column 2 Value: Output Data (5)
+										1269468 item (settable, string) Row 6 Column 3 Value: 1 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-local-macros\probe-0001.yxdb"
+										1269471 item (settable, string) Row 7 Column 2 Value: Output Data (6)
+										1269472 item (settable, string) Row 7 Column 3 Value: 2 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-local-macros\probe-0002.yxdb"
+										1269475 item (settable, string) Row 8 Column 2 Value: Designer x64
+										1269476 item (settable, string) Row 8 Column 3 Value: Finished running Count_Select_Review.yxmd in 0.8 seconds

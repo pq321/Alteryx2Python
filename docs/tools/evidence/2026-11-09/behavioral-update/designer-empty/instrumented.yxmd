@@ -1,0 +1,80 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2025.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field name="key" type="V_WString" size="64" />
+            <Field name="label" type="V_WString" size="64" />
+          </Fields>
+          <Data>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c null="False" />
+            </r>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>c</c>
+              <c>é🙂</c>
+            </r>
+          </Data>
+          <NumRows value="4" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Filter.Filter">
+        <Position x="300" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>Custom</Mode>
+          <Expression>[key] = "absent"</Expression>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFilter" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Unique.Unique">
+        <Position x="450" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <UniqueFields>
+            <Field field="key" />
+          </UniqueFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxUnique" />
+    </Node>
+  <Node ToolID="4"><GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"><Position x="150" y="600" /></GuiSettings><Properties><Configuration><File FileFormat="19" MaxRecords="">E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0000.yxdb</File><Passwords /><FormatSpecificOptions /><MultiFile value="False" /></Configuration></Properties><EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" /></Node><Node ToolID="5"><GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"><Position x="210" y="600" /></GuiSettings><Properties><Configuration><File FileFormat="19" MaxRecords="">E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0001.yxdb</File><Passwords /><FormatSpecificOptions /><MultiFile value="False" /></Configuration></Properties><EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" /></Node><Node ToolID="6"><GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"><Position x="270" y="600" /></GuiSettings><Properties><Configuration><File FileFormat="19" MaxRecords="">E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0002.yxdb</File><Passwords /><FormatSpecificOptions /><MultiFile value="False" /></Configuration></Properties><EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" /></Node><Node ToolID="7"><GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"><Position x="330" y="600" /></GuiSettings><Properties><Configuration><File FileFormat="19" MaxRecords="">E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0003.yxdb</File><Passwords /><FormatSpecificOptions /><MultiFile value="False" /></Configuration></Properties><EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" /></Node><Node ToolID="8"><GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"><Position x="390" y="600" /></GuiSettings><Properties><Configuration><File FileFormat="19" MaxRecords="">E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0004.yxdb</File><Passwords /><FormatSpecificOptions /><MultiFile value="False" /></Configuration></Properties><EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" /></Node></Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="True" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+  <Connection><Origin ToolID="1" Connection="Output" /><Destination ToolID="4" Connection="Input" /></Connection><Connection><Origin ToolID="2" Connection="False" /><Destination ToolID="5" Connection="Input" /></Connection><Connection><Origin ToolID="2" Connection="True" /><Destination ToolID="6" Connection="Input" /></Connection><Connection><Origin ToolID="3" Connection="Duplicates" /><Destination ToolID="7" Connection="Input" /></Connection><Connection><Origin ToolID="3" Connection="Unique" /><Destination ToolID="8" Connection="Input" /></Connection></Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+      <DisableAllOutput value="False" />
+    </RuntimeProperties>
+  </Properties>
+  <EngineSettings EngineDll="" EngineDllEntryPoint="" Macro="" />
+</AlteryxDocument>

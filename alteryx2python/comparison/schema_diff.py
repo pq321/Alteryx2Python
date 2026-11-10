@@ -26,11 +26,24 @@ def snapshot_schema(frame: pd.DataFrame) -> SchemaSnapshot:
     }
 
 
+def normalize_dtype(dtype: str) -> str:
+    """Treat pandas object strings and the pandas 3 str dtype as equivalent.
+
+    CSV oracles read with type inference may report either representation for
+    the same textual column, so schema comparison normalizes them.
+    """
+    if dtype in ("object", "str"):
+        return "string"
+    return dtype
+
+
 def compare_schema_snapshots(left: SchemaSnapshot, right: SchemaSnapshot) -> list[str]:
     issues: list[str] = []
     if left["columns"] != right["columns"]:
         issues.append("Column order or names differ")
-    if left["dtypes"] != right["dtypes"]:
+    left_dtypes = {column: normalize_dtype(dtype) for column, dtype in left["dtypes"].items()}
+    right_dtypes = {column: normalize_dtype(dtype) for column, dtype in right["dtypes"].items()}
+    if left_dtypes != right_dtypes:
         issues.append("Column dtypes differ")
     if left["row_count"] != right["row_count"]:
         issues.append("Row counts differ")

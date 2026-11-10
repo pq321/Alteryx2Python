@@ -35,7 +35,7 @@ def test_mifid_first_supported_subgraph_executes_from_real_parsed_workflow():
             "CodePage": {"text": "28591"},
         },
     }
-    context = WorkflowContext()
+    context = WorkflowContext(runtime_config={"skip_app_configuration": True})
 
     result = run_workflow_graph(workflow, context, target_node_ids={"24"})
 
@@ -83,7 +83,7 @@ def test_mifid_first_reshape_subgraph_executes_to_formula_node():
         "file": str(MAPPING_FIXTURE),
     }
 
-    result = run_workflow_graph(workflow, WorkflowContext(), target_node_ids={"36"})
+    result = run_workflow_graph(workflow, WorkflowContext(runtime_config={"skip_app_configuration": True}), target_node_ids={"36"})
 
     output = result.node_results["36"].outputs["Output"]
     assert set(result.execution_order) == {"18", "21", "22", "23", "24", "25", "27", "29", "28", "32", "33", "34", "36"}
@@ -131,7 +131,10 @@ def test_official_text_input_workflow_executes_complete_data_output():
     assert result.execution_order == ["98"]
     assert result.skipped_node_ids
     output = result.node_results["98"].outputs["Output"]
-    expected = pd.read_csv(EXPECTED_TEXT_INPUT, dtype=object, keep_default_na=False)
+    # Native Text Input infers column dtypes from the embedded data, so the
+    # oracle CSV is read with pandas type inference (not forced to strings).
+    expected = pd.read_csv(EXPECTED_TEXT_INPUT, keep_default_na=False,
+                           na_values={"LastName": [""]})  # Native XML <c/> is null.
 
     diff = compare_dataframes(output, expected)
     assert diff.matches, diff.issues

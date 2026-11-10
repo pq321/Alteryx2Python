@@ -18,16 +18,17 @@ def transpose_tool(
         raise KeyError("Transpose tool requires an Input anchor")
     input_frame = inputs["Input"]
     key_fields = list(config.get("key_fields", []))
-    data_fields = [
+    selected_data_fields = [
         field["field"]
         for field in config.get("data_fields", [])
         if isinstance(field, dict) and field.get("selected", False)
     ]
+    selected_data_field_set = set(selected_data_fields)
+    data_fields = [field for field in input_frame.columns if field in selected_data_field_set]
     ensure_fields_exist(input_frame, key_fields)
-    missing_data_fields = [field for field in data_fields if field not in input_frame.columns]
+    missing_data_fields = [field for field in selected_data_fields if field not in input_frame.columns]
     if missing_data_fields and str(config.get("error_warn", "")).lower() != "warn":
         ensure_fields_exist(input_frame, missing_data_fields)
-    data_fields = [field for field in data_fields if field in input_frame.columns]
 
     rows: list[dict[str, Any]] = []
     for source_row in input_frame.to_dict("records"):

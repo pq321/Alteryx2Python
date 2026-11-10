@@ -30,6 +30,7 @@ def text(node: Any, default: str = "") -> str:
     if isinstance(node, dict):
         if "text" in node:
             return str(node["text"])
+        return default
     if node is None:
         return default
     return str(node)

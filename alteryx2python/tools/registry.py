@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from functools import wraps
 from typing import Any, Callable
 
 import pandas as pd
@@ -21,6 +22,7 @@ class ToolMetadata:
     maturity: str
     semantics_doc: str
     supports_certification: bool
+    execution_profile: str = "native-config-subset"
 
 
 class ToolRegistry:
@@ -37,6 +39,11 @@ class ToolRegistry:
 
     def list_tool_types(self) -> list[str]:
         return sorted(self._registry)
+
+    def replace(self, metadata: ToolMetadata) -> None:
+        if metadata.tool_type not in self._registry:
+            raise KeyError(metadata.tool_type)
+        self._registry[metadata.tool_type] = metadata
 
 
 from alteryx2python.tools.action import ActionTool, action_tool
@@ -94,6 +101,7 @@ from alteryx2python.tools.fuzzymatch import FuzzyMatchTool, fuzzymatch_tool
 from alteryx2python.tools.generalize import GeneralizeTool, generalize_tool
 from alteryx2python.tools.interface import (
     CheckBoxGroupTool,
+    ControlParamTool,
     DateTool,
     DropDownTool,
     FolderBrowseTool,
@@ -109,6 +117,7 @@ from alteryx2python.tools.interface import (
     RadioButtonGroupTool,
     TreeTool,
     checkboxgroup_tool,
+    controlparam_tool,
     date_tool,
     dropdown_tool,
     folderbrowse_tool,
@@ -132,6 +141,7 @@ from alteryx2python.tools.jupytercode import JupyterCodeTool, jupytercode_tool
 from alteryx2python.tools.makecolumns import MakeColumnsTool, makecolumns_tool
 from alteryx2python.tools.makegrid import MakeGridTool, makegrid_tool
 from alteryx2python.tools.makegroup import MakeGroupTool, makegroup_tool
+from alteryx2python.tools.macroinput import MacroInputTool, macroinput_tool
 from alteryx2python.tools.mapinput import MapInputTool, mapinput_tool
 from alteryx2python.tools.multifieldformula import MultiFieldFormulaTool, multifieldformula_tool
 from alteryx2python.tools.multirowformula import MultiRowFormulaTool, multirowformula_tool
@@ -641,6 +651,7 @@ TOOL_REGISTRY.register(
     )
 )
 _register_interface_tool("CheckBoxGroup", checkboxgroup_tool, CheckBoxGroupTool, ("Question",))
+_register_interface_tool("ControlParam", controlparam_tool, ControlParamTool, ("Question",))
 _register_interface_tool("Date", date_tool, DateTool, ("Question",))
 _register_interface_tool("DropDown", dropdown_tool, DropDownTool, ("Question",))
 _register_interface_tool("FolderBrowse", folderbrowse_tool, FolderBrowseTool, ("Question",))
@@ -726,6 +737,18 @@ TOOL_REGISTRY.register(
         tool_type="TextInput",
         function=textinput_tool,
         tool_class=TextInputTool,
+        input_anchors=(),
+        output_anchors=("Output",),
+        maturity="L2_BASIC_IMPLEMENTATION",
+        semantics_doc="docs/tools/textinput.md",
+        supports_certification=True,
+    )
+)
+TOOL_REGISTRY.register(
+    ToolMetadata(
+        tool_type="MacroInput",
+        function=macroinput_tool,
+        tool_class=MacroInputTool,
         input_anchors=(),
         output_anchors=("Output",),
         maturity="L2_BASIC_IMPLEMENTATION",
@@ -1021,7 +1044,7 @@ TOOL_REGISTRY.register(
         function=unique_tool,
         tool_class=UniqueTool,
         input_anchors=("Input",),
-        output_anchors=("Unique", "Duplicate"),
+        output_anchors=("Unique", "Duplicates"),
         maturity="L2_BASIC_IMPLEMENTATION",
         semantics_doc="docs/tools/unique.md",
         supports_certification=False,
@@ -1283,6 +1306,26 @@ TOOL_REGISTRY.register(
 _register_reporting_tool("Overlay", overlay_tool, OverlayTool)
 _register_reporting_tool("VisualLayout", visuallayout_tool, VisualLayoutTool)
 
+from alteryx2python.parser.tool_catalog import CATALOG as _TOOL_CATALOG
+
+for _catalog_entry in _TOOL_CATALOG:
+    if _catalog_entry.tool_type in TOOL_REGISTRY._registry:
+        continue
+    if _catalog_entry.tool_type in ("UNKNOWN",):
+        continue
+    TOOL_REGISTRY.register(
+        ToolMetadata(
+            tool_type=_catalog_entry.tool_type,
+            function=_baseline_function(_catalog_entry.tool_type),
+            tool_class=BaselineTool,
+            input_anchors=(),
+            output_anchors=(),
+            maturity="L1_PARSED_ONLY",
+            semantics_doc="docs/tools/baseline.md",
+            supports_certification=False,
+        )
+    )
+
 for _baseline_tool_type in (
     "AutoML",
     "Barcode",
@@ -1316,4 +1359,76 @@ for _baseline_tool_type in (
     "WordCloud",
     "ZeroShotTextClassification",
 ):
-    _register_baseline_tool(_baseline_tool_type)
+    if _baseline_tool_type not in TOOL_REGISTRY._registry:
+        _register_baseline_tool(_baseline_tool_type)
+
+
+# Register executable local adapters before replacing remaining placeholders.
+# Registration and behavioral/native validation remain separate evidence axes.
+from importlib import import_module as _import_tool_module
+from alteryx2python.tools.base_tool import BaseTool as _MappedBaseTool
+from alteryx2python.tools.unavailable import unavailable_tool as _unavailable_tool
+
+
+class _MappedTool(_MappedBaseTool):
+    def execute(self, inputs, config, context):
+        return self.function(inputs, config, context)
+
+
+def _canonical_local_call(tool_type, function):
+    """Delegated implementation calls expose exactly one outer node trace."""
+    @wraps(function)
+    def execute(inputs, config, context):
+        child = WorkflowContext(runtime_config=context.runtime_config)
+        try:
+            outputs = function(inputs, config, child)
+        finally:
+            context.warnings.extend(child.warnings)
+            context.errors.extend(child.errors)
+            context.diagnostics.extend(child.diagnostics)
+        details = child.traces[-1].config if child.traces else config
+        context.record_node(node_id=str(config.get("node_id", "unknown")), source_tool_id=config.get("source_tool_id"),
+                            tool_type=tool_type, inputs=inputs, outputs=outputs, status="success", config=details)
+        return outputs
+    return execute
+
+
+for _module_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "macro_engine", "text_models", "local_runtimes", "survival", "local_vision"):
+    _module = _import_tool_module(f"alteryx2python.tools.{_module_name}")
+    for _tool_type, _implementation in _module.IMPLEMENTATIONS.items():
+        if isinstance(_implementation, type):
+            _function = _implementation().execute
+        else:
+            _function = _implementation
+        _function = _canonical_local_call(_tool_type, _function)
+        _inputs, _outputs = _module.ANCHORS.get(_tool_type, (("Input",), ("Output",)))
+        _inputs = (_inputs,) if isinstance(_inputs, str) else tuple(_inputs)
+        _outputs = (_outputs,) if isinstance(_outputs, str) else tuple(_outputs)
+        _class = type(f"{_tool_type}Tool", (_MappedTool,), {
+            "tool_type": _tool_type, "function": staticmethod(_function),
+            "input_anchors": _inputs, "output_anchors": _outputs,
+        })
+        _metadata = ToolMetadata(
+            tool_type=_tool_type, function=_function, tool_class=_class,
+            input_anchors=_inputs, output_anchors=_outputs, maturity="L2_BASIC_IMPLEMENTATION",
+            semantics_doc=f"docs/tools/{_module_name}.md", supports_certification=False,
+            execution_profile=f"local-{_module_name}",
+        )
+        if _tool_type in TOOL_REGISTRY.list_tool_types():
+            TOOL_REGISTRY.replace(_metadata)
+        else:
+            TOOL_REGISTRY.register(_metadata)
+
+_category_by_type = {entry.tool_type: entry.category for entry in _TOOL_CATALOG}
+for _tool_type in TOOL_REGISTRY.list_tool_types():
+    _old = TOOL_REGISTRY.get(_tool_type)
+    if _old.semantics_doc != "docs/tools/baseline.md":
+        continue
+    _function = _unavailable_tool(_tool_type, _category_by_type.get(_tool_type, ""))
+    _class = type(f"{_tool_type}Tool", (_MappedTool,), {"tool_type": _tool_type, "function": staticmethod(_function)})
+    TOOL_REGISTRY.replace(ToolMetadata(
+        tool_type=_tool_type, function=_function, tool_class=_class,
+        input_anchors=_old.input_anchors, output_anchors=_old.output_anchors,
+        maturity="L1_PREREQUISITE_REQUIRED", semantics_doc="docs/tools/unavailable.md",
+        supports_certification=False, execution_profile="unavailable",
+    ))

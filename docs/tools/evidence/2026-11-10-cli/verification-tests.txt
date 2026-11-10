@@ -1,0 +1,281 @@
+........................................................................ [ 11%]
+........................................................................ [ 22%]
+........................................................................ [ 33%]
+........................................................................ [ 44%]
+........................................................................ [ 55%]
+........................................................................ [ 66%]
+........................................................................ [ 77%]
+........................................................................ [ 88%]
+........................................................................ [ 99%]
+.                                                                        [100%]
+============================== warnings summary ===============================
+tests/test_tools/test_local_runtimes.py::test_jupyterflow_fresh_output_and_data_bridge
+  E:\Automation\Alteryx2Python\.venv\Lib\site-packages\zmq\_future.py:718: RuntimeWarning: Proactor event loop does not implement add_reader family of methods required for zmq. Registering an additional selector thread for add_reader support via tornado. Use `asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())` to avoid this warning.
+    self._get_loop()
+
+tests/test_tools/test_statistics_extra.py::test_local_profile_produces_nontrivial_output[MultidimensionalScaling]
+  E:\Automation\Alteryx2Python\.venv\Lib\site-packages\sklearn\manifold\_mds.py:735: FutureWarning: The default value of `init` will change from 'random' to 'classical_mds' in 1.10. To suppress this warning, provide some value of `init`.
+    warnings.warn(
+
+tests/test_tools/test_survival.py::test_test_of_means
+  E:\Automation\Alteryx2Python\.venv\Lib\site-packages\scipy\stats\_axis_nan_policy.py:601: RuntimeWarning: Precision loss occurred in moment calculation due to catastrophic cancellation. This occurs when the data are nearly identical. Results may be unreliable.
+    res = hypotest_fun_out(*samples, **kwds)
+
+tests/test_tools/test_survival.py::test_survival_fit_score_new_rows
+  E:\Automation\Alteryx2Python\.venv\Lib\site-packages\statsmodels\duration\hazard_regression.py:512: ConvergenceWarning: Maximum Likelihood optimization failed to converge. Check mle_retvals
+    fit_rslts = super().fit(**args)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+______________ coverage: platform win32, python 3.12.11-final-0 _______________
+
+Name                                                              Stmts   Miss  Cover   Missing
+-----------------------------------------------------------------------------------------------
+alteryx2python\__init__.py                                           15      6    60%   12-14, 16-18, 20-22
+alteryx2python\certification.py                                     115     14    88%   24-25, 28-30, 61, 67, 78, 82, 92, 101, 108, 121, 148
+alteryx2python\cli.py                                               501    166    67%   206-230, 234-235, 239-240, 248, 260, 280-310, 325-356, 360-362, 366-403, 407-421, 425-432, 436-438, 442-458, 478, 480, 489-502, 517-529, 547-560, 581, 621-622, 631, 639-643, 648, 661, 693, 715-718, 722-727, 742-744, 748-752, 769-774, 789-798, 802, 830, 846-848
+alteryx2python\compact.py                                           100     25    75%   118, 132, 139, 149, 156-184, 196-200, 205, 209, 222
+alteryx2python\comparison\__init__.py                                 3      0   100%
+alteryx2python\comparison\dataframe_diff.py                          33      0   100%
+alteryx2python\comparison\report.py                                  30      1    97%   18
+alteryx2python\comparison\schema_diff.py                             29      0   100%
+alteryx2python\contracts.py                                         162     15    91%   21, 47, 113, 144, 149-152, 166, 211, 259, 294, 327, 391, 397
+alteryx2python\diagnostics.py                                       120      7    94%   170, 174, 224-227, 233
+alteryx2python\equivalence.py                                       211     58    73%   41, 52-63, 79-80, 97-104, 161, 163, 169, 173, 181, 192, 259-260, 281-305, 312, 337-338, 350-366, 423, 433
+alteryx2python\expressions\__init__.py                                2      0   100%
+alteryx2python\expressions\ast.py                                    30      0   100%
+alteryx2python\expressions\errors.py                                  2      0   100%
+alteryx2python\expressions\evaluator.py                              63     11    83%   29, 34, 47, 49, 59, 63, 66-68, 71, 77
+alteryx2python\expressions\functions.py                              96     26    73%   51, 53, 60, 66, 72, 82-89, 92-94, 99, 106-112, 118, 125, 158
+alteryx2python\expressions\lexer.py                                  48      4    92%   24-25, 32-33
+alteryx2python\expressions\parser.py                                152      9    94%   47, 67, 115, 117, 137, 166, 173, 178, 207
+alteryx2python\generator\__init__.py                                  3      0   100%
+alteryx2python\generator\base_generator.py                            7      1    86%   11
+alteryx2python\generator\macro_sources.py                            25      2    92%   21-22
+alteryx2python\generator\python_generator.py                         18      0   100%
+alteryx2python\ir\__init__.py                                         2      0   100%
+alteryx2python\ir\models.py                                          52      0   100%
+alteryx2python\ir\schema.py                                          15     15     0%   1-18
+alteryx2python\ir\validators.py                                      51      6    88%   13, 23, 25, 42, 44, 66
+alteryx2python\native_runner.py                                     121     38    69%   43-73, 89, 100-101, 154-155, 185, 209, 214, 224
+alteryx2python\optimizer\__init__.py                                  2      2     0%   6-8
+alteryx2python\optimizer\base_optimizer.py                           11     11     0%   1-17
+alteryx2python\optimizer\merge_filters.py                             7      7     0%   1-10
+alteryx2python\optimizer\merge_selects.py                             7      7     0%   1-10
+alteryx2python\parity\__init__.py                                     0      0   100%
+alteryx2python\parity\__main__.py                                    88     22    75%   81-96, 102-106, 120-121, 123-135, 139-140, 174
+alteryx2python\parity\behavior.py                                    62      6    90%   18, 20, 37, 39, 55, 68
+alteryx2python\parity\coverage.py                                    65     12    82%   66-88
+alteryx2python\parity\manual.py                                     176     24    86%   42, 57-59, 108-110, 122, 226-228, 270, 304, 311, 313, 315, 326, 328, 330, 339, 344, 349, 352, 362, 367
+alteryx2python\parity\runner.py                                     313     41    87%   201, 206-216, 242-247, 251, 271, 274, 276, 360, 375-376, 391, 433-435, 471, 473-474, 509, 511-512, 521-522, 567, 575, 578, 586-589, 591, 621, 635
+alteryx2python\parity\samples.py                                     95      3    97%   51, 91, 114
+alteryx2python\parity\snapshot.py                                    77      9    88%   42-47, 56, 83, 162-163
+alteryx2python\parser\__init__.py                                     3      0   100%
+alteryx2python\parser\base_parser.py                                  8      1    88%   12
+alteryx2python\parser\file_references.py                             28      6    79%   14, 18, 22, 25, 28, 33
+alteryx2python\parser\tool_catalog.py                                26      1    96%   2330
+alteryx2python\parser\tool_parsers\__init__.py                       86      0   100%
+alteryx2python\parser\tool_parsers\action_parser.py                   6      0   100%
+alteryx2python\parser\tool_parsers\apioutput_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\appendfields_parser.py             5      0   100%
+alteryx2python\parser\tool_parsers\arrange_parser.py                 14      3    79%   11-13
+alteryx2python\parser\tool_parsers\autofield_parser.py                6      0   100%
+alteryx2python\parser\tool_parsers\basicdataprofile_parser.py         5      0   100%
+alteryx2python\parser\tool_parsers\blobconvert_parser.py             15      1    93%   11
+alteryx2python\parser\tool_parsers\blobinput_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\bloboutput_parser.py               5      0   100%
+alteryx2python\parser\tool_parsers\buffer_parser.py                  15      2    87%   11, 19
+alteryx2python\parser\tool_parsers\calgary_parser.py                 42      2    95%   17-18
+alteryx2python\parser\tool_parsers\canvas_parser.py                  33      0   100%
+alteryx2python\parser\tool_parsers\cass_parser.py                    22     14    36%   11-16, 21, 28, 35-40
+alteryx2python\parser\tool_parsers\catalog_parser.py                 71      6    92%   14, 43, 63, 66, 107-108
+alteryx2python\parser\tool_parsers\common.py                         32      0   100%
+alteryx2python\parser\tool_parsers\condition_parser.py                6      0   100%
+alteryx2python\parser\tool_parsers\createpoints_parser.py             6      0   100%
+alteryx2python\parser\tool_parsers\crosstab_parser.py                 8      0   100%
+alteryx2python\parser\tool_parsers\datacleansepro_parser.py          18      1    94%   11
+alteryx2python\parser\tool_parsers\datacleansing_parser.py           18      1    94%   42
+alteryx2python\parser\tool_parsers\datetime_parser.py                 5      0   100%
+alteryx2python\parser\tool_parsers\datetimenow_parser.py              6      0   100%
+alteryx2python\parser\tool_parsers\dbfileinput_parser.py              7      0   100%
+alteryx2python\parser\tool_parsers\dbfileoutput_parser.py             8      0   100%
+alteryx2python\parser\tool_parsers\detour_parser.py                   5      0   100%
+alteryx2python\parser\tool_parsers\detourend_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\directory_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\distance_parser.py                10      1    90%   11
+alteryx2python\parser\tool_parsers\download_parser.py                18      0   100%
+alteryx2python\parser\tool_parsers\dynamicinput_parser.py             6      0   100%
+alteryx2python\parser\tool_parsers\dynamicrename_parser.py            6      0   100%
+alteryx2python\parser\tool_parsers\dynamicreplace_parser.py           5      0   100%
+alteryx2python\parser\tool_parsers\dynamicselect_parser.py           10      0   100%
+alteryx2python\parser\tool_parsers\error_parser.py                   16      1    94%   11
+alteryx2python\parser\tool_parsers\expectequal_parser.py              5      0   100%
+alteryx2python\parser\tool_parsers\fieldinfo_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\filter_parser.py                   6      0   100%
+alteryx2python\parser\tool_parsers\findnearest_parser.py             24      5    79%   12, 19-20, 26-27
+alteryx2python\parser\tool_parsers\findreplace_parser.py             11      1    91%   11
+alteryx2python\parser\tool_parsers\formula_parser.py                 11      0   100%
+alteryx2python\parser\tool_parsers\fuzzymatch_parser.py              20      2    90%   23-24
+alteryx2python\parser\tool_parsers\generalize_parser.py              10      1    90%   11
+alteryx2python\parser\tool_parsers\generaterows_parser.py             5      0   100%
+alteryx2python\parser\tool_parsers\interface_parser.py               14      0   100%
+alteryx2python\parser\tool_parsers\join_parser.py                    16      0   100%
+alteryx2python\parser\tool_parsers\joinmultiple_parser.py            17      0   100%
+alteryx2python\parser\tool_parsers\jsonparse_parser.py                6      0   100%
+alteryx2python\parser\tool_parsers\jupytercode_parser.py              5      0   100%
+alteryx2python\parser\tool_parsers\legacyreporting_parser.py         12      0   100%
+alteryx2python\parser\tool_parsers\macroinput_parser.py              10      0   100%
+alteryx2python\parser\tool_parsers\makecolumns_parser.py              6      0   100%
+alteryx2python\parser\tool_parsers\makegrid_parser.py                 7      0   100%
+alteryx2python\parser\tool_parsers\makegroup_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\mapinput_parser.py                18      1    94%   23
+alteryx2python\parser\tool_parsers\ml_tool_parser.py                 87     14    84%   207-215, 219, 243-250, 254-255, 263-264, 303
+alteryx2python\parser\tool_parsers\multifieldformula_parser.py       12      1    92%   11
+alteryx2python\parser\tool_parsers\multirowformula_parser.py         23      2    91%   11, 18
+alteryx2python\parser\tool_parsers\pdfinput_parser.py                 5      0   100%
+alteryx2python\parser\tool_parsers\pdftotext_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\pearsoncorrelation_parser.py      19      2    89%   11, 21
+alteryx2python\parser\tool_parsers\polybuild_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\polysplit_parser.py                5      0   100%
+alteryx2python\parser\tool_parsers\rank_parser.py                     8      0   100%
+alteryx2python\parser\tool_parsers\recordid_parser.py                 7      0   100%
+alteryx2python\parser\tool_parsers\regex_parser.py                   13      0   100%
+alteryx2python\parser\tool_parsers\reporting_parser.py               55      0   100%
+alteryx2python\parser\tool_parsers\runcommand_parser.py               8      0   100%
+alteryx2python\parser\tool_parsers\runningtotal_parser.py             7      0   100%
+alteryx2python\parser\tool_parsers\sample_parser.py                  22      4    82%   30, 42-44
+alteryx2python\parser\tool_parsers\select_parser.py                  21      1    95%   30
+alteryx2python\parser\tool_parsers\smooth_parser.py                  10      1    90%   11
+alteryx2python\parser\tool_parsers\sort_parser.py                    17      1    94%   22
+alteryx2python\parser\tool_parsers\spatialinfo_parser.py              6      0   100%
+alteryx2python\parser\tool_parsers\spatialmatch_parser.py             8      0   100%
+alteryx2python\parser\tool_parsers\spatialprocess_parser.py          11      1    91%   10
+alteryx2python\parser\tool_parsers\summarize_parser.py               14      1    93%   28
+alteryx2python\parser\tool_parsers\test_parser.py                    13      1    92%   11
+alteryx2python\parser\tool_parsers\textinput_parser.py               30      1    97%   26
+alteryx2python\parser\tool_parsers\texttocolumns_parser.py            5      0   100%
+alteryx2python\parser\tool_parsers\throttle_parser.py                 6      0   100%
+alteryx2python\parser\tool_parsers\tile_parser.py                    28      0   100%
+alteryx2python\parser\tool_parsers\tradearea_parser.py               18      0   100%
+alteryx2python\parser\tool_parsers\transpose_parser.py                8      0   100%
+alteryx2python\parser\tool_parsers\union_parser.py                    6      0   100%
+alteryx2python\parser\tool_parsers\unique_parser.py                   6      0   100%
+alteryx2python\parser\tool_parsers\xmlparse_parser.py                11      1    91%   11
+alteryx2python\parser\xml_parser.py                                 275     26    91%   186, 188, 190, 192-199, 203, 205, 207, 209, 212, 229, 291, 293, 473, 493, 496, 526, 548, 620, 630
+alteryx2python\proof_suite.py                                        36      2    94%   24, 29
+alteryx2python\runtime\__init__.py                                   15     13    13%   15-31
+alteryx2python\runtime\app_config.py                                263     46    83%   100, 104-105, 120, 131, 135-136, 138, 148-155, 157-160, 162, 164, 168-170, 176, 178-182, 203-204, 211, 221, 234-236, 243, 250, 256, 271, 277, 289, 303, 323-324, 337, 390
+alteryx2python\runtime\context.py                                    22      0   100%
+alteryx2python\runtime\executor.py                                  189      8    96%   87-90, 182, 242, 277, 324
+alteryx2python\runtime\node_result.py                                23      2    91%   21, 49
+alteryx2python\runtime\trace.py                                      28      0   100%
+alteryx2python\support_surfaces.py                                   98     14    86%   46, 73, 77, 79, 87, 94-98, 114, 125, 130-131
+alteryx2python\tools\__init__.py                                     85      0   100%
+alteryx2python\tools\action.py                                       33      3    91%   15-16, 84
+alteryx2python\tools\apioutput.py                                    18      1    94%   19
+alteryx2python\tools\appendfields.py                                 39      3    92%   14, 17, 71
+alteryx2python\tools\arrange.py                                      44      3    93%   27, 30, 45
+alteryx2python\tools\autofield.py                                    49      6    88%   22, 26, 32, 42, 45, 83
+alteryx2python\tools\base_tool.py                                    11      1    91%   24
+alteryx2python\tools\baseline.py                                     31      1    97%   33
+alteryx2python\tools\basicdataprofile.py                             23      1    96%   21
+alteryx2python\tools\blobconvert.py                                  79     15    81%   16, 19, 27-29, 34, 37-39, 56, 61, 67, 70, 81, 124
+alteryx2python\tools\blobinput.py                                    58      7    88%   17, 23-26, 31, 42
+alteryx2python\tools\bloboutput.py                                   20      1    95%   21
+alteryx2python\tools\blockuntildone.py                               21      1    95%   21
+alteryx2python\tools\buffer.py                                       89     24    73%   19, 22, 28, 36-42, 47, 55, 63-71, 77, 80, 145
+alteryx2python\tools\canvas.py                                       58      8    86%   53, 85, 99, 113, 127, 141, 155, 169
+alteryx2python\tools\condition.py                                    49      6    88%   18-20, 27, 38, 98
+alteryx2python\tools\createpoints.py                                 39      3    92%   14, 17, 79
+alteryx2python\tools\crosstab.py                                     44      5    89%   18, 25, 27, 40, 80
+alteryx2python\tools\datacleansepro.py                               27      4    85%   30, 32-33, 67
+alteryx2python\tools\datacleansing.py                                86     11    87%   29-30, 58, 68, 73, 115, 122, 124, 126, 138, 141
+alteryx2python\tools\datetime.py                                     36      4    89%   31, 34, 47, 81
+alteryx2python\tools\datetimenow.py                                  30      4    87%   27, 31, 36, 67
+alteryx2python\tools\dbfileinput.py                                 113     13    88%   22, 35, 49, 53, 98-107, 120, 135-136, 145, 148, 161
+alteryx2python\tools\dbfileoutput.py                                 95     10    89%   17, 35-36, 43, 59, 65, 107, 111, 124, 155
+alteryx2python\tools\detour.py                                       27     14    48%   13-18, 26-44, 58
+alteryx2python\tools\detourend.py                                    23     10    57%   13-16, 24-41, 55
+alteryx2python\tools\directory.py                                    38      3    92%   28, 36, 85
+alteryx2python\tools\distance.py                                     98     15    85%   20, 23, 29, 36, 42, 53, 56, 58, 60, 67, 69, 71, 77, 88, 161
+alteryx2python\tools\download.py                                    104     17    84%   22, 38, 41, 48, 53, 58, 63, 65, 70-79, 95, 105, 108, 112
+alteryx2python\tools\dynamicinput.py                                 20      1    95%   19
+alteryx2python\tools\dynamicrename.py                                30      4    87%   20, 25, 33, 65
+alteryx2python\tools\dynamicreplace.py                               59     11    81%   16, 19, 26-30, 39-41, 62
+alteryx2python\tools\dynamicselect.py                                71     10    86%   16, 19, 26, 32, 35, 56-58, 93, 125
+alteryx2python\tools\error.py                                        40      3    92%   17, 21, 80
+alteryx2python\tools\expectequal.py                                  27      1    96%   17
+alteryx2python\tools\fieldinfo.py                                    26      3    88%   24, 27, 66
+alteryx2python\tools\filter.py                                       30      3    90%   20, 23, 67
+alteryx2python\tools\findnearest.py                                 133     18    86%   20, 23, 29, 36, 42, 54, 56, 58, 65, 67, 69, 75, 86, 102, 110, 144, 147, 202
+alteryx2python\tools\findreplace.py                                  97     11    89%   15, 18, 26, 31, 33, 35, 37, 62, 107, 111, 144
+alteryx2python\tools\formula.py                                      43      6    86%   16, 19, 37, 39, 43, 81
+alteryx2python\tools\fuzzymatch.py                                   30      1    97%   21
+alteryx2python\tools\generalize.py                                   52      5    90%   18, 21, 27, 30, 94
+alteryx2python\tools\generaterows.py                                 50      4    92%   42, 46, 59, 91
+alteryx2python\tools\indb.py                                        146     42    71%   28, 30, 41, 48, 65, 69, 94, 99, 114, 130, 136, 182, 185-190, 200, 232-275
+alteryx2python\tools\interface.py                                   142     28    80%   67, 73, 79, 83, 89, 97, 101, 105, 109, 121, 131, 141, 150, 159, 168, 177, 186, 195, 204, 213, 222, 231, 240, 249, 258, 267, 276, 285
+alteryx2python\tools\join.py                                         58      4    93%   16, 42, 48, 107
+alteryx2python\tools\joinmultiple.py                                 72      7    90%   24, 44, 66, 69, 79, 83, 119
+alteryx2python\tools\jsonparse.py                                    59      5    92%   31, 43, 46, 49, 105
+alteryx2python\tools\jupytercode.py                                  24      0   100%
+alteryx2python\tools\local_macros.py                                277     54    81%   19, 51, 58, 100, 111, 118, 130, 144, 164, 171, 182, 205, 214, 220-226, 235-261, 270, 289, 310-317, 330, 336, 340, 356-365, 396, 434
+alteryx2python\tools\local_media.py                                 174     82    53%   26, 58, 68-69, 72, 74, 93-112, 116-144, 148-170, 188, 197, 199, 203, 218, 225-226, 233, 245, 286
+alteryx2python\tools\local_runtimes.py                              127     56    56%   42, 44, 49-81, 87, 89, 94, 105-116, 125, 136-137, 140, 157, 167-189, 194
+alteryx2python\tools\local_vision.py                                 62     45    27%   11-14, 18-31, 35-36, 40-61, 65-81, 85-90, 104-105
+alteryx2python\tools\macro_engine.py                                161     23    86%   19, 37, 59, 81, 130, 135, 165, 169, 173, 180, 183, 185, 199, 207, 212, 218, 220-224, 235, 242, 250-251
+alteryx2python\tools\macroinput.py                                   19      1    95%   49
+alteryx2python\tools\makecolumns.py                                  46      5    89%   15, 34, 37, 40, 85
+alteryx2python\tools\makegrid.py                                     44      4    91%   18, 29, 46, 49
+alteryx2python\tools\makegroup.py                                    49      2    96%   35, 38
+alteryx2python\tools\mapinput.py                                     57     15    74%   15, 20, 25, 29-31, 35-36, 41, 44-45, 50-52, 102
+alteryx2python\tools\ml_extra.py                                    212     45    79%   19, 21, 23, 29, 32, 46, 53, 56, 61, 84, 87, 97, 100, 103, 105, 108, 114, 164-176, 212-226, 245, 289, 293, 328, 337-346, 384-385
+alteryx2python\tools\multifieldformula.py                            50      5    90%   27, 37, 40, 43, 86
+alteryx2python\tools\multirowformula.py                              92      7    92%   31, 36, 83, 86, 90, 93, 160
+alteryx2python\tools\pdfinput.py                                     31      1    97%   29
+alteryx2python\tools\pdftotext.py                                    34      0   100%
+alteryx2python\tools\pearsoncorrelation.py                           63      4    94%   15, 18, 74, 108
+alteryx2python\tools\polybuild.py                                    83      7    92%   18, 21, 27, 34, 45, 61, 131
+alteryx2python\tools\polysplit.py                                    46      3    93%   18, 21, 27
+alteryx2python\tools\predictive.py                                  167     31    81%   22, 24, 26, 42, 49, 53, 72-73, 87-99, 111-112, 122-127, 136, 187, 189, 206-207, 209-226, 270
+alteryx2python\tools\rank.py                                         44      4    91%   35, 38, 41, 87
+alteryx2python\tools\recordid.py                                     50      5    90%   28, 41, 44, 62, 98
+alteryx2python\tools\regex.py                                        75     23    69%   25-28, 37, 40, 48-49, 58, 69, 72-84, 115
+alteryx2python\tools\registry.py                                    290      4    99%   34, 45, 1315, 1375
+alteryx2python\tools\reporting.py                                   142     15    89%   125, 233, 247, 261, 275, 289, 303, 317, 331, 345, 359, 373, 387, 401, 415
+alteryx2python\tools\runcommand.py                                   20      1    95%   19
+alteryx2python\tools\runningtotal.py                                 28      3    89%   18, 21, 64
+alteryx2python\tools\sample.py                                       53     18    66%   17, 20, 26, 30-41, 50, 53, 89
+alteryx2python\tools\select.py                                       91      2    98%   149, 155
+alteryx2python\tools\smooth.py                                       72      9    88%   18, 21, 28-29, 34, 46, 55, 58, 120
+alteryx2python\tools\sort.py                                         33      3    91%   18, 22, 66
+alteryx2python\tools\spatialinfo.py                                 114     12    89%   19, 22, 28, 38, 44, 52, 55, 64, 68, 80, 85, 189
+alteryx2python\tools\spatialmatch.py                                104      9    91%   19, 22, 28, 35, 51, 62, 84, 92, 165
+alteryx2python\tools\spatialprocess.py                               44      9    80%   14, 17, 24-28, 30, 85
+alteryx2python\tools\statistics_extra.py                            157     20    87%   40, 42, 44, 51, 54, 59, 65, 68, 150, 153, 218, 222-223, 247, 252, 269, 287, 293, 314, 330
+alteryx2python\tools\summarize.py                                    94     25    73%   20-21, 25-26, 30-34, 51, 53, 55, 57, 63, 65, 67, 69, 71, 73, 75, 78, 97, 100, 103, 145
+alteryx2python\tools\survival.py                                     68     12    82%   17-18, 28, 31, 33, 44, 51, 66, 88-89, 93, 100
+alteryx2python\tools\test.py                                         70     12    83%   25-31, 38, 46, 71, 81, 112
+alteryx2python\tools\text_models.py                                 158     79    50%   20, 52-53, 60, 64, 66, 79, 91-103, 109-140, 144-156, 166-167, 176, 200-203, 228-252, 267-293
+alteryx2python\tools\textinput.py                                    67      5    93%   24, 26, 52, 93, 124
+alteryx2python\tools\texttocolumns.py                                73      4    95%   29, 78, 81, 119
+alteryx2python\tools\throttle.py                                     22      1    95%   21
+alteryx2python\tools\tile.py                                         77     33    57%   14, 19-24, 34-37, 46-47, 50-53, 58-69, 79, 82, 87-91, 124
+alteryx2python\tools\timeseries.py                                  256    129    50%   16, 25-35, 37-40, 42, 44, 52, 54, 59-61, 65-95, 101, 105, 109, 158-178, 187, 190-195, 205, 221-228, 239-244, 249-253, 262-266, 282, 289, 297, 303, 307, 310, 342-351, 359-368, 376-384, 388-395
+alteryx2python\tools\tradearea.py                                    90     16    82%   19, 22, 28, 35, 44, 48-49, 58-64, 69, 140
+alteryx2python\tools\transpose.py                                    33      3    91%   18, 31, 68
+alteryx2python\tools\unavailable.py                                  15      1    93%   43
+alteryx2python\tools\union.py                                        59      5    92%   18, 34, 65, 82, 88
+alteryx2python\tools\unique.py                                       28      4    86%   18, 21, 24, 59
+alteryx2python\tools\xmlparse.py                                     91     17    81%   16, 33-49, 64, 102, 105, 108, 162
+alteryx2python\unsupported.py                                        15      1    93%   174
+alteryx2python\utils\__init__.py                                      2      0   100%
+alteryx2python\utils\test_data_generator.py                           5      1    80%   9
+alteryx2python\workflow_generator.py                                133      9    93%   23, 42, 75, 182, 374, 390-396, 404-409
+alteryx2python\workflow_presets.py                                  117      3    97%   194-196
+alteryx2python\workflow_spec.py                                     215     20    91%   49, 57, 67, 83, 88, 108, 112-114, 170, 174, 193, 210, 220, 272-277, 315
+-----------------------------------------------------------------------------------------------
+TOTAL                                                             12645   2008    84%
+Coverage JSON written to file reports/parity/cli-delivery-coverage.json
+Required test coverage of 80.0% reached. Total coverage: 84.12%
+649 passed, 4 warnings in 53.36s

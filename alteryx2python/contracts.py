@@ -196,7 +196,7 @@ def _assert_inferred_tool_contract(
     if tool_type == "Filter":
         return _assert_filter_contract(inputs, outputs)
     if tool_type == "Union":
-        return _assert_union_contract(inputs, outputs)
+        return _assert_union_contract(inputs, outputs, config)
     if tool_type == "Join":
         return _assert_join_contract(inputs, outputs)
     return []
@@ -242,6 +242,11 @@ def _select_expected_columns(input_frame: pd.DataFrame, config: dict[str, Any]) 
             columns.extend(column for column in input_frame.columns if column not in explicit_sources)
         elif source:
             columns.append(str(field.get("rename", source)))
+    expected_output_columns = _expected_output_columns(config.get("expected_output_schema"))
+    if expected_output_columns:
+        ordered = [column for column in expected_output_columns if column in columns]
+        extras = [column for column in columns if column not in ordered]
+        return [*ordered, *extras]
     return columns
 
 
@@ -316,11 +321,18 @@ def _assert_filter_contract(
 def _assert_union_contract(
     inputs: dict[str, pd.DataFrame],
     outputs: dict[str, pd.DataFrame],
+    config: dict[str, Any],
 ) -> list[ContractAssertion]:
     if not inputs or "Output" not in outputs:
         return []
     ordered_frames = [inputs[anchor] for anchor in sorted(inputs)]
-    expected_columns = list(dict.fromkeys(column for frame in ordered_frames for column in frame.columns))
+    mode = str(config.get("mode", "ByName")).lower()
+    if mode == "bypos":
+        expected_columns = _expected_output_columns(config.get("expected_output_schema")) or list(ordered_frames[0].columns)
+        message = "Union ByPos output columns must match the first input columns"
+    else:
+        expected_columns = list(dict.fromkeys(column for frame in ordered_frames for column in frame.columns))
+        message = "Union output columns must be the by-name union of input columns"
     expected_row_count = sum(len(frame.index) for frame in ordered_frames)
     output = outputs["Output"]
     return [
@@ -329,7 +341,7 @@ def _assert_union_contract(
             target="Output",
             expected=expected_columns,
             actual=list(output.columns),
-            message="Union output columns must be the by-name union of input columns",
+            message=message,
         ),
         _assertion(
             "row_count_equals_sum_of_inputs",
@@ -367,6 +379,23 @@ def _assert_join_contract(
                 )
             )
     return assertions
+
+
+def _expected_output_columns(schema: Any) -> list[str]:
+    if not isinstance(schema, dict):
+        return []
+    if "fields" in schema:
+        return _field_names(schema.get("fields"))
+    output_schema = schema.get("Output")
+    if isinstance(output_schema, dict):
+        return _field_names(output_schema.get("fields"))
+    return []
+
+
+def _field_names(fields: Any) -> list[str]:
+    if not isinstance(fields, list):
+        return []
+    return [str(field["name"]) for field in fields if isinstance(field, dict) and "name" in field]
 
 
 def _assertion(

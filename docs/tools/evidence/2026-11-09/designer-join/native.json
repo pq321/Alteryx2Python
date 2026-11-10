@@ -1,0 +1,472 @@
+{
+  "producer": "alteryx",
+  "source_sha256": "cf5dc598a02d8a0684dd20a4b20bef457757332af7c4ec5af73f70b947fdbb8e",
+  "status": "incomplete",
+  "run": {
+    "status": "incomplete",
+    "reason": "manual_run_diagnostics_unavailable"
+  },
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {},
+      "status": "unknown",
+      "errors": null,
+      "warnings": null
+    },
+    "2": {
+      "tool_type": "TextInput",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {},
+      "status": "unknown",
+      "errors": null,
+      "warnings": null
+    },
+    "3": {
+      "tool_type": "Join",
+      "outputs": {
+        "Join": {
+          "columns": [
+            "Left_key",
+            "Left_label",
+            "Right_key",
+            "Right_label"
+          ],
+          "schema": [
+            {
+              "name": "Left_key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Left_label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            },
+            {
+              "name": "Right_key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Right_label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              },
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              },
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              },
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        },
+        "Left": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": []
+        },
+        "Right": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": []
+        }
+      },
+      "inputs": {
+        "Left": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        },
+        "Right": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "unknown",
+      "errors": null,
+      "warnings": null
+    }
+  },
+  "missing": [],
+  "unreadable": [],
+  "errors": null,
+  "warnings": null,
+  "raw_designer_messages": "\t\t\t\t\t\t\t\t\t\t400072 item (settable, string) Row 1 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t400073 item (settable, string) Row 1 Column 3 Value: Started running E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\instrumented.yxmd at 11/09/2026 16:31:51\n\t\t\t\t\t\t\t\t\t\t400076 item (settable, string) Row 2 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t400077 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1720.6 MB of memory.\n\t\t\t\t\t\t\t\t\t\t400080 item (settable, string) Row 3 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t400081 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.\n\t\t\t\t\t\t\t\t\t\t400084 item (settable, string) Row 4 Column 2 Value: Text Input (1)\n\t\t\t\t\t\t\t\t\t\t400085 item (settable, string) Row 4 Column 3 Value: 4 records were output\n\t\t\t\t\t\t\t\t\t\t400088 item (settable, string) Row 5 Column 2 Value: Output Data (4)\n\t\t\t\t\t\t\t\t\t\t400089 item (settable, string) Row 5 Column 3 Value: 4 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\probe-0000.yxdb\"\n\t\t\t\t\t\t\t\t\t\t400092 item (settable, string) Row 6 Column 2 Value: Text Input (2)\n\t\t\t\t\t\t\t\t\t\t400093 item (settable, string) Row 6 Column 3 Value: 4 records were output\n\t\t\t\t\t\t\t\t\t\t400096 item (settable, string) Row 7 Column 2 Value: Join (3)\n\t\t\t\t\t\t\t\t\t\t400097 item (settable, string) Row 7 Column 3 Value: 6 records were joined with 0 un-joined left records and 0 un-joined right records\n\t\t\t\t\t\t\t\t\t\t400100 item (settable, string) Row 8 Column 2 Value: Output Data (7)\n\t\t\t\t\t\t\t\t\t\t400101 item (settable, string) Row 8 Column 3 Value: 0 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\probe-0003.yxdb\"\n\t\t\t\t\t\t\t\t\t\t400104 item (settable, string) Row 9 Column 2 Value: Output Data (8)\n\t\t\t\t\t\t\t\t\t\t400105 item (settable, string) Row 9 Column 3 Value: 0 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\probe-0004.yxdb\"\n\t\t\t\t\t\t\t\t\t\t400108 item (settable, string) Row 10 Column 2 Value: Output Data (6)\n\t\t\t\t\t\t\t\t\t\t400109 item (settable, string) Row 10 Column 3 Value: 6 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\probe-0002.yxdb\"\n\t\t\t\t\t\t\t\t\t\t400112 item (settable, string) Row 11 Column 2 Value: Output Data (5)\n\t\t\t\t\t\t\t\t\t\t400113 item (settable, string) Row 11 Column 3 Value: 4 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-join\\probe-0001.yxdb\"\n\t\t\t\t\t\t\t\t\t\t400116 item (settable, string) Row 12 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t400117 item (settable, string) Row 12 Column 3 Value: Finished running instrumented.yxmd in 0.6 seconds"
+}

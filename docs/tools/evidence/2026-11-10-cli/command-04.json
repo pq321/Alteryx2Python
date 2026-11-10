@@ -1,0 +1,16 @@
+{
+  "command": "questions",
+  "questions": [
+    {
+      "choices": [],
+      "default": "2",
+      "kind": "NumericUpDown",
+      "maximum": "10",
+      "minimum": "1",
+      "name": "factor",
+      "node_id": "3",
+      "required": false
+    }
+  ],
+  "status": "ok"
+}

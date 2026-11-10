@@ -1,0 +1,10 @@
+{
+  "bound_questions": [
+    "factor"
+  ],
+  "command": "configure-workflow",
+  "configuration_mode": "compiled-data-graph",
+  "output": "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\configured.yxmd",
+  "path_rewrites": [],
+  "status": "ok"
+}

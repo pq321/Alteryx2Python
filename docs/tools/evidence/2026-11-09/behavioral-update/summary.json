@@ -1,0 +1,68 @@
+{
+  "native_version": "2025.1.2.165",
+  "profile": "behavioral",
+  "evidence_method": "GUI observed outcomes plus native YXDB comparisons",
+  "runs": [
+    {
+      "run": "designer-fixed",
+      "status": "match",
+      "native_status": "success",
+      "python_status": "success",
+      "data_checks": 7,
+      "data_matches": 7,
+      "issues": [],
+      "incomplete_evidence": []
+    },
+    {
+      "run": "designer-join",
+      "status": "match",
+      "native_status": "success",
+      "python_status": "success",
+      "data_checks": 7,
+      "data_matches": 7,
+      "issues": [],
+      "incomplete_evidence": []
+    },
+    {
+      "run": "designer-empty",
+      "status": "match",
+      "native_status": "success",
+      "python_status": "success",
+      "data_checks": 7,
+      "data_matches": 7,
+      "issues": [],
+      "incomplete_evidence": []
+    },
+    {
+      "run": "designer-null-empty",
+      "status": "match",
+      "native_status": "success",
+      "python_status": "success",
+      "data_checks": 3,
+      "data_matches": 3,
+      "issues": [],
+      "incomplete_evidence": []
+    },
+    {
+      "run": "designer-error",
+      "status": "match",
+      "native_status": "failed",
+      "python_status": "failed",
+      "data_checks": 1,
+      "data_matches": 1,
+      "issues": [],
+      "incomplete_evidence": []
+    },
+    {
+      "run": "designer-local-macros",
+      "status": "match",
+      "native_status": "success",
+      "python_status": "success",
+      "data_checks": 5,
+      "data_matches": 5,
+      "issues": [],
+      "incomplete_evidence": []
+    }
+  ],
+  "universal_equivalence_proven": false
+}

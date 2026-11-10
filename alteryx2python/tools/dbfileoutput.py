@@ -19,6 +19,16 @@ def _file_attribute(config: dict[str, Any], name: str, default: str = "") -> str
     return str(value) if value is not None else default
 
 
+def _format_option(config: dict[str, Any], name: str, default: str = "") -> str:
+    options = config.get("format_specific_options")
+    if not isinstance(options, dict):
+        return default
+    value = options.get(name)
+    if isinstance(value, dict):
+        return str(value.get("text", default))
+    return default if value is None else str(value)
+
+
 def _split_alteryx_file_reference(file_value: str) -> tuple[str, str | None]:
     if "|||" not in file_value:
         return file_value, None
@@ -49,6 +59,45 @@ def _max_records(config: dict[str, Any]) -> int | None:
     return int(raw)
 
 
+def _line_ending(config: dict[str, Any]) -> str:
+    style = _format_option(config, "LineEndStyle", "CRLF").upper()
+    if style == "LF":
+        return "\n"
+    return "\r\n"
+
+
+def _format_cell(value: Any) -> str:
+    """Format a value the way the native CSV writer renders it.
+
+    Alteryx writes integral doubles without a trailing ".0" (3.0 -> "3") and
+    renders nulls as empty cells.
+    """
+    if value is None or (not isinstance(value, str) and pd.isna(value)):
+        return ""
+    if isinstance(value, float) and value == int(value) and abs(value) < 1e15:
+        return str(int(value))
+    return str(value)
+
+
+def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[str, Any]) -> None:
+    header = _format_option(config, "HeaderRow", "True").lower() == "true"
+    delimiter = _format_option(config, "Delimeter", ",") or ","
+    line_ending = _line_ending(config)
+    code_page = _format_option(config, "CodePage", "28591")
+    encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if not header and len(output_frame.columns) == 1:
+        values = output_frame.iloc[:, 0].map(_format_cell).tolist()
+        path.write_text(line_ending.join(values) + line_ending, encoding=encoding, newline="")
+        return
+
+    rendered = output_frame.copy()
+    for column in rendered.columns:
+        rendered[column] = rendered[column].map(_format_cell)
+    rendered.to_csv(path, index=False, header=header, sep=delimiter, lineterminator=line_ending, encoding=encoding)
+
+
 def dbfileoutput_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -67,9 +116,8 @@ def dbfileoutput_tool(
     max_records = _max_records(config)
     output_frame = input_frame.head(max_records) if max_records is not None else input_frame
 
-    if file_format == "0" or path.suffix.lower() == ".csv":
-        path.parent.mkdir(parents=True, exist_ok=True)
-        output_frame.to_csv(path, index=False)
+    if file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}:
+        _write_delimited_text(path, output_frame, config)
     elif file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
         raise NotImplementedError("Excel output is not supported by DbFileOutput yet")
     else:

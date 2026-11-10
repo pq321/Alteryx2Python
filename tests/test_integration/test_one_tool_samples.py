@@ -297,7 +297,7 @@ def test_json_parse_sample_config_executes_against_embedded_text_input():
 def test_controlcontainer_sample_config_executes_as_structural_noop():
     path = SAMPLES / "22 Developer" / "ControlContainer.yxmd"
     workflow = _parse_sample(path)
-    config = _node_config(workflow, "ControlContainer", lambda cfg: cfg.get("Caption", {}).get("text") == "Basics")
+    config = _node_config(workflow, "ControlContainer", lambda cfg: cfg.get("caption") == "Basics")
 
     result = controlcontainer_tool({}, config, WorkflowContext())
 
@@ -434,7 +434,7 @@ def test_unique_sample_config_executes_against_small_frame():
     outputs = unique_tool({"Input": frame}, config, WorkflowContext())
 
     assert len(outputs["Unique"].index) < len(frame.index)
-    assert len(outputs["Duplicate"].index) > 0
+    assert len(outputs["Duplicates"].index) > 0
 
 
 def test_sample_sample_config_executes_against_small_frame():

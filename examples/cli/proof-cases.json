@@ -1,0 +1,25 @@
+{
+  "cases": [
+    {
+      "name": "standard-macro",
+      "workflow": "standard-macro.yxmd",
+      "tools": [
+        "Macro_Factor"
+      ]
+    },
+    {
+      "name": "batch-macro",
+      "workflow": "batch-macro.yxmd",
+      "tools": [
+        "Macro_BatchFactor"
+      ]
+    },
+    {
+      "name": "iterative-macro",
+      "workflow": "iterative-macro.yxmd",
+      "tools": [
+        "Macro_Countdown"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,57 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\cli\\batch-macro.yxmd",
+  "source_sha256": "592518892e7d59f61b7d9affa30aed43a93477842f6e6f7af3a9bd339ce587fd",
+  "instrumented_sha256": "214d1c27b294e05c015f14a51c02d51cdca452891b07dea7c29725546a22d673",
+  "engine_mode": "original",
+  "macro_dependencies_sha256": {
+    "E:\\Automation\\Alteryx2Python\\examples\\cli\\BatchFactor.yxmc": "cbb40e756bad0f910e3fd143e3324ae6f1a447e211a5fc2741b1b5b5bab8599d"
+  },
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "4"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Output",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Output",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Macro_BatchFactor"
+    },
+    {
+      "node_id": "3",
+      "tool_type": "TextInput"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input"
+    },
+    {
+      "source": "3",
+      "output": "Output",
+      "target": "2",
+      "input": "factor"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "status": "success",
+  "source_sha256": "e7e64d84d75c3744a4d6bec4e4b26242bfae521b85750cfa1adbecbf79a445ce",
+  "instrumented_sha256": "f03525542a4cf7ded4d3fe079ad38ea255a348516b171f8883a32caf06236772",
+  "output_sha256": {
+    "probe-0000.yxdb": "4fbb8a51dcf3c74706cd27c6aa3ca57c6bee3a1230e99439549cf65e6610f5c9",
+    "probe-0001.yxdb": "86051acf4b57a10853fecdc122080c1e5b439af4a7434e9b60fea6d8fe91fa32",
+    "probe-0002.yxdb": "74c779425cc8d4abc2cfa8682a006dbdcc5111616d70d2c316d961236b32e8a8"
+  },
+  "node_outcomes": {
+    "1": "success",
+    "2": "success",
+    "3": "success"
+  },
+  "reviewer": "Codex observed Designer GUI",
+  "note": "Outcome previously observed during this session; see preserved designer-messages.txt. Recomparison uses unchanged native YXDB files, not regenerated expected outputs.",
+  "method": "Designer/manual outcome attestation",
+  "recorded_at": "2026-11-09T09:56:51.586621+00:00"
+}

@@ -7,8 +7,12 @@ from xml.etree import ElementTree
 
 from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 from alteryx2python.parser.base_parser import BaseWorkflowParser
+from alteryx2python.parser.tool_catalog import CATALOG, catalog_entry_for_plugin
 from alteryx2python.parser.tool_parsers import (
+    make_catalog_parser,
+    make_ml_parser,
     parse_action_config,
+    parse_catalog_config,
     parse_apioutput_config,
     parse_appendfields_config,
     parse_arrange_config,
@@ -18,6 +22,14 @@ from alteryx2python.parser.tool_parsers import (
     parse_blobinput_config,
     parse_bloboutput_config,
     parse_buffer_config,
+    parse_calgarycrosscount_config,
+    parse_calgarycrosscountappend_config,
+    parse_calgaryinput_config,
+    parse_calgaryjoin_config,
+    parse_calgaryloader_config,
+    parse_cass_config,
+    parse_cassparse_config,
+    parse_zip9coder_config,
     parse_condition_config,
     parse_createpoints_config,
     parse_dbfileinput_config,
@@ -43,6 +55,7 @@ from alteryx2python.parser.tool_parsers import (
     parse_findreplace_config,
     parse_formula_config,
     parse_fuzzymatch_config,
+    parse_geocoder_config,
     parse_join_config,
     parse_joinmultiple_config,
     parse_alteryx_report_chart_config,
@@ -56,6 +69,8 @@ from alteryx2python.parser.tool_parsers import (
     parse_makecolumns_config,
     parse_makegrid_config,
     parse_makegroup_config,
+    parse_macroinput_config,
+    parse_macrooutput_config,
     parse_mapinput_config,
     parse_multifieldformula_config,
     parse_multirowformula_config,
@@ -100,6 +115,14 @@ from alteryx2python.parser.tool_parsers import (
     parse_visual_layout_config,
     parse_xmlparse_config,
     parse_dynamicreplace_config,
+)
+from alteryx2python.parser.tool_parsers.canvas_parser import (
+    parse_blockuntildone_config,
+    parse_controlcontainer_config,
+    parse_htmlbox_config,
+    parse_message_config,
+    parse_textbox_config,
+    parse_toolcontainer_config,
 )
 
 
@@ -156,6 +179,9 @@ INTERFACE_CONFIG_TOOL_TYPES = {
 
 
 def _normalize_tool_type(plugin_name: str) -> str:
+    catalog_entry = catalog_entry_for_plugin(plugin_name)
+    if catalog_entry is not None:
+        return catalog_entry.tool_type
     if plugin_name == CONTAINER_PLUGIN:
         return "ToolContainer"
     if plugin_name == ACTION_PLUGIN:
@@ -188,8 +214,18 @@ def _normalize_tool_type(plugin_name: str) -> str:
 
 
 def _normalize_macro_tool_type(macro_name: str) -> str | None:
+    if not macro_name:
+        return None
     if Path(macro_name).name.lower() == "cleanse.yxmc":
         return "DataCleansing"
+    catalog_entry = catalog_entry_for_plugin(macro_name)
+    if catalog_entry is None:
+        catalog_entry = catalog_entry_for_plugin(Path(macro_name).name)
+    if catalog_entry is not None and not catalog_entry.gui_only:
+        return catalog_entry.tool_type
+    stem = Path(macro_name).stem
+    if stem:
+        return f"Macro_{stem}"
     return None
 
 
@@ -222,6 +258,8 @@ def _normalize_config_only_tool_type(raw_config: dict[str, object]) -> str | Non
         return "ReportLegendSplitter"
     if {"Text Field", "Image Field", "Text Style Field", "Image Style Field"}.issubset(names):
         return "ReportLegendBuilder"
+    if {"Number", "NNumber", "Percent", "NPercent"}.issubset(names):
+        return "Sample"
     cleanse_names = {
         "List Box (11)",
         "Check Box (84)",
@@ -260,7 +298,9 @@ def _element_to_dict(element: ElementTree.Element) -> dict[str, object]:
     data: dict[str, object] = {}
     if element.attrib:
         data["attributes"] = dict(element.attrib)
-    text = (element.text or "").strip()
+    text = element.text or ""
+    if element.tag != "c":
+        text = text.strip()
     if text:
         data["text"] = text
     children = list(element)
@@ -329,6 +369,7 @@ TOOL_PARSERS = {
     "MakeColumns": parse_makecolumns_config,
     "MakeGrid": parse_makegrid_config,
     "MakeGroup": parse_makegroup_config,
+    "MacroInput": parse_macroinput_config,
     "MapInput": parse_mapinput_config,
     "MultiFieldFormula": parse_multifieldformula_config,
     "MultiRowFormula": parse_multirowformula_config,
@@ -379,7 +420,68 @@ TOOL_PARSERS = {
     "Unique": parse_unique_config,
     "VisualLayout": parse_visual_layout_config,
     "XMLParse": parse_xmlparse_config,
+    "BrowseV2": parse_catalog_config,
+    "TextBox": parse_textbox_config,
+    "ToolContainer": parse_toolcontainer_config,
+    "ControlContainer": parse_controlcontainer_config,
+    "HtmlBox": parse_htmlbox_config,
+    "Message": parse_message_config,
+    "MacroOutput": parse_macrooutput_config,
+    "BlockUntilDone": parse_blockuntildone_config,
+    "CalgaryInput": parse_calgaryinput_config,
+    "CalgaryJoin": parse_calgaryjoin_config,
+    "CalgaryCrossCount": parse_calgarycrosscount_config,
+    "CalgaryCrossCountAppend": parse_calgarycrosscountappend_config,
+    "CalgaryLoader": parse_calgaryloader_config,
+    "CASS": parse_cass_config,
+    "CASSParse": parse_cassparse_config,
+    "ZIP9Coder": parse_zip9coder_config,
+    "Geocoder": parse_geocoder_config,
 }
+
+# Every catalog tool type resolves to a parser: dedicated semantic parsers above,
+# ML-specific parsers for the assisted-modeling/text-mining/computer-vision
+# family, and the lossless catalog canonical parser for everything else. This
+# is the one-to-one mapping guarantee between Alteryx tool ids and Python.
+_ML_TOOL_TYPES = frozenset({
+    "AutoML", "Barcode", "BuildFeatures", "Classification", "FeatureTypes", "Fit",
+    "ImageProcessing", "ImageProfile", "ImageRecognition", "ImageTemplate",
+    "ImageToText", "Insights", "KeyValuePairExtraction", "Modeling",
+    "NamedEntityRecognition", "PartOfSpeechTagger", "PDFInput", "PDFToText",
+    "Predict", "Regression", "Sentiment", "TextPreProcessing", "TextSummary",
+    "TopicModel", "Transformation", "WordCloud", "ZeroShotTextClassification",
+})
+for _catalog_entry in CATALOG:
+    if _catalog_entry.tool_type in TOOL_PARSERS:
+        continue
+    if _catalog_entry.tool_type in _ML_TOOL_TYPES:
+        TOOL_PARSERS[_catalog_entry.tool_type] = make_ml_parser(_catalog_entry.tool_type)
+    else:
+        TOOL_PARSERS[_catalog_entry.tool_type] = make_catalog_parser(_catalog_entry.tool_type)
+
+# Implementation-specific parsers augment the existing semantic parser so that
+# original XML and the installed plugin's normalized settings remain available.
+from importlib import import_module as _import_parser_module
+from alteryx2python.parser.tool_parsers.common import ToolParserResult as _ToolParserResult
+
+
+def _merged_local_parser(base, specific):
+    def parse(raw):
+        first = base(raw) if base else _ToolParserResult({})
+        second = specific(raw)
+        if isinstance(second, dict):
+            second = _ToolParserResult(second)
+        return _ToolParserResult(
+            normalized_config={**first.normalized_config, **second.normalized_config},
+            warnings=[*first.warnings, *second.warnings],
+        )
+    return parse
+
+
+for _local_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "text_models", "local_runtimes", "survival", "local_vision"):
+    _local_module = _import_parser_module(f"alteryx2python.tools.{_local_name}")
+    for _local_type, _local_parser in _local_module.PARSERS.items():
+        TOOL_PARSERS[_local_type] = _merged_local_parser(TOOL_PARSERS.get(_local_type), _local_parser)
 
 
 def _field_schema(field: ElementTree.Element) -> dict[str, str]:
@@ -476,6 +578,12 @@ class XmlWorkflowParser(BaseWorkflowParser):
 
     def parse(self, source_path: Path) -> WorkflowIR:
         contents = source_path.read_bytes()
+        return self.parse_xml(contents, source_path)
+
+    def parse_xml(self, contents: str | bytes, source_path: Path) -> WorkflowIR:
+        """Parse embedded/configured XML with the original dependency base directory."""
+        if isinstance(contents, str):
+            contents = contents.encode("utf-8")
         root = ElementTree.fromstring(contents)
         edges = _build_edges(root)
 
@@ -500,6 +608,8 @@ class XmlWorkflowParser(BaseWorkflowParser):
                 plugin_name = gui_settings.attrib.get("Plugin", "UNKNOWN") if gui_settings is not None else "UNKNOWN"
                 tool_type = _normalize_tool_type(plugin_name)
                 engine_settings = node_element.find("./Properties/EngineSettings")
+                if engine_settings is None:
+                    engine_settings = node_element.find("./EngineSettings")
                 macro_name = engine_settings.attrib.get("Macro", "") if engine_settings is not None else ""
                 macro_tool_type = _normalize_macro_tool_type(macro_name)
                 if macro_tool_type is not None:
@@ -541,6 +651,18 @@ class XmlWorkflowParser(BaseWorkflowParser):
                     "raw_gui_settings": _element_to_dict(gui_settings) if gui_settings is not None else {},
                     "meta_info": schema_by_connection,
                 }
+                catalog_entry = catalog_entry_for_plugin(plugin_name)
+                if catalog_entry is not None:
+                    metadata["catalog"] = {
+                        "tool_type": catalog_entry.tool_type,
+                        "display_name": catalog_entry.display_name,
+                        "category": catalog_entry.category,
+                        "engine_dll": catalog_entry.engine_dll,
+                        "engine_entry": catalog_entry.engine_entry,
+                        "engine_macro": catalog_entry.engine_macro,
+                        "source": catalog_entry.source,
+                        "gui_only": catalog_entry.gui_only,
+                    }
                 if annotation_config:
                     metadata["annotation"] = annotation_config
 
@@ -561,6 +683,8 @@ class XmlWorkflowParser(BaseWorkflowParser):
                     )
                 if isinstance(normalized_config, dict):
                     normalized_config = {**normalized_config, "base_dir": str(source_path.parent)}
+                    if macro_name:
+                        normalized_config.update(macro_path=macro_name, macro_tool_type=tool_type)
 
                 for dependency in _extract_external_dependencies(node_element):
                     external_dependencies.add(dependency)
@@ -601,4 +725,5 @@ class XmlWorkflowParser(BaseWorkflowParser):
             external_dependencies=sorted(external_dependencies),
             warnings=warnings,
             classification="CLASS_D_PARTIAL_MIGRATION_ONLY",
+            source_xml=ElementTree.tostring(root, encoding="unicode"),
         )

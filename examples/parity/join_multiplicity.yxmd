@@ -1,0 +1,114 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2025.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field name="key" type="V_WString" size="64" />
+            <Field name="label" type="V_WString" size="64" />
+          </Fields>
+          <Data>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c null="False" />
+            </r>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>c</c>
+              <c>é🙂</c>
+            </r>
+          </Data>
+          <NumRows value="4" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field name="key" type="V_WString" size="64" />
+            <Field name="label" type="V_WString" size="64" />
+          </Fields>
+          <Data>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c null="False" />
+            </r>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>c</c>
+              <c>é🙂</c>
+            </r>
+          </Data>
+          <NumRows value="4" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Join.Join">
+        <Position x="450" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration joinByRecordPos="False">
+          <JoinInfo connection="Left">
+            <Field field="key" />
+          </JoinInfo>
+          <JoinInfo connection="Right">
+            <Field field="key" />
+          </JoinInfo>
+          <SelectConfiguration>
+            <Configuration outputConnection="Join">
+              <SelectFields>
+                <SelectField field="Left_key" selected="True" rename="Left_key" input="Left_" />
+                <SelectField field="Left_label" selected="True" rename="Left_label" input="Left_" />
+                <SelectField field="Right_key" selected="True" rename="Right_key" input="Right_" />
+                <SelectField field="Right_label" selected="True" rename="Right_label" input="Right_" />
+              </SelectFields>
+            </Configuration>
+          </SelectConfiguration>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxJoin" />
+    </Node>
+  </Nodes>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+      <DisableAllOutput value="False" />
+    </RuntimeProperties>
+  </Properties>
+  <EngineSettings EngineDll="" EngineDllEntryPoint="" Macro="" />
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="3" Connection="Left" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Right" />
+    </Connection>
+  </Connections>
+</AlteryxDocument>

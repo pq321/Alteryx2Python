@@ -1,0 +1,52 @@
+{
+  "profile": "behavioral",
+  "status": "match",
+  "outcomes_match": true,
+  "native_status": "success",
+  "python_status": "success",
+  "issues": [],
+  "incomplete_evidence": [],
+  "comparisons": [
+    {
+      "node_id": "1",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "inputs",
+      "anchor": "Input",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    }
+  ],
+  "exception_text_compared": false,
+  "physical_schema_required": false,
+  "missing_native_outputs": [],
+  "unreadable_native_outputs": [],
+  "universal_equivalence_proven": false
+}

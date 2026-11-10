@@ -1,0 +1,41 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\cli\\standard-macro.yxmd",
+  "source_sha256": "4aa7c6f5df8c21d9ad6bfdf25bf440c31f8c93ae58b020cba2732ace4d87116e",
+  "instrumented_sha256": "7e0e06a0f57527da0dda74b02fc236a345c16ec9ae8a6a11dbfae4a2e3403cfb",
+  "engine_mode": "original",
+  "macro_dependencies_sha256": {
+    "E:\\Automation\\Alteryx2Python\\examples\\cli\\Factor.yxmc": "96955840a9c39f414b6c3e39db9cf12fc9b199314d905b3889ea5f81818262fb"
+  },
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "3"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Output",
+      "file": "probe-0001.yxdb",
+      "probe_id": "4"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Macro_Factor"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input"
+    }
+  ]
+}

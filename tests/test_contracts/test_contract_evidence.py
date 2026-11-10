@@ -190,6 +190,35 @@ def test_union_contract_evidence_asserts_schema_and_row_count(workflow_context):
     assert row_count_assertion.actual == 3
 
 
+def test_union_by_pos_contract_uses_first_input_schema(workflow_context):
+    workflow = _workflow(
+        nodes=[
+            _node("left", "Select", {"select_fields": [{"source": "a"}]}),
+            _node("right", "Select", {"select_fields": [{"source": "b"}]}),
+            _node("union", "Union", {"mode": "ByPos"}),
+        ],
+        edges=[
+            _edge("left", "Output", "union"),
+            _edge("right", "Output", "union"),
+        ],
+    )
+
+    result = run_workflow_graph(
+        workflow,
+        workflow_context,
+        initial_inputs={
+            "left": {"Input": pd.DataFrame({"a": [1]})},
+            "right": {"Input": pd.DataFrame({"b": [2]})},
+        },
+    )
+
+    evidence = result.node_results["union"].contract_evidence
+
+    assert evidence is not None
+    assert evidence.passed
+    assert evidence.output_schemas["Output"]["columns"] == ["a"]
+
+
 def test_join_contract_evidence_asserts_anchors_and_unjoined_row_counts(workflow_context):
     workflow = _workflow(
         nodes=[

@@ -50,6 +50,18 @@ def run_workflow_graph(
     initial_inputs: dict[str, dict[str, pd.DataFrame]] | None = None,
     target_node_ids: set[str] | None = None,
 ) -> WorkflowGraphResult:
+    if workflow.metadata.get("embedded_macros"):
+        context.runtime_config = {**(context.runtime_config or {}), "_embedded_macros": workflow.metadata["embedded_macros"]}
+    if workflow.source_xml and not workflow.metadata.get("configuration_applied"):
+        runtime_config = context.runtime_config or {}
+        if not runtime_config.get("skip_app_configuration"):
+            from xml.etree import ElementTree as ET
+            root = ET.fromstring(workflow.source_xml)
+            if root.find("./Properties/RuntimeProperties/Questions") is not None or root.find("./Properties/RuntimeProperties/Actions") is not None:
+                from alteryx2python.runtime.app_config import prepare_workflow
+                workflow = prepare_workflow(workflow, runtime_config.get("answers"))
+                context.record_diagnostic({"kind": "configuration", "source_sha256": workflow.source_hash,
+                                           "bound_questions": list(workflow.metadata.get("answers", {}))})
     nodes_by_id = {node.node_id: node for node in workflow.nodes}
     incoming_edges = _incoming_edges_by_target(workflow.edges)
     outgoing_edges = _outgoing_edges_by_source(workflow.edges)
@@ -68,6 +80,7 @@ def run_workflow_graph(
     for node_id in execution_order:
         node = nodes_by_id[node_id]
         inputs = dict(initial_inputs.get(node_id, {}))
+        input_connection_names: dict[str, str] = {}
         for edge in incoming_edges.get(node_id, []):
             upstream = node_results.get(edge.source_node_id)
             if upstream is None:
@@ -93,8 +106,20 @@ def run_workflow_graph(
                 raise exc
             target_anchor = _next_input_anchor_name(inputs, edge.target_anchor)
             inputs[target_anchor] = upstream.outputs[edge.source_anchor]
+            connection_name = _edge_connection_name(edge)
+            if connection_name:
+                input_connection_names[target_anchor] = connection_name
 
         config = _execution_config(node)
+        capture_dir = (context.runtime_config or {}).get("capture_output_dir")
+        if capture_dir and node.tool_type == "DbFileOutput":
+            from pathlib import Path
+            import hashlib
+            suffix = Path(str(config.get("file", "output.csv")).split("|||", 1)[0]).suffix
+            identity = hashlib.sha256(workflow.source_file.encode()).hexdigest()[:12]
+            config["file"] = str(Path(capture_dir) / f"python-sink-{identity}-{node.node_id}{suffix}")
+        if input_connection_names:
+            config["input_connection_names"] = input_connection_names
         try:
             metadata = _metadata_for_node(node, context)
             node_results[node_id] = run_tool_node(
@@ -119,6 +144,30 @@ def run_workflow_graph(
 
 
 def _metadata_for_node(node: "NodeIR", context: "WorkflowContext") -> "ToolMetadata":
+    if node.tool_type.startswith("Macro_"):
+        from alteryx2python.tools.macro_engine import execute_static_macro
+        from alteryx2python.tools.registry import ToolMetadata
+        from alteryx2python.tools.base_tool import BaseTool
+        from pathlib import Path
+        from xml.etree import ElementTree as ET
+        cfg = _execution_config(node)
+        macro_path = Path(str(cfg.get("macro_path", "")))
+        candidates = [macro_path] if macro_path.is_absolute() else [Path(str(cfg.get("base_dir", "."))) / macro_path, Path("D:/Alteryx/bin/RuntimeData/Macros") / macro_path]
+        embedded = (context.runtime_config or {}).get("_embedded_macros", {})
+        available = next((p.resolve() for p in candidates if p.is_file() or str(p.resolve()) in embedded), None)
+        declared_outputs = tuple(anchor.name for anchor in node.output_anchors)
+        if available is not None:
+            root = ET.fromstring(embedded[str(available)]) if str(available) in embedded else ET.parse(available).getroot()
+            loop = root.findtext("./Properties/RuntimeProperties/IterativeMacro/Output")
+            declared_outputs = tuple(element.findtext("Properties/Configuration/Name", "Output")
+                                     for element in root.iter("Node")
+                                     if "MacroOutput" in (element.find("GuiSettings").get("Plugin", "") if element.find("GuiSettings") is not None else "")
+                                     and element.findtext("Properties/Configuration/Name", "Output") != loop)
+        return ToolMetadata(tool_type=node.tool_type, function=execute_static_macro, tool_class=BaseTool,
+                            input_anchors=tuple(anchor.name for anchor in node.input_anchors),
+                            output_anchors=declared_outputs or ("Output",),
+                            maturity="L2_BASIC_IMPLEMENTATION", semantics_doc="docs/tools/static_macros.md",
+                            supports_certification=False, execution_profile="local-static-macro")
     try:
         return TOOL_REGISTRY.get(node.tool_type)
     except KeyError as exc:
@@ -137,6 +186,7 @@ def _execution_config(node: "NodeIR") -> dict[str, object]:
         "source_tool_id": node.source_tool_id,
         "node_input_anchors": [anchor.name for anchor in node.input_anchors],
         "node_output_anchors": [anchor.name for anchor in node.output_anchors],
+        "expected_output_schema": node.expected_output_schema,
     }
 
 
@@ -205,6 +255,16 @@ def _outgoing_edges_by_source(edges: list["EdgeIR"]) -> dict[str, list["EdgeIR"]
     for edge in edges:
         outgoing[edge.source_node_id].append(edge)
     return outgoing
+
+
+def _edge_connection_name(edge: "EdgeIR") -> str:
+    raw = edge.metadata.get("raw") if isinstance(edge.metadata, dict) else None
+    if not isinstance(raw, dict):
+        return ""
+    attributes = raw.get("attributes")
+    if not isinstance(attributes, dict):
+        return ""
+    return str(attributes.get("name", "") or "")
 
 
 def _target_ancestor_node_ids(workflow: "WorkflowIR", target_node_ids: set[str] | None) -> set[str]:

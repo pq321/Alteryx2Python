@@ -1,0 +1,373 @@
+{
+  "producer": "alteryx",
+  "source_sha256": "619bdc4c436f9be17a6abfd18cf5ff52d64dcc208dee8e3210074eaf157dc2e4",
+  "status": "success",
+  "run": {
+    "status": "success",
+    "source_sha256": "619bdc4c436f9be17a6abfd18cf5ff52d64dcc208dee8e3210074eaf157dc2e4",
+    "instrumented_sha256": "bc13614d5259d4ee2d72530d83900e6d57929a08c651c00a28ec73d57ac9bf29",
+    "output_sha256": {
+      "probe-0000.yxdb": "e47b51a46361a0e74669c76d9ce5931da5ae1c16069be378797edcf30fdc5156",
+      "probe-0001.yxdb": "a09638b280a7e3aaca10c630cfe5388f233e345809cff663da9e5082c93ea83b",
+      "probe-0002.yxdb": "020949381507a29c547b3b91ca10e1902ca91d4604b76573851f789e65159c6f",
+      "probe-0003.yxdb": "a4d03b49c8bcc4d860dd41b999d4b7953d8f295a4dcea77075979402f8ff1f5e",
+      "probe-0004.yxdb": "f7e3ce0d5c2bb7007df89f5e33afe95efa39adb7d18cfb508840eb4157d92b20"
+    },
+    "node_outcomes": {
+      "1": "success",
+      "2": "success",
+      "3": "success"
+    },
+    "reviewer": "Codex observed Designer GUI",
+    "note": "Outcome previously observed during this session; see preserved designer-messages.txt. Recomparison uses unchanged native YXDB files, not regenerated expected outputs.",
+    "method": "Designer/manual outcome attestation",
+    "recorded_at": "2026-11-09T09:56:51.093721+00:00"
+  },
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "outputs": {
+        "Output": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {},
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    },
+    "2": {
+      "tool_type": "Filter",
+      "outputs": {
+        "False": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        },
+        "True": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "b"
+              },
+              {
+                "kind": "null"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "c"
+              },
+              {
+                "kind": "string",
+                "value": "é🙂"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    },
+    "3": {
+      "tool_type": "Unique",
+      "outputs": {
+        "Duplicates": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        },
+        "Unique": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        }
+      },
+      "inputs": {
+        "Input": {
+          "columns": [
+            "key",
+            "label"
+          ],
+          "schema": [
+            {
+              "name": "key",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "label",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "rows": [
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ],
+            [
+              {
+                "kind": "string",
+                "value": "a"
+              },
+              {
+                "kind": "string",
+                "value": "中文"
+              }
+            ]
+          ]
+        }
+      },
+      "status": "success",
+      "errors": null,
+      "warnings": null
+    }
+  },
+  "missing": [],
+  "unreadable": [],
+  "errors": null,
+  "warnings": null,
+  "raw_designer_messages": "\t\t\t\t\t\t\t\t\t\t239020 item (settable, string) Row 1 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t239021 item (settable, string) Row 1 Column 3 Value: Started running E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\instrumented.yxmd at 11/09/2026 16:26:14\n\t\t\t\t\t\t\t\t\t\t239024 item (settable, string) Row 2 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t239025 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1275.8 MB of memory.\n\t\t\t\t\t\t\t\t\t\t239028 item (settable, string) Row 3 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t239029 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.\n\t\t\t\t\t\t\t\t\t\t239032 item (settable, string) Row 4 Column 2 Value: Text Input (1)\n\t\t\t\t\t\t\t\t\t\t239033 item (settable, string) Row 4 Column 3 Value: 4 records were output\n\t\t\t\t\t\t\t\t\t\t239036 item (settable, string) Row 5 Column 2 Value: Filter (2)\n\t\t\t\t\t\t\t\t\t\t239037 item (settable, string) Row 5 Column 3 Value: 2 records were True and 2 were False\n\t\t\t\t\t\t\t\t\t\t239040 item (settable, string) Row 6 Column 2 Value: Unique (3)\n\t\t\t\t\t\t\t\t\t\t239041 item (settable, string) Row 6 Column 3 Value: 1 unique records and 1 duplicates were found\n\t\t\t\t\t\t\t\t\t\t239044 item (settable, string) Row 7 Column 2 Value: Output Data (8)\n\t\t\t\t\t\t\t\t\t\t239045 item (settable, string) Row 7 Column 3 Value: 1 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\probe-0004.yxdb\"\n\t\t\t\t\t\t\t\t\t\t239048 item (settable, string) Row 8 Column 2 Value: Output Data (7)\n\t\t\t\t\t\t\t\t\t\t239049 item (settable, string) Row 8 Column 3 Value: 1 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\probe-0003.yxdb\"\n\t\t\t\t\t\t\t\t\t\t239052 item (settable, string) Row 9 Column 2 Value: Output Data (6)\n\t\t\t\t\t\t\t\t\t\t239053 item (settable, string) Row 9 Column 3 Value: 2 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\probe-0002.yxdb\"\n\t\t\t\t\t\t\t\t\t\t239056 item (settable, string) Row 10 Column 2 Value: Output Data (5)\n\t\t\t\t\t\t\t\t\t\t239057 item (settable, string) Row 10 Column 3 Value: 2 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\probe-0001.yxdb\"\n\t\t\t\t\t\t\t\t\t\t239060 item (settable, string) Row 11 Column 2 Value: Output Data (4)\n\t\t\t\t\t\t\t\t\t\t239061 item (settable, string) Row 11 Column 3 Value: 4 records were written to \"E:\\Automation\\Alteryx2Python\\reports\\parity\\designer-fixed\\probe-0000.yxdb\"\n\t\t\t\t\t\t\t\t\t\t239064 item (settable, string) Row 12 Column 2 Value: Designer x64\n\t\t\t\t\t\t\t\t\t\t239065 item (settable, string) Row 12 Column 3 Value: Finished running instrumented.yxmd in 0.6 seconds"
+}

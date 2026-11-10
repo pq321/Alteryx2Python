@@ -1,0 +1,5 @@
+{
+  "command": "workflow-export",
+  "output": "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\branch-export.json",
+  "status": "ok"
+}

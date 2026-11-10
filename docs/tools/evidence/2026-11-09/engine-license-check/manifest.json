@@ -1,0 +1,66 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\parity\\branch_duplicates_unicode.yxmd",
+  "source_sha256": "619bdc4c436f9be17a6abfd18cf5ff52d64dcc208dee8e3210074eaf157dc2e4",
+  "instrumented_sha256": "6ad5c733dfebb4aca79162eb22606b88287a5618e4ed22760371773fb62c1e5c",
+  "engine_mode": "original",
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "4"
+    },
+    {
+      "node_id": "2",
+      "anchor": "False",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "2",
+      "anchor": "True",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Duplicates",
+      "file": "probe-0003.yxdb",
+      "probe_id": "7"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Unique",
+      "file": "probe-0004.yxdb",
+      "probe_id": "8"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Filter"
+    },
+    {
+      "node_id": "3",
+      "tool_type": "Unique"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input"
+    },
+    {
+      "source": "2",
+      "output": "True",
+      "target": "3",
+      "input": "Input"
+    }
+  ]
+}

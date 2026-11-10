@@ -1,0 +1,84 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2025.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Fields>
+            <Field name="key" type="V_WString" size="64" />
+            <Field name="label" type="V_WString" size="64" />
+          </Fields>
+          <Data>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c null="False" />
+            </r>
+            <r>
+              <c>a</c>
+              <c>中文</c>
+            </r>
+            <r>
+              <c>c</c>
+              <c>é🙂</c>
+            </r>
+            <r>
+              <c>a</c>
+              <c />
+            </r>
+          </Data>
+          <NumRows value="5" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Filter.Filter">
+        <Position x="300" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>Custom</Mode>
+          <Expression>[key] = "a"</Expression>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFilter" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Unique.Unique">
+        <Position x="450" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <UniqueFields>
+            <Field field="key" />
+          </UniqueFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxUnique" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="True" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+      <DisableAllOutput value="False" />
+    </RuntimeProperties>
+  </Properties>
+  <EngineSettings EngineDll="" EngineDllEntryPoint="" Macro="" />
+</AlteryxDocument>

@@ -1,0 +1,1945 @@
+{
+  "source_url": "https://help.alteryx.com/designer/current/en/tools/designer-tools-list.html",
+  "retrieved_at": "2026-11-09T18:50:26.235750+00:00",
+  "html_sha256": "bce6966f6e4c041990af2f684f32651f6b43e7f4b4a10f67fe7bdb970b12e41b",
+  "tools": [
+    {
+      "name": "Auto Insights Uploader",
+      "plugin_id": "AutoInsightsUploader",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Browse",
+      "plugin_id": "AlteryxBasePluginsGui.BrowseV2.BrowseV2",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Date Time Now",
+      "plugin_id": "DateTimeNow",
+      "role": "Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Directory",
+      "plugin_id": "AlteryxBasePluginsGui.Directory.Directory",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Input Data",
+      "plugin_id": "AlteryxBasePluginsGui.DbFileInput.DbFileInput",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Map Input",
+      "plugin_id": "AlteryxSpatialPluginsGui.MapInput.MapInput",
+      "role": "Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Output Data",
+      "plugin_id": "AlteryxBasePluginsGui.DbFileOutput.DbFileOutput",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Text Input",
+      "plugin_id": "AlteryxBasePluginsGui.TextInput.TextInput",
+      "role": "Basic, Full",
+      "category": "In/Out"
+    },
+    {
+      "name": "Auto Field",
+      "plugin_id": "AlteryxBasePluginsGui.AutoField.AutoField",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Create Samples",
+      "plugin_id": "Predictive Tools\\Create_Samples.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Data Cleanse Pro",
+      "plugin_id": "AlteryxBasePluginsGui.DataCleansePro.DataCleansePro",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Data Cleansing",
+      "plugin_id": "Cleanse.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Filter",
+      "plugin_id": "AlteryxBasePluginsGui.Filter.Filter",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Formula",
+      "plugin_id": "AlteryxBasePluginsGui.Formula.Formula",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Generate Rows",
+      "plugin_id": "AlteryxBasePluginsGui.GenerateRows.GenerateRows",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Imputation",
+      "plugin_id": "Imputation_v3.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Multi-Field Binning",
+      "plugin_id": "MultiFieldBinning_v2.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Multi-Field Formula",
+      "plugin_id": "AlteryxBasePluginsGui.MultiFieldFormula.MultiFieldFormula",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Multi-Row Formula",
+      "plugin_id": "AlteryxBasePluginsGui.MultiRowFormula.MultiRowFormula",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Oversample Field",
+      "plugin_id": "Predictive Tools\\Oversample_Field.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Random % Sample",
+      "plugin_id": "RandomRecords.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Rank",
+      "plugin_id": "AlteryxBasePluginsGui.Ranking.Ranking",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Record ID",
+      "plugin_id": "AlteryxBasePluginsGui.RecordID.RecordID",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Sample",
+      "plugin_id": "AlteryxBasePluginsGui.Sample.Sample",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Select",
+      "plugin_id": "AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Select Records",
+      "plugin_id": "SelectRecords.yxmc",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Sort",
+      "plugin_id": "AlteryxBasePluginsGui.Sort.Sort",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Tile",
+      "plugin_id": "AlteryxBasePluginsGui.Tile.Tile",
+      "role": "Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Unique",
+      "plugin_id": "AlteryxBasePluginsGui.Unique.Unique",
+      "role": "Basic, Full",
+      "category": "Preparation"
+    },
+    {
+      "name": "Append Fields",
+      "plugin_id": "AlteryxBasePluginsGui.AppendFields.AppendFields",
+      "role": "Basic, Full",
+      "category": "Join"
+    },
+    {
+      "name": "Find Replace",
+      "plugin_id": "AlteryxBasePluginsGui.FindReplace.FindReplace",
+      "role": "Basic, Full",
+      "category": "Join"
+    },
+    {
+      "name": "Fuzzy Match",
+      "plugin_id": "AlteryxBasePluginsGui.FuzzyMatch.FuzzyMatch",
+      "role": "Full",
+      "category": "Join"
+    },
+    {
+      "name": "Join",
+      "plugin_id": "AlteryxBasePluginsGui.Join.Join",
+      "role": "Basic, Full",
+      "category": "Join"
+    },
+    {
+      "name": "Join Multiple",
+      "plugin_id": "AlteryxBasePluginsGui.JoinMultiple.JoinMultiple",
+      "role": "Basic, Full",
+      "category": "Join"
+    },
+    {
+      "name": "Make Group",
+      "plugin_id": "AlteryxBasePluginsGui.MakeGroup.MakeGroup",
+      "role": "Full",
+      "category": "Join"
+    },
+    {
+      "name": "Union",
+      "plugin_id": "AlteryxBasePluginsGui.Union.Union",
+      "role": "Basic, Full",
+      "category": "Join"
+    },
+    {
+      "name": "DateTime",
+      "plugin_id": "AlteryxBasePluginsGui.DateTime.DateTime",
+      "role": "Basic, Full",
+      "category": "Parse"
+    },
+    {
+      "name": "RegEx",
+      "plugin_id": "AlteryxBasePluginsGui.RegEx.RegEx",
+      "role": "Basic, Full",
+      "category": "Parse"
+    },
+    {
+      "name": "Text To Columns",
+      "plugin_id": "AlteryxBasePluginsGui.TextToColumns.TextToColumns",
+      "role": "Basic, Full",
+      "category": "Parse"
+    },
+    {
+      "name": "XML Parse",
+      "plugin_id": "AlteryxBasePluginsGui.XMLParse.XMLParse",
+      "role": "Full",
+      "category": "Parse"
+    },
+    {
+      "name": "Arrange",
+      "plugin_id": "AlteryxBasePluginsGui.Arrange.Arrange",
+      "role": "Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Count Records",
+      "plugin_id": "CountRecords.yxmc",
+      "role": "Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Cross Tab",
+      "plugin_id": "AlteryxBasePluginsGui.CrossTab.CrossTab",
+      "role": "Basic, Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Make Columns Make Columns Tool",
+      "plugin_id": "AlteryxBasePluginsGui.MakeColumns.MakeColumns",
+      "role": "Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Running Total",
+      "plugin_id": "AlteryxBasePluginsGui.RunningTotal.RunningTotal",
+      "role": "Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Summarize",
+      "plugin_id": "AlteryxSpatialPluginsGui.Summarize.Summarize",
+      "role": "Basic, Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Transpose",
+      "plugin_id": "AlteryxBasePluginsGui.Transpose.Transpose",
+      "role": "Basic, Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Weighted Average",
+      "plugin_id": "WeightedAvg.yxmc",
+      "role": "Full",
+      "category": "Transform"
+    },
+    {
+      "name": "Browse In-DB",
+      "plugin_id": "LockInGui.LockInBrowse.LockInBrowse",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Connect In-DB",
+      "plugin_id": "LockInGui.LockInInput.LockInInput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Data Stream In",
+      "plugin_id": "LockInGui.LockInStreamIn.LockInStreamIn",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Data Stream Out",
+      "plugin_id": "LockInGui.LockInStreamOut.LockInStreamOut",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Dynamic Input In-DB",
+      "plugin_id": "LockInGui.LockInDynamicInput.LockInDynamicInput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Dynamic Output In-DB",
+      "plugin_id": "LockInGui.LockInDynamicOutput.LockInDynamicOutput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Filter In-DB",
+      "plugin_id": "LockInGui.LockInFilter.LockInFilter",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Formula In-DB",
+      "plugin_id": "LockInGui.LockInFormula.LockInFormula",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Join In-DB",
+      "plugin_id": "LockInGui.LockInJoin.LockInJoin",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Macro Input In-DB",
+      "plugin_id": "LockInGui.LockInMacroInput.LockInMacroInput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Macro Output In-DB",
+      "plugin_id": "LockInGui.LockInMacroOutput.LockInMacroOutput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Sample In-DB",
+      "plugin_id": "LockInGui.LockInSample.LockInSample",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Select In-DB",
+      "plugin_id": "LockInGui.LockInSelect.LockInSelect",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Summarize In-DB",
+      "plugin_id": "LockInGui.LockInSummarize.LockInSummarize",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Union In-DB",
+      "plugin_id": "LockInGui.LockInUnion.LockInUnion",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Write Data In-DB",
+      "plugin_id": "LockInGui.LockInOutput.LockInOutput",
+      "role": "Full",
+      "category": "In-Database"
+    },
+    {
+      "name": "Email",
+      "plugin_id": "PortfolioPluginsGui.Email.Email",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Image",
+      "plugin_id": "PortfolioPluginsGui.ComposerImage.PortfolioComposerImage",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Interactive Chart",
+      "plugin_id": "PlotlyCharting",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Layout",
+      "plugin_id": "PortfolioPluginsGui.ComposerLayout.PortfolioComposerLayout",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Map Legend Builder",
+      "plugin_id": "Legend_Builder.yxmc",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Map Legend Splitter",
+      "plugin_id": "Legend_Splitter.yxmc",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Overlay",
+      "plugin_id": "PortfolioPluginsGui.ComposerOverlay.Overlay",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Render",
+      "plugin_id": "PortfolioPluginsGui.ComposerRender.PortfolioComposerRender",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Report Footer",
+      "plugin_id": "FooterMacro.yxmc",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Report Header",
+      "plugin_id": "ReportHeader",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Report Map",
+      "plugin_id": "AlteryxSpatialPluginsGui.ReportMap.ReportMap",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Report Text",
+      "plugin_id": "PortfolioPluginsGui.ComposerText.PortfolioComposerText",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Table",
+      "plugin_id": "PortfolioPluginsGui.ComposerTable.PortfolioComposerTable",
+      "role": "Full",
+      "category": "Reporting"
+    },
+    {
+      "name": "Comment",
+      "plugin_id": "AlteryxGuiToolkit.TextBox.TextBox",
+      "role": "Basic, Full",
+      "category": "Documentation"
+    },
+    {
+      "name": "Explorer Box",
+      "plugin_id": "AlteryxGuiToolkit.HtmlBox.HtmlBox",
+      "role": "Full",
+      "category": "Documentation"
+    },
+    {
+      "name": "Tool Container",
+      "plugin_id": "AlteryxGuiToolkit.ToolContainer.ToolContainer",
+      "role": "Basic, Full",
+      "category": "Documentation"
+    },
+    {
+      "name": "Buffer",
+      "plugin_id": "AlteryxSpatialPluginsGui.Buffer.Buffer",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Create Points",
+      "plugin_id": "AlteryxSpatialPluginsGui.CreatePoints.CreatePoints",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Distance",
+      "plugin_id": "AlteryxSpatialPluginsGui.Distance.Distance",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Find Nearest",
+      "plugin_id": "AlteryxSpatialPluginsGui.FindNearest.FindNearest",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Spatial"
+    },
+    {
+      "name": "Generalize",
+      "plugin_id": "AlteryxSpatialPluginsGui.Generalize.Generalize",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Heat Map",
+      "plugin_id": "HeatMap.yxmc",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Make Grid",
+      "plugin_id": "AlteryxSpatialPluginsGui.MakeGrid.MakeGrid",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Non Overlap Drivetime",
+      "plugin_id": "Non_Overlapping_DT.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Spatial"
+    },
+    {
+      "name": "Poly-Build",
+      "plugin_id": "AlteryxSpatialPluginsGui.PolyBuild.PolyBuild",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Poly-Split",
+      "plugin_id": "AlteryxSpatialPluginsGui.PolySplit.PolySplit",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Smooth",
+      "plugin_id": "AlteryxSpatialPluginsGui.Smooth.Smooth",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Spatial Info",
+      "plugin_id": "AlteryxSpatialPluginsGui.SpatialInfo.SpatialInfo",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Spatial Match",
+      "plugin_id": "AlteryxSpatialPluginsGui.SpatialMatch.SpatialMatch",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Spatial Process",
+      "plugin_id": "AlteryxSpatialPluginsGui.SpatialProcess.SpatialProcess",
+      "role": "Full",
+      "category": "Spatial"
+    },
+    {
+      "name": "Trade Area",
+      "plugin_id": "AlteryxSpatialPluginsGui.TradeArea.TradeArea",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Spatial"
+    },
+    {
+      "name": "Action",
+      "plugin_id": "AlteryxGuiToolkit.Action.Action",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Check Box",
+      "plugin_id": "AlteryxGuiToolkit.Questions.CheckBoxGroup.CheckBoxGroup",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Condition",
+      "plugin_id": "AlteryxGuiToolkit.Condition.Condition",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Control Parameter",
+      "plugin_id": "AlteryxGuiToolkit.Questions.ControlParam.ControlParam",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Date",
+      "plugin_id": "AlteryxGuiToolkit.Questions.Date.Date",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "DCM Connection",
+      "plugin_id": "AlteryxGuiToolkit.Questions.DcmConnection.QuestionDcmConnection",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Drop Down",
+      "plugin_id": "AlteryxGuiToolkit.Questions.DropDownListBox.DropDown",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Error Message",
+      "plugin_id": "AlteryxGuiToolkit.Error.Error",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "File Browse",
+      "plugin_id": "AlteryxGuiToolkit.Questions.FileBrowse.FileBrowse",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Folder Browse",
+      "plugin_id": "AlteryxGuiToolkit.Questions.FolderBrowse.FolderBrowse",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "List Box",
+      "plugin_id": "AlteryxGuiToolkit.Questions.DropDownListBox.ListBox",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Macro Input",
+      "plugin_id": "AlteryxBasePluginsGui.MacroInput.MacroInput",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Macro Output",
+      "plugin_id": "AlteryxBasePluginsGui.MacroOutput.MacroOutput",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Map",
+      "plugin_id": "AlteryxGuiToolkit.Questions.Map.Map",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Numeric Up Down",
+      "plugin_id": "AlteryxGuiToolkit.Questions.NumericUpDown.NumericUpDown",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Radio Button",
+      "plugin_id": "AlteryxGuiToolkit.Questions.RadioButtonGroup.RadioButtonGroup",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Text Box",
+      "plugin_id": "AlteryxGuiToolkit.Questions.TextBox.QuestionTextBox",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Tree",
+      "plugin_id": "AlteryxGuiToolkit.Questions.Tree.Tree",
+      "role": "Full",
+      "category": "Interface"
+    },
+    {
+      "name": "Association Analysis",
+      "plugin_id": "Predictive Tools\\Association_Analysis.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Basic Data Profile",
+      "plugin_id": "AlteryxBasePluginsGui.BasicDataProfile.BasicDataProfile",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Contingency Table",
+      "plugin_id": "Predictive Tools\\ContingencyTable.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Distribution Analysis",
+      "plugin_id": "Predictive Tools\\Distribution_Analysis.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Field Summary",
+      "plugin_id": "Predictive Tools\\Field_Summary_Report.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Frequency Table",
+      "plugin_id": "Predictive Tools\\Frequency.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Heat Plot",
+      "plugin_id": "Predictive Tools\\Heat_Plot.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Histogram",
+      "plugin_id": "Predictive Tools\\Histogram.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Importance Weights",
+      "plugin_id": "Importance Weights.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Pearson Correlation",
+      "plugin_id": "AlteryxBasePluginsGui.PearsonCorrelation.PearsonCorrelation",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Plot of Means",
+      "plugin_id": "Predictive Tools\\Plot_of_Means.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Scatterplot",
+      "plugin_id": "Predictive Tools\\Scatterplot.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Spearman Correlation",
+      "plugin_id": "SpearmanCorrCoeff.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Violin Plot",
+      "plugin_id": "Predictive Tools\\Violin_Plot.yxmc",
+      "role": "Full",
+      "category": "Data Investigation"
+    },
+    {
+      "name": "Boosted Model",
+      "plugin_id": "Predictive Tools\\Boosted_Model.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Count Regression",
+      "plugin_id": "Predictive Tools\\Count_Regression.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Cross-Validation",
+      "plugin_id": "CrossValidation",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "DataRobot Automodel",
+      "plugin_id": "DataRobotModelFactory",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "DataRobot Predict",
+      "plugin_id": "DataRobotEnhancedPredictions",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Decision Tree",
+      "plugin_id": "Decision_Tree",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Forest Model",
+      "plugin_id": "Predictive Tools\\Forest_Model.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Gamma Regression",
+      "plugin_id": "Predictive Tools\\Gamma_Regression.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Lift Chart",
+      "plugin_id": "Predictive Tools\\Lift_Chart.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Linear Regression",
+      "plugin_id": "Linear Regression",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Logistic Regression",
+      "plugin_id": "Logistic_Regression",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Model Coefficients",
+      "plugin_id": "Model Coefficients.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Model Comparison",
+      "plugin_id": "Predictive Tools\\Model Comparison.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Naive Bayes Classifier",
+      "plugin_id": "Predictive Tools\\Naive_Bayes.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Nested Test",
+      "plugin_id": "Predictive Tools\\Nested_Test.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Network Analysis",
+      "plugin_id": "Predictive Tools\\NetworkViz.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Neural Network",
+      "plugin_id": "Predictive Tools\\Neural_Network.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Score",
+      "plugin_id": "Score",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Spline Model",
+      "plugin_id": "Predictive Tools\\Spline_Model.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Stepwise",
+      "plugin_id": "Predictive Tools\\Stepwise.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Support Vector Machine",
+      "plugin_id": "Predictive Tools\\SVM_v2.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Survival Analysis",
+      "plugin_id": "Survival Analysis.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Survival Score",
+      "plugin_id": "Survival Score.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Test of Means",
+      "plugin_id": "Predictive Tools\\Test_of_Means.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "Variance Inflation Factors",
+      "plugin_id": "Variance Inflation Factors.yxmc",
+      "role": "Full",
+      "category": "Predictive"
+    },
+    {
+      "name": "AB Analysis",
+      "plugin_id": "Predictive Tools\\AB_Analysis.yxmc",
+      "role": "Full",
+      "category": "AB Testing"
+    },
+    {
+      "name": "AB Controls",
+      "plugin_id": "Predictive Tools\\AB_Controls.yxmc",
+      "role": "Full",
+      "category": "AB Testing"
+    },
+    {
+      "name": "AB Treatments",
+      "plugin_id": "Predictive Tools\\AB_Treatments.yxmc",
+      "role": "Full",
+      "category": "AB Testing"
+    },
+    {
+      "name": "AB Trend",
+      "plugin_id": "Predictive Tools\\AB_Trend.yxmc",
+      "role": "Full",
+      "category": "AB Testing"
+    },
+    {
+      "name": "ARIMA",
+      "plugin_id": "Predictive Tools\\ARIMA.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "ETS",
+      "plugin_id": "Predictive Tools\\ETS.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Compare",
+      "plugin_id": "Predictive Tools\\TS_Compare.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Covariate Forecast",
+      "plugin_id": "Predictive Tools\\TS_Covariate_Forecast.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Filler",
+      "plugin_id": "Predictive Tools\\TimeSeriesFiller.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Forecast",
+      "plugin_id": "Predictive Tools\\TS_Forecast.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Forecast Factory",
+      "plugin_id": "TS Forecast Factory.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Model Factory",
+      "plugin_id": "TS Model Factory.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "TS Plot",
+      "plugin_id": "Predictive Tools\\TS_Plot.yxmc",
+      "role": "Full",
+      "category": "Time Series"
+    },
+    {
+      "name": "Append Cluster",
+      "plugin_id": "Predictive Tools\\Append_Cluster.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "Find Nearest Neighbors",
+      "plugin_id": "Predictive Tools\\Find_Nearest_Neighbors.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "K-Centroids Cluster Analysis",
+      "plugin_id": "Predictive Tools\\K-Centroids_Cluster_Analysis.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "K-Centroids Diagnostics",
+      "plugin_id": "Predictive Tools\\K-Centroids_Diagnostics.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "MB Affinity",
+      "plugin_id": "Predictive Tools\\MB_Affinity.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "MB Inspect",
+      "plugin_id": "Predictive Tools\\MB_Inspect.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "MB Rules",
+      "plugin_id": "Predictive Tools\\MB_Rules.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "Multidimensional Scaling",
+      "plugin_id": "Multidimensional Scaling.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "Principal Components",
+      "plugin_id": "Predictive Tools\\Principal_Components.yxmc",
+      "role": "Full",
+      "category": "Predictive Grouping"
+    },
+    {
+      "name": "Optimization",
+      "plugin_id": "Optimization",
+      "role": "Full",
+      "category": "Prescriptive"
+    },
+    {
+      "name": "Simulation Sampling",
+      "plugin_id": "SimSampling",
+      "role": "Full",
+      "category": "Prescriptive"
+    },
+    {
+      "name": "Simulation Scoring",
+      "plugin_id": "SimScoring",
+      "role": "Full",
+      "category": "Prescriptive"
+    },
+    {
+      "name": "Simulation Summary",
+      "plugin_id": "SimSummary",
+      "role": "Full",
+      "category": "Prescriptive"
+    },
+    {
+      "name": "Azure Data Lake File Input",
+      "plugin_id": "azure_data_lake_input",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Azure Data Lake File Output",
+      "plugin_id": "azure_data_lake_output",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Adobe Analytics",
+      "plugin_id": "AdobeAnalytics_v3.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Amazon S3 Download",
+      "plugin_id": "lteryxConnectorGui.AmazonS3Download.AmazonS3Download",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Amazon S3 Upload",
+      "plugin_id": "AlteryxConnectorGui.AmazonS3Upload.AmazonS3Upload",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Anaplan Input",
+      "plugin_id": "AnaplanInput_1_1_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Anaplan Output",
+      "plugin_id": "AnaplanOutput_1_1_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Automation Anywhere 360",
+      "plugin_id": "AutomationAnywhere360_v1.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Box Input",
+      "plugin_id": "BoxInput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Box Output",
+      "plugin_id": "BoxOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Cognitive Services Text Analytics",
+      "plugin_id": "CognitiveServicesTextAnalytics",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dataverse Input",
+      "plugin_id": "DataverseInput_v1.1.1",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dataverse Output",
+      "plugin_id": "DataverseOutput_v1.1.1",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dropbox Input",
+      "plugin_id": "DropboxInput_v1.1.2",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dropbox Output",
+      "plugin_id": "DropboxOutput_v1.1.2",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dynamics CRM Input",
+      "plugin_id": "dynamics_crm_input_v1.0.2",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Dynamics CRM Output",
+      "plugin_id": "dynamics_crm_output_v1.0.2",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Analytics",
+      "plugin_id": "GoogleAnalytics_v8.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Analytics 4 Input",
+      "plugin_id": "GoogleAnalytics4Input_1_1_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google BigQuery Input",
+      "plugin_id": "big_query_input_v3.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google BigQuery Output",
+      "plugin_id": "big_query_output_v3.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Drive Input",
+      "plugin_id": "GoogleDriveInput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Drive Output",
+      "plugin_id": "GoogleDriveOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Sheets Input",
+      "plugin_id": "google-sheets-input",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Google Sheets Output",
+      "plugin_id": "google-sheets-output",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Marketo Append",
+      "plugin_id": "marketo-append",
+      "role": "Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Marketo Input",
+      "plugin_id": "marketo-input",
+      "role": "Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Marketo Output",
+      "plugin_id": "marketo-output",
+      "role": "Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Microsoft Power BI Output",
+      "plugin_id": "PowerBIOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "MongoDB Input",
+      "plugin_id": "AlteryxConnectorGui.MongoInput.MongoInput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "MongoDB Output",
+      "plugin_id": "AlteryxConnectorGui.MongoOutput.MongoOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "OneDrive Input",
+      "plugin_id": "OneDriveInput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "OneDrive Output",
+      "plugin_id": "OneDriveOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Outlook 365 Input",
+      "plugin_id": "Outlook365Input_v1.1.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Power Automate",
+      "plugin_id": "PowerAutomate_v1.0.1",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Publish to Tableau Server",
+      "plugin_id": "PublishToTableauServer_v2.0.0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Salesforce Input",
+      "plugin_id": "SalesforceInput_v4.2.4",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Salesforce Output (New)",
+      "plugin_id": "SalesforceOutput_v1.3.1",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "ServiceNow Input",
+      "plugin_id": "ServiceNowInput_1_1_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "SharePoint Files Input",
+      "plugin_id": "SharePointInput_2_4_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "SharePoint Files Output",
+      "plugin_id": "SharePointOutput_2_4_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "SharePoint List Input",
+      "plugin_id": "AlteryxConnectorDotNet.SharepointInput.SharepointInput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "SharePoint List Output",
+      "plugin_id": "AlteryxConnectorDotNet.SharepointOutput.SharepointOutput",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "Tableau Output",
+      "plugin_id": "TableauOutput_1_4_0",
+      "role": "Basic, Full",
+      "category": "Connectors"
+    },
+    {
+      "name": "CASS",
+      "plugin_id": "AlteryxCASSGui.CASS.CASS",
+      "role": "Full",
+      "category": "Address"
+    },
+    {
+      "name": "Parse Address",
+      "plugin_id": "AlteryxCASSGui.CASSParse.CASSParse",
+      "role": "Full",
+      "category": "Address"
+    },
+    {
+      "name": "Reverse Geocoder",
+      "plugin_id": "ReverseGeocoder.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Address"
+    },
+    {
+      "name": "Street Geocoder",
+      "plugin_id": "PortfolioPluginsGui.Geocoder.Geocoder",
+      "role": "Full",
+      "category": "Address"
+    },
+    {
+      "name": "US Geocoder",
+      "plugin_id": "PortfolioExplorer.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Address"
+    },
+    {
+      "name": "US ZIP9 Coder",
+      "plugin_id": "AlteryxCASSGui.ZIP9Coder.ZIP9Coder",
+      "role": "Full",
+      "category": "Address"
+    },
+    {
+      "name": "Allocate Append",
+      "plugin_id": "PortfolioPluginsGui.AllocateAppend.AllocateAppend",
+      "role": "Full",
+      "category": "Demographic Analysis"
+    },
+    {
+      "name": "Allocate Input",
+      "plugin_id": "PortfolioPluginsGui.AllocateInput.AllocateInput",
+      "role": "Full",
+      "category": "Demographic Analysis"
+    },
+    {
+      "name": "Allocate Metainfo",
+      "plugin_id": "PortfolioPluginsGui.AllocateMetaInfo.AllocateMetaInfo",
+      "role": "Full",
+      "category": "Demographic Analysis"
+    },
+    {
+      "name": "Allocate Report",
+      "plugin_id": "PortfolioPluginsGui.AllocateReport.AllocateReport",
+      "role": "Full",
+      "category": "Demographic Analysis"
+    },
+    {
+      "name": "Behavior Metainfo",
+      "plugin_id": "PortfolioPluginsGui.SolocastMetaInfo.SolocastMetaInfo",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Cluster Code",
+      "plugin_id": "PortfolioPluginsGui.SolocastClusterNum.SolocastClusterNum",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Compare Behavior",
+      "plugin_id": "PortfolioPluginsGui.SolocastCompare.SolocastCompare",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Create Profile",
+      "plugin_id": "PortfolioPluginsGui.SolocastCreateProfile.SolocastCreateProfile",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Detail Fields",
+      "plugin_id": "PortfolioPluginsGui.SolocastDetailAsFields.SolocastDetailAsFields",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Profile Comparison Report",
+      "plugin_id": "Behavior_ProfileComparisonReport.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Profile Detail Report",
+      "plugin_id": "Macros\\Behavior_ProfileDetailReport.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Profile Input",
+      "plugin_id": "PortfolioPluginsGui.SolocastReadProfileSet.SolocastReadProfileSet",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Profile Output",
+      "plugin_id": "PortfolioPluginsGui.SolocastWriteProfileSet.SolocastWriteProfileSet",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Profile Rank Report",
+      "plugin_id": "Behavior_ProfileRankReport.yxmc",
+      "role": "Full (Data Packages Add-on)",
+      "category": "Behavior Analysis (Deprecated)"
+    },
+    {
+      "name": "Calgary Input",
+      "plugin_id": "CalgaryPluginsGui.CalgaryInput.CalgaryInput",
+      "role": "Full",
+      "category": "Calgary"
+    },
+    {
+      "name": "Calgary Join",
+      "plugin_id": "CalgaryPluginsGui.CalgaryJoin.CalgaryJoin",
+      "role": "Full",
+      "category": "Calgary"
+    },
+    {
+      "name": "Calgary Cross Count",
+      "plugin_id": "CalgaryLoadersGui.CalgaryLoader.CalgaryLoader",
+      "role": "Full",
+      "category": "Calgary"
+    },
+    {
+      "name": "Calgary Cross Count Append",
+      "plugin_id": "CalgaryPluginsGui.CalgaryCrossCount.CalgaryCrossCount",
+      "role": "Full",
+      "category": "Calgary"
+    },
+    {
+      "name": "Calgary Loader",
+      "plugin_id": "CalgaryPluginsGui.CalgaryCrossCountAppend.CalgaryCrossCountAppend",
+      "role": "Full",
+      "category": "Calgary"
+    },
+    {
+      "name": "Apache Spark Code",
+      "plugin_id": "Custom Spark",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "API Output",
+      "plugin_id": "AlteryxBasePluginsGui.APIOutput.APIOutput",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Base64 Encoder",
+      "plugin_id": "Base64_Encoder.yxmc",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Blob Convert",
+      "plugin_id": "AlteryxBasePluginsGui.BlobConvert.BlobConvert",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Blob Input",
+      "plugin_id": "AlteryxBasePluginsGui.BlobInput.BlobInput",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Blob Output",
+      "plugin_id": "AlteryxBasePluginsGui.BlobOutput.BlobOutput",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Block Until Done",
+      "plugin_id": "AlteryxBasePluginsGui.BlockUntilDone.BlockUntilDone",
+      "role": "Basic, Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Control Container",
+      "plugin_id": "AlteryxGuiToolkit.ControlContainer.ControlContainer",
+      "role": "Basic, Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Detour",
+      "plugin_id": "AlteryxBasePluginsGui.Detour.Detour",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Detour End",
+      "plugin_id": "AlteryxBasePluginsGui.DetourEnd.DetourEnd",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Download",
+      "plugin_id": "AlteryxConnectorGui.Download.Download",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Dynamic Input",
+      "plugin_id": "AlteryxBasePluginsGui.DynamicInput.DynamicInput",
+      "role": "Basic, Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Dynamic Rename",
+      "plugin_id": "AlteryxBasePluginsGui.DynamicRename.DynamicRename",
+      "role": "Basic, Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Dynamic Replace",
+      "plugin_id": "AlteryxBasePluginsGui.DynamicReplace.DynamicReplace",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Dynamic Select",
+      "plugin_id": "AlteryxBasePluginsGui.DynamicSelect.DynamicSelect",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Expect Equals",
+      "plugin_id": "ExpectEqual.yxmc",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Field Info",
+      "plugin_id": "AlteryxBasePluginsGui.FieldInfo.FieldInfo",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "GitHub Commit",
+      "plugin_id": "GitHubCommit.yxmc",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "GitHub Get Last Commit",
+      "plugin_id": "GetLastCommit.yxmc",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "JSON Parse",
+      "plugin_id": "AlteryxBasePluginsGui.JSONParse.JSONParse",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "JSON Schema",
+      "plugin_id": "JSONSchema_1_0",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "License API",
+      "plugin_id": "LicenseAPITool_1_0",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Message",
+      "plugin_id": "AlteryxBasePluginsGui.Message.Message",
+      "role": "Basic, Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Python",
+      "plugin_id": "JupyterCode",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "R",
+      "plugin_id": "AlteryxRPluginGui.R",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Run Command",
+      "plugin_id": "AlteryxBasePluginsGui.RunCommand.RunCommand",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Runner",
+      "plugin_id": "CReW_Runner\\CReW_Runner.yxmc",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Server API",
+      "plugin_id": "ServerAPI_1_0",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Test",
+      "plugin_id": "AlteryxBasePluginsGui.Test.Test",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Throttle",
+      "plugin_id": "AlteryxBasePluginsGui.Throttle.Throttle",
+      "role": "Full",
+      "category": "Developer"
+    },
+    {
+      "name": "Connect JSON Builder (Moved to Connect tool category in 2025.2)",
+      "plugin_id": "ConnectTools.ConnectJSONBuilder",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Connect Output (Moved to Connect tool category in 2025.2)",
+      "plugin_id": "ConnectTools.ConnectOutput",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "JSON Build",
+      "plugin_id": "AlteryxBasePluginsGui.JSONBuild.JSONBuild",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Jupyter Flow",
+      "plugin_id": "JupyterFlow",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Key-Value Pair Extraction",
+      "plugin_id": "KeyValuePairExtraction",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Transpose In-DB (Removed in 2025.2)",
+      "plugin_id": "LockInGui.LockInTranspose.LockInTranspose",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Visual Layout",
+      "plugin_id": "VisualLayout",
+      "role": "Full",
+      "category": "Laboratory"
+    },
+    {
+      "name": "Assisted Modeling",
+      "plugin_id": "Modeling",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Build Features",
+      "plugin_id": "BuildFeatures",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Classification",
+      "plugin_id": "Classification",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Data Health",
+      "plugin_id": "DataHealth",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Feature Types",
+      "plugin_id": "FeatureTypes",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Fit",
+      "plugin_id": "Fit",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Machine Learning Predict",
+      "plugin_id": "CloudMLPredict",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Machine Learning Send",
+      "plugin_id": "CloudMLUpload",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Predict",
+      "plugin_id": "Predict",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Regression",
+      "plugin_id": "Regression",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Transformation",
+      "plugin_id": "Transformation",
+      "role": "Full",
+      "category": "Machine Learning"
+    },
+    {
+      "name": "Named Entity Recognition",
+      "plugin_id": "NamedEntityRecognition",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Part-of-Speech Tagger",
+      "plugin_id": "PartOfSpeechTagger",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Sentiment Analysis",
+      "plugin_id": "Sentiment",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Text Classification",
+      "plugin_id": "TextClassification",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Text Pre-processing",
+      "plugin_id": "TextPreProcessing",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Text Summary",
+      "plugin_id": "TextSummary",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Topic Modeling",
+      "plugin_id": "TopicModel",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Word Cloud",
+      "plugin_id": "WordCloud",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Zero-shot Text Classification",
+      "plugin_id": "ZeroShotTextClassification",
+      "role": "Full",
+      "category": "Text Mining"
+    },
+    {
+      "name": "Barcode Tool",
+      "plugin_id": "Barcode",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Input",
+      "plugin_id": "PDFInput",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Output",
+      "plugin_id": "ImageOutput",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Processing",
+      "plugin_id": "ImageProcessing",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Profile",
+      "plugin_id": "ImageProfile",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Recognition",
+      "plugin_id": "ImageRecognition",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image Template",
+      "plugin_id": "ImageTemplate",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Image to Text",
+      "plugin_id": "ImageToText",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "PDF to Text",
+      "plugin_id": "PDFToText",
+      "role": "Full",
+      "category": "Computer Vision"
+    },
+    {
+      "name": "Invoice Extractor",
+      "plugin_id": "Invoice Extractor\\Invoice Extractor.yxmc",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "LLM Override",
+      "plugin_id": "LLMOverride_1_0",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "Precision Match",
+      "plugin_id": "Precision Match\\Precision_Match.yxmc",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "Prompt",
+      "plugin_id": "Prompt_1_0",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "Schema Fit",
+      "plugin_id": "Schema Fit\\Schema_Fit.yxmc",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "Synthetic Input",
+      "plugin_id": "Synthetic Generate\\Synthetic_Generate.yxmc",
+      "role": "Full",
+      "category": "AI Tools"
+    },
+    {
+      "name": "Connect JSON Builder (Moved to Connect tool category in 2025.2)",
+      "plugin_id": "ConnectTools.ConnectJSONBuilder",
+      "role": "Full",
+      "category": "Connect"
+    },
+    {
+      "name": "Connect Output (Moved to Connect tool category in 2025.2)",
+      "plugin_id": "ConnectTools.ConnectOutput",
+      "role": "Full",
+      "category": "Connect"
+    },
+    {
+      "name": "ODBC Loader",
+      "plugin_id": "OdbcLoader_v2",
+      "role": "Full",
+      "category": "Connect"
+    },
+    {
+      "name": "HTML - GUI Library (Deprecated in 2026.1)",
+      "plugin_id": "HtmlGuiSdk",
+      "role": "Full",
+      "category": "SDK Examples"
+    }
+  ]
+}

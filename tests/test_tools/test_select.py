@@ -82,6 +82,30 @@ def test_select_honors_deselected_fields_and_unknown_passthrough(workflow_contex
     assert output.to_dict("records") == [{"DownloadData": "keep", "Extra": "also keep"}]
 
 
+def test_select_uses_expected_output_schema_order(workflow_context):
+    frame = pd.DataFrame({"Quantity": ["1"], "Account ID": ["A"], "SD": ["2024-10-11"]})
+
+    result = select_tool(
+        inputs={"Input": frame},
+        config={
+            "select_fields": [
+                {"source": "Quantity", "rename": "Quantity", "selected": True},
+                {"source": "*Unknown", "rename": "*Unknown", "selected": True},
+            ],
+            "expected_output_schema": {
+                "fields": [
+                    {"name": "Account ID"},
+                    {"name": "SD"},
+                    {"name": "Quantity"},
+                ]
+            },
+        },
+        context=workflow_context,
+    )
+
+    assert list(result["Output"].columns) == ["Account ID", "SD", "Quantity"]
+
+
 def test_select_preserves_empty_input(empty_frame, workflow_context):
     result = select_tool(
         inputs={"Input": empty_frame},

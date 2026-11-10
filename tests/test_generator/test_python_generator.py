@@ -22,13 +22,14 @@ def _workflow(nodes, edges):
     )
 
 
-def _node(node_id, tool_type, config):
+def _node(node_id, tool_type, config, expected_output_schema=None):
     return NodeIR(
         node_id=node_id,
         source_tool_id=node_id,
         tool_type=tool_type,
         tool_name=tool_type,
         config={"normalized": config},
+        expected_output_schema=expected_output_schema or {},
         supported_status="L2_BASIC_IMPLEMENTATION",
     )
 
@@ -54,6 +55,26 @@ def test_python_generator_emits_runtime_imports_and_node_ids():
     assert "from alteryx2python.runtime.executor import run_workflow_graph" in code
     assert "'node_id': '1'" in code
     assert "def run_workflow(runtime_config=None, initial_inputs=None, target_node_ids=None):" in code
+
+
+def test_python_generator_preserves_expected_output_schema():
+    workflow = _workflow(
+        [
+            _node(
+                "union",
+                "Union",
+                {"mode": "ByPos"},
+                expected_output_schema={"fields": [{"name": "Concat_Field1"}]},
+            )
+        ],
+        [],
+    )
+    namespace = {}
+    exec(PythonGenerator().generate(workflow), namespace)
+
+    node = namespace["build_workflow"]().nodes[0]
+
+    assert node.expected_output_schema == {"fields": [{"name": "Concat_Field1"}]}
 
 
 def test_generated_code_executes_synthetic_workflow_roundtrip():
@@ -97,7 +118,7 @@ def test_generated_code_executes_real_mifid_slice_with_embedded_config():
     namespace = {}
     exec(PythonGenerator().generate(workflow), namespace)
 
-    result, _ = namespace["run_workflow"](target_node_ids={"24"})
+    result, _ = namespace["run_workflow"](runtime_config={"skip_app_configuration": True}, target_node_ids={"24"})
 
     assert result.execution_order == ["18", "21", "22", "23", "24"]
     assert result.node_results["24"].outputs["True"]["JSON_ValueString"].tolist() == ["EQ", "BUYER-1"]
@@ -112,10 +133,11 @@ def test_generated_code_executes_official_text_input_workflow_roundtrip():
 
     result, _ = namespace["run_workflow"](target_node_ids={"98"})
 
+    # Native Text Input infers column dtypes; read the oracle with inference.
     expected = pd.read_csv(
         "tests/fixtures/real_workflows/text_input_expected.csv",
-        dtype=object,
         keep_default_na=False,
+        na_values={"LastName": [""]},  # Native empty Text Input cell is null.
     )
     actual = result.node_results["98"].outputs["Output"]
     diff = compare_dataframes(actual, expected)

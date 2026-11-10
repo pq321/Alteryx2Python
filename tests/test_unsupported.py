@@ -16,7 +16,7 @@ def test_classify_action_tool_as_safe_to_attempt():
 
 
 def test_classify_interface_baseline_tools_as_safe_to_attempt():
-    for tool_type in ["CheckBoxGroup", "Date", "FolderBrowse", "Link", "Map", "Tree"]:
+    for tool_type in ["CheckBoxGroup", "ControlParam", "Date", "FolderBrowse", "Link", "Map", "Tree"]:
         decision = classify_tool(tool_type)
 
         assert decision.classification == "safe_to_attempt"
@@ -59,6 +59,7 @@ def test_classify_transform_investigation_and_reporting_tools_as_safe_to_attempt
         "Insights",
         "JupyterCode",
         "KeyValuePairExtraction",
+        "MacroInput",
         "MakeGrid",
         "MakeGroup",
         "Modeling",

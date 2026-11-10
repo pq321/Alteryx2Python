@@ -19,6 +19,31 @@ def test_dbfileoutput_writes_csv_file(workflow_context, tmp_path):
     assert workflow_context.traces[-1].outputs == {}
 
 
+def test_dbfileoutput_honors_utf8_code_page_without_losing_unicode(workflow_context, tmp_path):
+    output = tmp_path / "unicode.csv"
+    dbfileoutput_tool({"Input": pd.DataFrame({"文字": ["中文", "🙂"]})},
+                      {"file": str(output), "file_attributes": {"FileFormat": "0"},
+                       "format_specific_options": {"CodePage": {"text": "65001"}}}, workflow_context)
+    assert pd.read_csv(output, encoding="utf-8")["文字"].tolist() == ["中文", "🙂"]
+
+
+def test_dbfileoutput_writes_single_column_text_without_header(workflow_context, tmp_path):
+    output_path = tmp_path / "DraftEmail.eml"
+    frame = pd.DataFrame({"Field1": ["MIME-Version: 1.0", "<tr><td>x</td></tr>"]})
+
+    dbfileoutput_tool(
+        {"Input": frame},
+        {
+            "file": str(output_path),
+            "file_attributes": {"FileFormat": "0"},
+            "format_specific_options": {"HeaderRow": {"text": "False"}, "LineEndStyle": {"text": "CRLF"}},
+        },
+        workflow_context,
+    )
+
+    assert output_path.read_bytes() == b"MIME-Version: 1.0\r\n<tr><td>x</td></tr>\r\n"
+
+
 def test_dbfileoutput_defers_excel_output(workflow_context, tmp_path):
     with pytest.raises(NotImplementedError, match="Excel output"):
         dbfileoutput_tool(

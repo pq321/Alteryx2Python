@@ -45,6 +45,7 @@ from alteryx2python.parser.tool_parsers import (
     parse_makecolumns_config,
     parse_makegrid_config,
     parse_makegroup_config,
+    parse_macroinput_config,
     parse_mapinput_config,
     parse_multifieldformula_config,
     parse_multirowformula_config,
@@ -90,6 +91,7 @@ from alteryx2python.parser.tool_parsers import (
     parse_visual_layout_config,
     parse_xmlparse_config,
 )
+from alteryx2python.parser.xml_parser import XmlWorkflowParser
 
 
 def test_select_parser_normalizes_select_field_entries():
@@ -100,13 +102,15 @@ def test_select_parser_normalizes_select_field_entries():
                     {"attributes": {"field": "account", "rename": "account_copy", "selected": "True"}},
                     {"attributes": {"field": "amount", "type": "Int64", "forced": "True"}},
                 ]
-            }
+            },
+            "OrderChanged": {"attributes": {"value": "True"}},
         }
     )
 
     assert result.normalized_config["select_fields"][0]["source"] == "account"
     assert result.normalized_config["select_fields"][0]["rename"] == "account_copy"
     assert result.normalized_config["select_fields"][1]["dtype"] == "Int64"
+    assert result.normalized_config["order_changed"] is True
 
 
 def test_buffer_parser_normalizes_spatial_field_and_size_config():
@@ -458,6 +462,27 @@ def test_dbfileoutput_parser_normalizes_file_and_options():
     assert result.normalized_config["file"] == "out.csv"
     assert result.normalized_config["file_attributes"]["MaxRecords"] == "5"
     assert result.normalized_config["output_option"] == "Overwrite"
+
+
+def test_macroinput_parser_uses_embedded_textinput_config():
+    result = parse_macroinput_config(
+        {
+            "TextInput": {
+                "Configuration": {
+                    "NumRows": {"attributes": {"value": "1"}},
+                    "Fields": {"Field": [{"attributes": {"name": "Account ID"}}]},
+                    "Data": {"r": [{"c": [{"text": "2081220001"}]}]},
+                }
+            }
+        }
+    )
+
+    assert result.normalized_config == {
+        "fields": ["Account ID"],
+        "rows": [["2081220001"]],
+        "num_rows": 1,
+        "source": "embedded_textinput",
+    }
 
 
 def test_dynamicselect_parser_normalizes_modes():
@@ -919,10 +944,39 @@ def test_textinput_parser_normalizes_fields_rows_and_empty_cells():
 
     assert result.normalized_config == {
         "fields": ["CustomerID", "LastName"],
-        "rows": [["49", "Edison"], ["456", ""]],
+        "rows": [["49", "Edison"], ["456", None]],
         "num_rows": 2,
     }
     assert result.warnings == []
+
+
+def test_xml_parser_preserves_textinput_cell_whitespace(tmp_path):
+    workflow = tmp_path / "workflow.yxmd"
+    workflow.write_text(
+        """<?xml version="1.0"?>
+<AlteryxDocument>
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput" />
+      <Properties>
+        <Configuration>
+          <NumRows value="1" />
+          <Fields><Field name="Line" /></Fields>
+          <Data><r><c><![CDATA[  padded text  ]]></c></r></Data>
+        </Configuration>
+      </Properties>
+    </Node>
+  </Nodes>
+  <Connections />
+</AlteryxDocument>
+""",
+        encoding="utf-8",
+    )
+
+    graph = XmlWorkflowParser().parse(workflow)
+    textinput = next(node for node in graph.nodes if node.node_id == "1")
+
+    assert textinput.config["normalized"]["rows"] == [["  padded text  "]]
 
 
 def test_sort_parser_normalizes_sort_fields():
@@ -988,11 +1042,48 @@ def test_union_parser_normalizes_union_settings():
             "ByName_ErrorMode": {"text": "Warning"},
             "ByName_OutputMode": {"text": "All"},
             "SetOutputOrder": {"attributes": {"value": "False"}},
+            "OutputOrder": {"Connection": [{"text": "#1"}, {"text": "#2"}]},
         }
     )
 
     assert result.normalized_config["mode"] == "ByName"
     assert result.normalized_config["by_name_error_mode"] == "Warning"
+    assert result.normalized_config["output_order"] == ["#1", "#2"]
+
+
+def test_sample_parser_normalizes_legacy_value_config():
+    result = parse_sample_config(
+        {
+            "Value": [
+                {"attributes": {"name": "Number"}, "text": "True"},
+                {"attributes": {"name": "NNumber"}, "text": "1"},
+                {"attributes": {"name": "Percent"}, "text": "False"},
+                {"attributes": {"name": "NPercent"}, "text": "10"},
+            ]
+        }
+    )
+
+    assert result.normalized_config == {"mode": "First", "n": 1, "group_fields": []}
+
+
+def test_summarize_parser_decodes_concat_separator_and_empty_bounds():
+    result = parse_summarize_config(
+        {
+            "SummarizeFields": {
+                "SummarizeField": {
+                    "attributes": {"field": "Field1", "action": "Concat", "rename": "Concat_Field1"},
+                    "Concat_Start": {},
+                    "Separator": {"text": "\\r\\n"},
+                    "Concat_End": {},
+                }
+            }
+        }
+    )
+
+    field = result.normalized_config["summarize_fields"][0]
+    assert field["concat_start"] == ""
+    assert field["separator"] == "\r\n"
+    assert field["concat_end"] == ""
 
 
 def test_findreplace_parser_normalizes_replace_and_append_settings():

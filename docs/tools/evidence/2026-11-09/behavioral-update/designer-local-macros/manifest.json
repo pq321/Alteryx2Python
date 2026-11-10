@@ -1,0 +1,54 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\parity\\local_macros.yxmd",
+  "source_sha256": "e7e64d84d75c3744a4d6bec4e4b26242bfae521b85750cfa1adbecbf79a445ce",
+  "instrumented_sha256": "f03525542a4cf7ded4d3fe079ad38ea255a348516b171f8883a32caf06236772",
+  "engine_mode": "original",
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "4"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Output9",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Output",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "CountRecords"
+    },
+    {
+      "node_id": "3",
+      "tool_type": "SelectRecords"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input8"
+    },
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "3",
+      "input": "Input"
+    }
+  ]
+}

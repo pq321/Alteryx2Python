@@ -7,6 +7,9 @@ Implemented semantics in the current slice:
 - `Left` and `Right` input anchors
 - `Join`, `Left`, and `Right` output anchors
 - inner join using configured Left and Right key fields
+- original-engine key-sorted joined groups, observed in native records and YXDB SortInfo
+- overlapping non-key columns are independently prefixed before pandas merging
+- unmatched row selection uses row positions rather than user DataFrame indexes
 - unjoined left and right rows emitted on their respective anchors
 - observed SelectConfiguration output projection
 - default output names strip configured `Left_` / `Right_` prefixes

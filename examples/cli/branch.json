@@ -1,0 +1,77 @@
+{
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput",
+      "configuration_xml": "<Fields><Field name=\"x\"/></Fields><Data><r><c>1</c></r><r><c>3</c></r></Data>",
+      "plugin_id": null,
+      "engine_dll": null,
+      "engine_entry": null,
+      "position": [
+        100,
+        100
+      ],
+      "macro_path": null,
+      "input_anchors": null,
+      "output_anchors": null,
+      "template_xml": null,
+      "source_dir": null
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Filter",
+      "configuration_xml": "<Expression>[x] &gt; 1</Expression><Mode>Custom</Mode>",
+      "plugin_id": null,
+      "engine_dll": null,
+      "engine_entry": null,
+      "position": [
+        100,
+        100
+      ],
+      "macro_path": null,
+      "input_anchors": null,
+      "output_anchors": null,
+      "template_xml": null,
+      "source_dir": null
+    },
+    {
+      "node_id": "3",
+      "tool_type": "Formula",
+      "configuration_xml": "<FormulaFields><FormulaField field=\"twice\" type=\"Int64\" expression=\"[x] * 2\"/></FormulaFields>",
+      "plugin_id": null,
+      "engine_dll": null,
+      "engine_entry": null,
+      "position": [
+        100,
+        100
+      ],
+      "macro_path": null,
+      "input_anchors": null,
+      "output_anchors": null,
+      "template_xml": null,
+      "source_dir": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "target": "2",
+      "source_anchor": "Output",
+      "target_anchor": "Input",
+      "control": false,
+      "template_xml": null
+    },
+    {
+      "source": "2",
+      "target": "3",
+      "source_anchor": "True",
+      "target_anchor": "Input",
+      "control": false,
+      "template_xml": null
+    }
+  ],
+  "kind": "yxmd",
+  "source_xml": null,
+  "properties_xml": null,
+  "base_dir": null
+}

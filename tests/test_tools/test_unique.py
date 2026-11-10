@@ -22,6 +22,6 @@ def test_unique_splits_first_rows_and_duplicates(workflow_context):
         {"FirstName": "Grace", "LastName": "Hopper"},
         {"FirstName": "Ada", "LastName": "Byron"},
     ]
-    assert outputs["Duplicate"].to_dict("records") == [
+    assert outputs["Duplicates"].to_dict("records") == [
         {"FirstName": "Ada", "LastName": "Lovelace"}
     ]

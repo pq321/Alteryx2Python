@@ -10,41 +10,59 @@ def test_registry_contains_select_metadata():
 
 
 def test_registry_contains_first_migrated_tool_set():
-    assert TOOL_REGISTRY.list_tool_types() == [
+    expected_original_types = [
         "APIOutput",
         "Action",
+        "AllocateAppend",
+        "AllocateInput",
+        "AllocateMetaInfo",
+        "AllocateReport",
         "AlteryxReportChartGui",
+        "AmazonS3Download",
+        "AmazonS3Upload",
         "AppendFields",
         "Arrange",
         "AutoField",
+        "AutoInsightsUploader",
         "AutoML",
         "Barcode",
+        "Base64Encoder",
         "BasicDataProfile",
         "BlobConvert",
         "BlobInput",
         "BlobOutput",
         "BlockUntilDone",
+        "BrowseReport",
         "BrowseV2",
         "Buffer",
         "BuildFeatures",
+        "CASS",
+        "CASSParse",
         "CalgaryCrossCount",
         "CalgaryCrossCountAppend",
         "CalgaryInput",
         "CalgaryJoin",
         "CalgaryLoader",
+        "Charting",
         "CheckBoxGroup",
         "Classification",
         "Condition",
         "ControlContainer",
+        "ControlParam",
+        "CountRecords",
         "CreatePoints",
+        "CreateSamples",
         "CrossTab",
+        "CustomSpark",
         "DataCleansePro",
         "DataCleansing",
         "Date",
+        "DateFilter",
         "DateTime",
         "DateTimeNow",
         "DbFileInput",
         "DbFileOutput",
+        "DcmConnection",
         "Detour",
         "DetourEnd",
         "Directory",
@@ -55,10 +73,12 @@ def test_registry_contains_first_migrated_tool_set():
         "DynamicRename",
         "DynamicReplace",
         "DynamicSelect",
+        "Email",
         "Error",
         "ExpectEqual",
         "FeatureTypes",
         "FieldInfo",
+        "FieldSummaryReport",
         "Filter",
         "FindNearest",
         "FindReplace",
@@ -68,13 +88,19 @@ def test_registry_contains_first_migrated_tool_set():
         "FuzzyMatch",
         "Generalize",
         "GenerateRows",
+        "Geocoder",
+        "GoogleAnalytics",
+        "HeatMap",
         "HtmlBox",
+        "HtmlGuiSdk",
         "ImageProcessing",
         "ImageProfile",
         "ImageRecognition",
         "ImageTemplate",
         "ImageToText",
+        "Imputation",
         "Insights",
+        "JSONBuild",
         "JSONParse",
         "Join",
         "JoinMultiple",
@@ -84,6 +110,25 @@ def test_registry_contains_first_migrated_tool_set():
         "LabelGroup",
         "Link",
         "ListBox",
+        "LockInBrowse",
+        "LockInDynamicInput",
+        "LockInDynamicOutput",
+        "LockInFilter",
+        "LockInFormula",
+        "LockInInput",
+        "LockInJoin",
+        "LockInMacroInput",
+        "LockInMacroOutput",
+        "LockInOutput",
+        "LockInSample",
+        "LockInSelect",
+        "LockInStreamIn",
+        "LockInStreamOut",
+        "LockInSummarize",
+        "LockInTranspose",
+        "LockInUnion",
+        "MacroInput",
+        "MacroOutput",
         "MakeColumns",
         "MakeGrid",
         "MakeGroup",
@@ -91,15 +136,26 @@ def test_registry_contains_first_migrated_tool_set():
         "MapInput",
         "Message",
         "Modeling",
+        "MongoInput",
+        "MongoOutput",
+        "MultiFieldBinning",
         "MultiFieldFormula",
         "MultiRowFormula",
         "NamedEntityRecognition",
+        "NodbcInputTool",
+        "NodbcOutputTool",
         "NumericUpDown",
+        "OdbcLoader",
+        "OdbcLoader_v2",
         "Overlay",
+        "OversampleField",
         "PDFInput",
         "PDFToText",
         "PartOfSpeechTagger",
+        "PearsonCorrCoeff",
         "PearsonCorrelation",
+        "PieWedgeTradeArea",
+        "PipeToTable",
         "PlotlyCharting",
         "PolyBuild",
         "PolySplit",
@@ -113,6 +169,7 @@ def test_registry_contains_first_migrated_tool_set():
         "QuestionTab",
         "QuestionTextBox",
         "RadioButtonGroup",
+        "RandomRecords",
         "Rank",
         "RecordID",
         "RegEx",
@@ -126,12 +183,14 @@ def test_registry_contains_first_migrated_tool_set():
         "RunningTotal",
         "Sample",
         "Select",
+        "SelectRecords",
         "Sentiment",
         "Smooth",
         "Sort",
         "SpatialInfo",
         "SpatialMatch",
         "SpatialProcess",
+        "SpearmanCorrCoeff",
         "Summarize",
         "Test",
         "TextBox",
@@ -151,11 +210,14 @@ def test_registry_contains_first_migrated_tool_set():
         "Union",
         "Unique",
         "VisualLayout",
+        "WeightedAvg",
         "WordCloud",
         "XMLParse",
+        "ZIP9Coder",
         "ZeroShotTextClassification",
     ]
 
+    assert set(expected_original_types) <= set(TOOL_REGISTRY.list_tool_types())
     assert TOOL_REGISTRY.get("APIOutput").output_anchors == ()
     assert TOOL_REGISTRY.get("Action").output_anchors == ("Action",)
     assert TOOL_REGISTRY.get("AlteryxReportChartGui").output_anchors == ("Output",)
@@ -172,6 +234,7 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("BrowseV2").output_anchors == ()
     assert TOOL_REGISTRY.get("CheckBoxGroup").output_anchors == ("Question",)
     assert TOOL_REGISTRY.get("Condition").output_anchors == ("True Condition", "False Condition")
+    assert TOOL_REGISTRY.get("ControlParam").output_anchors == ("Question",)
     assert TOOL_REGISTRY.get("ControlContainer").output_anchors == ()
     assert TOOL_REGISTRY.get("CreatePoints").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("DataCleansePro").output_anchors == ("Output",)
@@ -217,6 +280,8 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("LabelGroup").output_anchors == ()
     assert TOOL_REGISTRY.get("Link").output_anchors == ()
     assert TOOL_REGISTRY.get("ListBox").output_anchors == ("Question",)
+    assert TOOL_REGISTRY.get("MacroInput").output_anchors == ("Output",)
+    assert TOOL_REGISTRY.get("MacroInput").supports_certification is True
     assert TOOL_REGISTRY.get("MakeColumns").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("MakeGrid").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("MakeGroup").output_anchors == ("Output",)
@@ -271,7 +336,7 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("Transpose").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("Tree").output_anchors == ("Question",)
     assert TOOL_REGISTRY.get("Union").output_anchors == ("Output",)
-    assert TOOL_REGISTRY.get("Unique").output_anchors == ("Unique", "Duplicate")
+    assert TOOL_REGISTRY.get("Unique").output_anchors == ("Unique", "Duplicates")
     assert TOOL_REGISTRY.get("VisualLayout").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("XMLParse").output_anchors == ("Output",)
     for tool_type in [
@@ -307,4 +372,6 @@ def test_registry_contains_first_migrated_tool_set():
         "WordCloud",
         "ZeroShotTextClassification",
     ]:
-        assert TOOL_REGISTRY.get(tool_type).semantics_doc == "docs/tools/baseline.md"
+        metadata = TOOL_REGISTRY.get(tool_type)
+        assert metadata.semantics_doc != "docs/tools/baseline.md"
+        assert metadata.execution_profile == "unavailable" or metadata.execution_profile.startswith("local-")

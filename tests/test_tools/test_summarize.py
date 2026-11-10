@@ -25,6 +25,22 @@ def test_summarize_groups_and_aggregates(workflow_context):
     ]
 
 
+def test_summarize_concat_skips_blank_values(workflow_context):
+    frame = pd.DataFrame({"Line": ["before", "", None, "after"]})
+
+    output = summarize_tool(
+        {"Input": frame},
+        {
+            "summarize_fields": [
+                {"field": "Line", "action": "Concat", "rename": "Body", "separator": "\r\n"},
+            ]
+        },
+        workflow_context,
+    )["Output"]
+
+    assert output.to_dict("records") == [{"Body": "before\r\nafter"}]
+
+
 def test_summarize_defers_spatial_actions(workflow_context):
     with pytest.raises(NotImplementedError, match="deferred"):
         summarize_tool(

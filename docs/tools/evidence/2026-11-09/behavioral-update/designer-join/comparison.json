@@ -1,0 +1,100 @@
+{
+  "profile": "behavioral",
+  "status": "match",
+  "outcomes_match": true,
+  "native_status": "success",
+  "python_status": "success",
+  "issues": [],
+  "incomplete_evidence": [],
+  "comparisons": [
+    {
+      "node_id": "1",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "2",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "3",
+      "direction": "inputs",
+      "anchor": "Left",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "3",
+      "direction": "inputs",
+      "anchor": "Right",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 4,
+      "actual_row_count": 4
+    },
+    {
+      "node_id": "3",
+      "direction": "outputs",
+      "anchor": "Join",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 6,
+      "actual_row_count": 6
+    },
+    {
+      "node_id": "3",
+      "direction": "outputs",
+      "anchor": "Left",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 0,
+      "actual_row_count": 0
+    },
+    {
+      "node_id": "3",
+      "direction": "outputs",
+      "anchor": "Right",
+      "status": "match",
+      "values_match": true,
+      "schema_verified": false,
+      "differences": [],
+      "value_differences": [],
+      "expected_row_count": 0,
+      "actual_row_count": 0
+    }
+  ],
+  "exception_text_compared": false,
+  "physical_schema_required": false,
+  "missing_native_outputs": [],
+  "unreadable_native_outputs": [],
+  "universal_equivalence_proven": false
+}

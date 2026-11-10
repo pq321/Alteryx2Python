@@ -1,0 +1,121 @@
+{
+  "source_sha256": "4aa7c6f5df8c21d9ad6bfdf25bf440c31f8c93ae58b020cba2732ace4d87116e",
+  "producer": "python",
+  "runtime_sha256": "2f6f204b2d6f00a6906efa8e8cf843cc5ab0ec83ed401d9afda68fe16561ec3c",
+  "status": "success",
+  "failure": null,
+  "nodes": {
+    "1": {
+      "tool_type": "TextInput",
+      "status": "success",
+      "inputs": {},
+      "outputs": {
+        "Output": {
+          "columns": [
+            "x"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "int64"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "int",
+                "value": "2"
+              }
+            ],
+            [
+              {
+                "kind": "int",
+                "value": "5"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    },
+    "2": {
+      "tool_type": "Macro_Factor",
+      "status": "success",
+      "inputs": {
+        "Input": {
+          "columns": [
+            "x"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "int64"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "int",
+                "value": "2"
+              }
+            ],
+            [
+              {
+                "kind": "int",
+                "value": "5"
+              }
+            ]
+          ]
+        }
+      },
+      "outputs": {
+        "Output": {
+          "columns": [
+            "x",
+            "y"
+          ],
+          "schema": null,
+          "python_dtypes": [
+            "int64",
+            "int64"
+          ],
+          "rows": [
+            [
+              {
+                "kind": "int",
+                "value": "2"
+              },
+              {
+                "kind": "int",
+                "value": "6"
+              }
+            ],
+            [
+              {
+                "kind": "int",
+                "value": "5"
+              },
+              {
+                "kind": "int",
+                "value": "15"
+              }
+            ]
+          ]
+        }
+      },
+      "baseline": false,
+      "warnings": [],
+      "errors": []
+    }
+  },
+  "warnings": [],
+  "errors": [],
+  "environment": {
+    "python": "3.12.11 (main, Jun 12 2025, 12:44:17) [MSC v.1943 64 bit (AMD64)]",
+    "pandas": "3.0.3",
+    "platform": "Windows-11-10.0.26300-SP0",
+    "locale": "LC_COLLATE=C;LC_CTYPE=English_United States.936;LC_MONETARY=C;LC_NUMERIC=C;LC_TIME=C",
+    "timezone": [
+      "China Standard Time",
+      "China Daylight Time"
+    ]
+  }
+}

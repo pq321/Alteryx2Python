@@ -1,0 +1,104 @@
+{
+  "status": "blocked",
+  "universal_equivalence_proven": false,
+  "native_status": "blocked",
+  "python_status": "success",
+  "issues": [
+    "errors_mismatch"
+  ],
+  "incomplete_evidence": [
+    "node_1_status_unverified",
+    "node_1_errors_unverified",
+    "node_1_warnings_unverified",
+    "node_2_status_unverified",
+    "node_2_errors_unverified",
+    "node_2_warnings_unverified",
+    "node_3_status_unverified",
+    "node_3_errors_unverified",
+    "node_3_warnings_unverified"
+  ],
+  "comparisons": [
+    {
+      "node_id": "1",
+      "direction": "outputs",
+      "anchor": "Output",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "2",
+      "direction": "inputs",
+      "anchor": "Input",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "2",
+      "direction": "outputs",
+      "anchor": "False",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "2",
+      "direction": "outputs",
+      "anchor": "True",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "3",
+      "direction": "inputs",
+      "anchor": "Input",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "3",
+      "direction": "outputs",
+      "anchor": "Duplicates",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    },
+    {
+      "node_id": "3",
+      "direction": "outputs",
+      "anchor": "Unique",
+      "status": "incomplete",
+      "reason": "missing_anchor"
+    }
+  ],
+  "missing_native_outputs": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "4"
+    },
+    {
+      "node_id": "2",
+      "anchor": "False",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "2",
+      "anchor": "True",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Duplicates",
+      "file": "probe-0003.yxdb",
+      "probe_id": "7"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Unique",
+      "file": "probe-0004.yxdb",
+      "probe_id": "8"
+    }
+  ],
+  "unreadable_native_outputs": []
+}

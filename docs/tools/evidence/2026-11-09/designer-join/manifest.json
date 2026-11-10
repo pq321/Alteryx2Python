@@ -1,0 +1,66 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\parity\\join_multiplicity.yxmd",
+  "source_sha256": "cf5dc598a02d8a0684dd20a4b20bef457757332af7c4ec5af73f70b947fdbb8e",
+  "instrumented_sha256": "e74b109cf017adb79a58e6355b4be311927bc7b80cf98c44c737e5f4f4229092",
+  "engine_mode": "original",
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "4"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Output",
+      "file": "probe-0001.yxdb",
+      "probe_id": "5"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Join",
+      "file": "probe-0002.yxdb",
+      "probe_id": "6"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Left",
+      "file": "probe-0003.yxdb",
+      "probe_id": "7"
+    },
+    {
+      "node_id": "3",
+      "anchor": "Right",
+      "file": "probe-0004.yxdb",
+      "probe_id": "8"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "3",
+      "tool_type": "Join"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "3",
+      "input": "Left"
+    },
+    {
+      "source": "2",
+      "output": "Output",
+      "target": "3",
+      "input": "Right"
+    }
+  ]
+}

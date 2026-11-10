@@ -1,0 +1,24 @@
+										511364 item (settable, string) Row 1 Column 2 Value: Designer x64
+										511365 item (settable, string) Row 1 Column 3 Value: Started running E:\Automation\Alteryx2Python\reports\parity\designer-empty\instrumented.yxmd at 11/09/2026 16:35:04
+										511368 item (settable, string) Row 2 Column 2 Value: Designer x64
+										511369 item (settable, string) Row 2 Column 3 Value: The Designer x64 reported: Allocating requested memory would be more than available physical memory. Reverting to 1157.8 MB of memory.
+										511372 item (settable, string) Row 3 Column 2 Value: Designer x64
+										511373 item (settable, string) Row 3 Column 3 Value: The Designer x64 reported: Running at a Low Priority.
+										511376 item (settable, string) Row 4 Column 2 Value: Text Input (1)
+										511377 item (settable, string) Row 4 Column 3 Value: 4 records were output
+										511380 item (settable, string) Row 5 Column 2 Value: Filter (2)
+										511381 item (settable, string) Row 5 Column 3 Value: 0 records were True and 4 were False
+										511384 item (settable, string) Row 6 Column 2 Value: Unique (3)
+										511385 item (settable, string) Row 6 Column 3 Value: 0 unique records and 0 duplicates were found
+										511388 item (settable, string) Row 7 Column 2 Value: Output Data (8)
+										511389 item (settable, string) Row 7 Column 3 Value: 0 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0004.yxdb"
+										511392 item (settable, string) Row 8 Column 2 Value: Output Data (7)
+										511393 item (settable, string) Row 8 Column 3 Value: 0 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0003.yxdb"
+										511396 item (settable, string) Row 9 Column 2 Value: Output Data (6)
+										511397 item (settable, string) Row 9 Column 3 Value: 0 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0002.yxdb"
+										511400 item (settable, string) Row 10 Column 2 Value: Output Data (5)
+										511401 item (settable, string) Row 10 Column 3 Value: 4 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0001.yxdb"
+										511404 item (settable, string) Row 11 Column 2 Value: Output Data (4)
+										511405 item (settable, string) Row 11 Column 3 Value: 4 records were written to "E:\Automation\Alteryx2Python\reports\parity\designer-empty\probe-0000.yxdb"
+										511408 item (settable, string) Row 12 Column 2 Value: Designer x64
+										511409 item (settable, string) Row 12 Column 3 Value: Finished running instrumented.yxmd in 0.6 seconds

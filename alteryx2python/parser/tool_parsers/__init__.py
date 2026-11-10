@@ -1,6 +1,33 @@
 """Tool-specific config parsers."""
 
 from alteryx2python.parser.tool_parsers.action_parser import parse_action_config
+from alteryx2python.parser.tool_parsers.calgary_parser import (
+    parse_calgarycrosscount_config,
+    parse_calgarycrosscountappend_config,
+    parse_calgaryinput_config,
+    parse_calgaryjoin_config,
+    parse_calgaryloader_config,
+)
+from alteryx2python.parser.tool_parsers.canvas_parser import (
+    parse_blockuntildone_config,
+    parse_controlcontainer_config,
+    parse_htmlbox_config,
+    parse_macrooutput_config,
+    parse_message_config,
+    parse_textbox_config,
+    parse_toolcontainer_config,
+)
+from alteryx2python.parser.tool_parsers.catalog_parser import (
+    make_catalog_parser,
+    parse_catalog_config,
+)
+from alteryx2python.parser.tool_parsers.cass_parser import (
+    parse_cass_config,
+    parse_cassparse_config,
+    parse_geocoder_config,
+    parse_zip9coder_config,
+)
+from alteryx2python.parser.tool_parsers.ml_tool_parser import make_ml_parser
 from alteryx2python.parser.tool_parsers.apioutput_parser import parse_apioutput_config
 from alteryx2python.parser.tool_parsers.arrange_parser import parse_arrange_config
 from alteryx2python.parser.tool_parsers.basicdataprofile_parser import parse_basicdataprofile_config
@@ -54,6 +81,7 @@ from alteryx2python.parser.tool_parsers.generalize_parser import parse_generaliz
 from alteryx2python.parser.tool_parsers.makecolumns_parser import parse_makecolumns_config
 from alteryx2python.parser.tool_parsers.makegrid_parser import parse_makegrid_config
 from alteryx2python.parser.tool_parsers.makegroup_parser import parse_makegroup_config
+from alteryx2python.parser.tool_parsers.macroinput_parser import parse_macroinput_config
 from alteryx2python.parser.tool_parsers.mapinput_parser import parse_mapinput_config
 from alteryx2python.parser.tool_parsers.multifieldformula_parser import parse_multifieldformula_config
 from alteryx2python.parser.tool_parsers.multirowformula_parser import parse_multirowformula_config
@@ -101,6 +129,25 @@ from alteryx2python.parser.tool_parsers.xmlparse_parser import parse_xmlparse_co
 
 __all__ = [
     "parse_action_config",
+    "make_catalog_parser",
+    "make_ml_parser",
+    "parse_catalog_config",
+    "parse_calgarycrosscount_config",
+    "parse_calgarycrosscountappend_config",
+    "parse_calgaryinput_config",
+    "parse_calgaryjoin_config",
+    "parse_calgaryloader_config",
+    "parse_cass_config",
+    "parse_cassparse_config",
+    "parse_geocoder_config",
+    "parse_zip9coder_config",
+    "parse_blockuntildone_config",
+    "parse_controlcontainer_config",
+    "parse_htmlbox_config",
+    "parse_macrooutput_config",
+    "parse_message_config",
+    "parse_textbox_config",
+    "parse_toolcontainer_config",
     "parse_apioutput_config",
     "parse_arrange_config",
     "parse_basicdataprofile_config",
@@ -150,6 +197,7 @@ __all__ = [
     "parse_makecolumns_config",
     "parse_makegrid_config",
     "parse_makegroup_config",
+    "parse_macroinput_config",
     "parse_mapinput_config",
     "parse_multifieldformula_config",
     "parse_multirowformula_config",

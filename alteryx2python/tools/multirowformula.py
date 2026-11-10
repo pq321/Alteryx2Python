@@ -113,8 +113,14 @@ def multirowformula_tool(
             positions_by_group[_group_key(row, group_by_fields)],
             config,
         )
+        try:
+            computed = evaluate_expression(parsed_expression, row_context)
+        except TypeError:
+            # Alteryx null-propagation semantics: arithmetic against a null
+            # row reference (first row, OtherRows=Empty) yields null.
+            computed = None
         row[target_field] = _coerce_value(
-            evaluate_expression(parsed_expression, row_context),
+            computed,
             str(config.get("create_field_type", "")),
         )
 

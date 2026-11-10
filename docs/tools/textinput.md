@@ -8,7 +8,8 @@ Implemented semantics in the current slice:
 - one output anchor named `Output`
 - embedded field names from `Fields/Field/@name`
 - embedded row values from `Data/r/c`
-- empty cells are preserved as empty strings
+- empty XML cells (`<c/>`) are preserved as null, as observed in Designer 2025.1 YXDB output
+- explicit empty strings supplied to the runtime remain distinct from null
 - values are emitted as `object`/string data without numeric or date inference
 - execution trace with output schema
 

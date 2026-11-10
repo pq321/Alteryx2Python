@@ -1,0 +1,10 @@
+{
+  "tests_passed": 605,
+  "warnings": 4,
+  "coverage_percent": 82.44434348023626,
+  "required_percent": 80,
+  "runtime_sha256": "821d97edaaaee82bc1aa71469f16358282bde9368c1a72f074d82e1e2393ae4e",
+  "pytest_log_sha256": "e7bfdac05d17da43279e50be7cd36b7c8ff05183043287b936b6f26d73f5b965",
+  "lock_check": "passed",
+  "git_diff_check": "passed"
+}

@@ -10,7 +10,7 @@ def parse_textinput_config(raw_config: dict[str, Any]) -> ToolParserResult:
     row_nodes = as_list(child(raw_config, "Data").get("r", []))
 
     fields = [str(attributes(field).get("name", "")) for field in field_nodes]
-    rows: list[list[str]] = []
+    rows: list[list[str | None]] = []
     warnings: list[str] = []
 
     for row in row_nodes:
@@ -42,7 +42,9 @@ def _int_attribute(node: Any, name: str) -> int | None:
     return int(raw_value)
 
 
-def _cell_text(node: Any) -> str:
+def _cell_text(node: Any) -> str | None:
     if isinstance(node, dict) and not node:
-        return ""
+        return None
+    if isinstance(node, dict) and "text" not in node:
+        return None
     return text(node, "")

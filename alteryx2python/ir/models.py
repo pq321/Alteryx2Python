@@ -57,3 +57,5 @@ class WorkflowIR:
     warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     classification: str = "CLASS_D_PARTIAL_MIGRATION_ONLY"
+    source_xml: str = ""
+    metadata: dict[str, Any] = field(default_factory=dict)

@@ -1,0 +1,41 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\cli\\iterative-macro.yxmd",
+  "source_sha256": "ee223914e018ff2d4891e3594af6ebbc153a473940c3e1c52df53dafb8678ab9",
+  "instrumented_sha256": "acdf49a91153b46794b259498d7e98672e96a6b9f3db5e62b8b6e0225ed987cd",
+  "engine_mode": "original",
+  "macro_dependencies_sha256": {
+    "E:\\Automation\\Alteryx2Python\\examples\\cli\\Countdown.yxmc": "adb360ef1818a0d5e0fa0a05467f8fc1f760b8333f5c07ae5c33ef146e12cd71"
+  },
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "3"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Done",
+      "file": "probe-0001.yxdb",
+      "probe_id": "4"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Macro_Countdown"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input"
+    }
+  ]
+}

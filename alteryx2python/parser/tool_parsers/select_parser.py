@@ -30,6 +30,16 @@ def parse_select_config(raw_config: dict[str, Any]) -> ToolParserResult:
         warnings.append("Select config contains no SelectField entries")
 
     return ToolParserResult(
-        normalized_config={"select_fields": parsed_fields},
+        normalized_config={
+            "select_fields": parsed_fields,
+            "order_changed": _bool_attribute(child(raw_config, "OrderChanged"), "value"),
+        },
         warnings=warnings,
     )
+
+
+def _bool_attribute(node: Any, name: str) -> bool | None:
+    raw_value = attributes(node).get(name)
+    if raw_value in (None, ""):
+        return None
+    return str(raw_value).lower() == "true"

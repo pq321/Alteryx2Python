@@ -56,6 +56,7 @@ from alteryx2python.tools.fuzzymatch import FuzzyMatchTool, fuzzymatch_tool
 from alteryx2python.tools.generalize import GeneralizeTool, generalize_tool
 from alteryx2python.tools.interface import (
     CheckBoxGroupTool,
+    ControlParamTool,
     DateTool,
     DropDownTool,
     FolderBrowseTool,
@@ -71,6 +72,7 @@ from alteryx2python.tools.interface import (
     RadioButtonGroupTool,
     TreeTool,
     checkboxgroup_tool,
+    controlparam_tool,
     date_tool,
     dropdown_tool,
     folderbrowse_tool,
@@ -94,6 +96,7 @@ from alteryx2python.tools.generaterows import GenerateRowsTool, generaterows_too
 from alteryx2python.tools.makecolumns import MakeColumnsTool, makecolumns_tool
 from alteryx2python.tools.makegrid import MakeGridTool, makegrid_tool
 from alteryx2python.tools.makegroup import MakeGroupTool, makegroup_tool
+from alteryx2python.tools.macroinput import MacroInputTool, macroinput_tool
 from alteryx2python.tools.mapinput import MapInputTool, mapinput_tool
 from alteryx2python.tools.multifieldformula import MultiFieldFormulaTool, multifieldformula_tool
 from alteryx2python.tools.multirowformula import MultiRowFormulaTool, multirowformula_tool
@@ -175,6 +178,7 @@ __all__ = [
     "BrowseV2Tool",
     "CheckBoxGroupTool",
     "ConditionTool",
+    "ControlParamTool",
     "ControlContainerTool",
     "CrossTabTool",
     "CreatePointsTool",
@@ -215,6 +219,7 @@ __all__ = [
     "JSONParseTool",
     "JupyterCodeTool",
     "GenerateRowsTool",
+    "MacroInputTool",
     "MakeColumnsTool",
     "MakeGridTool",
     "MakeGroupTool",
@@ -292,6 +297,7 @@ __all__ = [
     "browsev2_tool",
     "checkboxgroup_tool",
     "condition_tool",
+    "controlparam_tool",
     "controlcontainer_tool",
     "crosstab_tool",
     "createpoints_tool",
@@ -328,6 +334,7 @@ __all__ = [
     "link_tool",
     "listbox_tool",
     "join_tool",
+    "macroinput_tool",
     "joinmultiple_tool",
     "jsonparse_tool",
     "jupytercode_tool",

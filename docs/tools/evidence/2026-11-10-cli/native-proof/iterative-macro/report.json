@@ -1,0 +1,182 @@
+{
+  "status": "blocked",
+  "proven_scope": "none",
+  "native": {
+    "producer": "alteryx",
+    "source_sha256": "ee223914e018ff2d4891e3594af6ebbc153a473940c3e1c52df53dafb8678ab9",
+    "status": "blocked",
+    "run": {
+      "status": "blocked",
+      "returncode": 2,
+      "reason": "engine_license_unavailable",
+      "command": [
+        "D:\\Alteryx\\bin\\AlteryxEngineCmd.exe",
+        "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\native-proof\\iterative-macro\\node-evidence\\instrumented.yxmd"
+      ],
+      "engine_sha256": "f7d5349d336b383defb185e43f7348530f2e9fb44ea3e16f1deee0ca8da1d39b",
+      "console_sha256": "1f12725909d0eaeeea742b79d8b5aa791eee4ef2c330b55a53f34f30a5435fa2",
+      "output_sha256": {}
+    },
+    "nodes": {
+      "1": {
+        "tool_type": "TextInput",
+        "outputs": {},
+        "inputs": {},
+        "status": "unknown",
+        "errors": null,
+        "warnings": null
+      },
+      "2": {
+        "tool_type": "Macro_Countdown",
+        "outputs": {},
+        "inputs": {},
+        "status": "unknown",
+        "errors": null,
+        "warnings": null
+      }
+    },
+    "missing": [
+      {
+        "node_id": "1",
+        "anchor": "Output",
+        "file": "probe-0000.yxdb",
+        "probe_id": "3"
+      },
+      {
+        "node_id": "2",
+        "anchor": "Done",
+        "file": "probe-0001.yxdb",
+        "probe_id": "4"
+      }
+    ],
+    "unreadable": [],
+    "errors": [
+      "Error - Alteryx Engine: The Feature \"API or FlowChartMode\" is not licensed."
+    ],
+    "warnings": [],
+    "raw_designer_messages": null
+  },
+  "python": {
+    "source_sha256": "ee223914e018ff2d4891e3594af6ebbc153a473940c3e1c52df53dafb8678ab9",
+    "producer": "python",
+    "runtime_sha256": "2f6f204b2d6f00a6906efa8e8cf843cc5ab0ec83ed401d9afda68fe16561ec3c",
+    "status": "success",
+    "failure": null,
+    "nodes": {
+      "1": {
+        "tool_type": "TextInput",
+        "status": "success",
+        "inputs": {},
+        "outputs": {
+          "Output": {
+            "columns": [
+              "x"
+            ],
+            "schema": null,
+            "python_dtypes": [
+              "int64"
+            ],
+            "rows": [
+              [
+                {
+                  "kind": "int",
+                  "value": "2"
+                }
+              ],
+              [
+                {
+                  "kind": "int",
+                  "value": "3"
+                }
+              ]
+            ]
+          }
+        },
+        "baseline": false,
+        "warnings": [],
+        "errors": []
+      },
+      "2": {
+        "tool_type": "Macro_Countdown",
+        "status": "success",
+        "inputs": {
+          "Input": {
+            "columns": [
+              "x"
+            ],
+            "schema": null,
+            "python_dtypes": [
+              "int64"
+            ],
+            "rows": [
+              [
+                {
+                  "kind": "int",
+                  "value": "2"
+                }
+              ],
+              [
+                {
+                  "kind": "int",
+                  "value": "3"
+                }
+              ]
+            ]
+          }
+        },
+        "outputs": {
+          "Done": {
+            "columns": [
+              "x"
+            ],
+            "schema": null,
+            "python_dtypes": [
+              "int64"
+            ],
+            "rows": [
+              [
+                {
+                  "kind": "int",
+                  "value": "0"
+                }
+              ],
+              [
+                {
+                  "kind": "int",
+                  "value": "0"
+                }
+              ]
+            ]
+          }
+        },
+        "baseline": false,
+        "warnings": [],
+        "errors": []
+      }
+    },
+    "warnings": [],
+    "errors": [],
+    "environment": {
+      "python": "3.12.11 (main, Jun 12 2025, 12:44:17) [MSC v.1943 64 bit (AMD64)]",
+      "pandas": "3.0.3",
+      "platform": "Windows-11-10.0.26300-SP0",
+      "locale": "LC_COLLATE=C;LC_CTYPE=English_United States.936;LC_MONETARY=C;LC_NUMERIC=C;LC_TIME=C",
+      "timezone": [
+        "China Standard Time",
+        "China Daylight Time"
+      ]
+    }
+  },
+  "native_run": {
+    "status": "blocked",
+    "returncode": 2,
+    "reason": "engine_license_unavailable",
+    "command": [
+      "D:\\Alteryx\\bin\\AlteryxEngineCmd.exe",
+      "E:\\Automation\\Alteryx2Python\\reports\\cli-acceptance\\2026-11-10\\native-proof\\iterative-macro\\node-evidence\\instrumented.yxmd"
+    ],
+    "engine_sha256": "f7d5349d336b383defb185e43f7348530f2e9fb44ea3e16f1deee0ca8da1d39b",
+    "console_sha256": "1f12725909d0eaeeea742b79d8b5aa791eee4ef2c330b55a53f34f30a5435fa2",
+    "output_sha256": {}
+  }
+}

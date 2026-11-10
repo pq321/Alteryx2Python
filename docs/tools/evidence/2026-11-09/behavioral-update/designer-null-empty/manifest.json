@@ -1,0 +1,38 @@
+{
+  "source": "E:\\Automation\\Alteryx2Python\\examples\\parity\\null_vs_empty_formula.yxmd",
+  "source_sha256": "d3085962ebaa39dae3b6d4305bfe9c14d88337fc1f113dddd0f7fce3d8ea1fd0",
+  "instrumented_sha256": "8a86636a7d821eac0e19adb40e98aa743b43e88bdfe52c16dd34d84cbf425272",
+  "engine_mode": "original",
+  "probes": [
+    {
+      "node_id": "1",
+      "anchor": "Output",
+      "file": "probe-0000.yxdb",
+      "probe_id": "3"
+    },
+    {
+      "node_id": "2",
+      "anchor": "Output",
+      "file": "probe-0001.yxdb",
+      "probe_id": "4"
+    }
+  ],
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "TextInput"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Formula"
+    }
+  ],
+  "edges": [
+    {
+      "source": "1",
+      "output": "Output",
+      "target": "2",
+      "input": "Input"
+    }
+  ]
+}
