@@ -1,0 +1,245 @@
+{
+  "workflow_id": "Cross_Tab",
+  "workflow_name": "Cross_Tab",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\Cross_Tab.yxmd",
+  "source_hash": "785fffd6064299f5ccb273f5326052f4dfd54fff289b799278ec83be79231760",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "216",
+      "source_tool_id": "216",
+      "tool_type": "CrossTab",
+      "tool_name": "AlteryxBasePluginsGui.CrossTab.CrossTab",
+      "config": {
+        "GroupFields": {
+          "Field": {
+            "attributes": {
+              "field": "Name"
+            }
+          }
+        },
+        "HeaderField": {
+          "attributes": {
+            "field": "Suggested Age Range"
+          }
+        },
+        "DataField": {
+          "attributes": {
+            "field": "Value"
+          }
+        },
+        "Methods": {
+          "Method": {
+            "attributes": {
+              "method": "Sum"
+            }
+          }
+        },
+        "raw": {
+          "GroupFields": {
+            "Field": {
+              "attributes": {
+                "field": "Name"
+              }
+            }
+          },
+          "HeaderField": {
+            "attributes": {
+              "field": "Suggested Age Range"
+            }
+          },
+          "DataField": {
+            "attributes": {
+              "field": "Value"
+            }
+          },
+          "Methods": {
+            "Method": {
+              "attributes": {
+                "method": "Sum"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "group_fields": [
+            "Name"
+          ],
+          "header_field": "Suggested Age Range",
+          "data_field": "Value",
+          "method": "Sum",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "215:Output->216:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Name",
+            "size": "17",
+            "source": "CrossTab:Group:Sum:",
+            "type": "String"
+          },
+          {
+            "name": "3_6",
+            "source": "CrossTab:Header:Suggested Age Range:3-6:Sum:",
+            "type": "Double"
+          },
+          {
+            "name": "7_",
+            "source": "CrossTab:Header:Suggested Age Range:7+:Sum:",
+            "type": "Double"
+          },
+          {
+            "name": "13_",
+            "source": "CrossTab:Header:Suggested Age Range:13+:Sum:",
+            "type": "Double"
+          },
+          {
+            "name": "All_ages",
+            "source": "CrossTab:Header:Suggested Age Range:All ages:Sum:",
+            "type": "Double"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.CrossTab.CrossTab",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.CrossTab.CrossTab"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "1638"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Name",
+                "size": "17",
+                "source": "CrossTab:Group:Sum:",
+                "type": "String"
+              },
+              {
+                "name": "3_6",
+                "source": "CrossTab:Header:Suggested Age Range:3-6:Sum:",
+                "type": "Double"
+              },
+              {
+                "name": "7_",
+                "source": "CrossTab:Header:Suggested Age Range:7+:Sum:",
+                "type": "Double"
+              },
+              {
+                "name": "13_",
+                "source": "CrossTab:Header:Suggested Age Range:13+:Sum:",
+                "type": "Double"
+              },
+              {
+                "name": "All_ages",
+                "source": "CrossTab:Header:Suggested Age Range:All ages:Sum:",
+                "type": "Double"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "CrossTab",
+          "display_name": "CrossTab",
+          "category": "Transform",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxCrossTab",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "216",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

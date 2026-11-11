@@ -1,0 +1,560 @@
+{
+  "workflow_id": "01_CFML_SampleWorkflow",
+  "workflow_name": "01_CFML_SampleWorkflow",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\01_CFML_SampleWorkflow.yxmd",
+  "source_hash": "e0caf826b1487b830cbe784038effe8689295fc60960938dbc32208ae2c002f8",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "24",
+      "source_tool_id": "24",
+      "tool_type": "Classification",
+      "tool_name": "Classification",
+      "config": {
+        "algorithm_selection": {
+          "text": "random_forest"
+        },
+        "algorithm_configs": [
+          {
+            "algorithm_name": {
+              "text": "logistic_regression"
+            },
+            "algorithm_config": {
+              "multi_class": {
+                "text": "auto"
+              },
+              "solver": {
+                "text": "liblinear"
+              },
+              "penalty": {
+                "text": "l2"
+              },
+              "max_iter": {
+                "text": "100"
+              },
+              "C": {
+                "text": "1"
+              },
+              "tol": {
+                "text": "0.0001"
+              },
+              "fit_intercept": {
+                "text": "True"
+              },
+              "intercept_scaling": {
+                "text": "1"
+              },
+              "random_state_none": {
+                "text": "False"
+              },
+              "random_state": {
+                "text": "10"
+              },
+              "verbose": {
+                "text": "1"
+              },
+              "dual": {
+                "text": "False"
+              },
+              "class_weight": {
+                "text": "none"
+              }
+            }
+          },
+          {
+            "algorithm_name": {
+              "text": "random_forest"
+            },
+            "algorithm_config": {
+              "n_estimators": {
+                "text": "100"
+              },
+              "criterion": {
+                "text": "gini"
+              },
+              "max_depth_none": {
+                "text": "True"
+              },
+              "max_depth": {
+                "text": "10"
+              },
+              "min_samples_split_int": {
+                "text": "True"
+              },
+              "min_samples_split": {
+                "text": "2"
+              },
+              "min_samples_split_int_val": {
+                "text": "2"
+              },
+              "min_samples_split_pct_val": {
+                "text": "0.01"
+              },
+              "max_features_type": {
+                "text": "auto"
+              },
+              "max_features_input": {
+                "text": "1"
+              },
+              "max_features": {
+                "text": "auto"
+              },
+              "min_impurity_decrease": {
+                "text": "0"
+              },
+              "min_weight_fraction_leaf": {
+                "text": "0"
+              },
+              "random_state_none": {
+                "text": "False"
+              },
+              "random_state": {
+                "text": "10"
+              },
+              "bootstrap": {
+                "text": "True"
+              },
+              "class_weight": {
+                "text": "none"
+              }
+            }
+          },
+          {
+            "algorithm_name": {
+              "text": "decision_tree"
+            },
+            "algorithm_config": {
+              "criterion": {
+                "text": "gini"
+              },
+              "max_depth_none": {
+                "text": "True"
+              },
+              "max_depth": {
+                "text": "10"
+              },
+              "min_samples_split_int": {
+                "text": "True"
+              },
+              "min_samples_split": {
+                "text": "2"
+              },
+              "min_samples_split_int_val": {
+                "text": "2"
+              },
+              "min_samples_split_pct_val": {
+                "text": "0.01"
+              },
+              "max_features_type": {
+                "text": "auto"
+              },
+              "max_features_input": {
+                "text": "1"
+              },
+              "max_features": {
+                "text": "auto"
+              },
+              "min_impurity_decrease": {
+                "text": "0"
+              },
+              "min_weight_fraction_leaf": {
+                "text": "0"
+              },
+              "random_state_none": {
+                "text": "False"
+              },
+              "random_state": {
+                "text": "10"
+              },
+              "max_leaf_nodes_none": {
+                "text": "True"
+              },
+              "max_leaf_nodes": {
+                "text": "10"
+              },
+              "class_weight": {
+                "text": "none"
+              },
+              "splitter": {
+                "text": "best"
+              },
+              "presort": {
+                "text": "False"
+              }
+            }
+          }
+        ],
+        "schemaID": {
+          "text": "Tools.Classification.2"
+        },
+        "DesignerVersion": {
+          "text": "2020.2.0.29326"
+        },
+        "raw": {
+          "algorithm_selection": {
+            "text": "random_forest"
+          },
+          "algorithm_configs": [
+            {
+              "algorithm_name": {
+                "text": "logistic_regression"
+              },
+              "algorithm_config": {
+                "multi_class": {
+                  "text": "auto"
+                },
+                "solver": {
+                  "text": "liblinear"
+                },
+                "penalty": {
+                  "text": "l2"
+                },
+                "max_iter": {
+                  "text": "100"
+                },
+                "C": {
+                  "text": "1"
+                },
+                "tol": {
+                  "text": "0.0001"
+                },
+                "fit_intercept": {
+                  "text": "True"
+                },
+                "intercept_scaling": {
+                  "text": "1"
+                },
+                "random_state_none": {
+                  "text": "False"
+                },
+                "random_state": {
+                  "text": "10"
+                },
+                "verbose": {
+                  "text": "1"
+                },
+                "dual": {
+                  "text": "False"
+                },
+                "class_weight": {
+                  "text": "none"
+                }
+              }
+            },
+            {
+              "algorithm_name": {
+                "text": "random_forest"
+              },
+              "algorithm_config": {
+                "n_estimators": {
+                  "text": "100"
+                },
+                "criterion": {
+                  "text": "gini"
+                },
+                "max_depth_none": {
+                  "text": "True"
+                },
+                "max_depth": {
+                  "text": "10"
+                },
+                "min_samples_split_int": {
+                  "text": "True"
+                },
+                "min_samples_split": {
+                  "text": "2"
+                },
+                "min_samples_split_int_val": {
+                  "text": "2"
+                },
+                "min_samples_split_pct_val": {
+                  "text": "0.01"
+                },
+                "max_features_type": {
+                  "text": "auto"
+                },
+                "max_features_input": {
+                  "text": "1"
+                },
+                "max_features": {
+                  "text": "auto"
+                },
+                "min_impurity_decrease": {
+                  "text": "0"
+                },
+                "min_weight_fraction_leaf": {
+                  "text": "0"
+                },
+                "random_state_none": {
+                  "text": "False"
+                },
+                "random_state": {
+                  "text": "10"
+                },
+                "bootstrap": {
+                  "text": "True"
+                },
+                "class_weight": {
+                  "text": "none"
+                }
+              }
+            },
+            {
+              "algorithm_name": {
+                "text": "decision_tree"
+              },
+              "algorithm_config": {
+                "criterion": {
+                  "text": "gini"
+                },
+                "max_depth_none": {
+                  "text": "True"
+                },
+                "max_depth": {
+                  "text": "10"
+                },
+                "min_samples_split_int": {
+                  "text": "True"
+                },
+                "min_samples_split": {
+                  "text": "2"
+                },
+                "min_samples_split_int_val": {
+                  "text": "2"
+                },
+                "min_samples_split_pct_val": {
+                  "text": "0.01"
+                },
+                "max_features_type": {
+                  "text": "auto"
+                },
+                "max_features_input": {
+                  "text": "1"
+                },
+                "max_features": {
+                  "text": "auto"
+                },
+                "min_impurity_decrease": {
+                  "text": "0"
+                },
+                "min_weight_fraction_leaf": {
+                  "text": "0"
+                },
+                "random_state_none": {
+                  "text": "False"
+                },
+                "random_state": {
+                  "text": "10"
+                },
+                "max_leaf_nodes_none": {
+                  "text": "True"
+                },
+                "max_leaf_nodes": {
+                  "text": "10"
+                },
+                "class_weight": {
+                  "text": "none"
+                },
+                "splitter": {
+                  "text": "best"
+                },
+                "presort": {
+                  "text": "False"
+                }
+              }
+            }
+          ],
+          "schemaID": {
+            "text": "Tools.Classification.2"
+          },
+          "DesignerVersion": {
+            "text": "2020.2.0.29326"
+          },
+          "container_id": "26"
+        },
+        "normalized": {
+          "tool_type": "Classification",
+          "algorithm_selection": "random_forest",
+          "algorithm_configs": [
+            {
+              "algorithm_name": "logistic_regression",
+              "config": {
+                "multi_class": "auto",
+                "solver": "liblinear",
+                "penalty": "l2",
+                "max_iter": 100,
+                "C": 1,
+                "tol": 0.0001,
+                "fit_intercept": true,
+                "intercept_scaling": 1,
+                "random_state_none": false,
+                "random_state": 10,
+                "verbose": 1,
+                "dual": false,
+                "class_weight": "none"
+              }
+            },
+            {
+              "algorithm_name": "random_forest",
+              "config": {
+                "n_estimators": 100,
+                "criterion": "gini",
+                "max_depth_none": true,
+                "max_depth": 10,
+                "min_samples_split_int": true,
+                "min_samples_split": 2,
+                "min_samples_split_int_val": 2,
+                "min_samples_split_pct_val": 0.01,
+                "max_features_type": "auto",
+                "max_features_input": 1,
+                "max_features": "auto",
+                "min_impurity_decrease": 0,
+                "min_weight_fraction_leaf": 0,
+                "random_state_none": false,
+                "random_state": 10,
+                "bootstrap": true,
+                "class_weight": "none"
+              }
+            },
+            {
+              "algorithm_name": "decision_tree",
+              "config": {
+                "criterion": "gini",
+                "max_depth_none": true,
+                "max_depth": 10,
+                "min_samples_split_int": true,
+                "min_samples_split": 2,
+                "min_samples_split_int_val": 2,
+                "min_samples_split_pct_val": 0.01,
+                "max_features_type": "auto",
+                "max_features_input": 1,
+                "max_features": "auto",
+                "min_impurity_decrease": 0,
+                "min_weight_fraction_leaf": 0,
+                "random_state_none": false,
+                "random_state": 10,
+                "max_leaf_nodes_none": true,
+                "max_leaf_nodes": 10,
+                "class_weight": "none",
+                "splitter": "best",
+                "presort": false
+              }
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Model",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Model",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "21:Model->24:Model"
+      ],
+      "outgoing_edges": [
+        "24:Model->22:Model"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Classification",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "Classification"
+          },
+          "Position": {
+            "attributes": {
+              "x": "534",
+              "y": "210"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Classification",
+          "display_name": "Classification",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "Classification\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Random Forest"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "24",
+      "target_anchor": "Model",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

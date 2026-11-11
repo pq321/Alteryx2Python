@@ -1,0 +1,141 @@
+{
+  "workflow_id": "CalgaryInput",
+  "workflow_name": "CalgaryInput",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary\\CalgaryInput.yxmd",
+  "source_hash": "e20e7434c08921e0b1d8472d3f103ee79ad7de22c877f140e15fa93715e592ac",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "101",
+      "source_tool_id": "101",
+      "tool_type": "CalgaryInput",
+      "tool_name": "CalgaryPluginsGui.CalgaryInput.CalgaryInput",
+      "config": {
+        "RootFileName": {
+          "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+        },
+        "LinkedTables": {},
+        "Query": {
+          "text": "<And>\n  <Field name=\"GEO_GeoLevel\" value=\"Street\" type=\"value\" />\n  <And>\n    <Not>\n      <Field name=\"GEO_Score\" value=\"100\" type=\"value\" />\n    </Not>\n  </And>\n</And>"
+        },
+        "CountOnly": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "SkipRecords": {
+          "attributes": {
+            "value": "0"
+          }
+        },
+        "MaxRecords": {
+          "attributes": {
+            "value": "0"
+          }
+        },
+        "raw": {
+          "RootFileName": {
+            "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+          },
+          "LinkedTables": {},
+          "Query": {
+            "text": "<And>\n  <Field name=\"GEO_GeoLevel\" value=\"Street\" type=\"value\" />\n  <And>\n    <Not>\n      <Field name=\"GEO_Score\" value=\"100\" type=\"value\" />\n    </Not>\n  </And>\n</And>"
+          },
+          "CountOnly": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "SkipRecords": {
+            "attributes": {
+              "value": "0"
+            }
+          },
+          "MaxRecords": {
+            "attributes": {
+              "value": "0"
+            }
+          }
+        },
+        "normalized": {
+          "root_file_name": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb",
+          "linked_tables": {},
+          "query": {
+            "text": "<And>\n  <Field name=\"GEO_GeoLevel\" value=\"Street\" type=\"value\" />\n  <And>\n    <Not>\n      <Field name=\"GEO_Score\" value=\"100\" type=\"value\" />\n    </Not>\n  </And>\n</And>"
+          },
+          "count_only": true,
+          "skip_records": 0,
+          "max_records": 0,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "101:Output->81:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "CalgaryPluginsGui.CalgaryInput.CalgaryInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "CalgaryPluginsGui.CalgaryInput.CalgaryInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "54",
+              "y": "306"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CalgaryInput",
+          "display_name": "CalgaryInput",
+          "category": "Calgary",
+          "engine_dll": "CalgaryPlugins.dll",
+          "engine_entry": "AlteryxCalgaryInput",
+          "engine_macro": null,
+          "source": "managed-assembly+pe-exports",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Address.cydb"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

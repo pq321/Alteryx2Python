@@ -1,0 +1,223 @@
+{
+  "workflow_id": "Image Recognition",
+  "workflow_name": "Image Recognition",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Image Recognition.yxmd",
+  "source_hash": "648199102c256e3955d1244e29df2c1e9da38d12637e7296c9a52ea917578e79",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "177",
+      "source_tool_id": "177",
+      "tool_type": "ImageRecognition",
+      "tool_name": "ImageRecognition",
+      "config": {
+        "ImageFieldTraining": {
+          "text": "image_processed"
+        },
+        "LabelFieldTraining": {
+          "text": "Label"
+        },
+        "ImageFieldValidation": {
+          "text": "image_processed"
+        },
+        "LabelFieldValidation": {
+          "text": "Label"
+        },
+        "Epochs": {
+          "text": "10"
+        },
+        "Model": {
+          "text": "VGG16"
+        },
+        "BatchSize": {
+          "text": "32"
+        },
+        "raw": {
+          "ImageFieldTraining": {
+            "text": "image_processed"
+          },
+          "LabelFieldTraining": {
+            "text": "Label"
+          },
+          "ImageFieldValidation": {
+            "text": "image_processed"
+          },
+          "LabelFieldValidation": {
+            "text": "Label"
+          },
+          "Epochs": {
+            "text": "10"
+          },
+          "Model": {
+            "text": "VGG16"
+          },
+          "BatchSize": {
+            "text": "32"
+          },
+          "container_id": "201"
+        },
+        "normalized": {
+          "tool_type": "ImageRecognition",
+          "image_field_training": "image_processed",
+          "label_field_training": "Label",
+          "image_field_validation": "image_processed",
+          "label_field_validation": "Label",
+          "epochs": 10,
+          "model": "VGG16",
+          "batch_size": 32,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Training",
+          "direction": "input"
+        },
+        {
+          "name": "Validation",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "ModelOutput",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "193:Estimation->177:Training",
+        "193:Validation->177:Validation"
+      ],
+      "outgoing_edges": [
+        "177:ModelOutput->156:Model"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ImageRecognition",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ImageRecognition"
+          },
+          "Position": {
+            "attributes": {
+              "x": "366",
+              "y": "258"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ImageRecognition",
+          "display_name": "ImageRecognition",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ImageRecognition\\\\image_recognition_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "177",
+      "target_anchor": "Training",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "177",
+      "target_anchor": "Validation",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

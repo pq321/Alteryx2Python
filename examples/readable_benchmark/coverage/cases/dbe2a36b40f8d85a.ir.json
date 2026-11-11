@@ -1,0 +1,211 @@
+{
+  "workflow_id": "CalgaryJoin",
+  "workflow_name": "CalgaryJoin",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary\\CalgaryJoin.yxmd",
+  "source_hash": "017eb9581d729ecfa112592295686c8cb96cd4c34bfab48d56776313111e3ad9",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "114",
+      "source_tool_id": "114",
+      "tool_type": "CalgaryJoin",
+      "tool_name": "CalgaryPluginsGui.CalgaryJoin.CalgaryJoin",
+      "config": {
+        "RootFileName": {
+          "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+        },
+        "LinkedTables": {},
+        "CountOnly": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "JoinMode": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "MatchAll": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputUnjoined": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "Query": {},
+        "JoinFields": {
+          "Field": {
+            "attributes": {
+              "field": "SpatialObject_TradeArea",
+              "indexField": "GEO_SpatialObj",
+              "queryType": "value",
+              "endField": ""
+            }
+          }
+        },
+        "raw": {
+          "RootFileName": {
+            "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+          },
+          "LinkedTables": {},
+          "CountOnly": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "JoinMode": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "MatchAll": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputUnjoined": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "Query": {},
+          "JoinFields": {
+            "Field": {
+              "attributes": {
+                "field": "SpatialObject_TradeArea",
+                "indexField": "GEO_SpatialObj",
+                "queryType": "value",
+                "endField": ""
+              }
+            }
+          }
+        },
+        "normalized": {
+          "root_file_name": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb",
+          "linked_tables": {},
+          "count_only": true,
+          "join_mode": false,
+          "match_all": false,
+          "output_unjoined": true,
+          "query": {
+            "text": ""
+          },
+          "join_fields": [
+            {
+              "field": "SpatialObject_TradeArea",
+              "indexField": "GEO_SpatialObj",
+              "queryType": "value",
+              "endField": ""
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "110:Output->114:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "CalgaryPluginsGui.CalgaryJoin.CalgaryJoin",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "CalgaryPluginsGui.CalgaryJoin.CalgaryJoin"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "294"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CalgaryJoin",
+          "display_name": "CalgaryJoin",
+          "category": "Calgary",
+          "engine_dll": "CalgaryPlugins.dll",
+          "engine_entry": "AlteryxCalgaryJoin",
+          "engine_macro": null,
+          "source": "managed-assembly+pe-exports",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "114",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

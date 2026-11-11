@@ -313,7 +313,10 @@ def _element_to_dict(element: ElementTree.Element) -> dict[str, object]:
     return data
 
 
+from alteryx2python.parser.tool_parsers.email_parser import parse_email_config
+
 TOOL_PARSERS = {
+    'Email': parse_email_config,
     "Action": parse_action_config,
     "AppendFields": parse_appendfields_config,
     "AlteryxReportChartGui": parse_alteryx_report_chart_config,

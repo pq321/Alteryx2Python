@@ -66,7 +66,13 @@ def controlcontainer_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
-    return _record_canvas_node(tool_type="ControlContainer", inputs=inputs, config=config, context=context)
+    if 'Log' not in config.get('node_output_anchors', []):
+        return _record_canvas_node(tool_type="ControlContainer", inputs=inputs, config=config, context=context)
+    active = not config.get('disabled', False) and ('Control' not in inputs or len(inputs['Control'].index) > 0)
+    outputs = {'Log': pd.DataFrame({'Message': [config.get('caption', 'Container completed')]} if active else {'Message': []})}
+    context.record_node(node_id=str(config.get('node_id', 'unknown')), tool_type='ControlContainer',
+                        source_tool_id=config.get('source_tool_id'), inputs=inputs, outputs=outputs, status='success', config=config)
+    return outputs
 
 
 def browsev2_tool(

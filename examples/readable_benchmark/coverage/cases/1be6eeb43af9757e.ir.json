@@ -1,0 +1,313 @@
+{
+  "workflow_id": "06 Calculate_a_mortgage_payment",
+  "workflow_name": "06 Calculate_a_mortgage_payment",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\06 Calculate_a_mortgage_payment.yxwz",
+  "source_hash": "bb5e223bdf36ee4bb4c98d87f048ed51bf5a79428f0b34ca3f125417640ab2d4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "4",
+      "source_tool_id": "4",
+      "tool_type": "Transpose",
+      "tool_name": "AlteryxBasePluginsGui.Transpose.Transpose",
+      "config": {
+        "ErrorWarn": {
+          "text": "Warn"
+        },
+        "KeyFields": {},
+        "DataFields": {
+          "Field": [
+            {
+              "attributes": {
+                "field": "InterestRate",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "NumPayments",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "Payment",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "LoanAmount",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "FutureValue",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "PayAtBegin",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "field": "Result",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "field": "*Unknown",
+                "selected": "True"
+              }
+            }
+          ]
+        },
+        "raw": {
+          "ErrorWarn": {
+            "text": "Warn"
+          },
+          "KeyFields": {},
+          "DataFields": {
+            "Field": [
+              {
+                "attributes": {
+                  "field": "InterestRate",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "NumPayments",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "Payment",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "LoanAmount",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "FutureValue",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "PayAtBegin",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "Result",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "*Unknown",
+                  "selected": "True"
+                }
+              }
+            ]
+          }
+        },
+        "normalized": {
+          "error_warn": "Warn",
+          "key_fields": [],
+          "data_fields": [
+            {
+              "field": "InterestRate",
+              "selected": true
+            },
+            {
+              "field": "NumPayments",
+              "selected": true
+            },
+            {
+              "field": "Payment",
+              "selected": true
+            },
+            {
+              "field": "LoanAmount",
+              "selected": true
+            },
+            {
+              "field": "FutureValue",
+              "selected": true
+            },
+            {
+              "field": "PayAtBegin",
+              "selected": true
+            },
+            {
+              "field": "Result",
+              "selected": false
+            },
+            {
+              "field": "*Unknown",
+              "selected": true
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "2:Output->4:Input"
+      ],
+      "outgoing_edges": [
+        "4:Output->5:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Name",
+            "size": "12",
+            "source": "Transpose:",
+            "type": "String"
+          },
+          {
+            "name": "Value",
+            "source": "TextInput:",
+            "type": "Double"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Transpose.Transpose",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Transpose.Transpose"
+          },
+          "Position": {
+            "attributes": {
+              "x": "252",
+              "y": "519"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Name",
+                "size": "12",
+                "source": "Transpose:",
+                "type": "String"
+              },
+              {
+                "name": "Value",
+                "source": "TextInput:",
+                "type": "Double"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Transpose",
+          "display_name": "Transpose",
+          "category": "Transform",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxTranspose",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "Transpose (4)"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "4",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

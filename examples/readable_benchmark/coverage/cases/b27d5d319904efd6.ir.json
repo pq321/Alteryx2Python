@@ -1,0 +1,303 @@
+{
+  "workflow_id": "PDF to Text",
+  "workflow_name": "PDF to Text",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\PDF to Text.yxmd",
+  "source_hash": "e5785890ff3bba0963a51c0db61e7ac2af91568846919949c1b8d4e6e969c444",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "PDFToText",
+      "tool_name": "PDFToText",
+      "config": {
+        "TextExtractionLanguage": {
+          "LanguageName": {
+            "text": "EN"
+          }
+        },
+        "TextExtractionMode": {
+          "text": "text+OCR"
+        },
+        "TextExtractionRiskScore": {
+          "text": "false"
+        },
+        "TextExtractionImageOfGraphicText": {
+          "text": "false"
+        },
+        "PathInputValue": {
+          "attributes": {
+            "isWorkflowDependency": "True"
+          },
+          "text": "..\\..\\..\\data\\SampleData\\AISImages\\PDFtoText_Input.pdf"
+        },
+        "PathInputMode": {
+          "text": "fileBrowse"
+        },
+        "PathInputField": {},
+        "OutputOptions": {
+          "OutputString": {
+            "text": "false"
+          },
+          "OutputLines": {
+            "text": "true"
+          },
+          "OutputPipeDelimitedTable": {
+            "text": "false"
+          },
+          "OutputAlteryxTable": {
+            "text": "false"
+          }
+        },
+        "MetadataStore": [
+          {
+            "text": "Field(name=File, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"File name from PDF to Text\")"
+          },
+          {
+            "text": "Field(name=Path, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"File path from PDF to Text\")"
+          },
+          {
+            "text": "Field(name=Output Option, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"Output option from PDF to Text\")"
+          },
+          {
+            "text": "Field(name=Page, field_type=FieldType.int64, size=8, scale=0, source=\"\", description=\"Page number from PDF to Text\")"
+          },
+          {
+            "text": "Field(name=Row, field_type=FieldType.int64, size=8, scale=0, source=\"\", description=\"Row number from PDF to Text\")"
+          },
+          {
+            "text": "Field(name=Text, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"Text output from PDF to Text\")"
+          }
+        ],
+        "ConfigStore": {
+          "TextExtractionLanguage": {
+            "LanguageName": {
+              "text": "EN"
+            }
+          },
+          "TextExtractionMode": {
+            "text": "text+OCR"
+          },
+          "TextExtractionRiskScore": {
+            "text": "false"
+          },
+          "TextExtractionImageOfGraphicText": {
+            "text": "false"
+          },
+          "PathInputMode": {
+            "text": "fileBrowse"
+          },
+          "PathInputField": {},
+          "OutputOptions": {
+            "OutputString": {
+              "text": "false"
+            },
+            "OutputLines": {
+              "text": "true"
+            },
+            "OutputPipeDelimitedTable": {
+              "text": "false"
+            },
+            "OutputAlteryxTable": {
+              "text": "false"
+            }
+          }
+        },
+        "NumConnectStore": {
+          "text": "0"
+        },
+        "raw": {
+          "TextExtractionLanguage": {
+            "LanguageName": {
+              "text": "EN"
+            }
+          },
+          "TextExtractionMode": {
+            "text": "text+OCR"
+          },
+          "TextExtractionRiskScore": {
+            "text": "false"
+          },
+          "TextExtractionImageOfGraphicText": {
+            "text": "false"
+          },
+          "PathInputValue": {
+            "attributes": {
+              "isWorkflowDependency": "True"
+            },
+            "text": "..\\..\\..\\data\\SampleData\\AISImages\\PDFtoText_Input.pdf"
+          },
+          "PathInputMode": {
+            "text": "fileBrowse"
+          },
+          "PathInputField": {},
+          "OutputOptions": {
+            "OutputString": {
+              "text": "false"
+            },
+            "OutputLines": {
+              "text": "true"
+            },
+            "OutputPipeDelimitedTable": {
+              "text": "false"
+            },
+            "OutputAlteryxTable": {
+              "text": "false"
+            }
+          },
+          "MetadataStore": [
+            {
+              "text": "Field(name=File, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"File name from PDF to Text\")"
+            },
+            {
+              "text": "Field(name=Path, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"File path from PDF to Text\")"
+            },
+            {
+              "text": "Field(name=Output Option, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"Output option from PDF to Text\")"
+            },
+            {
+              "text": "Field(name=Page, field_type=FieldType.int64, size=8, scale=0, source=\"\", description=\"Page number from PDF to Text\")"
+            },
+            {
+              "text": "Field(name=Row, field_type=FieldType.int64, size=8, scale=0, source=\"\", description=\"Row number from PDF to Text\")"
+            },
+            {
+              "text": "Field(name=Text, field_type=FieldType.v_wstring, size=2147483647, scale=0, source=\"\", description=\"Text output from PDF to Text\")"
+            }
+          ],
+          "ConfigStore": {
+            "TextExtractionLanguage": {
+              "LanguageName": {
+                "text": "EN"
+              }
+            },
+            "TextExtractionMode": {
+              "text": "text+OCR"
+            },
+            "TextExtractionRiskScore": {
+              "text": "false"
+            },
+            "TextExtractionImageOfGraphicText": {
+              "text": "false"
+            },
+            "PathInputMode": {
+              "text": "fileBrowse"
+            },
+            "PathInputField": {},
+            "OutputOptions": {
+              "OutputString": {
+                "text": "false"
+              },
+              "OutputLines": {
+                "text": "true"
+              },
+              "OutputPipeDelimitedTable": {
+                "text": "false"
+              },
+              "OutputAlteryxTable": {
+                "text": "false"
+              }
+            }
+          },
+          "NumConnectStore": {
+            "text": "0"
+          },
+          "container_id": "22"
+        },
+        "normalized": {
+          "language": "EN",
+          "extraction_mode": "text+OCR",
+          "risk_score": "false",
+          "image_of_graphic_text": "false",
+          "path_input_value": "..\\..\\..\\data\\SampleData\\AISImages\\PDFtoText_Input.pdf",
+          "path_is_workflow_dependency": "True",
+          "path_input_mode": "fileBrowse",
+          "path_input_field": "",
+          "output_options": {
+            "OutputString": {
+              "text": "false"
+            },
+            "OutputLines": {
+              "text": "true"
+            },
+            "OutputPipeDelimitedTable": {
+              "text": "false"
+            },
+            "OutputAlteryxTable": {
+              "text": "false"
+            }
+          },
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "1:Output->39:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PDFToText",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PDFToText"
+          },
+          "Position": {
+            "attributes": {
+              "x": "75",
+              "y": "256"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PDFToText",
+          "display_name": "PDFToText",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "PDFToText\\\\pdf_to_text_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "Read in a single file - Text and Image Content"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

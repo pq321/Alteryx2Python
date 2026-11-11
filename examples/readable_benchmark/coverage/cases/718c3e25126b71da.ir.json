@@ -1,0 +1,495 @@
+{
+  "workflow_id": "Data_CleansePro",
+  "workflow_name": "Data_CleansePro",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Data_CleansePro.yxmd",
+  "source_hash": "bab98c778452f7941e826f755c311b22544a2ec5646ea51da38a0a6312de416d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "134",
+      "source_tool_id": "134",
+      "tool_type": "DataCleansePro",
+      "tool_name": "AlteryxBasePluginsGui.DataCleansePro.DataCleansePro",
+      "config": {
+        "RemoveNullRows": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemoveNullColumns": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemoveTabsLineBreaksAndDuplicates": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemoveLeadingAndTrailingWhitespace": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "RemoveAllWhitespaces": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemoveHTMLTags": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemoveInvisibleCharacters": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Fields": {
+          "Field": [
+            {
+              "attributes": {
+                "value": "CustomerID",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "FirstName",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "LastName",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "Term",
+                "selected": "True"
+              }
+            },
+            {
+              "attributes": {
+                "value": "JoinDate",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "Region",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "Score",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "FirstPurchaseDate",
+                "selected": "False"
+              }
+            },
+            {
+              "attributes": {
+                "value": "*Unknown",
+                "selected": "False"
+              }
+            }
+          ]
+        },
+        "RemoveLetters": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "RemoveNumbers": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RemovePunctuation": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Letters": {
+          "attributes": {
+            "value": ""
+          }
+        },
+        "Numbers": {
+          "attributes": {
+            "value": ""
+          }
+        },
+        "Punctuations": {
+          "attributes": {
+            "value": ""
+          }
+        },
+        "Exceptions": {
+          "attributes": {
+            "value": ""
+          }
+        },
+        "Checkbox_ReplaceStringColumns": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "Checkbox_ReplaceNumericColumns": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "radioButton_ReplaceNullwithBlanks": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "radioButton_ReplaceBlankswithNulls": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "radioButton_ReplaceNullwithZero": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "radioButton_ReplaceZerowithNulls": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ReplaceWithBlanks": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "ReplaceWithZero": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "CheckBox_ModifyCase": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ModifyCase": {
+          "attributes": {
+            "value": "none"
+          }
+        },
+        "raw": {
+          "RemoveNullRows": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemoveNullColumns": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemoveTabsLineBreaksAndDuplicates": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemoveLeadingAndTrailingWhitespace": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "RemoveAllWhitespaces": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemoveHTMLTags": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemoveInvisibleCharacters": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Fields": {
+            "Field": [
+              {
+                "attributes": {
+                  "value": "CustomerID",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "FirstName",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "LastName",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "Term",
+                  "selected": "True"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "JoinDate",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "Region",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "Score",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "FirstPurchaseDate",
+                  "selected": "False"
+                }
+              },
+              {
+                "attributes": {
+                  "value": "*Unknown",
+                  "selected": "False"
+                }
+              }
+            ]
+          },
+          "RemoveLetters": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "RemoveNumbers": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RemovePunctuation": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Letters": {
+            "attributes": {
+              "value": ""
+            }
+          },
+          "Numbers": {
+            "attributes": {
+              "value": ""
+            }
+          },
+          "Punctuations": {
+            "attributes": {
+              "value": ""
+            }
+          },
+          "Exceptions": {
+            "attributes": {
+              "value": ""
+            }
+          },
+          "Checkbox_ReplaceStringColumns": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "Checkbox_ReplaceNumericColumns": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "radioButton_ReplaceNullwithBlanks": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "radioButton_ReplaceBlankswithNulls": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "radioButton_ReplaceNullwithZero": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "radioButton_ReplaceZerowithNulls": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ReplaceWithBlanks": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "ReplaceWithZero": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "CheckBox_ModifyCase": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ModifyCase": {
+            "attributes": {
+              "value": "none"
+            }
+          }
+        },
+        "normalized": {
+          "selected_fields": [
+            "Term"
+          ],
+          "remove_null_rows": false,
+          "remove_null_columns": false,
+          "replace_string_nulls": true,
+          "replace_numeric_nulls": true,
+          "remove_leading_trailing_whitespace": true,
+          "remove_tabs_line_breaks_duplicate_whitespace": false,
+          "remove_all_whitespace": false,
+          "remove_letters": true,
+          "remove_numbers": false,
+          "remove_punctuation": false,
+          "modify_case": false,
+          "case_mode": "none",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "123:Output->134:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DataCleansePro.DataCleansePro",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DataCleansePro.DataCleansePro"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "390"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DataCleansePro",
+          "display_name": "Data Cleanse",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDataCleanse",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "134",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

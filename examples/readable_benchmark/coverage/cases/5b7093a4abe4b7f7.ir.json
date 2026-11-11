@@ -1,0 +1,174 @@
+{
+  "workflow_id": "Rank",
+  "workflow_name": "Rank",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Rank.yxmd",
+  "source_hash": "ca1cae6748bddae815caf2cc0ca6c882e0213812a327d17f29f480d66715034c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "96",
+      "source_tool_id": "96",
+      "tool_type": "Rank",
+      "tool_name": "AlteryxBasePluginsGui.Rank.Rank",
+      "config": {
+        "RankingModes": {
+          "Mode": {
+            "attributes": {
+              "value": "Dense"
+            }
+          }
+        },
+        "SortInfo": {
+          "attributes": {
+            "locale": "0"
+          },
+          "Field": {
+            "attributes": {
+              "field": "Units Sold",
+              "order": "Descending"
+            }
+          }
+        },
+        "GroupFields": {},
+        "raw": {
+          "RankingModes": {
+            "Mode": {
+              "attributes": {
+                "value": "Dense"
+              }
+            }
+          },
+          "SortInfo": {
+            "attributes": {
+              "locale": "0"
+            },
+            "Field": {
+              "attributes": {
+                "field": "Units Sold",
+                "order": "Descending"
+              }
+            }
+          },
+          "GroupFields": {}
+        },
+        "normalized": {
+          "ranking_modes": [
+            "Dense"
+          ],
+          "sort_fields": [
+            {
+              "field": "Units Sold",
+              "order": "Descending"
+            }
+          ],
+          "group_fields": [],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "95:Output->96:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Rank.Rank",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Rank.Rank"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "240"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Rank",
+          "display_name": "Rank",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxRank",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Units Sold - Descending"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "96",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

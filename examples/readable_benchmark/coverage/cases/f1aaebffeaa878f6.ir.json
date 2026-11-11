@@ -1,0 +1,159 @@
+{
+  "workflow_id": "Python",
+  "workflow_name": "Python",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\Python.yxmd",
+  "source_hash": "271f47bbd6f094fde5089db56a3dce5cabba1ab0316ee9bedfd54cfaa896784a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "86",
+      "source_tool_id": "86",
+      "tool_type": "JupyterCode",
+      "tool_name": "JupyterCode",
+      "config": {
+        "DefaultVenv": {
+          "text": "1"
+        },
+        "JupyterGuidDir": {
+          "text": "f53389a0aefb0e5615d710a15e7e763f"
+        },
+        "LastExecutedByEngineVersion": {
+          "text": "2022.1.0.62859"
+        },
+        "vEnvName": {
+          "text": "designerbasetools_venv"
+        },
+        "GuidDir": {
+          "text": "03b370ef-8abd-4d49-9104-f6953d953a71"
+        },
+        "productionModeScript": {
+          "text": "#################################\n# List all non-standard packages to be imported by your \n# script here (only missing packages will be installed)\nfrom ayx import Package\n#Package.installPackages(['pandas','numpy'])\n\n\n#################################\nfrom ayx import Alteryx\n\n\n#################################\n# print a message to the log\nprint('Test: printing a message to the Alteryx console.')\n\n\n#################################\n# print a warning to the log\nimport warnings\nwarnings.warn('Test: printing a warning to the Alteryx console.')"
+        },
+        "Notebook": {
+          "text": "{\"cells\":[{\"cell_type\":\"code\",\"execution_count\":1,\"metadata\":{\"ayx\":{\"cell_class\":\"code_cell\",\"cell_css\":\"border: 1px solid #58a; margin: 2px;\",\"cell_type\":\"code\",\"contents_keyword\":\"installPackages\",\"first_line\":\"# List all non-standard packages to be imported by your\",\"label\":\"deps\"},\"trusted\":true},\"outputs\":[],\"source\":\"# List all non-standard packages to be imported by your \\n# script here (only missing packages will be installed)\\nfrom ayx import Package\\n#Package.installPackages(['pandas','numpy'])\"},{\"cell_type\":\"code\",\"execution_count\":2,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"from ayx import Alteryx\"},{\"cell_type\":\"code\",\"execution_count\":3,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a message to the log\\nprint('Test: printing a message to the Alteryx console.')\"},{\"cell_type\":\"code\",\"execution_count\":4,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a warning to the log\\nimport warnings\\nwarnings.warn('Test: printing a warning to the Alteryx console.')\"}],\"metadata\":{\"kernelspec\":{\"display_name\":\"designerbasetools_venv\",\"language\":\"python\",\"name\":\"designerbasetools_venv\"},\"language_info\":{\"codemirror_mode\":{\"name\":\"ipython\",\"version\":3},\"file_extension\":\".py\",\"mimetype\":\"text/x-python\",\"name\":\"python\",\"nbconvert_exporter\":\"python\",\"pygments_lexer\":\"ipython3\",\"version\":\"3.6.0\"}},\"nbformat\":4,\"nbformat_minor\":2}"
+        },
+        "Port": {
+          "text": "61870"
+        },
+        "WorkflowName": {
+          "text": "c:\\users\\alloyd\\onedrive - alteryx.com\\desktop\\pcm\\22.2 work\\ttw-2606 update samples to use amp\\en\\02 learn_one_tool_at_a_time\\22 developer\\[unnamed module]"
+        },
+        "specialCellMetadata": {
+          "text": "[{\"label\":\"info\",\"contents_keyword\":\"Alteryx.help()\",\"cell_css\":\"border: 3px solid #357; margin: 4px; background: #fbffff\",\"first_line\":\"Run `Alteryx.help()` for info about useful functions.\",\"cell_type\":\"markdown\",\"cell_class\":\"text_cell\"},{\"label\":\"deps\",\"contents_keyword\":\"installPackages\",\"cell_css\":\"border: 1px solid #58a; margin: 2px;\",\"first_line\":\"# List all non-standard packages to be imported by your\",\"cell_type\":\"code\",\"cell_class\":\"code_cell\"}]"
+        },
+        "AssetManaged": {
+          "text": "True"
+        },
+        "JupyterProduction": {
+          "text": "True"
+        },
+        "raw": {
+          "DefaultVenv": {
+            "text": "1"
+          },
+          "JupyterGuidDir": {
+            "text": "f53389a0aefb0e5615d710a15e7e763f"
+          },
+          "LastExecutedByEngineVersion": {
+            "text": "2022.1.0.62859"
+          },
+          "vEnvName": {
+            "text": "designerbasetools_venv"
+          },
+          "GuidDir": {
+            "text": "03b370ef-8abd-4d49-9104-f6953d953a71"
+          },
+          "productionModeScript": {
+            "text": "#################################\n# List all non-standard packages to be imported by your \n# script here (only missing packages will be installed)\nfrom ayx import Package\n#Package.installPackages(['pandas','numpy'])\n\n\n#################################\nfrom ayx import Alteryx\n\n\n#################################\n# print a message to the log\nprint('Test: printing a message to the Alteryx console.')\n\n\n#################################\n# print a warning to the log\nimport warnings\nwarnings.warn('Test: printing a warning to the Alteryx console.')"
+          },
+          "Notebook": {
+            "text": "{\"cells\":[{\"cell_type\":\"code\",\"execution_count\":1,\"metadata\":{\"ayx\":{\"cell_class\":\"code_cell\",\"cell_css\":\"border: 1px solid #58a; margin: 2px;\",\"cell_type\":\"code\",\"contents_keyword\":\"installPackages\",\"first_line\":\"# List all non-standard packages to be imported by your\",\"label\":\"deps\"},\"trusted\":true},\"outputs\":[],\"source\":\"# List all non-standard packages to be imported by your \\n# script here (only missing packages will be installed)\\nfrom ayx import Package\\n#Package.installPackages(['pandas','numpy'])\"},{\"cell_type\":\"code\",\"execution_count\":2,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"from ayx import Alteryx\"},{\"cell_type\":\"code\",\"execution_count\":3,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a message to the log\\nprint('Test: printing a message to the Alteryx console.')\"},{\"cell_type\":\"code\",\"execution_count\":4,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a warning to the log\\nimport warnings\\nwarnings.warn('Test: printing a warning to the Alteryx console.')\"}],\"metadata\":{\"kernelspec\":{\"display_name\":\"designerbasetools_venv\",\"language\":\"python\",\"name\":\"designerbasetools_venv\"},\"language_info\":{\"codemirror_mode\":{\"name\":\"ipython\",\"version\":3},\"file_extension\":\".py\",\"mimetype\":\"text/x-python\",\"name\":\"python\",\"nbconvert_exporter\":\"python\",\"pygments_lexer\":\"ipython3\",\"version\":\"3.6.0\"}},\"nbformat\":4,\"nbformat_minor\":2}"
+          },
+          "Port": {
+            "text": "61870"
+          },
+          "WorkflowName": {
+            "text": "c:\\users\\alloyd\\onedrive - alteryx.com\\desktop\\pcm\\22.2 work\\ttw-2606 update samples to use amp\\en\\02 learn_one_tool_at_a_time\\22 developer\\[unnamed module]"
+          },
+          "specialCellMetadata": {
+            "text": "[{\"label\":\"info\",\"contents_keyword\":\"Alteryx.help()\",\"cell_css\":\"border: 3px solid #357; margin: 4px; background: #fbffff\",\"first_line\":\"Run `Alteryx.help()` for info about useful functions.\",\"cell_type\":\"markdown\",\"cell_class\":\"text_cell\"},{\"label\":\"deps\",\"contents_keyword\":\"installPackages\",\"cell_css\":\"border: 1px solid #58a; margin: 2px;\",\"first_line\":\"# List all non-standard packages to be imported by your\",\"cell_type\":\"code\",\"cell_class\":\"code_cell\"}]"
+          },
+          "AssetManaged": {
+            "text": "True"
+          },
+          "JupyterProduction": {
+            "text": "True"
+          }
+        },
+        "normalized": {
+          "default_venv": "1",
+          "venv_name": "designerbasetools_venv",
+          "guid_dir": "03b370ef-8abd-4d49-9104-f6953d953a71",
+          "jupyter_guid_dir": "f53389a0aefb0e5615d710a15e7e763f",
+          "production_mode_script": "#################################\n# List all non-standard packages to be imported by your \n# script here (only missing packages will be installed)\nfrom ayx import Package\n#Package.installPackages(['pandas','numpy'])\n\n\n#################################\nfrom ayx import Alteryx\n\n\n#################################\n# print a message to the log\nprint('Test: printing a message to the Alteryx console.')\n\n\n#################################\n# print a warning to the log\nimport warnings\nwarnings.warn('Test: printing a warning to the Alteryx console.')",
+          "notebook": "{\"cells\":[{\"cell_type\":\"code\",\"execution_count\":1,\"metadata\":{\"ayx\":{\"cell_class\":\"code_cell\",\"cell_css\":\"border: 1px solid #58a; margin: 2px;\",\"cell_type\":\"code\",\"contents_keyword\":\"installPackages\",\"first_line\":\"# List all non-standard packages to be imported by your\",\"label\":\"deps\"},\"trusted\":true},\"outputs\":[],\"source\":\"# List all non-standard packages to be imported by your \\n# script here (only missing packages will be installed)\\nfrom ayx import Package\\n#Package.installPackages(['pandas','numpy'])\"},{\"cell_type\":\"code\",\"execution_count\":2,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"from ayx import Alteryx\"},{\"cell_type\":\"code\",\"execution_count\":3,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a message to the log\\nprint('Test: printing a message to the Alteryx console.')\"},{\"cell_type\":\"code\",\"execution_count\":4,\"metadata\":{\"trusted\":true},\"outputs\":[],\"source\":\"# print a warning to the log\\nimport warnings\\nwarnings.warn('Test: printing a warning to the Alteryx console.')\"}],\"metadata\":{\"kernelspec\":{\"display_name\":\"designerbasetools_venv\",\"language\":\"python\",\"name\":\"designerbasetools_venv\"},\"language_info\":{\"codemirror_mode\":{\"name\":\"ipython\",\"version\":3},\"file_extension\":\".py\",\"mimetype\":\"text/x-python\",\"name\":\"python\",\"nbconvert_exporter\":\"python\",\"pygments_lexer\":\"ipython3\",\"version\":\"3.6.0\"}},\"nbformat\":4,\"nbformat_minor\":2}",
+          "jupyter_production": "True",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "JupyterCode",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "JupyterCode"
+          },
+          "Position": {
+            "attributes": {
+              "x": "270",
+              "y": "869"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "JupyterCode",
+          "display_name": "Python",
+          "category": "Developer",
+          "engine_dll": "AlteryxJupyterPluginEngine.dll",
+          "engine_entry": "AlteryxJupyter",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,170 @@
+{
+  "workflow_id": "Make_Grid",
+  "workflow_name": "Make_Grid",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial\\Make_Grid.yxmd",
+  "source_hash": "f4c3e5753bf260bc6fff36d92717cf4c5d11ffdf61ba51f4f33c655051a41231",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "6",
+      "source_tool_id": "6",
+      "tool_type": "MakeGrid",
+      "tool_name": "AlteryxSpatialPluginsGui.MakeGrid.MakeGrid",
+      "config": {
+        "SpatialObjIn": {
+          "text": "SpatialObj"
+        },
+        "GridSize": {
+          "attributes": {
+            "value": "1"
+          }
+        },
+        "Units": {
+          "text": "Miles"
+        },
+        "GridPerObject": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "SpatialObjIn": {
+            "text": "SpatialObj"
+          },
+          "GridSize": {
+            "attributes": {
+              "value": "1"
+            }
+          },
+          "Units": {
+            "text": "Miles"
+          },
+          "GridPerObject": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "spatial_field": "SpatialObj",
+          "grid_size": "1",
+          "units": "Miles",
+          "grid_per_object": false,
+          "clip_to_poly": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "21:Output->6:Input"
+      ],
+      "outgoing_edges": [
+        "6:Output->13:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.MakeGrid.MakeGrid",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.MakeGrid.MakeGrid"
+          },
+          "Position": {
+            "attributes": {
+              "x": "234",
+              "y": "282"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "MakeGrid",
+          "display_name": "MakeGrid",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxMakeGrid",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "1 Miles Grid"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "6",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,148 @@
+{
+  "workflow_id": "Part of speech Tagger",
+  "workflow_name": "Part of speech Tagger",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining\\Part of speech Tagger.yxmd",
+  "source_hash": "6bb7e1e6d72bf50394f85cad24d292333bad0ab753b5bd3c0d12b448d64147a0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "135",
+      "source_tool_id": "135",
+      "tool_type": "PartOfSpeechTagger",
+      "tool_name": "PartOfSpeechTagger",
+      "config": {
+        "Language": {
+          "text": "EN"
+        },
+        "Field": {
+          "text": "sents"
+        },
+        "raw": {
+          "Language": {
+            "text": "EN"
+          },
+          "Field": {
+            "text": "sents"
+          },
+          "container_id": "137"
+        },
+        "normalized": {
+          "tool_type": "PartOfSpeechTagger",
+          "Language": "EN",
+          "Field": "sents",
+          "container_id": "137",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "132:Output->135:Input"
+      ],
+      "outgoing_edges": [
+        "135:Output->134:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PartOfSpeechTagger",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PartOfSpeechTagger"
+          },
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "258"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PartOfSpeechTagger",
+          "display_name": "PartOfSpeechTagger",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "PartOfSpeechTagger\\\\part_of_speech_tagger_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "135",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

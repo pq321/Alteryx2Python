@@ -38,6 +38,21 @@ def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="alteryx2python")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
+    readable = subparsers.add_parser('readable', help='Phase two: compile preserved workflow IR into standalone editable Python')
+    readable.add_argument('source', help='Native workflow, preserved .ir.json, or recognized phase-one .py')
+    readable.add_argument('--output', required=True)
+    readable.add_argument('--answers', help='JSON file containing default user answers')
+    readable.add_argument('--delivery-profile', choices=['html-draft-v1'])
+    readable.set_defaults(func=_readable_command)
+    benchmark = subparsers.add_parser('benchmark', help='Build or verify the deterministic two-phase benchmark')
+    benchmark.add_argument('action', choices=['build', 'run', 'inventory'])
+    benchmark.add_argument('--output', required=True)
+    benchmark.add_argument('--source')
+    benchmark.add_argument('--data', default='examples/readable_benchmark/data/iris.data')
+    benchmark.add_argument('--samples', default='D:/Alteryx/Samples/en')
+    benchmark.add_argument('--answers')
+    benchmark.set_defaults(func=_benchmark_command)
+
     inspect_parser = subparsers.add_parser("inspect", help="Inspect workflow nodes, edges, tools, and dependencies")
     inspect_parser.add_argument("workflow")
     inspect_parser.add_argument("--compact", action="store_true")
@@ -837,6 +852,37 @@ def _command_error_report(
         "diagnostics": list(context.diagnostics),
         "trace": context.execution_report(),
     }
+
+
+def _readable_command(args):
+    from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one, workflow_from_dict
+    source = Path(args.source)
+    if source.suffix.lower() == '.py':
+        workflow = read_phase_one(source)
+    elif source.suffix.lower() == '.json':
+        workflow = workflow_from_dict(json.loads(source.read_text(encoding='utf-8-sig')))
+    else:
+        workflow = XmlWorkflowParser().parse(source)
+    answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
+    artifact = ReadablePythonGenerator().generate(workflow, answers=answers, delivery_profile=args.delivery_profile)
+    paths = artifact.write(args.output)
+    return {'status': 'generated', 'phase': 2, 'files': [str(path.resolve()) for path in paths],
+            'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0
+
+
+def _benchmark_command(args):
+    from alteryx2python.benchmark import build_benchmark, run_benchmark
+    if args.action == 'build':
+        source = build_benchmark(args.output, args.data)
+        return {'status': 'built', 'source': str(source.resolve())}, 0
+    if args.action == 'inventory':
+        from alteryx2python.benchmark_inventory import build_inventory
+        report = build_inventory(args.output, args.samples, args.source)
+        return report, 0 if report['fully_covered'] else 2
+    if not args.source:
+        raise ValueError('benchmark run requires --source')
+    answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
+    return run_benchmark(args.source, args.output, answers=answers), 0
 
 
 def _emit_report(report: dict[str, Any], log_path: str | None) -> None:

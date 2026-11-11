@@ -118,14 +118,19 @@ def execute_static_macro(
             else XmlWorkflowParser().parse(path),
             answers,
         )
+        # Macro bodies reference interface values as %Question.<Name>% tokens
+        # inside tool configuration strings (e.g. Filter expressions); resolve
+        # them against the bound answers before the inner graph executes.
+        from alteryx2python.engine_variables import resolve_workflow_tokens
+
+        resolve_workflow_tokens(macro, answers)
         initial, outputs, active_nodes = {}, {}, []
         boundaries = [node for node in macro.nodes if node.tool_type == "MacroInput"]
         for node in macro.nodes:
             entry = node.metadata.get("catalog", {})
-            if entry.get("gui_only") or node.tool_type in {
+            if (entry.get("gui_only") and node.tool_type not in {'ToolContainer','ControlContainer'}) or node.tool_type in {
                 "TextBox",
                 "HtmlBox",
-                "ToolContainer",
             }:
                 continue
             if node.tool_type == "MacroInput":

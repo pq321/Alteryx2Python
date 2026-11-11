@@ -1,0 +1,206 @@
+{
+  "workflow_id": "Feature Types Build Features",
+  "workflow_name": "Feature Types Build Features",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning\\Feature Types Build Features.yxmd",
+  "source_hash": "68c08d79af3b3ba78a187184440a08f4e279123832a42b691dcd39ae3457c4cc",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "125",
+      "source_tool_id": "125",
+      "tool_type": "FeatureTypes",
+      "tool_name": "FeatureTypes",
+      "config": {
+        "configured_types": {},
+        "set_types": [
+          {
+            "attributes": {
+              "name": "Year",
+              "type": "Numeric"
+            }
+          },
+          {
+            "attributes": {
+              "name": "Month",
+              "type": "Categorical"
+            }
+          },
+          {
+            "attributes": {
+              "name": "Bookings",
+              "type": "Numeric"
+            }
+          },
+          {
+            "attributes": {
+              "name": "RecordID",
+              "type": "Id"
+            }
+          }
+        ],
+        "raw": {
+          "configured_types": {},
+          "set_types": [
+            {
+              "attributes": {
+                "name": "Year",
+                "type": "Numeric"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Month",
+                "type": "Categorical"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Bookings",
+                "type": "Numeric"
+              }
+            },
+            {
+              "attributes": {
+                "name": "RecordID",
+                "type": "Id"
+              }
+            }
+          ],
+          "container_id": "134"
+        },
+        "normalized": {
+          "tool_type": "FeatureTypes",
+          "configured_types": {},
+          "set_types": [
+            {
+              "name": "Year",
+              "type": "Numeric"
+            },
+            {
+              "name": "Month",
+              "type": "Categorical"
+            },
+            {
+              "name": "Bookings",
+              "type": "Numeric"
+            },
+            {
+              "name": "RecordID",
+              "type": "Id"
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "130:Output->125:Input"
+      ],
+      "outgoing_edges": [
+        "125:Output->120:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "FeatureTypes",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "FeatureTypes"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "510"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "FeatureTypes",
+          "display_name": "FeatureTypes",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "FeatureTypes\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "125",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

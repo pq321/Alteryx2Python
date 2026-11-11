@@ -1,0 +1,270 @@
+{
+  "workflow_id": "01 Normalize_a_string_field",
+  "workflow_name": "01 Normalize_a_string_field",
+  "source_file": "D:\\Alteryx\\Samples\\en\\04 Basic\\01 Normalize_a_string_field.yxmd",
+  "source_hash": "ca5223ac954e156e582673b5bcfd35e712a64f150257969684587f545e36c762",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "97",
+      "source_tool_id": "97",
+      "tool_type": "RegEx",
+      "tool_name": "AlteryxBasePluginsGui.RegEx.RegEx",
+      "config": {
+        "Field": {
+          "text": "ITEM"
+        },
+        "RegExExpression": {
+          "attributes": {
+            "value": "(\\d\\d).*"
+          }
+        },
+        "CaseInsensitve": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Method": {
+          "text": "ParseComplex"
+        },
+        "Replace": {
+          "attributes": {
+            "expression": ""
+          },
+          "CopyUnmatched": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        },
+        "ParseSimple": {
+          "SplitToRows": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RootName": {},
+          "NumFields": {
+            "attributes": {
+              "value": "3"
+            }
+          },
+          "ErrorHandling": {
+            "text": "Warn"
+          }
+        },
+        "ParseComplex": {
+          "Field": {
+            "attributes": {
+              "field": "RegExOut1",
+              "type": "V_WString",
+              "size": "254"
+            }
+          }
+        },
+        "Match": {
+          "Field": {
+            "text": "RecordID_Matched"
+          },
+          "ErrorUnmatched": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "Field": {
+            "text": "ITEM"
+          },
+          "RegExExpression": {
+            "attributes": {
+              "value": "(\\d\\d).*"
+            }
+          },
+          "CaseInsensitve": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Method": {
+            "text": "ParseComplex"
+          },
+          "Replace": {
+            "attributes": {
+              "expression": ""
+            },
+            "CopyUnmatched": {
+              "attributes": {
+                "value": "True"
+              }
+            }
+          },
+          "ParseSimple": {
+            "SplitToRows": {
+              "attributes": {
+                "value": "False"
+              }
+            },
+            "RootName": {},
+            "NumFields": {
+              "attributes": {
+                "value": "3"
+              }
+            },
+            "ErrorHandling": {
+              "text": "Warn"
+            }
+          },
+          "ParseComplex": {
+            "Field": {
+              "attributes": {
+                "field": "RegExOut1",
+                "type": "V_WString",
+                "size": "254"
+              }
+            }
+          },
+          "Match": {
+            "Field": {
+              "text": "RecordID_Matched"
+            },
+            "ErrorUnmatched": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "field": "ITEM",
+          "regex_expression": "(\\d\\d).*",
+          "case_insensitive": false,
+          "method": "ParseComplex",
+          "replace_expression": "",
+          "copy_unmatched": true,
+          "parse_simple": {
+            "split_to_rows": false,
+            "root_name": "ITEM",
+            "num_fields": 3
+          },
+          "parse_complex_fields": [
+            "RegExOut1"
+          ],
+          "match_field": "RecordID_Matched",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\04 Basic"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "7:Output->97:Input"
+      ],
+      "outgoing_edges": [
+        "97:Output->116:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.RegEx.RegEx",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.RegEx.RegEx"
+          },
+          "Position": {
+            "attributes": {
+              "x": "233",
+              "y": "214"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "RegEx",
+          "display_name": "RegEx",
+          "category": "Parse",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxRegEx",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Parse:\n(\\d\\d).*"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "97",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

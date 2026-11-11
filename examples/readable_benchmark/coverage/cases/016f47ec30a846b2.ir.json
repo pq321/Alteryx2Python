@@ -1,0 +1,170 @@
+{
+  "workflow_id": "07 Smooth_spatial_objects_on_a_map",
+  "workflow_name": "07 Smooth_spatial_objects_on_a_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\07 Smooth_spatial_objects_on_a_map.yxmd",
+  "source_hash": "ca9a8cb2825a8ca5250b3d36d3e79aff3f40f4e8aac2a85d0f4ea7b16f39968b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "6",
+      "source_tool_id": "6",
+      "tool_type": "DbFileInput",
+      "tool_name": "AlteryxBasePluginsGui.DbFileInput.DbFileInput",
+      "config": {
+        "Passwords": {},
+        "File": {
+          "attributes": {
+            "OutputFileName": "",
+            "FileFormat": "19",
+            "SearchSubDirs": "False",
+            "RecordLimit": ""
+          },
+          "text": "..\\..\\data\\SampleData\\NJOC.yxdb"
+        },
+        "FormatSpecificOptions": {},
+        "raw": {
+          "Passwords": {},
+          "File": {
+            "attributes": {
+              "OutputFileName": "",
+              "FileFormat": "19",
+              "SearchSubDirs": "False",
+              "RecordLimit": ""
+            },
+            "text": "..\\..\\data\\SampleData\\NJOC.yxdb"
+          },
+          "FormatSpecificOptions": {}
+        },
+        "normalized": {
+          "file": "..\\..\\data\\SampleData\\NJOC.yxdb",
+          "file_attributes": {
+            "OutputFileName": "",
+            "FileFormat": "19",
+            "SearchSubDirs": "False",
+            "RecordLimit": ""
+          },
+          "format_specific_options": {},
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "6:Output->7:Input",
+        "6:Output->9:Input",
+        "6:Output->13:Input",
+        "6:Output->29:Input",
+        "6:Output->42:Input",
+        "6:Output->48:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Name",
+            "size": "64",
+            "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+            "type": "V_String"
+          },
+          {
+            "name": "Key",
+            "size": "32",
+            "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+            "type": "String"
+          },
+          {
+            "name": "SpatialObj",
+            "size": "2147483647",
+            "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+            "type": "SpatialObj"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DbFileInput.DbFileInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DbFileInput.DbFileInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "54",
+              "y": "221"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Name",
+                "size": "64",
+                "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+                "type": "V_String"
+              },
+              {
+                "name": "Key",
+                "size": "32",
+                "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+                "type": "String"
+              },
+              {
+                "name": "SpatialObj",
+                "size": "2147483647",
+                "source": "File: C:\\Products\\Alteryx\\NewFunctionality\\NewJerseyCounty.TAB",
+                "type": "SpatialObj"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "DbFileInput",
+          "display_name": "Input Data",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDbFileInput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "NJOC.yxdb"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

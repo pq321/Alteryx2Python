@@ -7,6 +7,7 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import ensure_fields_exist, snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
+from alteryx2python.tools.field_contracts import coerce_field, field_contract
 
 
 SUPPORTED_TYPE_MAP = {
@@ -55,7 +56,8 @@ def _normalize_select_fields(config: dict[str, Any]) -> list[dict[str, Any]]:
         rename = entry.get("rename", source)
         dtype = entry.get("dtype")
         selected = bool(entry.get("selected", True))
-        normalized.append({"source": source, "rename": rename, "dtype": dtype, "selected": selected})
+        normalized.append({"source": source, "rename": rename, "dtype": dtype, "selected": selected,
+                           "size": entry.get("size"), "forced": entry.get("forced", False)})
     return normalized
 
 
@@ -65,12 +67,12 @@ def _validate_unique_output_names(select_fields: list[dict[str, Any]]) -> None:
         raise ValueError("Duplicate output field names are not supported in this slice")
 
 
-def _convert_series(series: pd.Series, dtype: str | None) -> pd.Series:
+def _convert_series(series: pd.Series, dtype: str | None, size=None) -> pd.Series:
     if dtype is None:
         return series.copy()
-    if dtype not in SUPPORTED_TYPE_MAP:
+    if dtype not in SUPPORTED_TYPE_MAP and dtype not in {"Date", "DateTime", "Time"}:
         raise ValueError(f"Unsupported Select dtype conversion: {dtype}")
-    return series.astype(SUPPORTED_TYPE_MAP[dtype])
+    return coerce_field(series, dtype, size)
 
 
 def select_tool(
@@ -103,6 +105,7 @@ def select_tool(
         output_columns[field["rename"]] = _convert_series(
             input_frame[field["source"]],
             field["dtype"],
+            field.get("size"),
         )
     output_fields = [{"source": name, "rename": name, "dtype": None} for name in output_names]
     _validate_unique_output_names(output_fields)
@@ -111,6 +114,19 @@ def select_tool(
         pd.DataFrame(output_columns, index=input_frame.index),
         config.get("expected_output_schema"),
     )
+    inherited = {item['name']: item for item in input_frame.attrs.get('alteryx_schema', [])}
+    schemas = []
+    declared = {field['rename']: field for field in selected_explicit_fields}
+    for column in output_frame.columns:
+        field = declared.get(column)
+        contract = field_contract(field['dtype'], field.get('size')) if field else None
+        if contract:
+            schemas.append({'name': column, **contract})
+        elif field and field['source'] in inherited:
+            schemas.append({**inherited[field['source']], 'name': column})
+        elif column in inherited:
+            schemas.append(dict(inherited[column]))
+    output_frame.attrs['alteryx_schema'] = schemas
     outputs = {"Output": output_frame}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

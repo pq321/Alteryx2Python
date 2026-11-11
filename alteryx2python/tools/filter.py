@@ -22,6 +22,8 @@ def filter_tool(
     if not isinstance(input_frame, pd.DataFrame):
         raise TypeError("Input anchor must contain a pandas DataFrame")
     expression = config.get("expression")
+    if config.get('unsupported_operator'):
+        raise NotImplementedError(f"Simple Filter operator requires a template: {config['unsupported_operator']}")
     if not expression:
         raise ValueError("Filter tool config requires expression")
 

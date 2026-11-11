@@ -32,6 +32,7 @@ Current implemented slices:
 - Official Basic `01 Combine 2 Spreadsheets Containing Customer Data.yxmd` multi-tool workflow certification against an Alteryx CSV oracle
 - Baseline Python generation that rebuilds `WorkflowIR` and delegates to canonical runtime execution
 - Support diagnostics for failed runtime nodes, including schema drift, missing anchors/files, unsupported tools, graph context, likely cause, and suggested fix
+- Deterministic Phase Two compilation into standalone editable Python, with explicit functions, numeric user parameters, before/after events, field-size contracts and a public-data benchmark. See [Readable Python](docs/readable_python.md).
 
 Current architectural scaffolding introduced:
 
@@ -55,6 +56,7 @@ Important constraint:
 
 Verification:
 
+- Current Python regression on 2026-11-11: 1126 passed, 85.90% coverage, with four dependency/numerical warnings. Phase Two uses native templates, static specialization and dependency-based stages; checkpoint collection is confined to verification builds. The connected benchmark matches at 38 outer nodes and all 8 real artifacts, including separate execution of the delivered source. Native EngineCmd acceptance is blocked by licensing; full-tool coverage remains incomplete. See [the migration guide](docs/readable_python.md).
 - Install the `local`, `parity`, `test`, `nlp` and `notebooks` extras, then run `.venv/Scripts/python.exe -m pytest -q`: 649 passed, 84.12% coverage (80% required), 2026-11-10. Four dependency/numerical warnings remain in the fixtures.
 - `uv run python scripts/sweep_all_languages.py` parses all 1,344 official sample workflows across 9 languages with 0 errors and 0 unknown tool nodes
 - Parser/registration coverage is independent of semantic acceptance. A registered unavailable adapter must not count as native equivalence.

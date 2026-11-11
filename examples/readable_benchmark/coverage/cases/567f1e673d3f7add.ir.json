@@ -1,0 +1,283 @@
+{
+  "workflow_id": "Map",
+  "workflow_name": "Map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface\\Map.yxwz",
+  "source_hash": "799dd5d6592b5d2a213a86ed3305d8d062c505f1418d5833973af5af0bcda7de",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "3",
+      "source_tool_id": "3",
+      "tool_type": "MapInput",
+      "tool_name": "AlteryxSpatialPluginsGui.MapInput.MapInput",
+      "config": {
+        "Mode": {
+          "text": "Draw"
+        },
+        "ReferenceFile": {},
+        "JSMapSettings": {
+          "text": "{\"base\":true,\"drawn features\":true}"
+        },
+        "Bounds": {
+          "MinX": {
+            "text": "-124.848975"
+          },
+          "MaxX": {
+            "text": "-66.885075"
+          },
+          "MinY": {
+            "text": "24.396308"
+          },
+          "MaxY": {
+            "text": "49.384359"
+          }
+        },
+        "NumRows": {
+          "attributes": {
+            "value": "0"
+          }
+        },
+        "Fields": {
+          "Field": [
+            {
+              "attributes": {
+                "name": "Label"
+              }
+            },
+            {
+              "attributes": {
+                "name": "SpatialObj"
+              }
+            }
+          ]
+        },
+        "Data": {},
+        "BaseMap": {
+          "text": "Latest:CloudMade"
+        },
+        "ReferenceFileRecordCount": {
+          "text": "0"
+        },
+        "ReferenceFileByteCount": {
+          "text": "0"
+        },
+        "ReferenceFileLabelField": {},
+        "raw": {
+          "Mode": {
+            "text": "Draw"
+          },
+          "ReferenceFile": {},
+          "JSMapSettings": {
+            "text": "{\"base\":true,\"drawn features\":true}"
+          },
+          "Bounds": {
+            "MinX": {
+              "text": "-124.848975"
+            },
+            "MaxX": {
+              "text": "-66.885075"
+            },
+            "MinY": {
+              "text": "24.396308"
+            },
+            "MaxY": {
+              "text": "49.384359"
+            }
+          },
+          "NumRows": {
+            "attributes": {
+              "value": "0"
+            }
+          },
+          "Fields": {
+            "Field": [
+              {
+                "attributes": {
+                  "name": "Label"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "SpatialObj"
+                }
+              }
+            ]
+          },
+          "Data": {},
+          "BaseMap": {
+            "text": "Latest:CloudMade"
+          },
+          "ReferenceFileRecordCount": {
+            "text": "0"
+          },
+          "ReferenceFileByteCount": {
+            "text": "0"
+          },
+          "ReferenceFileLabelField": {},
+          "container_id": "20"
+        },
+        "normalized": {
+          "mode": "Draw",
+          "reference_file": "",
+          "base_map": "Latest:CloudMade",
+          "label_field": "",
+          "selection_stack": "",
+          "fields": [
+            "Label",
+            "SpatialObj"
+          ],
+          "rows": [
+            {
+              "Label": "",
+              "SpatialObj": ""
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Action",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "4:Action->3:Action"
+      ],
+      "outgoing_edges": [
+        "3:Output->5:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Label",
+            "size": "1073741823",
+            "source": "MapInput:",
+            "type": "V_WString"
+          },
+          {
+            "name": "SpatialObj",
+            "size": "2147483647",
+            "source": "MapInput:",
+            "type": "SpatialObj"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.MapInput.MapInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.MapInput.MapInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "66",
+              "y": "655"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Label",
+                "size": "1073741823",
+                "source": "MapInput:",
+                "type": "V_WString"
+              },
+              {
+                "name": "SpatialObj",
+                "size": "2147483647",
+                "source": "MapInput:",
+                "type": "SpatialObj"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "MapInput",
+          "display_name": "MapInput",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxMapInput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "3",
+      "target_anchor": "Action",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

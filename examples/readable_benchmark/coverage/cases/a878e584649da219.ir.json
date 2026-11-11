@@ -1,0 +1,116 @@
+{
+  "workflow_id": "43 Adjust the App Interface",
+  "workflow_name": "43 Adjust the App Interface",
+  "source_file": "D:\\Alteryx\\Samples\\en\\01 Tutorials\\04 Intro to Applications\\43 Adjust the App Interface.yxwz",
+  "source_hash": "0484e3bc9656c5cabbe4206ec2f3d12507a3ab3ac16e829f7b8e4bc2b523e288",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "50",
+      "source_tool_id": "50",
+      "tool_type": "DropDown",
+      "tool_name": "AlteryxGuiToolkit.Questions.DropDownListBox.DropDown",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "0"
+            },
+            "Name": {},
+            "DefaultAnnotationText": {},
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "name": "",
+          "prompt": "",
+          "default_value": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\01 Tutorials\\04 Intro to Applications"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Question",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "50:Question->49:Question"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Questions.DropDownListBox.DropDown",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Questions.DropDownListBox.DropDown"
+          },
+          "Position": {
+            "attributes": {
+              "x": "530",
+              "y": "162",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DropDown",
+          "display_name": "Drop Down",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

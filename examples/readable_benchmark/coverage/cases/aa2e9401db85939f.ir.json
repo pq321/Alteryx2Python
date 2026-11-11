@@ -1,0 +1,271 @@
+{
+  "workflow_id": "04 Create_a_report_with_a_thematic_map",
+  "workflow_name": "04 Create_a_report_with_a_thematic_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Create_a_report_with_a_thematic_map.yxmd",
+  "source_hash": "5af2b79d9f956b96a12809db2fc7ba5eae359e9928c4997a662ec202dace7a83",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "85",
+      "source_tool_id": "85",
+      "tool_type": "PortfolioComposerLayout",
+      "tool_name": "PortfolioPluginsGui.ComposerLayout.PortfolioComposerLayout",
+      "config": {
+        "GroupingMode": {
+          "text": "PerRecord"
+        },
+        "PreserveSourceFields": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Orientation": {
+          "text": "V"
+        },
+        "Separator": {
+          "text": "Continuous"
+        },
+        "Width": {
+          "text": "100%"
+        },
+        "Height": {},
+        "BorderStyle": {
+          "attributes": {
+            "Enabled": "false",
+            "Color": "#000000",
+            "Width": "2"
+          }
+        },
+        "SeparatorStyle": {
+          "attributes": {
+            "Enabled": "false",
+            "Color": "#000000",
+            "Width": "1"
+          }
+        },
+        "Padding": {
+          "text": "0"
+        },
+        "LayoutFields": {
+          "attributes": {
+            "orderChanged": "False"
+          },
+          "Field": [
+            {
+              "attributes": {
+                "name": "Map",
+                "selected": "True",
+                "Alignment": "Center"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Legend",
+                "selected": "True",
+                "Alignment": "Center"
+              }
+            }
+          ]
+        },
+        "MergeIntoTable": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "SectionNameForGroup": {},
+        "SectionNameForAllRecords": {},
+        "raw": {
+          "GroupingMode": {
+            "text": "PerRecord"
+          },
+          "PreserveSourceFields": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Orientation": {
+            "text": "V"
+          },
+          "Separator": {
+            "text": "Continuous"
+          },
+          "Width": {
+            "text": "100%"
+          },
+          "Height": {},
+          "BorderStyle": {
+            "attributes": {
+              "Enabled": "false",
+              "Color": "#000000",
+              "Width": "2"
+            }
+          },
+          "SeparatorStyle": {
+            "attributes": {
+              "Enabled": "false",
+              "Color": "#000000",
+              "Width": "1"
+            }
+          },
+          "Padding": {
+            "text": "0"
+          },
+          "LayoutFields": {
+            "attributes": {
+              "orderChanged": "False"
+            },
+            "Field": [
+              {
+                "attributes": {
+                  "name": "Map",
+                  "selected": "True",
+                  "Alignment": "Center"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Legend",
+                  "selected": "True",
+                  "Alignment": "Center"
+                }
+              }
+            ]
+          },
+          "MergeIntoTable": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "SectionNameForGroup": {},
+          "SectionNameForAllRecords": {}
+        },
+        "normalized": {
+          "orientation": "V",
+          "layout_fields": [
+            "Map",
+            "Legend"
+          ],
+          "grouping_fields": [],
+          "grouping_mode": "PerRecord",
+          "section_name_for_all_records": "",
+          "section_name_for_group": "",
+          "separator": "Continuous",
+          "width": "100%",
+          "height": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "84:Output->85:Input"
+      ],
+      "outgoing_edges": [
+        "85:Output->93:Report Layout"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PortfolioPluginsGui.ComposerLayout.PortfolioComposerLayout",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PortfolioPluginsGui.ComposerLayout.PortfolioComposerLayout"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1286",
+              "y": "260"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PortfolioComposerLayout",
+          "display_name": "Layout",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "AlteryxPortfolioComposerLayoutPlugin",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Vertical Layout\nEach Individual Record"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "85",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,275 @@
+{
+  "workflow_id": "07 Smooth_spatial_objects_on_a_map",
+  "workflow_name": "07 Smooth_spatial_objects_on_a_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\07 Smooth_spatial_objects_on_a_map.yxmd",
+  "source_hash": "ca9a8cb2825a8ca5250b3d36d3e79aff3f40f4e8aac2a85d0f4ea7b16f39968b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "44",
+      "source_tool_id": "44",
+      "tool_type": "PortfolioComposerRender",
+      "tool_name": "PortfolioPluginsGui.ComposerRender.PortfolioComposerRender",
+      "config": {
+        "TempFileType": {
+          "text": "pdf"
+        },
+        "BatchMode": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "DataField": {
+          "text": "Map"
+        },
+        "Separator": {
+          "text": "Continuous"
+        },
+        "ShowHeader": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ShowFooter": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "PortraitMode": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "PaperType": {
+          "attributes": {
+            "Width": "612",
+            "Height": "792",
+            "Left": "36",
+            "Right": "36",
+            "Top": "36",
+            "Bottom": "36"
+          }
+        },
+        "DefaultStyles": {
+          "Style": {
+            "attributes": {
+              "Name": "TextStyle",
+              "FontName": "Verdana",
+              "FontSize": "14",
+              "Justify": "Left",
+              "ForeColor": "#000000",
+              "Locale": "1033"
+            }
+          }
+        },
+        "PNGResolution": {
+          "text": "1"
+        },
+        "PNGLargerAction": {
+          "text": "squeeze"
+        },
+        "PNGLargerThanPageChoice": {
+          "text": "warning"
+        },
+        "PNGTransparentBG": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "PNGBackColor": {
+          "attributes": {
+            "value": "#ffffff"
+          }
+        },
+        "raw": {
+          "TempFileType": {
+            "text": "pdf"
+          },
+          "BatchMode": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "DataField": {
+            "text": "Map"
+          },
+          "Separator": {
+            "text": "Continuous"
+          },
+          "ShowHeader": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ShowFooter": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "PortraitMode": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "PaperType": {
+            "attributes": {
+              "Width": "612",
+              "Height": "792",
+              "Left": "36",
+              "Right": "36",
+              "Top": "36",
+              "Bottom": "36"
+            }
+          },
+          "DefaultStyles": {
+            "Style": {
+              "attributes": {
+                "Name": "TextStyle",
+                "FontName": "Verdana",
+                "FontSize": "14",
+                "Justify": "Left",
+                "ForeColor": "#000000",
+                "Locale": "1033"
+              }
+            }
+          },
+          "PNGResolution": {
+            "text": "1"
+          },
+          "PNGLargerAction": {
+            "text": "squeeze"
+          },
+          "PNGLargerThanPageChoice": {
+            "text": "warning"
+          },
+          "PNGTransparentBG": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "PNGBackColor": {
+            "attributes": {
+              "value": "#ffffff"
+            }
+          }
+        },
+        "normalized": {
+          "temp_file_type": "pdf",
+          "output_file": "",
+          "batch_mode": false,
+          "data_field": "Map",
+          "group_field": "",
+          "filename_modifier": "",
+          "show_header": false,
+          "show_footer": false,
+          "header_field": "",
+          "footer_field": "",
+          "portrait_mode": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "43:Output->44:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PortfolioPluginsGui.ComposerRender.PortfolioComposerRender",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PortfolioPluginsGui.ComposerRender.PortfolioComposerRender"
+          },
+          "Position": {
+            "attributes": {
+              "x": "931",
+              "y": "221"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PortfolioComposerRender",
+          "display_name": "Render",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "AlteryxPortfolioComposerRenderPlugin",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "44",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

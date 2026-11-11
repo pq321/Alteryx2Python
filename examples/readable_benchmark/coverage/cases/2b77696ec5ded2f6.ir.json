@@ -1,0 +1,444 @@
+{
+  "workflow_id": "08 Using_a_tree_with_a_custom_file_database",
+  "workflow_name": "08 Using_a_tree_with_a_custom_file_database",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\08 Using_a_tree_with_a_custom_file_database.yxwz",
+  "source_hash": "4beee3632b729e4c92d2752d7632500e8435f12b645cc96f2c20cc554048dd1c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "2",
+      "source_tool_id": "2",
+      "tool_type": "Filter",
+      "tool_name": "AlteryxBasePluginsGui.Filter.Filter",
+      "config": {
+        "Expression": {
+          "text": "1 == 1"
+        },
+        "raw": {
+          "Expression": {
+            "text": "1 == 1"
+          }
+        },
+        "normalized": {
+          "expression": "1 == 1",
+          "mode": "Unknown",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Action",
+          "direction": "input"
+        },
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "True",
+          "direction": "output"
+        },
+        {
+          "name": "False",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "1:Output->2:Input",
+        "43:Action->2:Action"
+      ],
+      "outgoing_edges": [
+        "2:True->3:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "True": {
+          "connection": "True",
+          "fields": [
+            {
+              "name": "Name",
+              "size": "64",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "V_String"
+            },
+            {
+              "name": "Key",
+              "size": "32",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "V_String"
+            },
+            {
+              "name": "POP1990",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "POP2000",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "POP2005",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "AreaSqMi",
+              "scale": "2",
+              "size": "11",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "FixedDecimal"
+            },
+            {
+              "name": "POP2010",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "DEN90",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN00",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN05",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN10",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            }
+          ]
+        },
+        "False": {
+          "connection": "False",
+          "fields": [
+            {
+              "name": "Name",
+              "size": "64",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "V_String"
+            },
+            {
+              "name": "Key",
+              "size": "32",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "V_String"
+            },
+            {
+              "name": "POP1990",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "POP2000",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "POP2005",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "AreaSqMi",
+              "scale": "2",
+              "size": "11",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "FixedDecimal"
+            },
+            {
+              "name": "POP2010",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int32"
+            },
+            {
+              "name": "DEN90",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN00",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN05",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            },
+            {
+              "name": "DEN10",
+              "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+              "type": "Int16"
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Filter.Filter",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Filter.Filter"
+          },
+          "Position": {
+            "attributes": {
+              "x": "174",
+              "y": "458"
+            }
+          }
+        },
+        "meta_info": {
+          "True": {
+            "connection": "True",
+            "fields": [
+              {
+                "name": "Name",
+                "size": "64",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "V_String"
+              },
+              {
+                "name": "Key",
+                "size": "32",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "V_String"
+              },
+              {
+                "name": "POP1990",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "POP2000",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "POP2005",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "AreaSqMi",
+                "scale": "2",
+                "size": "11",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "FixedDecimal"
+              },
+              {
+                "name": "POP2010",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "DEN90",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN00",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN05",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN10",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              }
+            ]
+          },
+          "False": {
+            "connection": "False",
+            "fields": [
+              {
+                "name": "Name",
+                "size": "64",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "V_String"
+              },
+              {
+                "name": "Key",
+                "size": "32",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "V_String"
+              },
+              {
+                "name": "POP1990",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "POP2000",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "POP2005",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "AreaSqMi",
+                "scale": "2",
+                "size": "11",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "FixedDecimal"
+              },
+              {
+                "name": "POP2010",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int32"
+              },
+              {
+                "name": "DEN90",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN00",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN05",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              },
+              {
+                "name": "DEN10",
+                "source": "File: C:\\Program Files\\Alteryx\\Samples\\en\\SampleData\\CountyDensity.yxdb",
+                "type": "Int16"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Filter",
+          "display_name": "Filter",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxFilter",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "1 == 1"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "2",
+      "target_anchor": "Input",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "2",
+      "target_anchor": "Action",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

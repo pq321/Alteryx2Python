@@ -1,0 +1,286 @@
+{
+  "workflow_id": "Table",
+  "workflow_name": "Table",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting\\Table.yxmd",
+  "source_hash": "cca5ad68169567a348c49ac35e1ba7abc7b4d1748b79a77b086a5c492ea6aff4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "46",
+      "source_tool_id": "46",
+      "tool_type": "PortfolioComposerTable",
+      "tool_name": "PortfolioPluginsGui.ComposerTable.PortfolioComposerTable",
+      "config": {
+        "TableMode": {
+          "text": "Pivot"
+        },
+        "GroupingFields": {
+          "attributes": {
+            "orderChanged": "False"
+          }
+        },
+        "Width": {
+          "text": "100%"
+        },
+        "PivotMode": {
+          "text": "PivotVar"
+        },
+        "PivotTableFields": {
+          "attributes": {
+            "orderChanged": "False"
+          },
+          "Field": {
+            "attributes": {
+              "name": "Sum",
+              "selected": "True",
+              "Width": "",
+              "Places": "0"
+            }
+          }
+        },
+        "TableStyles": {
+          "Style": [
+            {
+              "attributes": {
+                "Name": "Data",
+                "Font": "Arial",
+                "Size": "8",
+                "TextColor": "#000000",
+                "BackColor": "#ffffff",
+                "AltColor": "#f0f0f0"
+              }
+            },
+            {
+              "attributes": {
+                "Name": "Header",
+                "Font": "Arial",
+                "Size": "10",
+                "TextColor": "#000000",
+                "BackColor": "#dbdbdb"
+              }
+            },
+            {
+              "attributes": {
+                "Name": "Borders",
+                "Width": "1",
+                "DataColor": "#000000",
+                "HeaderColor": "#000000",
+                "RowBorder": "None",
+                "ColBorder": "None"
+              }
+            },
+            {
+              "attributes": {
+                "Name": "Table",
+                "CellPadding": "0",
+                "ColumnPadding": "0",
+                "TableBorder": "true",
+                "Width": "1",
+                "BorderColor": "#000000"
+              }
+            }
+          ]
+        },
+        "StyleRules": {},
+        "raw": {
+          "TableMode": {
+            "text": "Pivot"
+          },
+          "GroupingFields": {
+            "attributes": {
+              "orderChanged": "False"
+            }
+          },
+          "Width": {
+            "text": "100%"
+          },
+          "PivotMode": {
+            "text": "PivotVar"
+          },
+          "PivotTableFields": {
+            "attributes": {
+              "orderChanged": "False"
+            },
+            "Field": {
+              "attributes": {
+                "name": "Sum",
+                "selected": "True",
+                "Width": "",
+                "Places": "0"
+              }
+            }
+          },
+          "TableStyles": {
+            "Style": [
+              {
+                "attributes": {
+                  "Name": "Data",
+                  "Font": "Arial",
+                  "Size": "8",
+                  "TextColor": "#000000",
+                  "BackColor": "#ffffff",
+                  "AltColor": "#f0f0f0"
+                }
+              },
+              {
+                "attributes": {
+                  "Name": "Header",
+                  "Font": "Arial",
+                  "Size": "10",
+                  "TextColor": "#000000",
+                  "BackColor": "#dbdbdb"
+                }
+              },
+              {
+                "attributes": {
+                  "Name": "Borders",
+                  "Width": "1",
+                  "DataColor": "#000000",
+                  "HeaderColor": "#000000",
+                  "RowBorder": "None",
+                  "ColBorder": "None"
+                }
+              },
+              {
+                "attributes": {
+                  "Name": "Table",
+                  "CellPadding": "0",
+                  "ColumnPadding": "0",
+                  "TableBorder": "true",
+                  "Width": "1",
+                  "BorderColor": "#000000"
+                }
+              }
+            ]
+          },
+          "StyleRules": {}
+        },
+        "normalized": {
+          "table_mode": "Pivot",
+          "width": "100%",
+          "show_header": null,
+          "show_bar_graph": null,
+          "bar_graph_field": "",
+          "table_fields": [],
+          "pivot_table_fields": [
+            "Sum"
+          ],
+          "grouping_fields": [],
+          "pivot_mode": "PivotVar",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "34:Output->46:Input"
+      ],
+      "outgoing_edges": [
+        "46:Output->47:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PortfolioPluginsGui.ComposerTable.PortfolioComposerTable",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PortfolioPluginsGui.ComposerTable.PortfolioComposerTable"
+          },
+          "Position": {
+            "attributes": {
+              "x": "198",
+              "y": "978"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PortfolioComposerTable",
+          "display_name": "Table",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "AlteryxPortfolioComposerTablePlugin",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Pivot Table"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "46",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

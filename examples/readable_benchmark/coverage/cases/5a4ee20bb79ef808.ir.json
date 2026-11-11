@@ -1,0 +1,244 @@
+{
+  "workflow_id": "Field_Summary",
+  "workflow_name": "Field_Summary",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation\\Field_Summary.yxmd",
+  "source_hash": "39fb9ec6eec862cd1a4eef438d8882996737509821c2a97b05c687b9ede9c75d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "2",
+      "source_tool_id": "2",
+      "tool_type": "FieldSummaryReport",
+      "tool_name": "Predictive Tools\\Field_Summary_Report.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Select Fields"
+            },
+            "text": "X1=True,X2=True,X3=True,X4=True,X5=True,BIN=True,Y1=True,Y2=True,Y3=True,Y4=True,Counts=True,Date=True,Store Point=True"
+          },
+          {
+            "attributes": {
+              "name": "Sample Data"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Number"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "NNumber"
+            },
+            "text": "5000"
+          },
+          {
+            "attributes": {
+              "name": "Percent"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "NPercent"
+            },
+            "text": "10"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Select Fields"
+              },
+              "text": "X1=True,X2=True,X3=True,X4=True,X5=True,BIN=True,Y1=True,Y2=True,Y3=True,Y4=True,Counts=True,Date=True,Store Point=True"
+            },
+            {
+              "attributes": {
+                "name": "Sample Data"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Number"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "NNumber"
+              },
+              "text": "5000"
+            },
+            {
+              "attributes": {
+                "name": "Percent"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "NPercent"
+              },
+              "text": "10"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "FieldSummaryReport",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "Select Fields"
+              },
+              "#text": "X1=True,X2=True,X3=True,X4=True,X5=True,BIN=True,Y1=True,Y2=True,Y3=True,Y4=True,Counts=True,Date=True,Store Point=True"
+            },
+            {
+              "@attributes": {
+                "name": "Sample Data"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "Number"
+              },
+              "#text": true
+            },
+            {
+              "@attributes": {
+                "name": "NNumber"
+              },
+              "#text": 5000
+            },
+            {
+              "@attributes": {
+                "name": "Percent"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "NPercent"
+              },
+              "#text": 10
+            }
+          ],
+          "Select Fields": "X1=True,X2=True,X3=True,X4=True,X5=True,BIN=True,Y1=True,Y2=True,Y3=True,Y4=True,Counts=True,Date=True,Store Point=True",
+          "Sample Data": "False",
+          "Number": "True",
+          "NNumber": "5000",
+          "Percent": "False",
+          "NPercent": "10",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation",
+          "macro_path": "Predictive Tools\\Field_Summary_Report.yxmc",
+          "macro_tool_type": "FieldSummaryReport"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Field Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "1:Output->2:Field Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Predictive Tools\\Field_Summary_Report.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "198",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "FieldSummaryReport",
+          "display_name": "Field Summary",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Predictive Tools\\Field_Summary_Report.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "2",
+      "target_anchor": "Field Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

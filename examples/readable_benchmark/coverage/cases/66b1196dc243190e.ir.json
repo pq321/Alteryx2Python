@@ -1,0 +1,252 @@
+{
+  "workflow_id": "CalgaryCrossCount",
+  "workflow_name": "CalgaryCrossCount",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary\\CalgaryCrossCount.yxmd",
+  "source_hash": "516a63fadc4da0fc9470c2ac4f40dbda664f85f7c8c1513a6b5042707033eac9",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "117",
+      "source_tool_id": "117",
+      "tool_type": "CalgaryCrossCount",
+      "tool_name": "CalgaryPluginsGui.CalgaryCrossCount.CalgaryCrossCount",
+      "config": {
+        "RootFileName": {
+          "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+        },
+        "LinkedTables": {},
+        "Query": {},
+        "CrossCountFields": {
+          "attributes": {
+            "cacheSize": "256"
+          },
+          "CustomField": {
+            "attributes": {
+              "name": "CASS_StatusCode"
+            },
+            "Value": [
+              {
+                "attributes": {
+                  "name": "V"
+                },
+                "And": {
+                  "Field": [
+                    {
+                      "attributes": {
+                        "name": "CASS_StatusCode",
+                        "value": "V",
+                        "type": "value"
+                      }
+                    },
+                    {
+                      "attributes": {
+                        "name": "GEO_GeoLevel",
+                        "value": "Street",
+                        "type": "value"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "attributes": {
+                  "name": "S"
+                },
+                "Field": {
+                  "attributes": {
+                    "name": "CASS_StatusCode",
+                    "value": "S",
+                    "type": "value"
+                  }
+                }
+              },
+              {
+                "attributes": {
+                  "name": "X"
+                },
+                "Field": {
+                  "attributes": {
+                    "name": "CASS_StatusCode",
+                    "value": "X",
+                    "type": "value"
+                  }
+                }
+              }
+            ]
+          },
+          "Field": {
+            "attributes": {
+              "name": "CASS_CarrierRoute",
+              "type": "AString"
+            }
+          }
+        },
+        "raw": {
+          "RootFileName": {
+            "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+          },
+          "LinkedTables": {},
+          "Query": {},
+          "CrossCountFields": {
+            "attributes": {
+              "cacheSize": "256"
+            },
+            "CustomField": {
+              "attributes": {
+                "name": "CASS_StatusCode"
+              },
+              "Value": [
+                {
+                  "attributes": {
+                    "name": "V"
+                  },
+                  "And": {
+                    "Field": [
+                      {
+                        "attributes": {
+                          "name": "CASS_StatusCode",
+                          "value": "V",
+                          "type": "value"
+                        }
+                      },
+                      {
+                        "attributes": {
+                          "name": "GEO_GeoLevel",
+                          "value": "Street",
+                          "type": "value"
+                        }
+                      }
+                    ]
+                  }
+                },
+                {
+                  "attributes": {
+                    "name": "S"
+                  },
+                  "Field": {
+                    "attributes": {
+                      "name": "CASS_StatusCode",
+                      "value": "S",
+                      "type": "value"
+                    }
+                  }
+                },
+                {
+                  "attributes": {
+                    "name": "X"
+                  },
+                  "Field": {
+                    "attributes": {
+                      "name": "CASS_StatusCode",
+                      "value": "X",
+                      "type": "value"
+                    }
+                  }
+                }
+              ]
+            },
+            "Field": {
+              "attributes": {
+                "name": "CASS_CarrierRoute",
+                "type": "AString"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "root_file_name": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb",
+          "linked_tables": {},
+          "query": {
+            "text": ""
+          },
+          "cross_count_fields": [
+            {
+              "name": "CASS_StatusCode",
+              "values": [
+                {},
+                {
+                  "name": "CASS_StatusCode",
+                  "value": "S",
+                  "type": "value"
+                },
+                {
+                  "name": "CASS_StatusCode",
+                  "value": "X",
+                  "type": "value"
+                }
+              ]
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "117:Output->118:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "CalgaryPluginsGui.CalgaryCrossCount.CalgaryCrossCount",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "CalgaryPluginsGui.CalgaryCrossCount.CalgaryCrossCount"
+          },
+          "Position": {
+            "attributes": {
+              "x": "54",
+              "y": "306"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CalgaryCrossCount",
+          "display_name": "CalgaryCrossCount",
+          "category": "Calgary",
+          "engine_dll": "CalgaryPlugins.dll",
+          "engine_entry": "AlteryxCalgaryCrossCount",
+          "engine_macro": null,
+          "source": "managed-assembly+pe-exports",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Address.cydb"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

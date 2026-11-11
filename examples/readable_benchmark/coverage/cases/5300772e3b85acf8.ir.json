@@ -1,0 +1,349 @@
+{
+  "workflow_id": "05_CFML_RandomForest",
+  "workflow_name": "05_CFML_RandomForest",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\05_CFML_RandomForest.yxmd",
+  "source_hash": "f75f0936d39b466bab56e1e357964a794130a5886e7e390707878e45f36dfdd0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "6",
+      "source_tool_id": "6",
+      "tool_type": "Modeling",
+      "tool_name": "Modeling",
+      "config": {
+        "AssistedModelingDbFilepath": {
+          "text": "C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_3112_50e5951c06a4441eb75f01b23bebe385_\\Engine_7636_0d31e435f2ea4030a1621ef4fa9cfcea_.db"
+        },
+        "DatabaseMigrationFailure": {
+          "text": "False"
+        },
+        "MemoryThresholdExceeded": {
+          "text": "False"
+        },
+        "DesignerVersion": {},
+        "RawDataDbFilepath": {
+          "text": "C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_696_0fc7c21f726741d7bcdb4a249eae6c79_\\Engine_1692_35693a50c8444eaca21304dd1c58eb13_.db"
+        },
+        "TargetVariable": {
+          "text": "Species"
+        },
+        "LastNumRowsReceived": {
+          "text": "120"
+        },
+        "RadioSelection": {
+          "text": "expert"
+        },
+        "SerializedData": {},
+        "PythonPath": {
+          "text": "C:\\Program Files\\Alteryx\\bin\\Miniconda3\\envs\\MachineLearningTools_venv\\python.exe"
+        },
+        "PythonArgs": {
+          "text": "-m ayx_assisted_modeling runserver --threads=5 --db-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_3112_50e5951c06a4441eb75f01b23bebe385_\\Engine_7636_0d31e435f2ea4030a1621ef4fa9cfcea_.db\" --raw-data-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_696_0fc7c21f726741d7bcdb4a249eae6c79_\\Engine_1692_35693a50c8444eaca21304dd1c58eb13_.db\" --log-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Alteryx\\Log\\AssistedModelingAPILog_toolID6.txt\" --settings=\"PROD\" --port=54389 --session-id=\"None\" --tool-id=\"6\""
+        },
+        "Port": {
+          "text": "54389"
+        },
+        "schemaID": {
+          "text": "Tools.Modeling.2"
+        },
+        "AssistedModelingMetadata": [
+          {
+            "column_name": {
+              "text": "Id"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          },
+          {
+            "column_name": {
+              "text": "SepalLengthCm"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          },
+          {
+            "column_name": {
+              "text": "SepalWidthCm"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          },
+          {
+            "column_name": {
+              "text": "PetalLengthCm"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          },
+          {
+            "column_name": {
+              "text": "PetalWidthCm"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          },
+          {
+            "column_name": {
+              "text": "Species"
+            },
+            "column_type": {
+              "text": "CATEGORICAL"
+            }
+          }
+        ],
+        "InputMetadataChanged": {
+          "text": "False"
+        },
+        "sessionId": {},
+        "raw": {
+          "AssistedModelingDbFilepath": {
+            "text": "C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_3112_50e5951c06a4441eb75f01b23bebe385_\\Engine_7636_0d31e435f2ea4030a1621ef4fa9cfcea_.db"
+          },
+          "DatabaseMigrationFailure": {
+            "text": "False"
+          },
+          "MemoryThresholdExceeded": {
+            "text": "False"
+          },
+          "DesignerVersion": {},
+          "RawDataDbFilepath": {
+            "text": "C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_696_0fc7c21f726741d7bcdb4a249eae6c79_\\Engine_1692_35693a50c8444eaca21304dd1c58eb13_.db"
+          },
+          "TargetVariable": {
+            "text": "Species"
+          },
+          "LastNumRowsReceived": {
+            "text": "120"
+          },
+          "RadioSelection": {
+            "text": "expert"
+          },
+          "SerializedData": {},
+          "PythonPath": {
+            "text": "C:\\Program Files\\Alteryx\\bin\\Miniconda3\\envs\\MachineLearningTools_venv\\python.exe"
+          },
+          "PythonArgs": {
+            "text": "-m ayx_assisted_modeling runserver --threads=5 --db-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_3112_50e5951c06a4441eb75f01b23bebe385_\\Engine_7636_0d31e435f2ea4030a1621ef4fa9cfcea_.db\" --raw-data-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_696_0fc7c21f726741d7bcdb4a249eae6c79_\\Engine_1692_35693a50c8444eaca21304dd1c58eb13_.db\" --log-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Alteryx\\Log\\AssistedModelingAPILog_toolID6.txt\" --settings=\"PROD\" --port=54389 --session-id=\"None\" --tool-id=\"6\""
+          },
+          "Port": {
+            "text": "54389"
+          },
+          "schemaID": {
+            "text": "Tools.Modeling.2"
+          },
+          "AssistedModelingMetadata": [
+            {
+              "column_name": {
+                "text": "Id"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            },
+            {
+              "column_name": {
+                "text": "SepalLengthCm"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            },
+            {
+              "column_name": {
+                "text": "SepalWidthCm"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            },
+            {
+              "column_name": {
+                "text": "PetalLengthCm"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            },
+            {
+              "column_name": {
+                "text": "PetalWidthCm"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            },
+            {
+              "column_name": {
+                "text": "Species"
+              },
+              "column_type": {
+                "text": "CATEGORICAL"
+              }
+            }
+          ],
+          "InputMetadataChanged": {
+            "text": "False"
+          },
+          "sessionId": {},
+          "container_id": "18"
+        },
+        "normalized": {
+          "tool_type": "Modeling",
+          "TargetVariable": "Species",
+          "RadioSelection": "expert",
+          "LastNumRowsReceived": 120,
+          "schemaID": "Tools.Modeling.2",
+          "DatabaseMigrationFailure": false,
+          "MemoryThresholdExceeded": false,
+          "DesignerVersion": {},
+          "PythonPath": "C:\\Program Files\\Alteryx\\bin\\Miniconda3\\envs\\MachineLearningTools_venv\\python.exe",
+          "PythonArgs": "-m ayx_assisted_modeling runserver --threads=5 --db-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_3112_50e5951c06a4441eb75f01b23bebe385_\\Engine_7636_0d31e435f2ea4030a1621ef4fa9cfcea_.db\" --raw-data-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Temp\\Engine_696_0fc7c21f726741d7bcdb4a249eae6c79_\\Engine_1692_35693a50c8444eaca21304dd1c58eb13_.db\" --log-filepath=\"C:\\Users\\pragland\\AppData\\Local\\Alteryx\\Log\\AssistedModelingAPILog_toolID6.txt\" --settings=\"PROD\" --port=54389 --session-id=\"None\" --tool-id=\"6\"",
+          "Port": 54389,
+          "assisted_modeling_metadata": [
+            {
+              "column_name": "Id",
+              "column_type": "CATEGORICAL"
+            },
+            {
+              "column_name": "SepalLengthCm",
+              "column_type": "CATEGORICAL"
+            },
+            {
+              "column_name": "SepalWidthCm",
+              "column_type": "CATEGORICAL"
+            },
+            {
+              "column_name": "PetalLengthCm",
+              "column_type": "CATEGORICAL"
+            },
+            {
+              "column_name": "PetalWidthCm",
+              "column_type": "CATEGORICAL"
+            },
+            {
+              "column_name": "Species",
+              "column_type": "CATEGORICAL"
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Model",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "3:Output->6:Data"
+      ],
+      "outgoing_edges": [
+        "6:Model->7:Model"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Modeling",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "Modeling"
+          },
+          "Position": {
+            "attributes": {
+              "x": "246",
+              "y": "210"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Modeling",
+          "display_name": "Modeling",
+          "category": "Machine Learning",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Target = Species"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "6",
+      "target_anchor": "Data",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

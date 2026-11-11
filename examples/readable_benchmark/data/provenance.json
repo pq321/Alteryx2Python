@@ -1,0 +1,10 @@
+{
+  "source_url": "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data",
+  "publisher": "UCI Machine Learning Repository",
+  "dataset": "Iris",
+  "sha256": "6f608b71a7317216319b4d27b4d9bc84e6abd734eda7872b71a458569e2656c0",
+  "rows": 150,
+  "columns": 5,
+  "retrieved_at": "2026-11-11",
+  "license_reference": "https://archive.ics.uci.edu/dataset/53/iris"
+}

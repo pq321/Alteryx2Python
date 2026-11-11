@@ -1,0 +1,155 @@
+{
+  "workflow_id": "Text Summary",
+  "workflow_name": "Text Summary",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining\\Text Summary.yxmd",
+  "source_hash": "716a570ed66a1059a0da636546009b246caa12006886aa9bd658253e1da9e2c4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "143",
+      "source_tool_id": "143",
+      "tool_type": "TextSummary",
+      "tool_name": "TextSummary",
+      "config": {
+        "Language": {
+          "text": "english"
+        },
+        "Field": {
+          "text": "Text"
+        },
+        "SummaryLength": {
+          "text": "3"
+        },
+        "SummaryMethod": {
+          "text": "text_rank"
+        },
+        "raw": {
+          "Language": {
+            "text": "english"
+          },
+          "Field": {
+            "text": "Text"
+          },
+          "SummaryLength": {
+            "text": "3"
+          },
+          "SummaryMethod": {
+            "text": "text_rank"
+          },
+          "container_id": "133"
+        },
+        "normalized": {
+          "tool_type": "TextSummary",
+          "Language": "english",
+          "Field": "Text",
+          "SummaryLength": 3,
+          "SummaryMethod": "text_rank",
+          "container_id": "133",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "157:Output->143:Data"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "TextSummary",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "TextSummary"
+          },
+          "Position": {
+            "attributes": {
+              "x": "281",
+              "y": "256"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "TextSummary",
+          "display_name": "TextSummary",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "TextSummary\\\\text_summary_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "143",
+      "target_anchor": "Data",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

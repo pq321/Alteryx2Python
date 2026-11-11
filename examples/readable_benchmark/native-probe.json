@@ -1,0 +1,9 @@
+{
+  "runner": "engine-cmd",
+  "ok": false,
+  "detail": "Error - Alteryx Engine: The Feature \"API or FlowChartMode\" is not licensed.",
+  "stdout": "\ufeffAlteryxEngineCmd.exe Version 2025.1.2.165 \u00a9 Alteryx, Inc. - All Rights Reserved.\nStarted running E:\\Automation\\Alteryx2Python\\reports\\readable-dev\\native-probe1\\probe.yxmd\nError - Alteryx Engine: The Feature \"API or FlowChartMode\" is not licensed.\nFinished in 0.600 seconds with 1 error\n",
+  "stderr": "",
+  "returncode": 2,
+  "status": "blocked"
+}

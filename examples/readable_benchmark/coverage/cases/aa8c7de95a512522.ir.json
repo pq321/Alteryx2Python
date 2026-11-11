@@ -1,0 +1,244 @@
+{
+  "workflow_id": "Random % Sample",
+  "workflow_name": "Random % Sample",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Random % Sample.yxmd",
+  "source_hash": "39b905243e41b1534477bcf3cca99d5f564d4122d2ccccc59aefe5a5872e9a4b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "3",
+      "source_tool_id": "3",
+      "tool_type": "RandomRecords",
+      "tool_name": "RandomRecords.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Number"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "NNumber"
+            },
+            "text": "1000"
+          },
+          {
+            "attributes": {
+              "name": "Percent"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "NPercent"
+            },
+            "text": "5"
+          },
+          {
+            "attributes": {
+              "name": "Deterministic"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Seed"
+            },
+            "text": "458676342"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Number"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "NNumber"
+              },
+              "text": "1000"
+            },
+            {
+              "attributes": {
+                "name": "Percent"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "NPercent"
+              },
+              "text": "5"
+            },
+            {
+              "attributes": {
+                "name": "Deterministic"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Seed"
+              },
+              "text": "458676342"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "RandomRecords",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "Number"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "NNumber"
+              },
+              "#text": 1000
+            },
+            {
+              "@attributes": {
+                "name": "Percent"
+              },
+              "#text": true
+            },
+            {
+              "@attributes": {
+                "name": "NPercent"
+              },
+              "#text": 5
+            },
+            {
+              "@attributes": {
+                "name": "Deterministic"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "Seed"
+              },
+              "#text": 458676342
+            }
+          ],
+          "Number": "False",
+          "NNumber": "1000",
+          "Percent": "True",
+          "NPercent": "5",
+          "Deterministic": "False",
+          "Seed": "458676342",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation",
+          "macro_path": "RandomRecords.yxmc",
+          "macro_tool_type": "RandomRecords"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "2:Output->3:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "RandomRecords.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "282"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "RandomRecords",
+          "display_name": "Random Records",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "RandomRecords.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "3",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

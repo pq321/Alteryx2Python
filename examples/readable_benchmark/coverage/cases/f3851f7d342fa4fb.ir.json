@@ -1,0 +1,123 @@
+{
+  "workflow_id": "Tree",
+  "workflow_name": "Tree",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface\\Tree.yxwz",
+  "source_hash": "b2b90da8e9a85ad9e7955c12317201a5e7e32fc222168380a9583c107cdbbf63",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "2",
+      "source_tool_id": "2",
+      "tool_type": "Tree",
+      "tool_name": "AlteryxGuiToolkit.Questions.Tree.Tree",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Select a .yxdb file"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "0"
+            },
+            "Name": {},
+            "DefaultAnnotationText": {
+              "text": "Select a .yxdb file"
+            },
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "name": "",
+          "prompt": "Select a .yxdb file",
+          "default_value": "Select a .yxdb file",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Question",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "2:Question->4:Question",
+        "2:Question->6:Question"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Questions.Tree.Tree",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Questions.Tree.Tree"
+          },
+          "Position": {
+            "attributes": {
+              "x": "171",
+              "y": "371",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Tree",
+          "display_name": "Tree",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Select a .yxdb file"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

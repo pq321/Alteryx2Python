@@ -7,6 +7,7 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
+from alteryx2python.tools.field_contracts import coerce_field
 
 
 def _frame(inputs: dict[str, pd.DataFrame], anchor: str) -> pd.DataFrame:
@@ -39,7 +40,25 @@ def appendfields_tool(
                 output_column = column if column not in row else f"Source_{column}"
                 row[output_column] = value
             rows.append(row)
-    output = pd.DataFrame(rows)
+    columns = [*targets.columns, *(column if column not in targets.columns else f'Source_{column}' for column in source.columns)]
+    output = pd.DataFrame(rows, columns=columns)
+    fields = config.get('select_fields', [])
+    if fields:
+        selected, explicit = {}, set()
+        for field in fields:
+            name = str(field['source'])
+            if name == '*Unknown':
+                continue
+            if name.startswith('Target_'):
+                name = name[len('Target_'):]
+            elif name.startswith('Source_') and name[len('Source_'):] not in targets.columns:
+                name = name[len('Source_'):]
+            explicit.add(name)
+            if field.get('selected', True):
+                selected[field.get('rename') or name] = coerce_field(output[name], field.get('dtype'), field.get('size'))
+        if any(field['source'] == '*Unknown' and field.get('selected', True) for field in fields):
+            selected.update({column: output[column] for column in output.columns if column not in explicit and column not in selected})
+        output = pd.DataFrame(selected, index=output.index)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

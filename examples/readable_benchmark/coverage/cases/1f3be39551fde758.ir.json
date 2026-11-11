@@ -1,0 +1,812 @@
+{
+  "workflow_id": "CalgaryLoader",
+  "workflow_name": "CalgaryLoader",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary\\CalgaryLoader.yxmd",
+  "source_hash": "17fa664484c0e8a7f9621344e5a7149fcefc25725d485982b35b2285ff98f14a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "104",
+      "source_tool_id": "104",
+      "tool_type": "CalgaryLoader",
+      "tool_name": "CalgaryLoadersGui.CalgaryLoader.CalgaryLoader",
+      "config": {
+        "RootFileName": {
+          "text": "%temp%Address.cydb"
+        },
+        "UseLicenseKey": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Fields": {
+          "Field": [
+            {
+              "attributes": {
+                "field": "RecordID",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CONAME",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "ADDR",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CITY16",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "STATE",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "ZIP",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "ZIP4",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "STCODE",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CNTYCD",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GROUP",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "SEQUENCE",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_Address2",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_AddressPlusSuite",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_CarrierRoute",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_City",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_DeliveryPointCheckDigit",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_DeliveryPointCode",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_ErrorCode",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_LastLine",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_Plus4",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_State",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_StatusCode",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "CASS_ZIP",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_MatchStatus",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_Score",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_SpatialObj",
+                "data": "True",
+                "index": "True",
+                "indexType": "Spatial"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_Lat",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_Long",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_GeoLevel",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            },
+            {
+              "attributes": {
+                "field": "GEO_CensusID",
+                "data": "True",
+                "index": "True",
+                "indexType": "Auto"
+              }
+            }
+          ]
+        },
+        "raw": {
+          "RootFileName": {
+            "text": "%temp%Address.cydb"
+          },
+          "UseLicenseKey": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Fields": {
+            "Field": [
+              {
+                "attributes": {
+                  "field": "RecordID",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CONAME",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "ADDR",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CITY16",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "STATE",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "ZIP",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "ZIP4",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "STCODE",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CNTYCD",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GROUP",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "SEQUENCE",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_Address2",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_AddressPlusSuite",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_CarrierRoute",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_City",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_DeliveryPointCheckDigit",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_DeliveryPointCode",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_ErrorCode",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_LastLine",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_Plus4",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_State",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_StatusCode",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "CASS_ZIP",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_MatchStatus",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_Score",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_SpatialObj",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Spatial"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_Lat",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_Long",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_GeoLevel",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              },
+              {
+                "attributes": {
+                  "field": "GEO_CensusID",
+                  "data": "True",
+                  "index": "True",
+                  "indexType": "Auto"
+                }
+              }
+            ]
+          }
+        },
+        "normalized": {
+          "root_file_name": "%temp%Address.cydb",
+          "use_license_key": false,
+          "fields": [
+            {
+              "field": "RecordID",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CONAME",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "ADDR",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CITY16",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "STATE",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "ZIP",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "ZIP4",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "STCODE",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CNTYCD",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GROUP",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "SEQUENCE",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_Address2",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_AddressPlusSuite",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_CarrierRoute",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_City",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_DeliveryPointCheckDigit",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_DeliveryPointCode",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_ErrorCode",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_LastLine",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_Plus4",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_State",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_StatusCode",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "CASS_ZIP",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_MatchStatus",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_Score",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_SpatialObj",
+              "data": "True",
+              "index": "True",
+              "indexType": "Spatial"
+            },
+            {
+              "field": "GEO_Lat",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_Long",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_GeoLevel",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            },
+            {
+              "field": "GEO_CensusID",
+              "data": "True",
+              "index": "True",
+              "indexType": "Auto"
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "105:Output->104:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "CalgaryLoadersGui.CalgaryLoader.CalgaryLoader",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "CalgaryLoadersGui.CalgaryLoader.CalgaryLoader"
+          },
+          "Position": {
+            "attributes": {
+              "x": "342",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CalgaryLoader",
+          "display_name": "Calgary Loader",
+          "category": "Calgary",
+          "engine_dll": "CalgaryLoaders.dll",
+          "engine_entry": "AlteryxCalgaryLoader",
+          "engine_macro": null,
+          "source": "managed-assembly+pe-exports",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "104",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

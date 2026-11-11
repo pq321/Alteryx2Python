@@ -262,6 +262,109 @@ def apply_actions(root, values):
                 )
             target.text = replacement
             return
+        if mode == "UpdateSelect":
+            # Selection answers arrive as a delimited field list; mark the
+            # target Select node's SelectField entries accordingly.
+            variable = _value(action, "Variable")
+            if variable not in values:
+                raise ToolUnavailableError(
+                    f"Action variable has no bound question: {variable!r}"
+                )
+            selected_names = {
+                item.strip()
+                for item in str(_serialize(values[variable])).replace(";", ",").split(",")
+                if item.strip()
+            }
+            tool = _value(action, "Destination").split("/", 1)[0]
+            select_fields = out.find(
+                f".//Node[@ToolID='{tool}']/Properties/Configuration/SelectFields"
+            )
+            if select_fields is None:
+                raise ValueError(f"UpdateSelect target has no SelectFields: {tool}")
+            for select_field in select_fields.findall("SelectField"):
+                name = select_field.get("field", "")
+                if name.startswith("*"):
+                    continue
+                select_field.set("selected", "True" if name in selected_names else "False")
+            return
+        if mode == "UpdateFieldList":
+            # Replace the target field-list configuration wholesale.
+            variable = _value(action, "Variable")
+            if variable not in values:
+                raise ToolUnavailableError(
+                    f"Action variable has no bound question: {variable!r}"
+                )
+            entries = values[variable]
+            if not isinstance(entries, (list, tuple)):
+                entries = [
+                    item.strip() for item in str(entries).replace(";", ",").split(",") if item.strip()
+                ]
+            tool = _value(action, "Destination").split("/", 1)[0]
+            config_node = out.find(
+                f".//Node[@ToolID='{tool}']/Properties/Configuration"
+            )
+            if config_node is None:
+                raise ValueError(f"UpdateFieldList target tool not found: {tool}")
+            for old_list in list(config_node):
+                if old_list.tag.endswith("Fields"):
+                    config_node.remove(old_list)
+            fields_element = ET.SubElement(config_node, "Fields")
+            for entry in entries:
+                field_element = ET.SubElement(fields_element, "Field")
+                field_element.set("field", str(entry))
+                field_element.set("selected", "True")
+            return
+        if mode == "EditExpression":
+            # Set the target expression text to the evaluated string.
+            value = _expression(_value(action, "Expression"), values)
+            targets, attribute = _destination(out, _value(action, "Destination"))
+            for target in targets:
+                if attribute:
+                    target.set(attribute, _serialize(value))
+                else:
+                    target.text = _serialize(value)
+            return
+        if mode == "UpdateMap":
+            # Map answers are spatial Extent serializations; record the value
+            # into the target map configuration element.
+            variable = _value(action, "Variable")
+            if variable not in values:
+                raise ToolUnavailableError(
+                    f"Action variable has no bound question: {variable!r}"
+                )
+            targets, attribute = _destination(out, _value(action, "Destination"))
+            replacement = _serialize(values[variable])
+            for target in targets:
+                if attribute:
+                    target.set(attribute, replacement)
+                else:
+                    target.text = replacement
+            return
+        if mode == "DeleteTool":
+            variable = _value(action, "Variable")
+            delete = str(_serialize(values.get(variable, "False"))).lower() in {"true", "1"}
+            if not delete:
+                return
+            tool = _value(action, "Destination").split("/", 1)[0]
+            for parent in out.iter():
+                for child in list(parent):
+                    if child.tag == "Node" and child.get("ToolID") == tool:
+                        parent.remove(child)
+            connections = out.find("./Connections")
+            if connections is not None:
+                for connection in list(connections):
+                    origin, destination = connection.find("Origin"), connection.find("Destination")
+                    if (origin is not None and origin.get("ToolID") == tool) or (
+                        destination is not None and destination.get("ToolID") == tool
+                    ):
+                        connections.remove(connection)
+            return
+        if mode == "DynamicAction":
+            # Data-driven runtime actions cannot be evaluated statically; the
+            # engine resolves them per record batch. Record explicitly.
+            raise ToolUnavailableError(
+                "DynamicAction is data-driven and has no static Python mapping"
+            )
         if mode not in {
             "UpdateValue",
             "UpdateValueReplace",

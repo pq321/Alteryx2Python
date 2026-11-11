@@ -1,0 +1,154 @@
+{
+  "workflow_id": "10_CFML_Text_Mining",
+  "workflow_name": "10_CFML_Text_Mining",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\10_CFML_Text_Mining.yxmd",
+  "source_hash": "97f0630f02d0c5c656f9fc78d0843a65737be10acd229c02ecaeb2b1d07eb325",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "PDFInput",
+      "tool_name": "PDFInput",
+      "config": {
+        "FieldSelect": {
+          "text": "FileName"
+        },
+        "ModeSelect": {
+          "text": "1"
+        },
+        "PDFDirectory": {
+          "text": "C:\\Users\\pragland\\Documents\\US_Constitution"
+        },
+        "raw": {
+          "FieldSelect": {
+            "text": "FileName"
+          },
+          "ModeSelect": {
+            "text": "1"
+          },
+          "PDFDirectory": {
+            "text": "C:\\Users\\pragland\\Documents\\US_Constitution"
+          },
+          "container_id": "22"
+        },
+        "normalized": {
+          "field": "FileName",
+          "mode": "1",
+          "pdf_directory": "C:\\Users\\pragland\\Documents\\US_Constitution",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "15:Output->1:Input"
+      ],
+      "outgoing_edges": [
+        "1:Output->4:dataInput",
+        "1:Output->5:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PDFInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PDFInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "342",
+              "y": "197"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PDFInput",
+          "display_name": "PDFInput",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "PDFInput\\\\pdf_input_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

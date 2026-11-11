@@ -1,0 +1,152 @@
+{
+  "workflow_id": "Blob_Output",
+  "workflow_name": "Blob_Output",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\Blob_Output.yxmd",
+  "source_hash": "77a45699d59de23f0c549bbd39feb74e7ddfddbeb3fc9bdf19e04ddcdf689ed9",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "21",
+      "source_tool_id": "21",
+      "tool_type": "BlobOutput",
+      "tool_name": "AlteryxBasePluginsGui.BlobOutput.BlobOutput",
+      "config": {
+        "FileName": {
+          "text": "%TEMP%\\BlobOutput"
+        },
+        "ModifyMethod": {
+          "text": "FileName"
+        },
+        "ModifyFilename_Field": {
+          "text": "FileName"
+        },
+        "BlobField": {
+          "text": "Blob"
+        },
+        "raw": {
+          "FileName": {
+            "text": "%TEMP%\\BlobOutput"
+          },
+          "ModifyMethod": {
+            "text": "FileName"
+          },
+          "ModifyFilename_Field": {
+            "text": "FileName"
+          },
+          "BlobField": {
+            "text": "Blob"
+          }
+        },
+        "normalized": {
+          "file_name": "%TEMP%\\BlobOutput",
+          "modify_method": "FileName",
+          "modify_filename_field": "FileName",
+          "blob_field": "Blob",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "2:Output->21:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.BlobOutput.BlobOutput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.BlobOutput.BlobOutput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "366",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "BlobOutput",
+          "display_name": "Blob Output",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxBlobOutput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "21",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

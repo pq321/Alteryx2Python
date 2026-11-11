@@ -1,0 +1,135 @@
+{
+  "workflow_id": "Feature Types Build Features",
+  "workflow_name": "Feature Types Build Features",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning\\Feature Types Build Features.yxmd",
+  "source_hash": "68c08d79af3b3ba78a187184440a08f4e279123832a42b691dcd39ae3457c4cc",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "133",
+      "source_tool_id": "133",
+      "tool_type": "ToolContainer",
+      "tool_name": "AlteryxGuiToolkit.ToolContainer.ToolContainer",
+      "config": {
+        "Caption": {},
+        "Style": {
+          "attributes": {
+            "TextColor": "#314c4a",
+            "FillColor": "#ecf2f2",
+            "BorderColor": "#314c4a",
+            "Transparency": "25",
+            "Margin": "10"
+          }
+        },
+        "Disabled": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "Folded": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "raw": {
+          "Caption": {},
+          "Style": {
+            "attributes": {
+              "TextColor": "#314c4a",
+              "FillColor": "#ecf2f2",
+              "BorderColor": "#314c4a",
+              "Transparency": "25",
+              "Margin": "10"
+            }
+          },
+          "Disabled": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "Folded": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "child_node_ids": [
+            "124"
+          ]
+        },
+        "normalized": {
+          "caption": "",
+          "style": {
+            "TextColor": "#314c4a",
+            "FillColor": "#ecf2f2",
+            "BorderColor": "#314c4a",
+            "Transparency": "25",
+            "Margin": "10"
+          },
+          "disabled": true,
+          "folded": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.ToolContainer.ToolContainer",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.ToolContainer.ToolContainer"
+          },
+          "Position": {
+            "attributes": {
+              "x": "272",
+              "y": "260",
+              "width": "78",
+              "height": "24"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ToolContainer",
+          "display_name": "Tool Container",
+          "category": "Documentation",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_CONTAINER_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,358 @@
+{
+  "status": "python_match",
+  "native_equivalence": "unverified",
+  "source_sha256": "5199f821a8b5aa370228b6d656aa1128ff44665ef801b75b8ee4784a362055cb",
+  "answers": {},
+  "nodes": [
+    {
+      "node_id": "1",
+      "tool_type": "DbFileInput",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "16",
+      "tool_type": "TextInput",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "22",
+      "tool_type": "PortfolioComposerText",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "1000",
+      "tool_type": "ToolContainer",
+      "anchors": [],
+      "status": "match"
+    },
+    {
+      "node_id": "2",
+      "tool_type": "Select",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "3",
+      "tool_type": "RecordID",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "4",
+      "tool_type": "Macro_NormalizeMeasurements",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "5",
+      "tool_type": "Formula",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "30",
+      "tool_type": "Transpose",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "35",
+      "tool_type": "GenerateRows",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "6",
+      "tool_type": "Filter",
+      "anchors": [
+        "True",
+        "False"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "32",
+      "tool_type": "RegEx",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "31",
+      "tool_type": "CrossTab",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "36",
+      "tool_type": "MultiFieldFormula",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "7",
+      "tool_type": "TextToColumns",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "33",
+      "tool_type": "AutoField",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "37",
+      "tool_type": "MultiRowFormula",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "8",
+      "tool_type": "Unique",
+      "anchors": [
+        "Unique",
+        "Duplicates"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "34",
+      "tool_type": "FieldInfo",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "9",
+      "tool_type": "Sort",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "10",
+      "tool_type": "RunningTotal",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "11",
+      "tool_type": "Rank",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "12",
+      "tool_type": "Sample",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "13",
+      "tool_type": "Summarize",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "14",
+      "tool_type": "Macro_BenchmarkParallelBlock",
+      "anchors": [
+        "Output1",
+        "Output2"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "17",
+      "tool_type": "Join",
+      "anchors": [
+        "Join",
+        "Left",
+        "Right"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "18",
+      "tool_type": "Select",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "19",
+      "tool_type": "BlockUntilDone",
+      "anchors": [
+        "Output",
+        "Output2",
+        "Output3"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "20",
+      "tool_type": "DbFileOutput",
+      "anchors": [],
+      "status": "match"
+    },
+    {
+      "node_id": "21",
+      "tool_type": "PortfolioComposerTable",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "23",
+      "tool_type": "Union",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "24",
+      "tool_type": "PortfolioComposerLayout",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "25",
+      "tool_type": "PortfolioComposerRender",
+      "anchors": [],
+      "status": "match"
+    },
+    {
+      "node_id": "26",
+      "tool_type": "RunCommand",
+      "anchors": [
+        "Output"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "27",
+      "tool_type": "Email",
+      "anchors": [],
+      "status": "match"
+    },
+    {
+      "node_id": "28",
+      "tool_type": "ControlContainer",
+      "anchors": [
+        "Log"
+      ],
+      "status": "match"
+    },
+    {
+      "node_id": "29",
+      "tool_type": "BrowseV2",
+      "anchors": [],
+      "status": "match"
+    },
+    {
+      "node_id": "15",
+      "tool_type": "DbFileOutput",
+      "anchors": [],
+      "status": "match"
+    }
+  ],
+  "tool_types": [
+    "AutoField",
+    "BlockUntilDone",
+    "BrowseV2",
+    "ControlContainer",
+    "CrossTab",
+    "DbFileInput",
+    "DbFileOutput",
+    "Email",
+    "FieldInfo",
+    "Filter",
+    "Formula",
+    "GenerateRows",
+    "Join",
+    "Macro_BenchmarkParallelBlock",
+    "Macro_NormalizeMeasurements",
+    "MultiFieldFormula",
+    "MultiRowFormula",
+    "PortfolioComposerLayout",
+    "PortfolioComposerRender",
+    "PortfolioComposerTable",
+    "PortfolioComposerText",
+    "Rank",
+    "RecordID",
+    "RegEx",
+    "RunCommand",
+    "RunningTotal",
+    "Sample",
+    "Select",
+    "Sort",
+    "Summarize",
+    "TextInput",
+    "TextToColumns",
+    "ToolContainer",
+    "Transpose",
+    "Union",
+    "Unique"
+  ],
+  "artifacts": {
+    "after-event.txt": "1235f8f435b1d16f7aac442351f2e29ff1bd2b74652392c4accb5ec5565973da",
+    "before-event.txt": "a6456ed3bde94789512c42c563637b929da22b9b5611962bd2c8ff63343d8195",
+    "command-proof.txt": "4e129b2dfdad6b1a6ecbe80d50822517d615e14f6112c60a7e03abdcde8d5967",
+    "email-27.eml": "ccc5f950d4287193fb0dc135f5be0371c9d28baf05ca8d4f4ef4c22eaab8e51d",
+    "events.log": "d7605ffcf2c6c29d60db4c53b54d5a3c8f556351ac5af4b18b658bc97d3766f1",
+    "iris_report.html": "22cd91ce232890391b33cd4fa879cda3567acbf5cff08baa6f2cff4b77e196b0",
+    "rejected_measurements.csv": "1c895973f0ebdd33bd94ec5dc5c61d1d8065bd59296f3ca0519c53fea37404d6",
+    "species_summary.csv": "2a36f4f22806456109b5f532e0f64978f6fe244fe6f99f768dfc868ec00f8b06"
+  },
+  "generated_sha256": "484b33ac3ac29a6c6bec16887509a58fbd86d392cf6467d7ce3b9ea3fdc231ce",
+  "delivery_execution": "match",
+  "verification_sha256": "c683b1ff5db24384c7ad0bc9e25eba7c4b7276134b396997928d51b3c9c5763d"
+}

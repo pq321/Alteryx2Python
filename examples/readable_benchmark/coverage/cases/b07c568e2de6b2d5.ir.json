@@ -1,0 +1,247 @@
+{
+  "workflow_id": "Arrange",
+  "workflow_name": "Arrange",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\Arrange.yxmd",
+  "source_hash": "cbad0ae581c58dd36cd70f4a59bc02fd8010f0b56eeea6f2f3e1633f454fadd8",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "102",
+      "source_tool_id": "102",
+      "tool_type": "Arrange",
+      "tool_name": "AlteryxBasePluginsGui.Arrange.Arrange",
+      "config": {
+        "KeyFields": {
+          "attributes": {
+            "orderChanged": "False"
+          },
+          "Field": {
+            "attributes": {
+              "name": "RecordID"
+            }
+          }
+        },
+        "OutputFields": {
+          "Columns": {
+            "Column": [
+              {
+                "attributes": {
+                  "name": "Description",
+                  "type": "text",
+                  "context": "Take from Descriptions"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "X",
+                  "type": "combobox"
+                }
+              }
+            ]
+          },
+          "Data": {
+            "r": [
+              {
+                "c": [
+                  {},
+                  {
+                    "text": "X1"
+                  }
+                ]
+              },
+              {
+                "c": [
+                  {},
+                  {
+                    "text": "X2"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        "raw": {
+          "KeyFields": {
+            "attributes": {
+              "orderChanged": "False"
+            },
+            "Field": {
+              "attributes": {
+                "name": "RecordID"
+              }
+            }
+          },
+          "OutputFields": {
+            "Columns": {
+              "Column": [
+                {
+                  "attributes": {
+                    "name": "Description",
+                    "type": "text",
+                    "context": "Take from Descriptions"
+                  }
+                },
+                {
+                  "attributes": {
+                    "name": "X",
+                    "type": "combobox"
+                  }
+                }
+              ]
+            },
+            "Data": {
+              "r": [
+                {
+                  "c": [
+                    {},
+                    {
+                      "text": "X1"
+                    }
+                  ]
+                },
+                {
+                  "c": [
+                    {},
+                    {
+                      "text": "X2"
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        },
+        "normalized": {
+          "key_fields": [
+            "RecordID"
+          ],
+          "output_columns": [
+            {
+              "name": "Description",
+              "type": "text",
+              "context": "Take from Descriptions"
+            },
+            {
+              "name": "X",
+              "type": "combobox",
+              "context": ""
+            }
+          ],
+          "output_rows": [
+            [
+              "",
+              "X1"
+            ],
+            [
+              "",
+              "X2"
+            ]
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "101:Output->102:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Arrange.Arrange",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Arrange.Arrange"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "294"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Arrange",
+          "display_name": "Arrange",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxArrange",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "102",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

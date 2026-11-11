@@ -1,0 +1,184 @@
+{
+  "workflow_id": "07 Smooth_spatial_objects_on_a_map",
+  "workflow_name": "07 Smooth_spatial_objects_on_a_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\07 Smooth_spatial_objects_on_a_map.yxmd",
+  "source_hash": "ca9a8cb2825a8ca5250b3d36d3e79aff3f40f4e8aac2a85d0f4ea7b16f39968b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "9",
+      "source_tool_id": "9",
+      "tool_type": "Buffer",
+      "tool_name": "AlteryxSpatialPluginsGui.Buffer.Buffer",
+      "config": {
+        "SpatialObjectField": {
+          "text": "SpatialObj"
+        },
+        "IncludeSourceInOutput": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "GeneralizeToOnePercent": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "BufferSizeSource": {
+          "text": "SpecificValue"
+        },
+        "BufferSizeSpecificValue": {
+          "text": "2"
+        },
+        "Units": {
+          "text": "Miles"
+        },
+        "raw": {
+          "SpatialObjectField": {
+            "text": "SpatialObj"
+          },
+          "IncludeSourceInOutput": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "GeneralizeToOnePercent": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "BufferSizeSource": {
+            "text": "SpecificValue"
+          },
+          "BufferSizeSpecificValue": {
+            "text": "2"
+          },
+          "Units": {
+            "text": "Miles"
+          }
+        },
+        "normalized": {
+          "spatial_field": "SpatialObj",
+          "include_source": true,
+          "generalize_to_one_percent": true,
+          "buffer_size_source": "SpecificValue",
+          "buffer_size": "2",
+          "buffer_size_field": "",
+          "units": "Miles",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "6:Output->9:Input"
+      ],
+      "outgoing_edges": [
+        "9:Output->10:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.Buffer.Buffer",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.Buffer.Buffer"
+          },
+          "Position": {
+            "attributes": {
+              "x": "580",
+              "y": "221"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Buffer",
+          "display_name": "Buffer",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxBuffer",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "Buffer (9)"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "9",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

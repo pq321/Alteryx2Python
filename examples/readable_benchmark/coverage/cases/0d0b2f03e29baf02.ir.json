@@ -1,0 +1,243 @@
+{
+  "workflow_id": "Fuzzy_Match",
+  "workflow_name": "Fuzzy_Match",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\03 Join\\Fuzzy_Match.yxmd",
+  "source_hash": "bd9edbeac9725f57ae7f0b79b989f018362d3f4a8fb8f33e08a164baa5e05a0d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "323",
+      "source_tool_id": "323",
+      "tool_type": "FindReplace",
+      "tool_name": "AlteryxBasePluginsGui.FindReplace.FindReplace",
+      "config": {
+        "FieldFind": {
+          "text": "acct_holder"
+        },
+        "FieldSearch": {
+          "text": "Key"
+        },
+        "ReplaceFoundField": {
+          "text": "Group"
+        },
+        "FindMode": {
+          "text": "FindWhole"
+        },
+        "NoCase": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "MatchWholeWord": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ReplaceMode": {
+          "text": "Replace"
+        },
+        "ReplaceMultipleFound": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "ReplaceAppendFields": {},
+        "raw": {
+          "FieldFind": {
+            "text": "acct_holder"
+          },
+          "FieldSearch": {
+            "text": "Key"
+          },
+          "ReplaceFoundField": {
+            "text": "Group"
+          },
+          "FindMode": {
+            "text": "FindWhole"
+          },
+          "NoCase": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "MatchWholeWord": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ReplaceMode": {
+            "text": "Replace"
+          },
+          "ReplaceMultipleFound": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "ReplaceAppendFields": {}
+        },
+        "normalized": {
+          "field_find": "acct_holder",
+          "field_search": "Key",
+          "replace_found_field": "Group",
+          "find_mode": "FindWhole",
+          "no_case": false,
+          "match_whole_word": false,
+          "replace_mode": "Replace",
+          "replace_multiple_found": true,
+          "append_fields": [],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\03 Join"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Source",
+          "direction": "input"
+        },
+        {
+          "name": "Targets",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "320:Output->323:Targets",
+        "322:Output->323:Source"
+      ],
+      "outgoing_edges": [
+        "323:Output->331:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.FindReplace.FindReplace",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.FindReplace.FindReplace"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "1554"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "FindReplace",
+          "display_name": "Find Replace",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxFindReplace",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "323",
+      "target_anchor": "Targets",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "323",
+      "target_anchor": "Source",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

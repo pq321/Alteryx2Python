@@ -1,0 +1,269 @@
+{
+  "workflow_id": "05 View_FEMA_housing_data",
+  "workflow_name": "05 View_FEMA_housing_data",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\05 View_FEMA_housing_data.yxwz",
+  "source_hash": "2cda0f2f189da443ac8c67842a77a2b81dc0fad290eed6d35f217c1bfebeaa2c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "81",
+      "source_tool_id": "81",
+      "tool_type": "ReportHeader",
+      "tool_name": "HeaderMacro.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "HeaderText"
+            },
+            "text": "Alteryx Report"
+          },
+          {
+            "attributes": {
+              "name": "IncludeDate"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "DateFormat"
+            },
+            "text": "Month dd, yyyy"
+          },
+          {
+            "attributes": {
+              "name": "IncludeImage"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "AlteryxLogo"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "OwnLogo"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "ImageFile"
+            }
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "HeaderText"
+              },
+              "text": "Alteryx Report"
+            },
+            {
+              "attributes": {
+                "name": "IncludeDate"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "DateFormat"
+              },
+              "text": "Month dd, yyyy"
+            },
+            {
+              "attributes": {
+                "name": "IncludeImage"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "AlteryxLogo"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "OwnLogo"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "ImageFile"
+              }
+            }
+          ]
+        },
+        "normalized": {
+          "header_text": "Alteryx Report",
+          "include_date": true,
+          "date_format": "Month dd, yyyy",
+          "include_image": true,
+          "alteryx_logo": true,
+          "own_logo": false,
+          "image_file": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App",
+          "macro_path": "HeaderMacro.yxmc",
+          "macro_tool_type": "ReportHeader"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Report Layout",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output13",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "80:Output->81:Report Layout"
+      ],
+      "outgoing_edges": [
+        "81:Output13->82:Report Layout"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output13",
+        "fields": [
+          {
+            "name": "BoundingRect",
+            "size": "2147483647",
+            "source": "Map:",
+            "type": "SpatialObj"
+          },
+          {
+            "name": "Layout",
+            "size": "1073741823",
+            "source": "Report:Layout:",
+            "type": "V_WString"
+          },
+          {
+            "name": "Header",
+            "size": "1073741823",
+            "source": "Report:Layout:",
+            "type": "V_WString"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "HeaderMacro.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "1389",
+              "y": "701"
+            }
+          }
+        },
+        "meta_info": {
+          "Output13": {
+            "connection": "Output13",
+            "fields": [
+              {
+                "name": "BoundingRect",
+                "size": "2147483647",
+                "source": "Map:",
+                "type": "SpatialObj"
+              },
+              {
+                "name": "Layout",
+                "size": "1073741823",
+                "source": "Report:Layout:",
+                "type": "V_WString"
+              },
+              {
+                "name": "Header",
+                "size": "1073741823",
+                "source": "Report:Layout:",
+                "type": "V_WString"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "ReportHeader",
+          "display_name": "Report Header",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "HeaderMacro.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "81",
+      "target_anchor": "Report Layout",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

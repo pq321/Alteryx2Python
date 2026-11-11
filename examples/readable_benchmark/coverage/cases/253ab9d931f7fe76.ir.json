@@ -1,0 +1,144 @@
+{
+  "workflow_id": "ControlContainer",
+  "workflow_name": "ControlContainer",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\ControlContainer.yxmd",
+  "source_hash": "70f5f0ecb4f6ff3f24813ef3c57c5731597f8cc9b3db30aa92e0f5ca48811b32",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "52",
+      "source_tool_id": "52",
+      "tool_type": "ControlContainer",
+      "tool_name": "AlteryxGuiToolkit.ControlContainer.ControlContainer",
+      "config": {
+        "Caption": {
+          "text": "Basics"
+        },
+        "Style": {
+          "attributes": {
+            "TextColor": "#314c4a",
+            "FillColor": "#ecf2f2",
+            "BorderColor": "#314c4a",
+            "Transparency": "25",
+            "Margin": "10"
+          }
+        },
+        "Disabled": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Folded": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "Caption": {
+            "text": "Basics"
+          },
+          "Style": {
+            "attributes": {
+              "TextColor": "#314c4a",
+              "FillColor": "#ecf2f2",
+              "BorderColor": "#314c4a",
+              "Transparency": "25",
+              "Margin": "10"
+            }
+          },
+          "Disabled": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Folded": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "child_node_ids": []
+        },
+        "normalized": {
+          "caption": "Basics",
+          "style": {
+            "TextColor": "#314c4a",
+            "FillColor": "#ecf2f2",
+            "BorderColor": "#314c4a",
+            "Transparency": "25",
+            "Margin": "10"
+          },
+          "disabled": false,
+          "folded": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Log",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "52:Log->53:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.ControlContainer.ControlContainer",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.ControlContainer.ControlContainer"
+          },
+          "Position": {
+            "attributes": {
+              "x": "306",
+              "y": "222",
+              "width": "114",
+              "height": "48"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ControlContainer",
+          "display_name": "Control Container",
+          "category": "Developer",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxCtrlContainer",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

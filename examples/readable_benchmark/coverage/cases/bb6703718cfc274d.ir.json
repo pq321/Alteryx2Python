@@ -1,0 +1,152 @@
+{
+  "workflow_id": "Summarize",
+  "workflow_name": "Summarize",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\Summarize.yxmd",
+  "source_hash": "9acc272ce454445130033131dc3b69da264a76ae6f545ba0a2c954e0169ad9e1",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "139",
+      "source_tool_id": "139",
+      "tool_type": "Summarize",
+      "tool_name": "AlteryxSpatialPluginsGui.Summarize.Summarize",
+      "config": {
+        "SummarizeFields": {
+          "SummarizeField": {
+            "attributes": {
+              "field": "City",
+              "action": "GroupBy",
+              "rename": "City"
+            }
+          }
+        },
+        "raw": {
+          "SummarizeFields": {
+            "SummarizeField": {
+              "attributes": {
+                "field": "City",
+                "action": "GroupBy",
+                "rename": "City"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "summarize_fields": [
+            {
+              "field": "City",
+              "action": "GroupBy",
+              "rename": "City",
+              "concat_start": "",
+              "separator": "",
+              "concat_end": ""
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "152:Output->139:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.Summarize.Summarize",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.Summarize.Summarize"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "438"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Summarize",
+          "display_name": "Summarize",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxSummarize",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "139",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

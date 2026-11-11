@@ -1,0 +1,153 @@
+{
+  "workflow_id": "JSON_Parse",
+  "workflow_name": "JSON_Parse",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\JSON_Parse.yxmd",
+  "source_hash": "ce396ac1ab7363296881c64273a3b9abeb8b61ac7418b58b781bab7ff18e804c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "JSONParse",
+      "tool_name": "AlteryxBasePluginsGui.JSONParse.JSONParse",
+      "config": {
+        "JSON_Field": {
+          "text": "Field1"
+        },
+        "IncludeInOutput": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "SingleField": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "raw": {
+          "JSON_Field": {
+            "text": "Field1"
+          },
+          "IncludeInOutput": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "SingleField": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        },
+        "normalized": {
+          "json_field": "Field1",
+          "include_in_output": false,
+          "single_field": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "5:Output->1:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.JSONParse.JSONParse",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.JSONParse.JSONParse"
+          },
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "JSONParse",
+          "display_name": "JSON Parse",
+          "category": "Parse",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxJSONParse",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

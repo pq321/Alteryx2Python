@@ -1,0 +1,355 @@
+{
+  "workflow_id": "13 Convert_metrics_and_publish_online",
+  "workflow_name": "13 Convert_metrics_and_publish_online",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\13 Convert_metrics_and_publish_online.yxwz",
+  "source_hash": "fdd13af316c04500e3614710e691b39112e0c40505600bedad20aec16cae3a2e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "29",
+      "source_tool_id": "29",
+      "tool_type": "Detour",
+      "tool_name": "AlteryxBasePluginsGui.Detour.Detour",
+      "config": {
+        "DetourRight": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "DetourRight": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "detour_right": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Action",
+          "direction": "input"
+        },
+        {
+          "name": "Input",
+          "direction": "input"
+        },
+        {
+          "name": "Left",
+          "direction": "input"
+        },
+        {
+          "name": "Right",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Left",
+          "direction": "output"
+        },
+        {
+          "name": "Right",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "8:Output->29:Input",
+        "107:Action->29:Action",
+        "110:Action->29:Action"
+      ],
+      "outgoing_edges": [
+        "29:Left->30:Left",
+        "29:Right->28:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "Left": {
+          "connection": "Left",
+          "fields": [
+            {
+              "name": "Input",
+              "source": "TextInput:",
+              "type": "Double"
+            },
+            {
+              "name": "Result",
+              "source": "Formula: Round([Result], 0.01)",
+              "type": "Float"
+            },
+            {
+              "name": "Type",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "InputUnits",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "OutputUnits",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "Text",
+              "size": "2147483647",
+              "source": "Report:Text:",
+              "type": "V_String"
+            }
+          ]
+        },
+        "Right": {
+          "connection": "Right",
+          "fields": [
+            {
+              "name": "Input",
+              "source": "TextInput:",
+              "type": "Double"
+            },
+            {
+              "name": "Result",
+              "source": "Formula: Round([Result], 0.01)",
+              "type": "Float"
+            },
+            {
+              "name": "Type",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "InputUnits",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "OutputUnits",
+              "size": "2147483647",
+              "source": "TextInput:",
+              "type": "V_String"
+            },
+            {
+              "name": "Text",
+              "size": "2147483647",
+              "source": "Report:Text:",
+              "type": "V_String"
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Detour.Detour",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Detour.Detour"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1319",
+              "y": "596"
+            }
+          }
+        },
+        "meta_info": {
+          "Left": {
+            "connection": "Left",
+            "fields": [
+              {
+                "name": "Input",
+                "source": "TextInput:",
+                "type": "Double"
+              },
+              {
+                "name": "Result",
+                "source": "Formula: Round([Result], 0.01)",
+                "type": "Float"
+              },
+              {
+                "name": "Type",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "InputUnits",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "OutputUnits",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "Text",
+                "size": "2147483647",
+                "source": "Report:Text:",
+                "type": "V_String"
+              }
+            ]
+          },
+          "Right": {
+            "connection": "Right",
+            "fields": [
+              {
+                "name": "Input",
+                "source": "TextInput:",
+                "type": "Double"
+              },
+              {
+                "name": "Result",
+                "source": "Formula: Round([Result], 0.01)",
+                "type": "Float"
+              },
+              {
+                "name": "Type",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "InputUnits",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "OutputUnits",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "name": "Text",
+                "size": "2147483647",
+                "source": "Report:Text:",
+                "type": "V_String"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Detour",
+          "display_name": "Detour",
+          "category": "Developer",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDetour",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "29",
+      "target_anchor": "Input",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "29",
+      "target_anchor": "Action",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

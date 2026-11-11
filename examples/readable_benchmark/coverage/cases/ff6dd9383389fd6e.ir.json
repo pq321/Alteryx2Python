@@ -1,0 +1,187 @@
+{
+  "workflow_id": "Pearson_Correlation",
+  "workflow_name": "Pearson_Correlation",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation\\Pearson_Correlation.yxmd",
+  "source_hash": "ac6c0d649d04932c277318240d646c00cafdbe182475f49dc103aacbd0edbf69",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "51",
+      "source_tool_id": "51",
+      "tool_type": "SpearmanCorrCoeff",
+      "tool_name": "SpearmanCorrCoeff.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Input.Field Selection"
+            },
+            "text": "Variable1=x\nVariable2=-2x"
+          },
+          {
+            "attributes": {
+              "name": "Enable Group By"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Select Field to Group By"
+            },
+            "text": "x"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Input.Field Selection"
+              },
+              "text": "Variable1=x\nVariable2=-2x"
+            },
+            {
+              "attributes": {
+                "name": "Enable Group By"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Select Field to Group By"
+              },
+              "text": "x"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "SpearmanCorrCoeff",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "Input.Field Selection"
+              },
+              "#text": "Variable1=x\nVariable2=-2x"
+            },
+            {
+              "@attributes": {
+                "name": "Enable Group By"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "Select Field to Group By"
+              },
+              "#text": "x"
+            }
+          ],
+          "Input.Field Selection": "Variable1=x\nVariable2=-2x",
+          "Enable Group By": "False",
+          "Select Field to Group By": "x",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation",
+          "macro_path": "SpearmanCorrCoeff.yxmc",
+          "macro_tool_type": "SpearmanCorrCoeff"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Field Selection",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "47:Output->51:Field Selection"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "SpearmanCorrCoeff.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "1338"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "SpearmanCorrCoeff",
+          "display_name": "Spearman Corr Coeff",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "SpearmanCorrCoeff.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "51",
+      "target_anchor": "Field Selection",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

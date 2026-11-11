@@ -1,0 +1,176 @@
+{
+  "workflow_id": "Barcode",
+  "workflow_name": "Barcode",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Barcode.yxmd",
+  "source_hash": "2cc046a2773b8c31761d9f8db982320dfd18a00d0d24f2f68355d5d52cf3c663",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "110",
+      "source_tool_id": "110",
+      "tool_type": "PortfolioComposerImage",
+      "tool_name": "PortfolioPluginsGui.ComposerImage.PortfolioComposerImage",
+      "config": {
+        "ImageMode": {
+          "text": "Blob"
+        },
+        "BlobField": {
+          "text": "qr"
+        },
+        "ImageStyle": {
+          "attributes": {
+            "FixedWidth": "false",
+            "ImageWidth": "200",
+            "ShowBorder": "false",
+            "BorderWidth": "1",
+            "BorderColor": "#000000"
+          }
+        },
+        "raw": {
+          "ImageMode": {
+            "text": "Blob"
+          },
+          "BlobField": {
+            "text": "qr"
+          },
+          "ImageStyle": {
+            "attributes": {
+              "FixedWidth": "false",
+              "ImageWidth": "200",
+              "ShowBorder": "false",
+              "BorderWidth": "1",
+              "BorderColor": "#000000"
+            }
+          },
+          "container_id": "117"
+        },
+        "normalized": {
+          "image_mode": "Blob",
+          "filename": "",
+          "modify_filename": null,
+          "modify_mode": "",
+          "modify_field": "",
+          "stop_if_not_found": null,
+          "has_encoded_image": false,
+          "image_style": {
+            "FixedWidth": "false",
+            "ImageWidth": "200",
+            "ShowBorder": "false",
+            "BorderWidth": "1",
+            "BorderColor": "#000000"
+          },
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "118:Output->110:Input"
+      ],
+      "outgoing_edges": [
+        "110:Output->111:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PortfolioPluginsGui.ComposerImage.PortfolioComposerImage",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PortfolioPluginsGui.ComposerImage.PortfolioComposerImage"
+          },
+          "Position": {
+            "attributes": {
+              "x": "378",
+              "y": "258"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PortfolioComposerImage",
+          "display_name": "Image",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "AlteryxPortfolioComposerImagePlugin",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "110",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

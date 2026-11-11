@@ -1,0 +1,206 @@
+{
+  "workflow_id": "Pearson_Correlation",
+  "workflow_name": "Pearson_Correlation",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation\\Pearson_Correlation.yxmd",
+  "source_hash": "ac6c0d649d04932c277318240d646c00cafdbe182475f49dc103aacbd0edbf69",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "40",
+      "source_tool_id": "40",
+      "tool_type": "PearsonCorrelation",
+      "tool_name": "AlteryxBasePluginsGui.PearsonCorrelation.PearsonCorrelation",
+      "config": {
+        "Fields": {
+          "attributes": {
+            "orderChanged": "False"
+          },
+          "Field": [
+            {
+              "attributes": {
+                "name": "Age"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Years of education"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Years at current job"
+              }
+            },
+            {
+              "attributes": {
+                "name": "Salary"
+              }
+            },
+            {
+              "attributes": {
+                "name": "*Unknown"
+              }
+            }
+          ]
+        },
+        "Covariance": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "Fields": {
+            "attributes": {
+              "orderChanged": "False"
+            },
+            "Field": [
+              {
+                "attributes": {
+                  "name": "Age"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Years of education"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Years at current job"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Salary"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "*Unknown"
+                }
+              }
+            ]
+          },
+          "Covariance": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "fields": [
+            "Age",
+            "Years of education",
+            "Years at current job",
+            "Salary",
+            "*Unknown"
+          ],
+          "covariance": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\11 Data Investigation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "29:Output->40:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.PearsonCorrelation.PearsonCorrelation",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.PearsonCorrelation.PearsonCorrelation"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "750"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PearsonCorrelation",
+          "display_name": "Pearson Correlation",
+          "category": "Data Investigation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxPearsonCorrelation",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "40",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

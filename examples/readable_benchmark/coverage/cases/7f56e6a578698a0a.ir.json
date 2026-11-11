@@ -1,0 +1,154 @@
+{
+  "workflow_id": "04 Map_trade_areas_2",
+  "workflow_name": "04 Map_trade_areas_2",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Map_trade_areas_2.yxmd",
+  "source_hash": "4fd2277decd8b8d238ccd613b955849e70ccaecb7c02dae2cdc71390b070480a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "27",
+      "source_tool_id": "27",
+      "tool_type": "CreatePoints",
+      "tool_name": "AlteryxSpatialPluginsGui.CreatePoints.CreatePoints",
+      "config": {
+        "Fields": {
+          "attributes": {
+            "fieldX": "Lon",
+            "fieldY": "Lat"
+          }
+        },
+        "Mode": {
+          "text": "Double"
+        },
+        "raw": {
+          "Fields": {
+            "attributes": {
+              "fieldX": "Lon",
+              "fieldY": "Lat"
+            }
+          },
+          "Mode": {
+            "text": "Double"
+          }
+        },
+        "normalized": {
+          "x_field": "Lon",
+          "y_field": "Lat",
+          "mode": "Double",
+          "output_field": "Centroid",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "26:Output->27:Input"
+      ],
+      "outgoing_edges": [
+        "27:Output->28:Input",
+        "27:Output->23:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.CreatePoints.CreatePoints",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.CreatePoints.CreatePoints"
+          },
+          "Position": {
+            "attributes": {
+              "x": "274",
+              "y": "162"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CreatePoints",
+          "display_name": "CreatePoints",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxCreatePoints",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "27",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

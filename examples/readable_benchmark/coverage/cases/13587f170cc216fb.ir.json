@@ -1,0 +1,186 @@
+{
+  "workflow_id": "Image Recognition",
+  "workflow_name": "Image Recognition",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Image Recognition.yxmd",
+  "source_hash": "648199102c256e3955d1244e29df2c1e9da38d12637e7296c9a52ea917578e79",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "156",
+      "source_tool_id": "156",
+      "tool_type": "Predict",
+      "tool_name": "Predict",
+      "config": {
+        "schemaID": {
+          "text": "Tools.Predict.2"
+        },
+        "DesignerVersion": {},
+        "raw": {
+          "schemaID": {
+            "text": "Tools.Predict.2"
+          },
+          "DesignerVersion": {},
+          "container_id": "201"
+        },
+        "normalized": {
+          "tool_type": "Predict",
+          "schema_id": "Tools.Predict.2",
+          "designer_version": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        },
+        {
+          "name": "Model",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "PredictedData",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "177:ModelOutput->156:Model",
+        "193:Holdout->156:Data"
+      ],
+      "outgoing_edges": [
+        "156:PredictedData->202:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Predict",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "Predict"
+          },
+          "Position": {
+            "attributes": {
+              "x": "91",
+              "y": "821"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Predict",
+          "display_name": "Predict",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "Predict\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Predict Values"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "156",
+      "target_anchor": "Model",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "156",
+      "target_anchor": "Data",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

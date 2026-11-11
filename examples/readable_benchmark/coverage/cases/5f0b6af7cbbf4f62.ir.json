@@ -1,0 +1,194 @@
+{
+  "workflow_id": "07 Smooth_spatial_objects_on_a_map",
+  "workflow_name": "07 Smooth_spatial_objects_on_a_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\07 Smooth_spatial_objects_on_a_map.yxmd",
+  "source_hash": "ca9a8cb2825a8ca5250b3d36d3e79aff3f40f4e8aac2a85d0f4ea7b16f39968b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "39",
+      "source_tool_id": "39",
+      "tool_type": "PortfolioComposerText",
+      "tool_name": "PortfolioPluginsGui.ComposerText.PortfolioComposerText",
+      "config": {
+        "HeaderMode": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "HeaderField": {
+          "text": "Map"
+        },
+        "Position": {
+          "text": "Above"
+        },
+        "RawMode": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Message": {
+          "text": "Generalize then Smooth"
+        },
+        "Styles": {
+          "Style": {
+            "attributes": {
+              "Name": "TextStyle"
+            }
+          }
+        },
+        "raw": {
+          "HeaderMode": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "HeaderField": {
+            "text": "Map"
+          },
+          "Position": {
+            "text": "Above"
+          },
+          "RawMode": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Message": {
+            "text": "Generalize then Smooth"
+          },
+          "Styles": {
+            "Style": {
+              "attributes": {
+                "Name": "TextStyle"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "output_field": "Report",
+          "header_field": "Map",
+          "header_mode": true,
+          "raw_mode": false,
+          "rich_text_mode": null,
+          "message": "Generalize then Smooth",
+          "rich_text": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "29:Output->39:Input"
+      ],
+      "outgoing_edges": [
+        "39:Output->30:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PortfolioPluginsGui.ComposerText.PortfolioComposerText",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PortfolioPluginsGui.ComposerText.PortfolioComposerText"
+          },
+          "Position": {
+            "attributes": {
+              "x": "405",
+              "y": "221"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PortfolioComposerText",
+          "display_name": "Text",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "AlteryxPortfolioComposerTextPlugin",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "2"
+          },
+          "Name": {
+            "text": "Text (39)"
+          },
+          "DefaultAnnotationText": {
+            "text": "Generalize then Smooth"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "39",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

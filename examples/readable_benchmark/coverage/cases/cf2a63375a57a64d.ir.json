@@ -1,0 +1,972 @@
+{
+  "workflow_id": "01_CFML_SampleWorkflow",
+  "workflow_name": "01_CFML_SampleWorkflow",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\01_CFML_SampleWorkflow.yxmd",
+  "source_hash": "e0caf826b1487b830cbe784038effe8689295fc60960938dbc32208ae2c002f8",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "21",
+      "source_tool_id": "21",
+      "tool_type": "Transformation",
+      "tool_name": "Transformation",
+      "config": {
+        "transformer_selection": {
+          "text": "datatyping"
+        },
+        "transformer_configs": [
+          {
+            "transformer_name": {
+              "text": "column_selection"
+            },
+            "column_configs": [
+              {
+                "column_name": {
+                  "text": "SepalLengthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "SepalWidthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalLengthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalWidthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              }
+            ]
+          },
+          {
+            "transformer_name": {
+              "text": "na_handling"
+            },
+            "column_configs": [
+              {
+                "column_name": {
+                  "text": "SepalLengthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "impute_value"
+                    },
+                    {
+                      "text": "impute_mode"
+                    },
+                    {
+                      "text": "drop_column"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "impute_value"
+                  },
+                  "selected": {
+                    "text": "False"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "SepalWidthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "impute_value"
+                    },
+                    {
+                      "text": "impute_mode"
+                    },
+                    {
+                      "text": "drop_column"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "impute_value"
+                  },
+                  "selected": {
+                    "text": "False"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalLengthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "impute_value"
+                    },
+                    {
+                      "text": "impute_mode"
+                    },
+                    {
+                      "text": "drop_column"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "impute_value"
+                  },
+                  "selected": {
+                    "text": "False"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalWidthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "impute_value"
+                    },
+                    {
+                      "text": "impute_mode"
+                    },
+                    {
+                      "text": "drop_column"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "impute_value"
+                  },
+                  "selected": {
+                    "text": "False"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              }
+            ]
+          },
+          {
+            "transformer_name": {
+              "text": "datatyping"
+            },
+            "column_configs": [
+              {
+                "column_name": {
+                  "text": "SepalLengthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "numeric"
+                    },
+                    {
+                      "text": "categorical"
+                    },
+                    {
+                      "text": "boolean"
+                    },
+                    {
+                      "text": "id"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "numeric"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "SepalWidthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "numeric"
+                    },
+                    {
+                      "text": "categorical"
+                    },
+                    {
+                      "text": "boolean"
+                    },
+                    {
+                      "text": "id"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "numeric"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalLengthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "numeric"
+                    },
+                    {
+                      "text": "categorical"
+                    },
+                    {
+                      "text": "boolean"
+                    },
+                    {
+                      "text": "id"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "numeric"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalWidthCm"
+                },
+                "settings": {
+                  "options": [
+                    {
+                      "text": "numeric"
+                    },
+                    {
+                      "text": "categorical"
+                    },
+                    {
+                      "text": "boolean"
+                    },
+                    {
+                      "text": "id"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "numeric"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              }
+            ]
+          },
+          {
+            "transformer_name": {
+              "text": "one_hot_encoding"
+            },
+            "column_configs": [
+              {
+                "column_name": {
+                  "text": "SepalLengthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  },
+                  "available": {
+                    "text": "True"
+                  },
+                  "options": [
+                    {
+                      "text": "ignore"
+                    },
+                    {
+                      "text": "error"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "error"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "SepalWidthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  },
+                  "available": {
+                    "text": "True"
+                  },
+                  "options": [
+                    {
+                      "text": "ignore"
+                    },
+                    {
+                      "text": "error"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "error"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalLengthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  },
+                  "available": {
+                    "text": "True"
+                  },
+                  "options": [
+                    {
+                      "text": "ignore"
+                    },
+                    {
+                      "text": "error"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "error"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              },
+              {
+                "column_name": {
+                  "text": "PetalWidthCm"
+                },
+                "settings": {
+                  "selected": {
+                    "text": "True"
+                  },
+                  "available": {
+                    "text": "True"
+                  },
+                  "options": [
+                    {
+                      "text": "ignore"
+                    },
+                    {
+                      "text": "error"
+                    }
+                  ],
+                  "selectedOperation": {
+                    "text": "error"
+                  }
+                },
+                "type_during_last_config": {
+                  "text": "categorical"
+                }
+              }
+            ]
+          }
+        ],
+        "schemaID": {
+          "text": "Tools.Transformation.2"
+        },
+        "DesignerVersion": {
+          "text": "2020.2.0.29326"
+        },
+        "raw": {
+          "transformer_selection": {
+            "text": "datatyping"
+          },
+          "transformer_configs": [
+            {
+              "transformer_name": {
+                "text": "column_selection"
+              },
+              "column_configs": [
+                {
+                  "column_name": {
+                    "text": "SepalLengthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "SepalWidthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalLengthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalWidthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                }
+              ]
+            },
+            {
+              "transformer_name": {
+                "text": "na_handling"
+              },
+              "column_configs": [
+                {
+                  "column_name": {
+                    "text": "SepalLengthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "impute_value"
+                      },
+                      {
+                        "text": "impute_mode"
+                      },
+                      {
+                        "text": "drop_column"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "impute_value"
+                    },
+                    "selected": {
+                      "text": "False"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "SepalWidthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "impute_value"
+                      },
+                      {
+                        "text": "impute_mode"
+                      },
+                      {
+                        "text": "drop_column"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "impute_value"
+                    },
+                    "selected": {
+                      "text": "False"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalLengthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "impute_value"
+                      },
+                      {
+                        "text": "impute_mode"
+                      },
+                      {
+                        "text": "drop_column"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "impute_value"
+                    },
+                    "selected": {
+                      "text": "False"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalWidthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "impute_value"
+                      },
+                      {
+                        "text": "impute_mode"
+                      },
+                      {
+                        "text": "drop_column"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "impute_value"
+                    },
+                    "selected": {
+                      "text": "False"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                }
+              ]
+            },
+            {
+              "transformer_name": {
+                "text": "datatyping"
+              },
+              "column_configs": [
+                {
+                  "column_name": {
+                    "text": "SepalLengthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "numeric"
+                      },
+                      {
+                        "text": "categorical"
+                      },
+                      {
+                        "text": "boolean"
+                      },
+                      {
+                        "text": "id"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "numeric"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "SepalWidthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "numeric"
+                      },
+                      {
+                        "text": "categorical"
+                      },
+                      {
+                        "text": "boolean"
+                      },
+                      {
+                        "text": "id"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "numeric"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalLengthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "numeric"
+                      },
+                      {
+                        "text": "categorical"
+                      },
+                      {
+                        "text": "boolean"
+                      },
+                      {
+                        "text": "id"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "numeric"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalWidthCm"
+                  },
+                  "settings": {
+                    "options": [
+                      {
+                        "text": "numeric"
+                      },
+                      {
+                        "text": "categorical"
+                      },
+                      {
+                        "text": "boolean"
+                      },
+                      {
+                        "text": "id"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "numeric"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                }
+              ]
+            },
+            {
+              "transformer_name": {
+                "text": "one_hot_encoding"
+              },
+              "column_configs": [
+                {
+                  "column_name": {
+                    "text": "SepalLengthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    },
+                    "available": {
+                      "text": "True"
+                    },
+                    "options": [
+                      {
+                        "text": "ignore"
+                      },
+                      {
+                        "text": "error"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "error"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "SepalWidthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    },
+                    "available": {
+                      "text": "True"
+                    },
+                    "options": [
+                      {
+                        "text": "ignore"
+                      },
+                      {
+                        "text": "error"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "error"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalLengthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    },
+                    "available": {
+                      "text": "True"
+                    },
+                    "options": [
+                      {
+                        "text": "ignore"
+                      },
+                      {
+                        "text": "error"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "error"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                },
+                {
+                  "column_name": {
+                    "text": "PetalWidthCm"
+                  },
+                  "settings": {
+                    "selected": {
+                      "text": "True"
+                    },
+                    "available": {
+                      "text": "True"
+                    },
+                    "options": [
+                      {
+                        "text": "ignore"
+                      },
+                      {
+                        "text": "error"
+                      }
+                    ],
+                    "selectedOperation": {
+                      "text": "error"
+                    }
+                  },
+                  "type_during_last_config": {
+                    "text": "categorical"
+                  }
+                }
+              ]
+            }
+          ],
+          "schemaID": {
+            "text": "Tools.Transformation.2"
+          },
+          "DesignerVersion": {
+            "text": "2020.2.0.29326"
+          },
+          "container_id": "26"
+        },
+        "normalized": {
+          "tool_type": "Transformation",
+          "algorithm_selection": "",
+          "algorithm_configs": [
+            {
+              "algorithm_name": "",
+              "config": {}
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Model",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Model",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "20:Model->21:Model"
+      ],
+      "outgoing_edges": [
+        "21:Model->24:Model"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Transformation",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "Transformation"
+          },
+          "Position": {
+            "attributes": {
+              "x": "438",
+              "y": "210"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Transformation",
+          "display_name": "Transformation",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "Transformation\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Set Data Types"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "21",
+      "target_anchor": "Model",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

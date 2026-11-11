@@ -39,6 +39,14 @@ def fieldinfo_tool(
             for column in input_frame.columns
         ]
     )
+    declared = {item['name']: item for item in input_frame.attrs.get('alteryx_schema', [])}
+    for index, column in enumerate(input_frame.columns):
+        if column in declared:
+            contract = declared[column]
+            output.loc[index, 'Type'] = contract['type']
+            size, _, scale = str(contract.get('size', 0)).partition('.')
+            output.loc[index, 'Size'] = int(size)
+            output.loc[index, 'Scale'] = int(scale or 0)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

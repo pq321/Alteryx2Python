@@ -1,0 +1,186 @@
+{
+  "workflow_id": "04 Create_a_report_with_a_thematic_map",
+  "workflow_name": "04 Create_a_report_with_a_thematic_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Create_a_report_with_a_thematic_map.yxmd",
+  "source_hash": "5af2b79d9f956b96a12809db2fc7ba5eae359e9928c4997a662ec202dace7a83",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "82",
+      "source_tool_id": "82",
+      "tool_type": "ReportLegendBuilder",
+      "tool_name": "Legend_Builder.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Text Field"
+            },
+            "text": "Text"
+          },
+          {
+            "attributes": {
+              "name": "Image Field"
+            },
+            "text": "Image"
+          },
+          {
+            "attributes": {
+              "name": "Text Style Field"
+            },
+            "text": "TextStyle"
+          },
+          {
+            "attributes": {
+              "name": "Image Style Field"
+            },
+            "text": "ImageStyle"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Text Field"
+              },
+              "text": "Text"
+            },
+            {
+              "attributes": {
+                "name": "Image Field"
+              },
+              "text": "Image"
+            },
+            {
+              "attributes": {
+                "name": "Text Style Field"
+              },
+              "text": "TextStyle"
+            },
+            {
+              "attributes": {
+                "name": "Image Style Field"
+              },
+              "text": "ImageStyle"
+            }
+          ]
+        },
+        "normalized": {
+          "text_field": "Text",
+          "image_field": "Image",
+          "text_style_field": "TextStyle",
+          "image_style_field": "ImageStyle",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced",
+          "macro_path": "Legend_Builder.yxmc",
+          "macro_tool_type": "ReportLegendBuilder"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "81:Output->82:Input"
+      ],
+      "outgoing_edges": [
+        "82:Output->83:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Legend_Builder.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "967",
+              "y": "260"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ReportLegendBuilder",
+          "display_name": "Legend Builder",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Legend_Builder.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "82",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

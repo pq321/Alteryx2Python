@@ -1,0 +1,158 @@
+{
+  "workflow_id": "02 Learn_frequently-used_tools",
+  "workflow_name": "02 Learn_frequently-used_tools",
+  "source_file": "D:\\Alteryx\\Samples\\en\\04 Basic\\02 Learn_frequently-used_tools.yxmd",
+  "source_hash": "b0dfb56749818a04b0eb4e80cf97989636bf2c06376fbd76f76f75a3a9585cf8",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "13",
+      "source_tool_id": "13",
+      "tool_type": "Sample",
+      "tool_name": "AlteryxBasePluginsGui.Sample.Sample",
+      "config": {
+        "GroupFields": {
+          "attributes": {
+            "orderChanged": "False"
+          }
+        },
+        "Mode": {
+          "text": "First"
+        },
+        "N": {
+          "text": "10"
+        },
+        "raw": {
+          "GroupFields": {
+            "attributes": {
+              "orderChanged": "False"
+            }
+          },
+          "Mode": {
+            "text": "First"
+          },
+          "N": {
+            "text": "10"
+          }
+        },
+        "normalized": {
+          "mode": "First",
+          "n": 10,
+          "group_fields": [],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\04 Basic"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "12:Output->13:Input"
+      ],
+      "outgoing_edges": [
+        "13:Output->7:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Sample.Sample",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Sample.Sample"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1309",
+              "y": "204"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Sample",
+          "display_name": "Sample",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxSample",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "First 10"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "13",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

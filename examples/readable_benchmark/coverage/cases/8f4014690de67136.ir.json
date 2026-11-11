@@ -1,0 +1,166 @@
+{
+  "workflow_id": "05 Download_and_parse_web_data",
+  "workflow_name": "05 Download_and_parse_web_data",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\05 Download_and_parse_web_data.yxmd",
+  "source_hash": "7796cfeb7aa154de86433d0a42fa2197b36a6a397b7d418cd41d880b6571c493",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "41",
+      "source_tool_id": "41",
+      "tool_type": "DateTime",
+      "tool_name": "AlteryxBasePluginsGui.DateTime.DateTime",
+      "config": {
+        "IsFrom": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "InputFieldName": {
+          "text": "DateTime_Out"
+        },
+        "Format": {
+          "text": "Mon dd"
+        },
+        "OutputFieldName": {
+          "text": "DateTime_Out"
+        },
+        "raw": {
+          "IsFrom": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "InputFieldName": {
+            "text": "DateTime_Out"
+          },
+          "Format": {
+            "text": "Mon dd"
+          },
+          "OutputFieldName": {
+            "text": "DateTime_Out"
+          }
+        },
+        "normalized": {
+          "is_from": true,
+          "input_field_name": "DateTime_Out",
+          "language": "English",
+          "format": "Mon dd",
+          "output_field_name": "DateTime_Out",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "40:Output->41:Input"
+      ],
+      "outgoing_edges": [
+        "41:Output->124:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DateTime.DateTime",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DateTime.DateTime"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1215",
+              "y": "235"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DateTime",
+          "display_name": "DateTime",
+          "category": "Parse",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDateTime",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Convert DateTime_Out To:\nMon dd"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "41",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

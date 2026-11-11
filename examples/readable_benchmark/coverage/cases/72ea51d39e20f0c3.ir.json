@@ -1,0 +1,149 @@
+{
+  "workflow_id": "10_CFML_Text_Mining",
+  "workflow_name": "10_CFML_Text_Mining",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\10_CFML_Text_Mining.yxmd",
+  "source_hash": "97f0630f02d0c5c656f9fc78d0843a65737be10acd229c02ecaeb2b1d07eb325",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "4",
+      "source_tool_id": "4",
+      "tool_type": "ImageToText",
+      "tool_name": "ImageToText",
+      "config": {
+        "FieldSelect": {
+          "text": "pdf"
+        },
+        "LanguageSelect": {
+          "text": "EN"
+        },
+        "raw": {
+          "FieldSelect": {
+            "text": "pdf"
+          },
+          "LanguageSelect": {
+            "text": "EN"
+          },
+          "container_id": "22"
+        },
+        "normalized": {
+          "tool_type": "ImageToText",
+          "field_select": "pdf",
+          "language_select": "EN",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "dataInput",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "1:Output->4:dataInput"
+      ],
+      "outgoing_edges": [
+        "4:Output->7:Input",
+        "4:Output->8:Input",
+        "4:Output->24:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ImageToText",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ImageToText"
+          },
+          "Position": {
+            "attributes": {
+              "x": "438",
+              "y": "258"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ImageToText",
+          "display_name": "ImageToText",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ImageToText\\\\image_to_text_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "4",
+      "target_anchor": "dataInput",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

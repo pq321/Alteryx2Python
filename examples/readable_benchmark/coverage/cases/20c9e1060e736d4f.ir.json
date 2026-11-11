@@ -1,0 +1,261 @@
+{
+  "workflow_id": "04 Create_a_report_with_a_thematic_map",
+  "workflow_name": "04 Create_a_report_with_a_thematic_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Create_a_report_with_a_thematic_map.yxmd",
+  "source_hash": "5af2b79d9f956b96a12809db2fc7ba5eae359e9928c4997a662ec202dace7a83",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "6",
+      "source_tool_id": "6",
+      "tool_type": "SpatialMatch",
+      "tool_name": "AlteryxSpatialPluginsGui.SpatialMatch.SpatialMatch",
+      "config": {
+        "Target": {
+          "attributes": {
+            "SpatialObj": "Centroid"
+          }
+        },
+        "Universe": {
+          "attributes": {
+            "SpatialObj": "SpatialObj"
+          }
+        },
+        "Method": {
+          "attributes": {
+            "method": "Within"
+          }
+        },
+        "SelectConfiguration": {
+          "Configuration": {
+            "attributes": {
+              "outputConnection": "Matched"
+            },
+            "OrderChanged": {
+              "attributes": {
+                "value": "False"
+              }
+            },
+            "SelectFields": {
+              "SelectField": {
+                "attributes": {
+                  "field": "*Unknown",
+                  "selected": "True"
+                }
+              }
+            }
+          }
+        },
+        "raw": {
+          "Target": {
+            "attributes": {
+              "SpatialObj": "Centroid"
+            }
+          },
+          "Universe": {
+            "attributes": {
+              "SpatialObj": "SpatialObj"
+            }
+          },
+          "Method": {
+            "attributes": {
+              "method": "Within"
+            }
+          },
+          "SelectConfiguration": {
+            "Configuration": {
+              "attributes": {
+                "outputConnection": "Matched"
+              },
+              "OrderChanged": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "SelectFields": {
+                "SelectField": {
+                  "attributes": {
+                    "field": "*Unknown",
+                    "selected": "True"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "normalized": {
+          "target_spatial_field": "Centroid",
+          "universe_spatial_field": "SpatialObj",
+          "method": "Within",
+          "intersect_poly": false,
+          "select_fields": [
+            {
+              "source": "*Unknown",
+              "rename": "*Unknown",
+              "selected": true,
+              "dtype": null,
+              "forced": false,
+              "size": null
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Targets",
+          "direction": "input"
+        },
+        {
+          "name": "Universe",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Matched",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "2:Output->6:Targets",
+        "5:Output->6:Universe"
+      ],
+      "outgoing_edges": [
+        "6:Matched->7:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.SpatialMatch.SpatialMatch",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.SpatialMatch.SpatialMatch"
+          },
+          "Position": {
+            "attributes": {
+              "x": "281",
+              "y": "148"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "SpatialMatch",
+          "display_name": "SpatialMatch",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxSpatialMatch",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "SpatialMatch (6)"
+          },
+          "AnnotationText": {},
+          "DefaultAnnotationText": {
+            "text": "Centroid Within SpatialObj"
+          },
+          "Left": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "6",
+      "target_anchor": "Targets",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "6",
+      "target_anchor": "Universe",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

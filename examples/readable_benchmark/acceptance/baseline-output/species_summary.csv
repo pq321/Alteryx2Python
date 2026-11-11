@@ -1,0 +1,4 @@
+Left_species,Left_mean_sepal_length,Left_measurement_count,Left_petal_total,Right_report_group
+setosa,5.2875000000000005,24,72.2,A
+versicolor,5.997872340425531,47,405.8,B
+virginica,6.622448979591836,49,546.1999999999999,C

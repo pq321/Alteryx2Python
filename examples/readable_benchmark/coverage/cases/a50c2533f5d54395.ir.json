@@ -1,0 +1,329 @@
+{
+  "workflow_id": "Fuzzy_Match",
+  "workflow_name": "Fuzzy_Match",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\03 Join\\Fuzzy_Match.yxmd",
+  "source_hash": "bd9edbeac9725f57ae7f0b79b989f018362d3f4a8fb8f33e08a164baa5e05a0d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "334",
+      "source_tool_id": "334",
+      "tool_type": "FuzzyMatch",
+      "tool_name": "AlteryxBasePluginsGui.FuzzyMatch.FuzzyMatch",
+      "config": {
+        "RecordIdField": {
+          "text": "AccountID"
+        },
+        "MatchThreshold": {
+          "attributes": {
+            "value": "50"
+          }
+        },
+        "OutputScore": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputKey": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputUnmatched": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputMakeGroup": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "GenerateKeys": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "MatchFields": {
+          "MatchField": {
+            "FieldName": {
+              "text": "Primary Phone No"
+            },
+            "Style": {
+              "attributes": {
+                "Name": "Phone"
+              },
+              "KeyGeneration": {
+                "KeyFunction": {
+                  "text": "DigitsReverse"
+                },
+                "UseWords": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "IgnoreEmpty": {
+                  "attributes": {
+                    "value": "True"
+                  }
+                },
+                "MaxKeyLen": {
+                  "attributes": {
+                    "value": "10"
+                  }
+                }
+              },
+              "Match": {
+                "MatchFunction": {
+                  "text": "None"
+                },
+                "AdditionalMatchFunction": {
+                  "text": "NoSpace"
+                },
+                "WordStats": {
+                  "text": "Name.yxdb"
+                },
+                "MatchThreshold": {
+                  "attributes": {
+                    "value": "0"
+                  }
+                },
+                "MatchWeight": {
+                  "attributes": {
+                    "value": "100"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "MergeMode": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "SourceIdField": {
+          "text": "transaction_id"
+        },
+        "raw": {
+          "RecordIdField": {
+            "text": "AccountID"
+          },
+          "MatchThreshold": {
+            "attributes": {
+              "value": "50"
+            }
+          },
+          "OutputScore": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputKey": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputUnmatched": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputMakeGroup": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "GenerateKeys": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "MatchFields": {
+            "MatchField": {
+              "FieldName": {
+                "text": "Primary Phone No"
+              },
+              "Style": {
+                "attributes": {
+                  "Name": "Phone"
+                },
+                "KeyGeneration": {
+                  "KeyFunction": {
+                    "text": "DigitsReverse"
+                  },
+                  "UseWords": {
+                    "attributes": {
+                      "value": "False"
+                    }
+                  },
+                  "IgnoreEmpty": {
+                    "attributes": {
+                      "value": "True"
+                    }
+                  },
+                  "MaxKeyLen": {
+                    "attributes": {
+                      "value": "10"
+                    }
+                  }
+                },
+                "Match": {
+                  "MatchFunction": {
+                    "text": "None"
+                  },
+                  "AdditionalMatchFunction": {
+                    "text": "NoSpace"
+                  },
+                  "WordStats": {
+                    "text": "Name.yxdb"
+                  },
+                  "MatchThreshold": {
+                    "attributes": {
+                      "value": "0"
+                    }
+                  },
+                  "MatchWeight": {
+                    "attributes": {
+                      "value": "100"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "MergeMode": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "SourceIdField": {
+            "text": "transaction_id"
+          }
+        },
+        "normalized": {
+          "record_id_field": "AccountID",
+          "source_id_field": "transaction_id",
+          "match_threshold": 50.0,
+          "output_score": false,
+          "output_key": false,
+          "output_unmatched": false,
+          "output_make_group": false,
+          "generate_keys": false,
+          "merge_mode": false,
+          "match_fields": [
+            {
+              "field_name": "Primary Phone No",
+              "style_name": "Phone",
+              "match_function": "None",
+              "match_threshold": 0.0
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\03 Join"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "335:Output->334:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.FuzzyMatch.FuzzyMatch",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.FuzzyMatch.FuzzyMatch"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "738"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "FuzzyMatch",
+          "display_name": "Fuzzy Match",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxFuzzyMatch",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "334",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

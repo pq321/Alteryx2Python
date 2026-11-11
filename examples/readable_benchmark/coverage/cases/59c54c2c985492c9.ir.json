@@ -1,0 +1,179 @@
+{
+  "workflow_id": "PDF to Text",
+  "workflow_name": "PDF to Text",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\PDF to Text.yxmd",
+  "source_hash": "e5785890ff3bba0963a51c0db61e7ac2af91568846919949c1b8d4e6e969c444",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "56",
+      "source_tool_id": "56",
+      "tool_type": "ImageTemplate",
+      "tool_name": "ImageTemplate",
+      "config": {
+        "FilePath": {
+          "attributes": {
+            "isWorkflowDependency": "True"
+          }
+        },
+        "PageNumber": {
+          "text": "1"
+        },
+        "Bounds": {
+          "text": "[]"
+        },
+        "Mode": {
+          "text": "auto"
+        },
+        "BlobField": {
+          "text": "image"
+        },
+        "raw": {
+          "FilePath": {
+            "attributes": {
+              "isWorkflowDependency": "True"
+            }
+          },
+          "PageNumber": {
+            "text": "1"
+          },
+          "Bounds": {
+            "text": "[]"
+          },
+          "Mode": {
+            "text": "auto"
+          },
+          "BlobField": {
+            "text": "image"
+          },
+          "container_id": "69"
+        },
+        "normalized": {
+          "tool_type": "ImageTemplate",
+          "file_path": {
+            "isWorkflowDependency": "True"
+          },
+          "page_number": 1,
+          "bounds": "[]",
+          "mode": "auto",
+          "blob_field": "image",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "55:Output->56:Input"
+      ],
+      "outgoing_edges": [
+        "56:Output->53:Template Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ImageTemplate",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ImageTemplate"
+          },
+          "Position": {
+            "attributes": {
+              "x": "199",
+              "y": "1356"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ImageTemplate",
+          "display_name": "ImageTemplate",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ImageTemplate\\\\image_template_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "Auto-detect tables"
+          },
+          "DefaultAnnotationText": {
+            "text": "Auto-detect tables"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "56",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

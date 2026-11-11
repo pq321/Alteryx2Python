@@ -9,6 +9,7 @@ from alteryx2python.expressions.evaluator import evaluate_expression
 from alteryx2python.expressions.parser import parse_expression
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
+from alteryx2python.tools.field_contracts import set_field_contract
 
 
 def _input_frame(inputs: dict[str, pd.DataFrame]) -> pd.DataFrame:
@@ -46,6 +47,8 @@ def formula_tool(
             evaluate_expression(parsed_expression, row)
             for row in output.to_dict("records")
         ]
+        if field_config.get('type'):
+            set_field_contract(output, str(field_name), field_config['type'], field_config.get('size'))
         applied_fields.append({"field": field_name, "expression": expression})
 
     outputs = {"Output": output}

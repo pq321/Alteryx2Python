@@ -1,0 +1,317 @@
+{
+  "workflow_id": "13 Convert_metrics_and_publish_online",
+  "workflow_name": "13 Convert_metrics_and_publish_online",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\13 Convert_metrics_and_publish_online.yxwz",
+  "source_hash": "fdd13af316c04500e3614710e691b39112e0c40505600bedad20aec16cae3a2e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "4",
+      "source_tool_id": "4",
+      "tool_type": "DynamicReplace",
+      "tool_name": "AlteryxBasePluginsGui.DynamicReplace.DynamicReplace",
+      "config": {
+        "Field_FieldName": {
+          "text": "Name"
+        },
+        "Field_OutputValue": {
+          "text": "Formula"
+        },
+        "Field_Expression": {
+          "text": "Bool"
+        },
+        "ValueIsExpression": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "Unmatched_Behavior": {
+          "text": "Warn"
+        },
+        "FieldTypeMode": {
+          "text": "Autofield"
+        },
+        "OutputFieldType": {
+          "attributes": {
+            "type": "Double",
+            "size": "8",
+            "scale": "1"
+          }
+        },
+        "raw": {
+          "Field_FieldName": {
+            "text": "Name"
+          },
+          "Field_OutputValue": {
+            "text": "Formula"
+          },
+          "Field_Expression": {
+            "text": "Bool"
+          },
+          "ValueIsExpression": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "Unmatched_Behavior": {
+            "text": "Warn"
+          },
+          "FieldTypeMode": {
+            "text": "Autofield"
+          },
+          "OutputFieldType": {
+            "attributes": {
+              "type": "Double",
+              "size": "8",
+              "scale": "1"
+            }
+          }
+        },
+        "normalized": {
+          "field_field_name": "Name",
+          "field_output_value": "Formula",
+          "field_expression": "Bool",
+          "value_is_expression": true,
+          "unmatched_behavior": "Warn",
+          "field_type_mode": "Autofield",
+          "output_field_type": {
+            "type": "Double",
+            "size": "8",
+            "scale": "1"
+          },
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Expressions",
+          "direction": "input"
+        },
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        },
+        {
+          "name": "Counts",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "3:Output->4:Input",
+        "5:True->4:Expressions"
+      ],
+      "outgoing_edges": [
+        "4:Output->15:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "Output": {
+          "connection": "Output",
+          "fields": [
+            {
+              "name": "Input",
+              "source": "TextInput:",
+              "type": "Double"
+            },
+            {
+              "name": "Result",
+              "source": "TextInput:",
+              "type": "Bool"
+            }
+          ]
+        },
+        "Counts": {
+          "connection": "Counts",
+          "fields": [
+            {
+              "name": "FieldName",
+              "size": "256",
+              "source": "DynamicReplace: FieldName",
+              "type": "V_String"
+            },
+            {
+              "name": "OutputValue",
+              "size": "256",
+              "source": "DynamicReplace: OutputValue",
+              "type": "V_String"
+            },
+            {
+              "name": "Count",
+              "source": "DynamicReplace: Count",
+              "type": "Int64"
+            }
+          ]
+        }
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DynamicReplace.DynamicReplace",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DynamicReplace.DynamicReplace"
+          },
+          "Position": {
+            "attributes": {
+              "x": "453",
+              "y": "596"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Input",
+                "source": "TextInput:",
+                "type": "Double"
+              },
+              {
+                "name": "Result",
+                "source": "TextInput:",
+                "type": "Bool"
+              }
+            ]
+          },
+          "Counts": {
+            "connection": "Counts",
+            "fields": [
+              {
+                "name": "FieldName",
+                "size": "256",
+                "source": "DynamicReplace: FieldName",
+                "type": "V_String"
+              },
+              {
+                "name": "OutputValue",
+                "size": "256",
+                "source": "DynamicReplace: OutputValue",
+                "type": "V_String"
+              },
+              {
+                "name": "Count",
+                "source": "DynamicReplace: Count",
+                "type": "Int64"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "DynamicReplace",
+          "display_name": "Dynamic Replace",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDynamicReplace",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "4",
+      "target_anchor": "Input",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "4",
+      "target_anchor": "Expressions",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

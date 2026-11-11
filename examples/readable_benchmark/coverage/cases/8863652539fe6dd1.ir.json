@@ -1,0 +1,269 @@
+{
+  "workflow_id": "01 Create_service_boundaries",
+  "workflow_name": "01 Create_service_boundaries",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Create_service_boundaries.yxmd",
+  "source_hash": "2b018fb5a759a1e64171971e7be7c36c26fcaec0c6869ea41c729e1e21631f3e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "52",
+      "source_tool_id": "52",
+      "tool_type": "Distance",
+      "tool_name": "AlteryxSpatialPluginsGui.Distance.Distance",
+      "config": {
+        "SpatialObjSource": {
+          "text": "Centroid"
+        },
+        "SpatialObjDest": {
+          "text": "SpatialObj"
+        },
+        "OutputDistance": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "ReturnNearest": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "DistToInsideEdge": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputDriveTimeAndDistance": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "DriveTimeDataSet": {
+          "text": "Latest:TeleAtlas_CAN"
+        },
+        "AllowReverseRoute": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "MaxDriveTime": {
+          "attributes": {
+            "value": "30"
+          }
+        },
+        "DriveDistanceOnly": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputCardinalDirection": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "OutputDirectionDegrees": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "IsMetric": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "OutputUnits": {
+          "text": "Miles"
+        },
+        "raw": {
+          "SpatialObjSource": {
+            "text": "Centroid"
+          },
+          "SpatialObjDest": {
+            "text": "SpatialObj"
+          },
+          "OutputDistance": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "ReturnNearest": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "DistToInsideEdge": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputDriveTimeAndDistance": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "DriveTimeDataSet": {
+            "text": "Latest:TeleAtlas_CAN"
+          },
+          "AllowReverseRoute": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "MaxDriveTime": {
+            "attributes": {
+              "value": "30"
+            }
+          },
+          "DriveDistanceOnly": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputCardinalDirection": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "OutputDirectionDegrees": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "IsMetric": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "OutputUnits": {
+            "text": "Miles"
+          }
+        },
+        "normalized": {
+          "source_spatial_field": "Centroid",
+          "destination_spatial_field": "SpatialObj",
+          "output_distance": true,
+          "return_nearest": false,
+          "distance_to_inside_edge": false,
+          "output_drive_time_and_distance": false,
+          "drive_time_dataset": "Latest:TeleAtlas_CAN",
+          "allow_reverse_route": false,
+          "output_cardinal_direction": true,
+          "output_direction_degrees": false,
+          "is_metric": false,
+          "output_units": "Miles",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "43:Matched->52:Input"
+      ],
+      "outgoing_edges": [
+        "52:Output->53:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.Distance.Distance",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.Distance.Distance"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1010",
+              "y": "165"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Distance",
+          "display_name": "Distance",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxDistance",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "Distance (52)"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "52",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

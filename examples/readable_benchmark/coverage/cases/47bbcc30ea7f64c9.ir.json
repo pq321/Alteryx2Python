@@ -1,0 +1,154 @@
+{
+  "workflow_id": "Poly-Split Build",
+  "workflow_name": "Poly-Split Build",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial\\Poly-Split Build.yxmd",
+  "source_hash": "f6f016c2950e61705cd98c7e8a241e9002d7edbaeef742289760da8845bdb509",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "12",
+      "source_tool_id": "12",
+      "tool_type": "PolySplit",
+      "tool_name": "AlteryxSpatialPluginsGui.PolySplit.PolySplit",
+      "config": {
+        "SpatialObj": {
+          "attributes": {
+            "field": "SpatialObject_TradeArea"
+          }
+        },
+        "SplitTo": {
+          "attributes": {
+            "type": "Point"
+          }
+        },
+        "raw": {
+          "SpatialObj": {
+            "attributes": {
+              "field": "SpatialObject_TradeArea"
+            }
+          },
+          "SplitTo": {
+            "attributes": {
+              "type": "Point"
+            }
+          }
+        },
+        "normalized": {
+          "spatial_field": "SpatialObject_TradeArea",
+          "split_to": "Point",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "17:Output->12:Input"
+      ],
+      "outgoing_edges": [
+        "12:Output->3:Input",
+        "12:Output->18:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.PolySplit.PolySplit",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.PolySplit.PolySplit"
+          },
+          "Position": {
+            "attributes": {
+              "x": "234",
+              "y": "294"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PolySplit",
+          "display_name": "PolySplit",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxPolySplit",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "12",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

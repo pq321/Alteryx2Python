@@ -50,6 +50,41 @@ def run_workflow_graph(
     initial_inputs: dict[str, dict[str, pd.DataFrame]] | None = None,
     target_node_ids: set[str] | None = None,
 ) -> WorkflowGraphResult:
+    from alteryx2python.workflow_events import workflow_events, run_events
+    from alteryx2python.engine_variables import resolve_workflow_tokens
+    from pathlib import Path
+    _answers = (context.runtime_config or {}).get("answers") or {}
+    if _answers or getattr(workflow, "source_xml", ""):
+        resolve_workflow_tokens(workflow, _answers)
+    events = workflow_events(workflow.source_xml)
+    if events:
+        context.runtime_config = {'workflow_dir': str(Path(workflow.source_file).resolve().parent),
+                                  **(context.runtime_config or {})}
+    if not events:
+        return _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
+    import warnings
+    with warnings.catch_warnings(record=True) as emitted:
+        warnings.simplefilter('always', RuntimeWarning)
+        try:
+            run_events(events, 'before', context)
+            result = _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
+        except Exception:
+            for warning in emitted:
+                context.record_warning(str(warning.message))
+            run_events(events, 'failure', context)
+            raise
+        for warning in emitted:
+            context.record_warning(str(warning.message))
+    run_events(events, 'success', context)
+    return result
+
+
+def _run_workflow_graph(
+    workflow: "WorkflowIR",
+    context: "WorkflowContext",
+    initial_inputs: dict[str, dict[str, pd.DataFrame]] | None = None,
+    target_node_ids: set[str] | None = None,
+) -> WorkflowGraphResult:
     if workflow.metadata.get("embedded_macros"):
         context.runtime_config = {**(context.runtime_config or {}), "_embedded_macros": workflow.metadata["embedded_macros"]}
     if workflow.source_xml and not workflow.metadata.get("configuration_applied"):
@@ -62,6 +97,8 @@ def run_workflow_graph(
                 workflow = prepare_workflow(workflow, runtime_config.get("answers"))
                 context.record_diagnostic({"kind": "configuration", "source_sha256": workflow.source_hash,
                                            "bound_questions": list(workflow.metadata.get("answers", {}))})
+    from alteryx2python.generator.macro_sources import attach_macro_ordering
+    attach_macro_ordering(workflow, (context.runtime_config or {}).get('_embedded_macros', {}))
     nodes_by_id = {node.node_id: node for node in workflow.nodes}
     incoming_edges = _incoming_edges_by_target(workflow.edges)
     outgoing_edges = _outgoing_edges_by_source(workflow.edges)
@@ -110,7 +147,29 @@ def run_workflow_graph(
             if connection_name:
                 input_connection_names[target_anchor] = connection_name
 
+        from alteryx2python.runtime.scheduling import container_guards
+        guards = [] if target_node_ids and (context.runtime_config or {}).get('skip_app_configuration') else container_guards(node, nodes_by_id, workflow.edges)
+        enabled = all(guard is not None and len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards)
+        if not enabled:
+            metadata = _metadata_for_node(node, context)
+            from alteryx2python.tools.empty_schema import skipped_frame
+            frame = next(iter(inputs.values()), None)
+            if node.tool_type == 'Select' and frame is not None:
+                from alteryx2python.runtime.context import WorkflowContext
+                outputs = metadata.function({'Input': frame.iloc[:0]}, _execution_config(node), WorkflowContext())
+            else:
+                outputs = {anchor: skipped_frame(node.tool_type, _execution_config(node), frame, node.expected_output_schema)
+                           for anchor in metadata.output_anchors}
+            context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
+                                inputs=inputs, outputs=outputs, status='skipped', config={'reason': 'container_disabled_or_empty_control'})
+            node_results[node_id] = NodeResult(node_id=node_id, tool_type=node.tool_type, outputs=outputs, trace=context.traces[-1])
+            continue
         config = _execution_config(node)
+        runtime = context.runtime_config or {}
+        if runtime.get('redirect_sinks') and node.tool_type == 'DbFileOutput':
+            from pathlib import Path
+            file, separator, sheet = str(config['file']).partition('|||')
+            config['file'] = str(Path(runtime['output_dir']) / Path(file).name) + (separator + sheet if separator else '')
         capture_dir = (context.runtime_config or {}).get("capture_output_dir")
         if capture_dir and node.tool_type == "DbFileOutput":
             from pathlib import Path
@@ -169,7 +228,11 @@ def _metadata_for_node(node: "NodeIR", context: "WorkflowContext") -> "ToolMetad
                             maturity="L2_BASIC_IMPLEMENTATION", semantics_doc="docs/tools/static_macros.md",
                             supports_certification=False, execution_profile="local-static-macro")
     try:
-        return TOOL_REGISTRY.get(node.tool_type)
+        metadata = TOOL_REGISTRY.get(node.tool_type)
+        if node.tool_type == 'ControlContainer' and any(anchor.name == 'Log' for anchor in node.output_anchors):
+            from dataclasses import replace
+            metadata = replace(metadata, output_anchors=('Log',))
+        return metadata
     except KeyError as exc:
         message = f"Unsupported workflow tool: {node.tool_type} (node {node.node_id})"
         context.record_error(message)
@@ -276,7 +339,10 @@ def _target_ancestor_node_ids(workflow: "WorkflowIR", target_node_ids: set[str] 
     if unknown_targets:
         raise ValueError(f"Target nodes are not present in workflow: {', '.join(unknown_targets)}")
 
-    incoming = _incoming_edges_by_target(workflow.edges)
+    from alteryx2python.runtime.scheduling import scheduling_dependencies
+    incoming = {}
+    for source, target in scheduling_dependencies(workflow.nodes, workflow.edges):
+        incoming.setdefault(target, []).append(source)
     selected: set[str] = set()
     queue = deque(target_node_ids)
     while queue:
@@ -284,8 +350,8 @@ def _target_ancestor_node_ids(workflow: "WorkflowIR", target_node_ids: set[str] 
         if node_id in selected:
             continue
         selected.add(node_id)
-        for edge in incoming.get(node_id, []):
-            queue.append(edge.source_node_id)
+        for source in incoming.get(node_id, []):
+            queue.append(source)
     return selected
 
 
@@ -314,25 +380,31 @@ def _record_frontier_warnings(
 
 
 def _topological_order(nodes: list["NodeIR"], edges: list["EdgeIR"]) -> list[str]:
+    from alteryx2python.runtime.scheduling import scheduling_dependencies
     node_ids = [node.node_id for node in nodes]
     node_id_set = set(node_ids)
     indegree = {node_id: 0 for node_id in node_ids}
-    outgoing = _outgoing_edges_by_source(edges)
+    outgoing = {}
 
-    for edge in edges:
-        if edge.source_node_id not in node_id_set or edge.target_node_id not in node_id_set:
-            raise ValueError(f"Workflow edge references unknown node: {edge.edge_id}")
-        indegree[edge.target_node_id] += 1
+    pairs = scheduling_dependencies(nodes, edges)
+    positions = {node_id: index for index, node_id in enumerate(node_ids)}
+    ordered_pairs = list(dict.fromkeys((edge.source_node_id, edge.target_node_id) for edge in edges))
+    ordered_pairs.extend(sorted(pairs - set(ordered_pairs), key=lambda pair: (positions.get(pair[0], -1), positions.get(pair[1], -1))))
+    for source, target in ordered_pairs:
+        if source not in node_id_set or target not in node_id_set:
+            raise ValueError(f"Workflow edge references unknown node: {source} -> {target}")
+        indegree[target] += 1
+        outgoing.setdefault(source, []).append(target)
 
     queue = deque(node_id for node_id in node_ids if indegree[node_id] == 0)
     order: list[str] = []
     while queue:
         node_id = queue.popleft()
         order.append(node_id)
-        for edge in outgoing.get(node_id, []):
-            indegree[edge.target_node_id] -= 1
-            if indegree[edge.target_node_id] == 0:
-                queue.append(edge.target_node_id)
+        for target in outgoing.get(node_id, []):
+            indegree[target] -= 1
+            if indegree[target] == 0:
+                queue.append(target)
 
     if len(order) != len(nodes):
         raise ValueError("Workflow graph contains a cycle")

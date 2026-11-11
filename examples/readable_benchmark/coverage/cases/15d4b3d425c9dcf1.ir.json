@@ -1,0 +1,203 @@
+{
+  "workflow_id": "10 Create_tables_from_unicode_data",
+  "workflow_name": "10 Create_tables_from_unicode_data",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\10 Create_tables_from_unicode_data.yxmd",
+  "source_hash": "184dc10d763f06c089454df4133af4478c1eef7750360a6e64fd333ff693e43a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "16",
+      "source_tool_id": "16",
+      "tool_type": "JoinMultiple",
+      "tool_name": "AlteryxBasePluginsGui.JoinMultiple.JoinMultiple",
+      "config": {
+        "JoinByRecPos": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "OutputJoinOnly": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "SelectConfiguration": {
+          "Configuration": {
+            "attributes": {
+              "outputConnection": "Output"
+            },
+            "OrderChanged": {
+              "attributes": {
+                "value": "False"
+              }
+            },
+            "SelectFields": {
+              "SelectField": {
+                "attributes": {
+                  "field": "*Unknown",
+                  "selected": "True"
+                }
+              }
+            }
+          }
+        },
+        "raw": {
+          "JoinByRecPos": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "OutputJoinOnly": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "SelectConfiguration": {
+            "Configuration": {
+              "attributes": {
+                "outputConnection": "Output"
+              },
+              "OrderChanged": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "SelectFields": {
+                "SelectField": {
+                  "attributes": {
+                    "field": "*Unknown",
+                    "selected": "True"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "normalized": {
+          "join_by_record_position": true,
+          "joins": [],
+          "cartesian_mode": "Error",
+          "output_join_only": false,
+          "select_fields": [
+            {
+              "source": "*Unknown",
+              "selected": true,
+              "rename": "*Unknown"
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "47:Output->16:Input",
+        "48:Output->16:Input"
+      ],
+      "outgoing_edges": [
+        "16:Output->20:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.JoinMultiple.JoinMultiple",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.JoinMultiple.JoinMultiple"
+          },
+          "Position": {
+            "attributes": {
+              "x": "656",
+              "y": "232"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "JoinMultiple",
+          "display_name": "Join Multiple",
+          "category": "Join",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxJoinMultiple",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "16",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

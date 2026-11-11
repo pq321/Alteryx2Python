@@ -1,0 +1,188 @@
+{
+  "workflow_id": "Zero-shot Text Classification",
+  "workflow_name": "Zero-shot Text Classification",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining\\Zero-shot Text Classification.yxmd",
+  "source_hash": "e4a66626972bed2ea3638f016db2abfcde172ce354ef484de805f8ad411e78a3",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "138",
+      "source_tool_id": "138",
+      "tool_type": "ZeroShotTextClassification",
+      "tool_name": "ZeroShotTextClassification",
+      "config": {
+        "TextField": {
+          "text": "text_to_classify"
+        },
+        "LabelField": {
+          "text": "labels"
+        },
+        "MultiCheckbox": {
+          "text": "true"
+        },
+        "raw": {
+          "TextField": {
+            "text": "text_to_classify"
+          },
+          "LabelField": {
+            "text": "labels"
+          },
+          "MultiCheckbox": {
+            "text": "true"
+          },
+          "container_id": "133"
+        },
+        "normalized": {
+          "tool_type": "ZeroShotTextClassification",
+          "text_field": "text_to_classify",
+          "label_field": "labels",
+          "multi_checkbox": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        },
+        {
+          "name": "Labels",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "134:Output->138:Data",
+        "135:Output->138:Labels"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ZeroShotTextClassification",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ZeroShotTextClassification"
+          },
+          "Position": {
+            "attributes": {
+              "x": "270",
+              "y": "486"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ZeroShotTextClassification",
+          "display_name": "ZeroShotTextClassification",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ZeroShotTextClassification\\\\zero_shot_text_classification_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "138",
+      "target_anchor": "Data",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "138",
+      "target_anchor": "Labels",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

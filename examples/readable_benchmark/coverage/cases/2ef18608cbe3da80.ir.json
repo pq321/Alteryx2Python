@@ -1,0 +1,161 @@
+{
+  "workflow_id": "Numeric_Up_Down",
+  "workflow_name": "Numeric_Up_Down",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface\\Numeric_Up_Down.yxwz",
+  "source_hash": "0bcafa3f513b35055e2131629c948d5df26664d334c64143723a9f2322d5b353",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "15",
+      "source_tool_id": "15",
+      "tool_type": "GenerateRows",
+      "tool_name": "AlteryxBasePluginsGui.GenerateRows.GenerateRows",
+      "config": {
+        "UpdateField": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "UpdateField_Name": {},
+        "CreateField_Name": {
+          "text": "Numbers"
+        },
+        "CreateField_Type": {
+          "text": "Float"
+        },
+        "CreateField_Size": {
+          "text": "4"
+        },
+        "Expression_Init": {
+          "text": "0"
+        },
+        "Expression_Cond": {
+          "text": "Numbers < 101"
+        },
+        "Expression_Loop": {
+          "text": "Numbers + .25"
+        },
+        "raw": {
+          "UpdateField": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "UpdateField_Name": {},
+          "CreateField_Name": {
+            "text": "Numbers"
+          },
+          "CreateField_Type": {
+            "text": "Float"
+          },
+          "CreateField_Size": {
+            "text": "4"
+          },
+          "Expression_Init": {
+            "text": "0"
+          },
+          "Expression_Cond": {
+            "text": "Numbers < 101"
+          },
+          "Expression_Loop": {
+            "text": "Numbers + .25"
+          }
+        },
+        "normalized": {
+          "update_field": false,
+          "update_field_name": "",
+          "create_field_name": "Numbers",
+          "create_field_type": "Float",
+          "create_field_size": 4,
+          "expression_init": "0",
+          "expression_cond": "Numbers < 101",
+          "expression_loop": "Numbers + .25",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "15:Output->16:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Numbers",
+            "type": "Float"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.GenerateRows.GenerateRows",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.GenerateRows.GenerateRows"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "510"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Numbers",
+                "type": "Float"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "GenerateRows",
+          "display_name": "Generate Rows",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxGenerateRows",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,82 @@
+From: reports@example.invalid
+To: reviewer@example.invalid
+Subject: Iris measurement report
+X-Unsent: 1
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="migration-deb4d55be8e5459bc914bab2"
+
+--migration-deb4d55be8e5459bc914bab2
+Content-Type: multipart/alternative;
+ boundary="migration-a97e7f97f96ba8f79717ad08"
+
+--migration-a97e7f97f96ba8f79717ad08
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+
+This message contains an HTML report.
+
+--migration-a97e7f97f96ba8f79717ad08
+Content-Type: text/html; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+
+<p>Iris measurement report</p>
+<table class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>Left_species</th>
+      <th>Left_mean_sepal_length</th>
+      <th>Left_measurement_count</th>
+      <th>Left_petal_total</th>
+      <th>Right_report_group</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>setosa</td>
+      <td>5.287500</td>
+      <td>24</td>
+      <td>72.2</td>
+      <td>A</td>
+    </tr>
+    <tr>
+      <td>versicolor</td>
+      <td>5.997872</td>
+      <td>47</td>
+      <td>405.8</td>
+      <td>B</td>
+    </tr>
+    <tr>
+      <td>virginica</td>
+      <td>6.622449</td>
+      <td>49</td>
+      <td>546.2</td>
+      <td>C</td>
+    </tr>
+  </tbody>
+</table>
+
+--migration-a97e7f97f96ba8f79717ad08--
+
+--migration-deb4d55be8e5459bc914bab2
+Content-Type: text/html
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="iris_report.html"
+MIME-Version: 1.0
+
+PCFkb2N0eXBlIGh0bWw+CjxodG1sPjxoZWFkPjxtZXRhIGNoYXJzZXQ9InV0Zi04Ij48L2hlYWQ+
+PGJvZHk+CjxwPklyaXMgbWVhc3VyZW1lbnQgcmVwb3J0PC9wPgo8dGFibGUgY2xhc3M9ImRhdGFm
+cmFtZSI+CiAgPHRoZWFkPgogICAgPHRyIHN0eWxlPSJ0ZXh0LWFsaWduOiByaWdodDsiPgogICAg
+ICA8dGg+TGVmdF9zcGVjaWVzPC90aD4KICAgICAgPHRoPkxlZnRfbWVhbl9zZXBhbF9sZW5ndGg8
+L3RoPgogICAgICA8dGg+TGVmdF9tZWFzdXJlbWVudF9jb3VudDwvdGg+CiAgICAgIDx0aD5MZWZ0
+X3BldGFsX3RvdGFsPC90aD4KICAgICAgPHRoPlJpZ2h0X3JlcG9ydF9ncm91cDwvdGg+CiAgICA8
+L3RyPgogIDwvdGhlYWQ+CiAgPHRib2R5PgogICAgPHRyPgogICAgICA8dGQ+c2V0b3NhPC90ZD4K
+ICAgICAgPHRkPjUuMjg3NTAwPC90ZD4KICAgICAgPHRkPjI0PC90ZD4KICAgICAgPHRkPjcyLjI8
+L3RkPgogICAgICA8dGQ+QTwvdGQ+CiAgICA8L3RyPgogICAgPHRyPgogICAgICA8dGQ+dmVyc2lj
+b2xvcjwvdGQ+CiAgICAgIDx0ZD41Ljk5Nzg3MjwvdGQ+CiAgICAgIDx0ZD40NzwvdGQ+CiAgICAg
+IDx0ZD40MDUuODwvdGQ+CiAgICAgIDx0ZD5CPC90ZD4KICAgIDwvdHI+CiAgICA8dHI+CiAgICAg
+IDx0ZD52aXJnaW5pY2E8L3RkPgogICAgICA8dGQ+Ni42MjI0NDk8L3RkPgogICAgICA8dGQ+NDk8
+L3RkPgogICAgICA8dGQ+NTQ2LjI8L3RkPgogICAgICA8dGQ+QzwvdGQ+CiAgICA8L3RyPgogIDwv
+dGJvZHk+CjwvdGFibGU+CjwvYm9keT48L2h0bWw+Cg==
+
+--migration-deb4d55be8e5459bc914bab2--

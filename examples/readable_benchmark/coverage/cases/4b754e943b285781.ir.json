@@ -1,0 +1,338 @@
+{
+  "workflow_id": "Multi-Field_Binning",
+  "workflow_name": "Multi-Field_Binning",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Multi-Field_Binning.yxmd",
+  "source_hash": "168ebfa54595cd9d04c942830dc598cdb56944136cffb97d4077c218058c0a3b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "21",
+      "source_tool_id": "21",
+      "tool_type": "MultiFieldBinning",
+      "tool_name": "MultiFieldBinning_v2.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "List Box (297)"
+            },
+            "text": "Enterprise Sales 2015=True,Commercial Sales 2015=True,Other Sales 2015=False,Number of Years in Current Position=False,401k Contribution for 2015=False"
+          },
+          {
+            "attributes": {
+              "name": "Radio Button (299)"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "Numeric Up Down (298)"
+            },
+            "text": "3"
+          },
+          {
+            "attributes": {
+              "name": "Radio Button (301)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Numeric Up Down (300)"
+            },
+            "text": "5"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "List Box (297)"
+              },
+              "text": "Enterprise Sales 2015=True,Commercial Sales 2015=True,Other Sales 2015=False,Number of Years in Current Position=False,401k Contribution for 2015=False"
+            },
+            {
+              "attributes": {
+                "name": "Radio Button (299)"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "Numeric Up Down (298)"
+              },
+              "text": "3"
+            },
+            {
+              "attributes": {
+                "name": "Radio Button (301)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Numeric Up Down (300)"
+              },
+              "text": "5"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "MultiFieldBinning",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "List Box (297)"
+              },
+              "#text": "Enterprise Sales 2015=True,Commercial Sales 2015=True,Other Sales 2015=False,Number of Years in Current Position=False,401k Contribution for 2015=False"
+            },
+            {
+              "@attributes": {
+                "name": "Radio Button (299)"
+              },
+              "#text": true
+            },
+            {
+              "@attributes": {
+                "name": "Numeric Up Down (298)"
+              },
+              "#text": 3
+            },
+            {
+              "@attributes": {
+                "name": "Radio Button (301)"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "Numeric Up Down (300)"
+              },
+              "#text": 5
+            }
+          ],
+          "List Box (297)": "Enterprise Sales 2015=True,Commercial Sales 2015=True,Other Sales 2015=False,Number of Years in Current Position=False,401k Contribution for 2015=False",
+          "Radio Button (299)": "True",
+          "Numeric Up Down (298)": "3",
+          "Radio Button (301)": "False",
+          "Numeric Up Down (300)": "5",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation",
+          "macro_path": "MultiFieldBinning_v2.yxmc",
+          "macro_tool_type": "MultiFieldBinning"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "8:Output->21:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Employee",
+            "id": "b256f7ca-4e1b-45d8-aa6e-037788878f16",
+            "size": "16",
+            "source": "TextInput:",
+            "type": "String"
+          },
+          {
+            "name": "Enterprise Sales 2015",
+            "id": "15ed44d0-1266-4542-bd2d-2a7418b4e32c",
+            "source": "TextInput:",
+            "type": "Int32"
+          },
+          {
+            "name": "Commercial Sales 2015",
+            "id": "ba24369d-c744-4303-a923-e1208435034d",
+            "source": "TextInput:",
+            "type": "Int32"
+          },
+          {
+            "name": "Other Sales 2015",
+            "id": "c647bc76-0efe-4744-92eb-d4af2e1ace7a",
+            "source": "TextInput:",
+            "type": "Int32"
+          },
+          {
+            "name": "Number of Years in Current Position",
+            "id": "25f4c08f-468c-4b9f-9f0d-89b7ef2e74d8",
+            "source": "TextInput:",
+            "type": "Byte"
+          },
+          {
+            "name": "401k Contribution for 2015",
+            "id": "c80ca956-ecc1-4240-af05-1a1dac4b276d",
+            "source": "TextInput:",
+            "type": "Int16"
+          },
+          {
+            "name": "Enterprise Sales 2015_Tile_Num",
+            "id": "0d086dcb-8174-442d-81aa-5a6cca564b0c",
+            "source": "CrossTab:Header:FieldID:1:Sum:",
+            "type": "Int64"
+          },
+          {
+            "name": "Commercial Sales 2015_Tile_Num",
+            "id": "271799fb-5447-4d2c-96b1-44a1a0113c43",
+            "source": "CrossTab:Header:FieldID:2:Sum:",
+            "type": "Int64"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "MultiFieldBinning_v2.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "390"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Employee",
+                "id": "b256f7ca-4e1b-45d8-aa6e-037788878f16",
+                "size": "16",
+                "source": "TextInput:",
+                "type": "String"
+              },
+              {
+                "name": "Enterprise Sales 2015",
+                "id": "15ed44d0-1266-4542-bd2d-2a7418b4e32c",
+                "source": "TextInput:",
+                "type": "Int32"
+              },
+              {
+                "name": "Commercial Sales 2015",
+                "id": "ba24369d-c744-4303-a923-e1208435034d",
+                "source": "TextInput:",
+                "type": "Int32"
+              },
+              {
+                "name": "Other Sales 2015",
+                "id": "c647bc76-0efe-4744-92eb-d4af2e1ace7a",
+                "source": "TextInput:",
+                "type": "Int32"
+              },
+              {
+                "name": "Number of Years in Current Position",
+                "id": "25f4c08f-468c-4b9f-9f0d-89b7ef2e74d8",
+                "source": "TextInput:",
+                "type": "Byte"
+              },
+              {
+                "name": "401k Contribution for 2015",
+                "id": "c80ca956-ecc1-4240-af05-1a1dac4b276d",
+                "source": "TextInput:",
+                "type": "Int16"
+              },
+              {
+                "name": "Enterprise Sales 2015_Tile_Num",
+                "id": "0d086dcb-8174-442d-81aa-5a6cca564b0c",
+                "source": "CrossTab:Header:FieldID:1:Sum:",
+                "type": "Int64"
+              },
+              {
+                "name": "Commercial Sales 2015_Tile_Num",
+                "id": "271799fb-5447-4d2c-96b1-44a1a0113c43",
+                "source": "CrossTab:Header:FieldID:2:Sum:",
+                "type": "Int64"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "MultiFieldBinning",
+          "display_name": "Multi-Field Binning",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "MultiFieldBinning_v2.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "21",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

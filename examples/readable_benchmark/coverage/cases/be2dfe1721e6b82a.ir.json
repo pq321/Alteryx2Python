@@ -1,0 +1,189 @@
+{
+  "workflow_id": "Dynamic_Input",
+  "workflow_name": "Dynamic_Input",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\Dynamic_Input.yxmd",
+  "source_hash": "51ca1a74924610de6fdebaab03f46c72e29b4af342a1d798788053694328357c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "9",
+      "source_tool_id": "9",
+      "tool_type": "DynamicInput",
+      "tool_name": "AlteryxBasePluginsGui.DynamicInput.DynamicInput",
+      "config": {
+        "InputConfiguration": {
+          "Configuration": {
+            "Passwords": {},
+            "File": {
+              "attributes": {
+                "OutputFileName": "FileName",
+                "FileFormat": "19",
+                "SearchSubDirs": "False",
+                "RecordLimit": ""
+              },
+              "text": "..\\..\\..\\data\\SampleData\\CO Store File - North.yxdb"
+            },
+            "FormatSpecificOptions": {}
+          }
+        },
+        "Mode": {
+          "text": "ReadList"
+        },
+        "ReadList_Field": {
+          "text": "FullPath"
+        },
+        "ReadList_Type": {
+          "text": "Path"
+        },
+        "raw": {
+          "InputConfiguration": {
+            "Configuration": {
+              "Passwords": {},
+              "File": {
+                "attributes": {
+                  "OutputFileName": "FileName",
+                  "FileFormat": "19",
+                  "SearchSubDirs": "False",
+                  "RecordLimit": ""
+                },
+                "text": "..\\..\\..\\data\\SampleData\\CO Store File - North.yxdb"
+              },
+              "FormatSpecificOptions": {}
+            }
+          },
+          "Mode": {
+            "text": "ReadList"
+          },
+          "ReadList_Field": {
+            "text": "FullPath"
+          },
+          "ReadList_Type": {
+            "text": "Path"
+          }
+        },
+        "normalized": {
+          "input_configuration": {
+            "Passwords": {},
+            "File": {
+              "attributes": {
+                "OutputFileName": "FileName",
+                "FileFormat": "19",
+                "SearchSubDirs": "False",
+                "RecordLimit": ""
+              },
+              "text": "..\\..\\..\\data\\SampleData\\CO Store File - North.yxdb"
+            },
+            "FormatSpecificOptions": {}
+          },
+          "mode": "ReadList",
+          "modifications": {},
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "10:Output->9:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DynamicInput.DynamicInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DynamicInput.DynamicInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "246",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DynamicInput",
+          "display_name": "Dynamic Input",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDynamicInput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "CO Store File - North.yxdb"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "9",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

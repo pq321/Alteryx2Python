@@ -1,0 +1,469 @@
+{
+  "workflow_id": "07_CFML_LinearRegression",
+  "workflow_name": "07_CFML_LinearRegression",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\07_CFML_LinearRegression.yxmd",
+  "source_hash": "725fa80a7c0e892e1f99cc3b260f264c7c98513f933aaa83598fe5be2e1d2088",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "7",
+      "source_tool_id": "7",
+      "tool_type": "Regression",
+      "tool_name": "Regression",
+      "config": {
+        "algorithm_selection": {
+          "text": "linear_regression"
+        },
+        "algorithm_configs": [
+          {
+            "algorithm_name": {
+              "text": "linear_regression"
+            },
+            "algorithm_config": {
+              "fit_intercept": {
+                "text": "True"
+              },
+              "normalize": {
+                "text": "True"
+              }
+            }
+          },
+          {
+            "algorithm_name": {
+              "text": "random_forest_regressor"
+            },
+            "algorithm_config": {
+              "n_estimators": {
+                "text": "100"
+              },
+              "criterion": {
+                "text": "mse"
+              },
+              "max_depth_none": {
+                "text": "True"
+              },
+              "max_depth": {
+                "text": "10"
+              },
+              "min_samples_split_int": {
+                "text": "True"
+              },
+              "min_samples_split": {
+                "text": "2"
+              },
+              "min_samples_split_int_val": {
+                "text": "2"
+              },
+              "min_samples_split_pct_val": {
+                "text": "0.01"
+              },
+              "max_features_type": {
+                "text": "auto"
+              },
+              "max_features_input": {
+                "text": "1"
+              },
+              "max_features": {
+                "text": "auto"
+              },
+              "min_impurity_decrease": {
+                "text": "0"
+              },
+              "min_weight_fraction_leaf": {
+                "text": "0"
+              },
+              "random_state_none": {
+                "text": "False"
+              },
+              "random_state": {
+                "text": "10"
+              },
+              "bootstrap": {
+                "text": "True"
+              }
+            }
+          },
+          {
+            "algorithm_name": {
+              "text": "decision_tree_regressor"
+            },
+            "algorithm_config": {
+              "criterion": {
+                "text": "mse"
+              },
+              "max_depth_none": {
+                "text": "True"
+              },
+              "max_depth": {
+                "text": "10"
+              },
+              "min_samples_split_int": {
+                "text": "True"
+              },
+              "min_samples_split": {
+                "text": "2"
+              },
+              "min_samples_split_int_val": {
+                "text": "2"
+              },
+              "min_samples_split_pct_val": {
+                "text": "0.01"
+              },
+              "max_features_type": {
+                "text": "auto"
+              },
+              "max_features_input": {
+                "text": "1"
+              },
+              "max_features": {
+                "text": "auto"
+              },
+              "min_impurity_decrease": {
+                "text": "0"
+              },
+              "min_weight_fraction_leaf": {
+                "text": "0"
+              },
+              "random_state_none": {
+                "text": "False"
+              },
+              "random_state": {
+                "text": "10"
+              },
+              "max_leaf_nodes_none": {
+                "text": "True"
+              },
+              "max_leaf_nodes": {
+                "text": "10"
+              },
+              "splitter": {
+                "text": "best"
+              },
+              "presort": {
+                "text": "False"
+              }
+            }
+          }
+        ],
+        "schemaID": {
+          "text": "Tools.Regression.2"
+        },
+        "DesignerVersion": {
+          "text": "2020.2.0.29326"
+        },
+        "raw": {
+          "algorithm_selection": {
+            "text": "linear_regression"
+          },
+          "algorithm_configs": [
+            {
+              "algorithm_name": {
+                "text": "linear_regression"
+              },
+              "algorithm_config": {
+                "fit_intercept": {
+                  "text": "True"
+                },
+                "normalize": {
+                  "text": "True"
+                }
+              }
+            },
+            {
+              "algorithm_name": {
+                "text": "random_forest_regressor"
+              },
+              "algorithm_config": {
+                "n_estimators": {
+                  "text": "100"
+                },
+                "criterion": {
+                  "text": "mse"
+                },
+                "max_depth_none": {
+                  "text": "True"
+                },
+                "max_depth": {
+                  "text": "10"
+                },
+                "min_samples_split_int": {
+                  "text": "True"
+                },
+                "min_samples_split": {
+                  "text": "2"
+                },
+                "min_samples_split_int_val": {
+                  "text": "2"
+                },
+                "min_samples_split_pct_val": {
+                  "text": "0.01"
+                },
+                "max_features_type": {
+                  "text": "auto"
+                },
+                "max_features_input": {
+                  "text": "1"
+                },
+                "max_features": {
+                  "text": "auto"
+                },
+                "min_impurity_decrease": {
+                  "text": "0"
+                },
+                "min_weight_fraction_leaf": {
+                  "text": "0"
+                },
+                "random_state_none": {
+                  "text": "False"
+                },
+                "random_state": {
+                  "text": "10"
+                },
+                "bootstrap": {
+                  "text": "True"
+                }
+              }
+            },
+            {
+              "algorithm_name": {
+                "text": "decision_tree_regressor"
+              },
+              "algorithm_config": {
+                "criterion": {
+                  "text": "mse"
+                },
+                "max_depth_none": {
+                  "text": "True"
+                },
+                "max_depth": {
+                  "text": "10"
+                },
+                "min_samples_split_int": {
+                  "text": "True"
+                },
+                "min_samples_split": {
+                  "text": "2"
+                },
+                "min_samples_split_int_val": {
+                  "text": "2"
+                },
+                "min_samples_split_pct_val": {
+                  "text": "0.01"
+                },
+                "max_features_type": {
+                  "text": "auto"
+                },
+                "max_features_input": {
+                  "text": "1"
+                },
+                "max_features": {
+                  "text": "auto"
+                },
+                "min_impurity_decrease": {
+                  "text": "0"
+                },
+                "min_weight_fraction_leaf": {
+                  "text": "0"
+                },
+                "random_state_none": {
+                  "text": "False"
+                },
+                "random_state": {
+                  "text": "10"
+                },
+                "max_leaf_nodes_none": {
+                  "text": "True"
+                },
+                "max_leaf_nodes": {
+                  "text": "10"
+                },
+                "splitter": {
+                  "text": "best"
+                },
+                "presort": {
+                  "text": "False"
+                }
+              }
+            }
+          ],
+          "schemaID": {
+            "text": "Tools.Regression.2"
+          },
+          "DesignerVersion": {
+            "text": "2020.2.0.29326"
+          },
+          "container_id": "16"
+        },
+        "normalized": {
+          "tool_type": "Regression",
+          "algorithm_selection": "linear_regression",
+          "algorithm_configs": [
+            {
+              "algorithm_name": "linear_regression",
+              "config": {
+                "fit_intercept": true,
+                "normalize": true
+              }
+            },
+            {
+              "algorithm_name": "random_forest_regressor",
+              "config": {
+                "n_estimators": 100,
+                "criterion": "mse",
+                "max_depth_none": true,
+                "max_depth": 10,
+                "min_samples_split_int": true,
+                "min_samples_split": 2,
+                "min_samples_split_int_val": 2,
+                "min_samples_split_pct_val": 0.01,
+                "max_features_type": "auto",
+                "max_features_input": 1,
+                "max_features": "auto",
+                "min_impurity_decrease": 0,
+                "min_weight_fraction_leaf": 0,
+                "random_state_none": false,
+                "random_state": 10,
+                "bootstrap": true
+              }
+            },
+            {
+              "algorithm_name": "decision_tree_regressor",
+              "config": {
+                "criterion": "mse",
+                "max_depth_none": true,
+                "max_depth": 10,
+                "min_samples_split_int": true,
+                "min_samples_split": 2,
+                "min_samples_split_int_val": 2,
+                "min_samples_split_pct_val": 0.01,
+                "max_features_type": "auto",
+                "max_features_input": 1,
+                "max_features": "auto",
+                "min_impurity_decrease": 0,
+                "min_weight_fraction_leaf": 0,
+                "random_state_none": false,
+                "random_state": 10,
+                "max_leaf_nodes_none": true,
+                "max_leaf_nodes": 10,
+                "splitter": "best",
+                "presort": false
+              }
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Model",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Model",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "6:Model->7:Model"
+      ],
+      "outgoing_edges": [
+        "7:Model->8:Model"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Regression",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "Regression"
+          },
+          "Position": {
+            "attributes": {
+              "x": "493",
+              "y": "234"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Regression",
+          "display_name": "Regression",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "Regression\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Linear Regression"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "7",
+      "target_anchor": "Model",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

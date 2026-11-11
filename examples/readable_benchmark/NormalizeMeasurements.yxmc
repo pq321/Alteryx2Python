@@ -1,0 +1,96 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2022.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.MacroInput.MacroInput">
+        <Position x="54" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Name>Input</Name>
+          <Abbrev>I</Abbrev>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxMacroInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="250" y="186" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField field="species" size="24" type="V_WString" expression="Replace([species], &quot;Iris-&quot;, &quot;&quot;)" />
+            <FormulaField field="scaled_petal_length" size="8" type="Double" expression="[petal_length] * FACTOR" />
+          </FormulaFields>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.MacroOutput.MacroOutput">
+        <Position x="500" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Name>Output</Name>
+          <Abbrev>O</Abbrev>
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText />
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxMacroOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <Memory default="True" />
+    <GlobalRecordLimit value="0" />
+    <TempFiles fileCollation="True" />
+    <RuntimeProperties>
+      <ModuleType>Macro</ModuleType>
+      <Questions>
+        <Question>
+          <Type>NumericUpDown</Type>
+          <Name>factor</Name>
+          <Default>1</Default>
+        </Question>
+      </Questions>
+      <Actions>
+        <NoCondition>
+          <True>
+            <Action>
+              <Type>UpdateValue</Type>
+              <Variable>factor</Variable>
+              <Replace value="True" />
+              <ReplaceText>FACTOR</ReplaceText>
+              <Destination>2/FormulaFields/FormulaField[2]/@expression</Destination>
+            </Action>
+          </True>
+        </NoCondition>
+      </Actions>
+    </RuntimeProperties>
+  </Properties>
+</AlteryxDocument>

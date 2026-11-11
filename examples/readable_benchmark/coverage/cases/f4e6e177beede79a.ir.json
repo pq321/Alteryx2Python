@@ -1,0 +1,477 @@
+{
+  "workflow_id": "Imputation",
+  "workflow_name": "Imputation",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Imputation.yxmd",
+  "source_hash": "e3f9d3d0e146ea7ba9e368d9e8f2bc71b742960dd1bdd5307f0065a0b981668e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "173",
+      "source_tool_id": "173",
+      "tool_type": "Imputation",
+      "tool_name": "Imputation_v3.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "listbox Select Incoming Fields"
+            },
+            "text": "\"item_id\",\"2012_sales\",\"2013_sales\",\"2014_sales\""
+          },
+          {
+            "attributes": {
+              "name": "radio Null Value"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "radio User Specified Replace From Value"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "updown User Replace Value"
+            },
+            "text": "0.00000"
+          },
+          {
+            "attributes": {
+              "name": "radio Mean"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "radio Median"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "radio Mode"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "radio User Specified Replace With Value"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "updown User Replace With Value"
+            },
+            "text": "0.00000"
+          },
+          {
+            "attributes": {
+              "name": "checkbox Impute Indicator"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "checkbox Imputed Values Separate Field"
+            },
+            "text": "True"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "listbox Select Incoming Fields"
+              },
+              "text": "\"item_id\",\"2012_sales\",\"2013_sales\",\"2014_sales\""
+            },
+            {
+              "attributes": {
+                "name": "radio Null Value"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "radio User Specified Replace From Value"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "updown User Replace Value"
+              },
+              "text": "0.00000"
+            },
+            {
+              "attributes": {
+                "name": "radio Mean"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "radio Median"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "radio Mode"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "radio User Specified Replace With Value"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "updown User Replace With Value"
+              },
+              "text": "0.00000"
+            },
+            {
+              "attributes": {
+                "name": "checkbox Impute Indicator"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "checkbox Imputed Values Separate Field"
+              },
+              "text": "True"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "Imputation",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "listbox Select Incoming Fields"
+              },
+              "#text": "\"item_id\",\"2012_sales\",\"2013_sales\",\"2014_sales\""
+            },
+            {
+              "@attributes": {
+                "name": "radio Null Value"
+              },
+              "#text": true
+            },
+            {
+              "@attributes": {
+                "name": "radio User Specified Replace From Value"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "updown User Replace Value"
+              },
+              "#text": 0.0
+            },
+            {
+              "@attributes": {
+                "name": "radio Mean"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "radio Median"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "radio Mode"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "radio User Specified Replace With Value"
+              },
+              "#text": true
+            },
+            {
+              "@attributes": {
+                "name": "updown User Replace With Value"
+              },
+              "#text": 0.0
+            },
+            {
+              "@attributes": {
+                "name": "checkbox Impute Indicator"
+              },
+              "#text": false
+            },
+            {
+              "@attributes": {
+                "name": "checkbox Imputed Values Separate Field"
+              },
+              "#text": true
+            }
+          ],
+          "listbox Select Incoming Fields": "\"item_id\",\"2012_sales\",\"2013_sales\",\"2014_sales\"",
+          "radio Null Value": "True",
+          "radio User Specified Replace From Value": "False",
+          "updown User Replace Value": "0.00000",
+          "radio Mean": "False",
+          "radio Median": "False",
+          "radio Mode": "False",
+          "radio User Specified Replace With Value": "True",
+          "updown User Replace With Value": "0.00000",
+          "checkbox Impute Indicator": "False",
+          "checkbox Imputed Values Separate Field": "True",
+          "fields": [
+            "item_id",
+            "2012_sales",
+            "2013_sales",
+            "2014_sales"
+          ],
+          "method": "constant",
+          "value": "0.00000",
+          "replace_from": "null",
+          "indicator": false,
+          "separate_field": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation",
+          "macro_path": "Imputation_v3.yxmc",
+          "macro_tool_type": "Imputation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "157:Output->173:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "item_id",
+            "id": "9af228df-5482-459a-ae45-5639e1cf3603",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2012_sales",
+            "id": "15f4924a-cf54-488a-8d0a-c2629afd86f8",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2013_sales",
+            "id": "8fe98fa8-ee9e-4f16-9f31-24b3aa76550b",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2014_sales",
+            "id": "e4627349-e633-40f0-84d0-57a1b304b55d",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "item_id_ImputedValue",
+            "id": "2062183d-500f-46cf-9dc2-cbdaca8ce735",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2012_sales_ImputedValue",
+            "id": "b4b89d44-a42f-46c3-a475-45c538863906",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2013_sales_ImputedValue",
+            "id": "d76d2540-969b-406d-b81f-2ebac8bf4935",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "2014_sales_ImputedValue",
+            "id": "561afc8e-d046-4490-98a0-60b8e0861c18",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "Double"
+          },
+          {
+            "name": "FieldId",
+            "id": "e0376c65-3202-4a76-9a96-e2d11c0a1c85",
+            "size": "36",
+            "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+            "type": "V_WString"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "Imputation_v3.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "342"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "item_id",
+                "id": "9af228df-5482-459a-ae45-5639e1cf3603",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2012_sales",
+                "id": "15f4924a-cf54-488a-8d0a-c2629afd86f8",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2013_sales",
+                "id": "8fe98fa8-ee9e-4f16-9f31-24b3aa76550b",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2014_sales",
+                "id": "e4627349-e633-40f0-84d0-57a1b304b55d",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "item_id_ImputedValue",
+                "id": "2062183d-500f-46cf-9dc2-cbdaca8ce735",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2012_sales_ImputedValue",
+                "id": "b4b89d44-a42f-46c3-a475-45c538863906",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2013_sales_ImputedValue",
+                "id": "d76d2540-969b-406d-b81f-2ebac8bf4935",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "2014_sales_ImputedValue",
+                "id": "561afc8e-d046-4490-98a0-60b8e0861c18",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "Double"
+              },
+              {
+                "name": "FieldId",
+                "id": "e0376c65-3202-4a76-9a96-e2d11c0a1c85",
+                "size": "36",
+                "source": "Formula: IF \nREGEX_Match([_CurrentField...",
+                "type": "V_WString"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Imputation",
+          "display_name": "Imputation",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Imputation_v3.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "Imputation (173)"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "173",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

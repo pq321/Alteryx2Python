@@ -1,0 +1,134 @@
+{
+  "workflow_id": "12 Download_data_from_the_internet",
+  "workflow_name": "12 Download_data_from_the_internet",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\12 Download_data_from_the_internet.yxwz",
+  "source_hash": "3aa44fa1eae0200088342fcab9f04d32a8e286bb6d08f41dea420a702a997f2d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "112",
+      "source_tool_id": "112",
+      "tool_type": "Date",
+      "tool_name": "AlteryxGuiToolkit.Questions.Date.Date",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "1"
+          },
+          "Name": {
+            "text": "Date"
+          },
+          "DefaultAnnotationText": {
+            "text": "Get Temps for which date?"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "1"
+            },
+            "Name": {
+              "text": "Date"
+            },
+            "DefaultAnnotationText": {
+              "text": "Get Temps for which date?"
+            },
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          },
+          "container_id": "115"
+        },
+        "normalized": {
+          "name": "Date",
+          "prompt": "Get Temps for which date?",
+          "default_value": "Get Temps for which date?",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Question",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "112:Question->103:Question",
+        "112:Question->99:Question",
+        "112:Question->100:Question",
+        "112:Question->101:Question",
+        "112:Question->104:Question",
+        "112:Question->105:Question"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Questions.Date.Date",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Questions.Date.Date"
+          },
+          "Position": {
+            "attributes": {
+              "x": "529",
+              "y": "196",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Date",
+          "display_name": "Date",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "1"
+          },
+          "Name": {
+            "text": "Date"
+          },
+          "DefaultAnnotationText": {
+            "text": "Get Temps for which date?"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

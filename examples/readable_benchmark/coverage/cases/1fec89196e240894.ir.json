@@ -1,0 +1,219 @@
+{
+  "workflow_id": "12 Download_data_from_the_internet",
+  "workflow_name": "12 Download_data_from_the_internet",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\12 Download_data_from_the_internet.yxwz",
+  "source_hash": "3aa44fa1eae0200088342fcab9f04d32a8e286bb6d08f41dea420a702a997f2d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "36",
+      "source_tool_id": "36",
+      "tool_type": "RecordID",
+      "tool_name": "AlteryxBasePluginsGui.RecordID.RecordID",
+      "config": {
+        "StartValue": {
+          "text": "1"
+        },
+        "FieldName": {
+          "text": "RecordID"
+        },
+        "FieldType": {
+          "text": "Int32"
+        },
+        "Position": {
+          "text": "0"
+        },
+        "raw": {
+          "StartValue": {
+            "text": "1"
+          },
+          "FieldName": {
+            "text": "RecordID"
+          },
+          "FieldType": {
+            "text": "Int32"
+          },
+          "Position": {
+            "text": "0"
+          }
+        },
+        "normalized": {
+          "field_name": "RecordID",
+          "start_value": 1,
+          "field_type": "Int32",
+          "field_size": 6,
+          "position": 0,
+          "group_fields": [],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "34:Output->36:Input"
+      ],
+      "outgoing_edges": [
+        "36:Output->4:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "RecordID",
+            "source": "RecordID: Starting Value=1",
+            "type": "Int32"
+          },
+          {
+            "name": "URL",
+            "size": "2147483647",
+            "source": "TextInput:",
+            "type": "V_String"
+          },
+          {
+            "description": "TextToColumns: Parsed from DownloadData",
+            "name": "DownloadData",
+            "size": "2147483647",
+            "source": "TextToColumns: Parsed from DownloadData",
+            "type": "V_String"
+          },
+          {
+            "name": "DownloadHeaders",
+            "size": "2147483647",
+            "source": "Download",
+            "type": "V_String"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.RecordID.RecordID",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.RecordID.RecordID"
+          },
+          "Position": {
+            "attributes": {
+              "x": "337",
+              "y": "444"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "RecordID",
+                "source": "RecordID: Starting Value=1",
+                "type": "Int32"
+              },
+              {
+                "name": "URL",
+                "size": "2147483647",
+                "source": "TextInput:",
+                "type": "V_String"
+              },
+              {
+                "description": "TextToColumns: Parsed from DownloadData",
+                "name": "DownloadData",
+                "size": "2147483647",
+                "source": "TextToColumns: Parsed from DownloadData",
+                "type": "V_String"
+              },
+              {
+                "name": "DownloadHeaders",
+                "size": "2147483647",
+                "source": "Download",
+                "type": "V_String"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "RecordID",
+          "display_name": "RecordID",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxRecordID",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "36",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

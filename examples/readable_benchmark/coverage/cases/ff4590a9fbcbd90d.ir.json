@@ -1,0 +1,123 @@
+{
+  "workflow_id": "Condition",
+  "workflow_name": "Condition",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface\\Condition.yxwz",
+  "source_hash": "1f1aca46814ce177819d71d6136202ee1286c29b5581c53bb0841a20c0a55f31",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "9",
+      "source_tool_id": "9",
+      "tool_type": "RadioButtonGroup",
+      "tool_name": "AlteryxGuiToolkit.Questions.RadioButtonGroup.RadioButtonGroup",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Radio Button 1"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "0"
+            },
+            "Name": {},
+            "DefaultAnnotationText": {
+              "text": "Radio Button 1"
+            },
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "name": "",
+          "prompt": "Radio Button 1",
+          "default_value": "Radio Button 1",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Question",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "9:Question->11:Question",
+        "9:Question->2:Question"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Questions.RadioButtonGroup.RadioButtonGroup",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Questions.RadioButtonGroup.RadioButtonGroup"
+          },
+          "Position": {
+            "attributes": {
+              "x": "318",
+              "y": "311",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "RadioButtonGroup",
+          "display_name": "Radio Button Group",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Radio Button 1"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

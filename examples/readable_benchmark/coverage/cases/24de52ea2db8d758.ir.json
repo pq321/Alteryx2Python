@@ -1,0 +1,153 @@
+{
+  "workflow_id": "Make Columns",
+  "workflow_name": "Make Columns",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\Make Columns.yxmd",
+  "source_hash": "d07bd10cd0344c8999c091610673543927ed9ee4ca60c8751c50b404e13c9321",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "7",
+      "source_tool_id": "7",
+      "tool_type": "MakeColumns",
+      "tool_name": "AlteryxBasePluginsGui.MakeColumns.MakeColumns",
+      "config": {
+        "NumColumns": {
+          "text": "3"
+        },
+        "IsHorizontal": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "GroupFields": {
+          "attributes": {
+            "orderChanged": "False"
+          }
+        },
+        "raw": {
+          "NumColumns": {
+            "text": "3"
+          },
+          "IsHorizontal": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "GroupFields": {
+            "attributes": {
+              "orderChanged": "False"
+            }
+          }
+        },
+        "normalized": {
+          "num_columns": 3,
+          "is_horizontal": true,
+          "group_fields": [],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "8:Output->7:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.MakeColumns.MakeColumns",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.MakeColumns.MakeColumns"
+          },
+          "Position": {
+            "attributes": {
+              "x": "306",
+              "y": "378"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "MakeColumns",
+          "display_name": "Make Columns",
+          "category": "Transform",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxMakeColumns",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "7",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

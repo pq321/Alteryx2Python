@@ -1,0 +1,178 @@
+{
+  "workflow_id": "WeightedAverage",
+  "workflow_name": "WeightedAverage",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\WeightedAverage.yxmd",
+  "source_hash": "39e0210693b7a85c0c516e2c718c0eb3f05ca3fba4e07bd85b47c7c6989d05c0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "110",
+      "source_tool_id": "110",
+      "tool_type": "WeightedAvg",
+      "tool_name": "WeightedAvg.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Value"
+            },
+            "text": "UnitCost"
+          },
+          {
+            "attributes": {
+              "name": "Weight"
+            },
+            "text": "Units"
+          },
+          {
+            "attributes": {
+              "name": "OutputFieldName"
+            },
+            "text": "WeightedAverage"
+          },
+          {
+            "attributes": {
+              "name": "GroupFields"
+            }
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Value"
+              },
+              "text": "UnitCost"
+            },
+            {
+              "attributes": {
+                "name": "Weight"
+              },
+              "text": "Units"
+            },
+            {
+              "attributes": {
+                "name": "OutputFieldName"
+              },
+              "text": "WeightedAverage"
+            },
+            {
+              "attributes": {
+                "name": "GroupFields"
+              }
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "WeightedAvg",
+          "Value": "UnitCost",
+          "Weight": "Units",
+          "OutputFieldName": "WeightedAverage",
+          "GroupFields": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform",
+          "macro_path": "WeightedAvg.yxmc",
+          "macro_tool_type": "WeightedAvg"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "109:Output->110:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "WeightedAvg.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "WeightedAvg",
+          "display_name": "Weighted Average",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "WeightedAvg.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "110",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,164 @@
+{
+  "workflow_id": "02 Map a trade area around a store",
+  "workflow_name": "02 Map a trade area around a store",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Map a trade area around a store.yxmd",
+  "source_hash": "ecfcf68cb8a7b68e7d3110ac63a92e3868c7ad0bf25d53ae5937c3c15ae03bc0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "52",
+      "source_tool_id": "52",
+      "tool_type": "SpatialInfo",
+      "tool_name": "AlteryxSpatialPluginsGui.SpatialInfo.SpatialInfo",
+      "config": {
+        "SpatialObj": {
+          "attributes": {
+            "field": "SpatialObj"
+          }
+        },
+        "SelectedItems": {
+          "Item": {
+            "attributes": {
+              "name": "AreaMi"
+            }
+          }
+        },
+        "raw": {
+          "SpatialObj": {
+            "attributes": {
+              "field": "SpatialObj"
+            }
+          },
+          "SelectedItems": {
+            "Item": {
+              "attributes": {
+                "name": "AreaMi"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "spatial_field": "SpatialObj",
+          "selected_items": [
+            "AreaMi"
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "5:Output->52:Input"
+      ],
+      "outgoing_edges": [
+        "52:Output->57:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.SpatialInfo.SpatialInfo",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.SpatialInfo.SpatialInfo"
+          },
+          "Position": {
+            "attributes": {
+              "x": "202",
+              "y": "380"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "SpatialInfo",
+          "display_name": "SpatialInfo",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxSpatialInfo",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "5. Calculate the area in square miles of each ad area."
+          },
+          "DefaultAnnotationText": {
+            "text": "5. Calculate the area in square miles of each ad area."
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "52",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

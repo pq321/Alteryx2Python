@@ -1,0 +1,263 @@
+{
+  "workflow_id": "05 View_FEMA_housing_data",
+  "workflow_name": "05 View_FEMA_housing_data",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\05 View_FEMA_housing_data.yxwz",
+  "source_hash": "2cda0f2f189da443ac8c67842a77a2b81dc0fad290eed6d35f217c1bfebeaa2c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "65",
+      "source_tool_id": "65",
+      "tool_type": "AppendFields",
+      "tool_name": "AlteryxBasePluginsGui.AppendFields.AppendFields",
+      "config": {
+        "CartesianMode": {
+          "text": "Error"
+        },
+        "SelectConfiguration": {
+          "Configuration": {
+            "attributes": {
+              "outputConnection": "Output"
+            },
+            "OrderChanged": {
+              "attributes": {
+                "value": "False"
+              }
+            },
+            "SelectFields": {
+              "SelectField": {
+                "attributes": {
+                  "field": "*Unknown",
+                  "selected": "True"
+                }
+              }
+            }
+          }
+        },
+        "raw": {
+          "CartesianMode": {
+            "text": "Error"
+          },
+          "SelectConfiguration": {
+            "Configuration": {
+              "attributes": {
+                "outputConnection": "Output"
+              },
+              "OrderChanged": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "SelectFields": {
+                "SelectField": {
+                  "attributes": {
+                    "field": "*Unknown",
+                    "selected": "True"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "normalized": {
+          "cartesian_mode": "Error",
+          "select_fields": [
+            {
+              "source": "*Unknown",
+              "rename": "*Unknown",
+              "selected": true,
+              "dtype": null,
+              "forced": false,
+              "size": null
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Source",
+          "direction": "input"
+        },
+        {
+          "name": "Targets",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "55:Output->65:Targets",
+        "64:Output->65:Source"
+      ],
+      "outgoing_edges": [
+        "65:Output->61:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Legend",
+            "size": "1073741823",
+            "source": "Report:Text:",
+            "type": "V_WString"
+          },
+          {
+            "name": "Map",
+            "size": "1073741823",
+            "source": "Report:Map:",
+            "type": "V_WString"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.AppendFields.AppendFields",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.AppendFields.AppendFields"
+          },
+          "Position": {
+            "attributes": {
+              "x": "705",
+              "y": "585"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Legend",
+                "size": "1073741823",
+                "source": "Report:Text:",
+                "type": "V_WString"
+              },
+              {
+                "name": "Map",
+                "size": "1073741823",
+                "source": "Report:Map:",
+                "type": "V_WString"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "AppendFields",
+          "display_name": "Append Fields",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxAppendFields",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "65",
+      "target_anchor": "Targets",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "65",
+      "target_anchor": "Source",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

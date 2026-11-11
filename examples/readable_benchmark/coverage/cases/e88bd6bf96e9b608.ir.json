@@ -1,0 +1,361 @@
+{
+  "workflow_id": "Report_Header",
+  "workflow_name": "Report_Header",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting\\Report_Header.yxmd",
+  "source_hash": "ba96ffe9322195e2275b22157dacc07eb2a687de21847dec9760029b8c942641",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "33",
+      "source_tool_id": "33",
+      "tool_type": "VisualLayout",
+      "tool_name": "VisualLayout",
+      "config": {
+        "LayoutFields": {
+          "Document": {
+            "TempFileType": {
+              "text": "pdf"
+            },
+            "PortraitMode": {
+              "attributes": {
+                "value": "true"
+              }
+            },
+            "RenderType": {
+              "text": "PDF"
+            },
+            "PaperType": {
+              "attributes": {
+                "bottom": "48",
+                "height": "1056",
+                "left": "48",
+                "right": "48",
+                "top": "48",
+                "width": "816"
+              },
+              "PageType": {
+                "text": "Letter (8.5in x 11in)"
+              },
+              "MarginType": {
+                "text": "0.5in"
+              }
+            }
+          },
+          "Layout": {
+            "Node": {
+              "attributes": {
+                "fusedChildren": "false",
+                "key": "0",
+                "orientation": "vertical",
+                "repeatDirection": "vertical"
+              },
+              "Node": [
+                {
+                  "attributes": {
+                    "connectionName": "#1",
+                    "fieldName": "Text",
+                    "height": "42",
+                    "isFused": "false",
+                    "isLocked": "false",
+                    "key": "2",
+                    "left": "0",
+                    "orientation": "horizontal",
+                    "repeatDirection": "vertical",
+                    "source": "Report:Text:",
+                    "subWidth0": "720",
+                    "subWidthCount": "1",
+                    "top": "0",
+                    "width": "720"
+                  }
+                },
+                {
+                  "attributes": {
+                    "connectionName": "#2",
+                    "fieldName": "Alteryx",
+                    "height": "125",
+                    "isFused": "false",
+                    "isLocked": "false",
+                    "key": "1",
+                    "left": "244",
+                    "orientation": "horizontal",
+                    "repeatDirection": "vertical",
+                    "source": "Report:Text:",
+                    "subWidth0": "238",
+                    "subWidthCount": "1",
+                    "top": "0",
+                    "width": "238"
+                  }
+                }
+              ]
+            }
+          },
+          "TempFiles": {
+            "text": "{\"#1\":\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Engine_3408_0d69bf9f5eb1477593af5593bd88e37f_\\\\Engine_13028_29073abb4f0142a08adf53e3b59ea098_.yxdb\",\"#2\":\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Engine_3408_0d69bf9f5eb1477593af5593bd88e37f_\\\\Engine_13028_66837175cd6a45c6821838fc72cf0a12_.yxdb\"}"
+          },
+          "OriginalSnippets": {
+            "text": "{\"#1\":{\"Text\":[\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_\\\\Alteryx_13028_2c9a8199-e1a3-430d-abbb-5f7cd6baeed1_.html\"]},\"#2\":{\"Alteryx\":[\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_\\\\Alteryx_13028_661888a5-4b35-496d-bd7a-1539eddfe7f5_.html\"]}}"
+          },
+          "OriginalThumbnails": {
+            "text": "{\"#1\":{},\"#2\":{}}"
+          },
+          "AllowResizing": {
+            "text": "true"
+          },
+          "CanJoin": {
+            "text": "false"
+          },
+          "VisFolderPath": {
+            "text": "C:\\ProgramData\\Alteryx\\Engine\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_"
+          },
+          "NumDeletions": {
+            "text": "0"
+          },
+          "NumTinaToggleUses": {
+            "text": "0"
+          },
+          "NumSnippetMoves": {
+            "text": "1"
+          },
+          "NumSnippetRearrangements": {
+            "text": "0"
+          },
+          "NumIncomingConnections": {
+            "text": "2"
+          }
+        },
+        "raw": {
+          "LayoutFields": {
+            "Document": {
+              "TempFileType": {
+                "text": "pdf"
+              },
+              "PortraitMode": {
+                "attributes": {
+                  "value": "true"
+                }
+              },
+              "RenderType": {
+                "text": "PDF"
+              },
+              "PaperType": {
+                "attributes": {
+                  "bottom": "48",
+                  "height": "1056",
+                  "left": "48",
+                  "right": "48",
+                  "top": "48",
+                  "width": "816"
+                },
+                "PageType": {
+                  "text": "Letter (8.5in x 11in)"
+                },
+                "MarginType": {
+                  "text": "0.5in"
+                }
+              }
+            },
+            "Layout": {
+              "Node": {
+                "attributes": {
+                  "fusedChildren": "false",
+                  "key": "0",
+                  "orientation": "vertical",
+                  "repeatDirection": "vertical"
+                },
+                "Node": [
+                  {
+                    "attributes": {
+                      "connectionName": "#1",
+                      "fieldName": "Text",
+                      "height": "42",
+                      "isFused": "false",
+                      "isLocked": "false",
+                      "key": "2",
+                      "left": "0",
+                      "orientation": "horizontal",
+                      "repeatDirection": "vertical",
+                      "source": "Report:Text:",
+                      "subWidth0": "720",
+                      "subWidthCount": "1",
+                      "top": "0",
+                      "width": "720"
+                    }
+                  },
+                  {
+                    "attributes": {
+                      "connectionName": "#2",
+                      "fieldName": "Alteryx",
+                      "height": "125",
+                      "isFused": "false",
+                      "isLocked": "false",
+                      "key": "1",
+                      "left": "244",
+                      "orientation": "horizontal",
+                      "repeatDirection": "vertical",
+                      "source": "Report:Text:",
+                      "subWidth0": "238",
+                      "subWidthCount": "1",
+                      "top": "0",
+                      "width": "238"
+                    }
+                  }
+                ]
+              }
+            },
+            "TempFiles": {
+              "text": "{\"#1\":\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Engine_3408_0d69bf9f5eb1477593af5593bd88e37f_\\\\Engine_13028_29073abb4f0142a08adf53e3b59ea098_.yxdb\",\"#2\":\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Engine_3408_0d69bf9f5eb1477593af5593bd88e37f_\\\\Engine_13028_66837175cd6a45c6821838fc72cf0a12_.yxdb\"}"
+            },
+            "OriginalSnippets": {
+              "text": "{\"#1\":{\"Text\":[\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_\\\\Alteryx_13028_2c9a8199-e1a3-430d-abbb-5f7cd6baeed1_.html\"]},\"#2\":{\"Alteryx\":[\"C:\\\\ProgramData\\\\Alteryx\\\\Engine\\\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_\\\\Alteryx_13028_661888a5-4b35-496d-bd7a-1539eddfe7f5_.html\"]}}"
+            },
+            "OriginalThumbnails": {
+              "text": "{\"#1\":{},\"#2\":{}}"
+            },
+            "AllowResizing": {
+              "text": "true"
+            },
+            "CanJoin": {
+              "text": "false"
+            },
+            "VisFolderPath": {
+              "text": "C:\\ProgramData\\Alteryx\\Engine\\Alteryx_13028_d25b7d99-b219-42d3-8afb-3d3fbae5b036_"
+            },
+            "NumDeletions": {
+              "text": "0"
+            },
+            "NumTinaToggleUses": {
+              "text": "0"
+            },
+            "NumSnippetMoves": {
+              "text": "1"
+            },
+            "NumSnippetRearrangements": {
+              "text": "0"
+            },
+            "NumIncomingConnections": {
+              "text": "2"
+            }
+          }
+        },
+        "normalized": {
+          "temp_file_type": "pdf",
+          "render_type": "PDF",
+          "num_incoming_connections": "2",
+          "allow_resizing": "true",
+          "can_join": "false",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "28:Output->33:Input",
+        "73:Output->33:Input"
+      ],
+      "outgoing_edges": [
+        "33:Output->29:Report Layout"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "VisualLayout",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "VisualLayout"
+          },
+          "Position": {
+            "attributes": {
+              "x": "186",
+              "y": "618"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "VisualLayout",
+          "display_name": "Visual Layout",
+          "category": "Laboratory",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "ComposerVisualLayout",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "33",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

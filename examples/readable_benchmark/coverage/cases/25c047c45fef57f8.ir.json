@@ -1,0 +1,182 @@
+{
+  "workflow_id": "04 Map_trade_areas_2",
+  "workflow_name": "04 Map_trade_areas_2",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Map_trade_areas_2.yxmd",
+  "source_hash": "4fd2277decd8b8d238ccd613b955849e70ccaecb7c02dae2cdc71390b070480a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "23",
+      "source_tool_id": "23",
+      "tool_type": "TradeArea",
+      "tool_name": "AlteryxSpatialPluginsGui.TradeArea.TradeArea",
+      "config": {
+        "SpatialObj": {
+          "attributes": {
+            "field": "Centroid",
+            "includeOut": "False"
+          }
+        },
+        "Units": {
+          "attributes": {
+            "units": "Miles",
+            "noOverlap": "True"
+          }
+        },
+        "Radius_FromField": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Radii": {
+          "text": "50"
+        },
+        "raw": {
+          "SpatialObj": {
+            "attributes": {
+              "field": "Centroid",
+              "includeOut": "False"
+            }
+          },
+          "Units": {
+            "attributes": {
+              "units": "Miles",
+              "noOverlap": "True"
+            }
+          },
+          "Radius_FromField": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Radii": {
+            "text": "50"
+          }
+        },
+        "normalized": {
+          "spatial_field": "Centroid",
+          "include_source": false,
+          "units": "Miles",
+          "no_overlap": true,
+          "radius_from_field": false,
+          "radii": "50",
+          "drive_time_dataset": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "27:Output->23:Input"
+      ],
+      "outgoing_edges": [
+        "23:Output->28:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.TradeArea.TradeArea",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.TradeArea.TradeArea"
+          },
+          "Position": {
+            "attributes": {
+              "x": "384",
+              "y": "218"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "TradeArea",
+          "display_name": "TradeArea",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxTradeArea",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "TradeArea (23)"
+          },
+          "DefaultAnnotationText": {
+            "text": "50 Miles"
+          },
+          "Left": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "23",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

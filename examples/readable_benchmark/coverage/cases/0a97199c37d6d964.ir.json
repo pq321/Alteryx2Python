@@ -1,0 +1,247 @@
+{
+  "workflow_id": "Multi-Field_Formula",
+  "workflow_name": "Multi-Field_Formula",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Multi-Field_Formula.yxmd",
+  "source_hash": "fbffa92bd3959c871beb9a725bd9416c061d65d173486cbbf3b83ef528fbd0b4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "36",
+      "source_tool_id": "36",
+      "tool_type": "MultiFieldFormula",
+      "tool_name": "AlteryxBasePluginsGui.MultiFieldFormula.MultiFieldFormula",
+      "config": {
+        "FieldType": {
+          "text": "Text"
+        },
+        "Fields": {
+          "attributes": {
+            "orderChanged": "False"
+          },
+          "Field": [
+            {
+              "attributes": {
+                "name": "NAME"
+              }
+            },
+            {
+              "attributes": {
+                "name": "ADDRESS"
+              }
+            },
+            {
+              "attributes": {
+                "name": "CITY"
+              }
+            },
+            {
+              "attributes": {
+                "name": "STATE"
+              }
+            },
+            {
+              "attributes": {
+                "name": "ZIP"
+              }
+            },
+            {
+              "attributes": {
+                "name": "*Unknown"
+              }
+            }
+          ]
+        },
+        "CopyOutput": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "Expression": {
+          "text": "Uppercase([_CurrentField_])"
+        },
+        "ChangeFieldType": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "FieldType": {
+            "text": "Text"
+          },
+          "Fields": {
+            "attributes": {
+              "orderChanged": "False"
+            },
+            "Field": [
+              {
+                "attributes": {
+                  "name": "NAME"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "ADDRESS"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "CITY"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "STATE"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "ZIP"
+                }
+              },
+              {
+                "attributes": {
+                  "name": "*Unknown"
+                }
+              }
+            ]
+          },
+          "CopyOutput": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "Expression": {
+            "text": "Uppercase([_CurrentField_])"
+          },
+          "ChangeFieldType": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "field_type": "Text",
+          "fields": [
+            "NAME",
+            "ADDRESS",
+            "CITY",
+            "STATE",
+            "ZIP",
+            "*Unknown"
+          ],
+          "copy_output": false,
+          "new_field_add_on": "",
+          "new_field_add_on_pos": "Suffix",
+          "expression": "Uppercase([_CurrentField_])",
+          "change_field_type": false,
+          "output_field_type": {},
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "6:Output->36:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.MultiFieldFormula.MultiFieldFormula",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.MultiFieldFormula.MultiFieldFormula"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "318"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "MultiFieldFormula",
+          "display_name": "Multi-Field Formula",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxMultiFieldFormula",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Uppercase([_CurrentField_])"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "36",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

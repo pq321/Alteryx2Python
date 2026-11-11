@@ -1,0 +1,200 @@
+{
+  "workflow_id": "Generalize_Smooth",
+  "workflow_name": "Generalize_Smooth",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial\\Generalize_Smooth.yxmd",
+  "source_hash": "cd2a9a749f9d71cd556903a78ef76ca108ee7c3e615d244f33b9360e31610c11",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "Smooth",
+      "tool_name": "AlteryxSpatialPluginsGui.Smooth.Smooth",
+      "config": {
+        "SpatialObjectField": {
+          "text": "SpatialObj"
+        },
+        "IncludeSourceInOutput": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "Passes": {
+          "text": "2"
+        },
+        "MaximumRadius": {
+          "text": "1"
+        },
+        "Units": {
+          "text": "Miles"
+        },
+        "PostGeneralize": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "PostGenerlizePercent": {
+          "text": "1"
+        },
+        "Layerwise": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "raw": {
+          "SpatialObjectField": {
+            "text": "SpatialObj"
+          },
+          "IncludeSourceInOutput": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "Passes": {
+            "text": "2"
+          },
+          "MaximumRadius": {
+            "text": "1"
+          },
+          "Units": {
+            "text": "Miles"
+          },
+          "PostGeneralize": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "PostGenerlizePercent": {
+            "text": "1"
+          },
+          "Layerwise": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        },
+        "normalized": {
+          "spatial_field": "SpatialObj",
+          "include_source": true,
+          "passes": "2",
+          "maximum_radius": "1",
+          "units": "Miles",
+          "post_generalize": true,
+          "post_generalize_percent": "1",
+          "layerwise": true,
+          "output_field": "SpatialObj_Smooth",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\09 Spatial"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "19:Output->1:Input"
+      ],
+      "outgoing_edges": [
+        "1:Output->5:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.Smooth.Smooth",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.Smooth.Smooth"
+          },
+          "Position": {
+            "attributes": {
+              "x": "234",
+              "y": "342"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Smooth",
+          "display_name": "Smooth",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxSmooth",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

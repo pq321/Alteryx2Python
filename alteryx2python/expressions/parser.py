@@ -126,6 +126,9 @@ class _ExpressionParser:
         if (token.startswith('"') and token.endswith('"')) or (token.startswith("'") and token.endswith("'")):
             self._advance()
             return LiteralExpression(token[1:-1].replace('\\"', '"'))
+        if token.upper() in {'TRUE', 'FALSE'} and not self._looks_like_function():
+            self._advance()
+            return LiteralExpression(token.upper() == 'TRUE')
         if _is_number(token):
             self._advance()
             return LiteralExpression(float(token) if "." in token else int(token))

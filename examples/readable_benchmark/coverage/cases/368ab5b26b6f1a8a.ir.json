@@ -1,0 +1,160 @@
+{
+  "workflow_id": "Running_Total",
+  "workflow_name": "Running_Total",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform\\Running_Total.yxmd",
+  "source_hash": "a29e816dcf6330d4baeaea9a301cd8eab8a170eb859f21599e2c068b54cccb2e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "RunningTotal",
+      "tool_name": "AlteryxBasePluginsGui.RunningTotal.RunningTotal",
+      "config": {
+        "GroupByFields": {
+          "Field": {
+            "attributes": {
+              "field": "City"
+            }
+          }
+        },
+        "RunningTotalFields": {
+          "Field": {
+            "attributes": {
+              "field": "Spend"
+            }
+          }
+        },
+        "raw": {
+          "GroupByFields": {
+            "Field": {
+              "attributes": {
+                "field": "City"
+              }
+            }
+          },
+          "RunningTotalFields": {
+            "Field": {
+              "attributes": {
+                "field": "Spend"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "group_by_fields": [
+            "City"
+          ],
+          "running_total_fields": [
+            "Spend"
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\05 Transform"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "7:Output->1:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.RunningTotal.RunningTotal",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.RunningTotal.RunningTotal"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "RunningTotal",
+          "display_name": "Running Total",
+          "category": "Transform",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxRunningTotal",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "runn_total_one_group_one_total"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

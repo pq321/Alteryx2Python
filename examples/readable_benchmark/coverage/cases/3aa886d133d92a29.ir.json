@@ -1,0 +1,143 @@
+{
+  "workflow_id": "Image Profile",
+  "workflow_name": "Image Profile",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Image Profile.yxmd",
+  "source_hash": "271c07135707d9ddcd8dd7dff5843b2017213074026c5f2bab2634edc92ba1e1",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "144",
+      "source_tool_id": "144",
+      "tool_type": "ImageProfile",
+      "tool_name": "ImageProfile",
+      "config": {
+        "ImageField": {
+          "text": "image"
+        },
+        "ProfileOption": {
+          "text": "All"
+        },
+        "ProfileType": {},
+        "raw": {
+          "ImageField": {
+            "text": "image"
+          },
+          "ProfileOption": {
+            "text": "All"
+          },
+          "ProfileType": {},
+          "container_id": "146"
+        },
+        "normalized": {
+          "tool_type": "ImageProfile",
+          "image_field": "image",
+          "profile_option": "All",
+          "profile_type": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "136:Output->144:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ImageProfile",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ImageProfile"
+          },
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "257"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ImageProfile",
+          "display_name": "ImageProfile",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ImageProfile\\\\image_profile_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "144",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

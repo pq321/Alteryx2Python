@@ -1,0 +1,183 @@
+{
+  "workflow_id": "Base64_Encoder",
+  "workflow_name": "Base64_Encoder",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\Base64_Encoder.yxmd",
+  "source_hash": "ae9cd0ae336e99d63f7d2098bfb27f8bc570c8d10d42cd54ca6899d9ecd1324e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "11",
+      "source_tool_id": "11",
+      "tool_type": "Base64Encoder",
+      "tool_name": "Base64_Encoder.yxmc",
+      "config": {
+        "Value": {
+          "attributes": {
+            "name": "Input.Macro Input"
+          },
+          "text": "Text=Field1"
+        },
+        "raw": {
+          "Value": {
+            "attributes": {
+              "name": "Input.Macro Input"
+            },
+            "text": "Text=Field1"
+          }
+        },
+        "normalized": {
+          "tool_type": "Base64Encoder",
+          "Value": {
+            "@attributes": {
+              "name": "Input.Macro Input"
+            },
+            "#text": "Text=Field1"
+          },
+          "Input.Macro Input": "Text=Field1",
+          "source_field": "Field1",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer",
+          "macro_path": "Base64_Encoder.yxmc",
+          "macro_tool_type": "Base64Encoder"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Macro Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "12:Output->11:Macro Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Field1",
+            "size": "19",
+            "source": "TextInput:",
+            "type": "String"
+          },
+          {
+            "name": "Base64_encoded",
+            "size": "2147483647",
+            "source": "Formula: [Base64_encoded] + [pad]",
+            "type": "V_String"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "Base64_Encoder.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "234",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Field1",
+                "size": "19",
+                "source": "TextInput:",
+                "type": "String"
+              },
+              {
+                "name": "Base64_encoded",
+                "size": "2147483647",
+                "source": "Formula: [Base64_encoded] + [pad]",
+                "type": "V_String"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Base64Encoder",
+          "display_name": "Base64 Encoder",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Base64_Encoder.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "11",
+      "target_anchor": "Macro Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

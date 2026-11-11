@@ -1,0 +1,208 @@
+{
+  "workflow_id": "Multi-Row_Formula",
+  "workflow_name": "Multi-Row_Formula",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Multi-Row_Formula.yxmd",
+  "source_hash": "5f650217d41cc469ee1f90f2ea11a95f3ced4db7917277c30164fc1a1f836c6c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "117",
+      "source_tool_id": "117",
+      "tool_type": "MultiRowFormula",
+      "tool_name": "AlteryxBasePluginsGui.MultiRowFormula.MultiRowFormula",
+      "config": {
+        "UpdateField": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "UpdateField_Name": {
+          "text": "Year"
+        },
+        "CreateField_Name": {
+          "text": "RecordID"
+        },
+        "CreateField_Type": {
+          "text": "Int32"
+        },
+        "CreateField_Size": {
+          "text": "254"
+        },
+        "OtherRows": {
+          "text": "Empty"
+        },
+        "NumRows": {
+          "attributes": {
+            "value": "1"
+          }
+        },
+        "Expression": {
+          "text": "[Row-1:RecordID]+1"
+        },
+        "GroupByFields": {
+          "Field": {
+            "attributes": {
+              "field": "Product"
+            }
+          }
+        },
+        "raw": {
+          "UpdateField": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "UpdateField_Name": {
+            "text": "Year"
+          },
+          "CreateField_Name": {
+            "text": "RecordID"
+          },
+          "CreateField_Type": {
+            "text": "Int32"
+          },
+          "CreateField_Size": {
+            "text": "254"
+          },
+          "OtherRows": {
+            "text": "Empty"
+          },
+          "NumRows": {
+            "attributes": {
+              "value": "1"
+            }
+          },
+          "Expression": {
+            "text": "[Row-1:RecordID]+1"
+          },
+          "GroupByFields": {
+            "Field": {
+              "attributes": {
+                "field": "Product"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "update_field": false,
+          "update_field_name": "Year",
+          "create_field_name": "RecordID",
+          "create_field_type": "Int32",
+          "create_field_size": "254",
+          "other_rows": "Empty",
+          "num_rows": 1,
+          "expression": "[Row-1:RecordID]+1",
+          "group_by_fields": [
+            "Product"
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "115:Output->117:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.MultiRowFormula.MultiRowFormula",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.MultiRowFormula.MultiRowFormula"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "294"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "MultiRowFormula",
+          "display_name": "Multi-Row Formula",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxMultiRowFormula",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {},
+          "DefaultAnnotationText": {
+            "text": "[Row-1:RecordID]+1"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "117",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

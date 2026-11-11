@@ -1,0 +1,156 @@
+{
+  "workflow_id": "Image Processing",
+  "workflow_name": "Image Processing",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Image Processing.yxmd",
+  "source_hash": "1d5531f019d2a327dcbaf45f2b3231012f73e9ec358968cf0ee22d6ab2d22fa4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "134",
+      "source_tool_id": "134",
+      "tool_type": "ImageProcessing",
+      "tool_name": "ImageProcessing",
+      "config": {
+        "ImageField": {
+          "text": "image"
+        },
+        "Steps": {
+          "name": {
+            "text": "grayscale"
+          }
+        },
+        "raw": {
+          "ImageField": {
+            "text": "image"
+          },
+          "Steps": {
+            "name": {
+              "text": "grayscale"
+            }
+          },
+          "container_id": "143"
+        },
+        "normalized": {
+          "tool_type": "ImageProcessing",
+          "image_field": "image",
+          "steps": [
+            {
+              "name": "grayscale",
+              "config": {}
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "136:Output->134:Input"
+      ],
+      "outgoing_edges": [
+        "134:Output->135:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "ImageProcessing",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "ImageProcessing"
+          },
+          "Position": {
+            "attributes": {
+              "x": "293",
+              "y": "1242"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ImageProcessing",
+          "display_name": "ImageProcessing",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "ImageProcessing\\\\image_processing_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "134",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

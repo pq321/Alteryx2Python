@@ -1,0 +1,274 @@
+{
+  "workflow_id": "Data_Cleansing",
+  "workflow_name": "Data_Cleansing",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\Data_Cleansing.yxmd",
+  "source_hash": "e437a3146cabb0b36c04655d3eb26f7a578fd90b8fb6593447ab6987f2a02f69",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "128",
+      "source_tool_id": "128",
+      "tool_type": "DataCleansing",
+      "tool_name": "Cleanse.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "List Box (11)"
+            },
+            "text": "\"Term\""
+          },
+          {
+            "attributes": {
+              "name": "Check Box (84)"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (117)"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (15)"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (109)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (122)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (53)"
+            },
+            "text": "True"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (58)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (70)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Check Box (77)"
+            },
+            "text": "False"
+          },
+          {
+            "attributes": {
+              "name": "Drop Down (81)"
+            },
+            "text": "upper"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "List Box (11)"
+              },
+              "text": "\"Term\""
+            },
+            {
+              "attributes": {
+                "name": "Check Box (84)"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (117)"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (15)"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (109)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (122)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (53)"
+              },
+              "text": "True"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (58)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (70)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Check Box (77)"
+              },
+              "text": "False"
+            },
+            {
+              "attributes": {
+                "name": "Drop Down (81)"
+              },
+              "text": "upper"
+            }
+          ]
+        },
+        "normalized": {
+          "selected_fields": [
+            "Term"
+          ],
+          "case_mode": "upper",
+          "remove_null_rows": false,
+          "remove_null_columns": false,
+          "replace_string_nulls": true,
+          "replace_numeric_nulls": true,
+          "remove_leading_trailing_whitespace": true,
+          "remove_tabs_line_breaks_duplicate_whitespace": false,
+          "remove_all_whitespace": false,
+          "remove_letters": true,
+          "remove_numbers": false,
+          "remove_punctuation": false,
+          "modify_case": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation",
+          "macro_path": "Cleanse.yxmc",
+          "macro_tool_type": "DataCleansing"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input2",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "123:Output->128:Input2"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Cleanse.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "390"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DataCleansing",
+          "display_name": "Data Cleansing",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Cleanse.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "128",
+      "target_anchor": "Input2",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

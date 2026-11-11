@@ -1,0 +1,734 @@
+{
+  "workflow_id": "RunCommand",
+  "workflow_name": "RunCommand",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\RunCommand.yxmd",
+  "source_hash": "f2ec710717610b9ffdc37d9826a3bf17d2f4a878fe4f5162eda1ddcc7e81d0dd",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "RunCommand",
+      "tool_name": "AlteryxBasePluginsGui.RunCommand.RunCommand",
+      "config": {
+        "OutputConfiguration": {
+          "Configuration": {
+            "File": {
+              "attributes": {
+                "MaxRecords": "",
+                "FileFormat": "0"
+              },
+              "text": "%temp%\\RunCommand.bat"
+            },
+            "Passwords": {},
+            "FormatSpecificOptions": {
+              "LineEndStyle": {
+                "text": "CRLF"
+              },
+              "Delimeter": {
+                "text": ","
+              },
+              "ForceQuotes": {
+                "text": "Never"
+              },
+              "HeaderRow": {
+                "text": "False"
+              },
+              "CodePage": {
+                "text": "28591"
+              },
+              "WriteBOM": {
+                "text": "True"
+              }
+            },
+            "MultiFile": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "InputConfiguration": {
+          "Configuration": {
+            "Passwords": {},
+            "File": {
+              "attributes": {
+                "OutputFileName": "",
+                "FileFormat": "19",
+                "SearchSubDirs": "False",
+                "RecordLimit": ""
+              },
+              "text": "%temp%PetStoresLocations.yxdb"
+            },
+            "FormatSpecificOptions": {}
+          }
+        },
+        "ProgramName": {
+          "text": "%temp%\\RunCommand.bat"
+        },
+        "Arguments": {},
+        "WorkingDir": {},
+        "RunMinimized": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "RunSilent": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "OutputConfiguration": {
+            "Configuration": {
+              "File": {
+                "attributes": {
+                  "MaxRecords": "",
+                  "FileFormat": "0"
+                },
+                "text": "%temp%\\RunCommand.bat"
+              },
+              "Passwords": {},
+              "FormatSpecificOptions": {
+                "LineEndStyle": {
+                  "text": "CRLF"
+                },
+                "Delimeter": {
+                  "text": ","
+                },
+                "ForceQuotes": {
+                  "text": "Never"
+                },
+                "HeaderRow": {
+                  "text": "False"
+                },
+                "CodePage": {
+                  "text": "28591"
+                },
+                "WriteBOM": {
+                  "text": "True"
+                }
+              },
+              "MultiFile": {
+                "attributes": {
+                  "value": "False"
+                }
+              }
+            }
+          },
+          "InputConfiguration": {
+            "Configuration": {
+              "Passwords": {},
+              "File": {
+                "attributes": {
+                  "OutputFileName": "",
+                  "FileFormat": "19",
+                  "SearchSubDirs": "False",
+                  "RecordLimit": ""
+                },
+                "text": "%temp%PetStoresLocations.yxdb"
+              },
+              "FormatSpecificOptions": {}
+            }
+          },
+          "ProgramName": {
+            "text": "%temp%\\RunCommand.bat"
+          },
+          "Arguments": {},
+          "WorkingDir": {},
+          "RunMinimized": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "RunSilent": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "program_name": "%temp%\\RunCommand.bat",
+          "arguments": "",
+          "working_dir": "",
+          "run_minimized": false,
+          "run_silent": false,
+          "input_file": "%temp%PetStoresLocations.yxdb",
+          "output_file": "%temp%\\RunCommand.bat",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "16:Output->1:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "Name",
+            "id": "fee3c499-286f-4f6e-9545-e0ff89cf0379",
+            "size": "30",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "Phone",
+            "id": "5d2a527a-82af-472a-bf0c-cfd6b68f4f39",
+            "size": "15",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "Address",
+            "id": "c54e9ca2-ce54-4199-be16-3fb837955ad8",
+            "size": "35",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "City",
+            "id": "db7e06f2-77b4-4ac2-bb34-69ed61b475d4",
+            "size": "25",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "State",
+            "id": "e76aa2b7-c324-4e74-94fd-94e9227acaa4",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "ZIP",
+            "id": "17280aeb-2ee2-42d5-9cfd-ba59adb600f0",
+            "size": "5",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "STD_ERROR_CODE",
+            "id": "e59ff16c-3366-4153-9fa0-4560af208b61",
+            "size": "1",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_ADDR_FIRST_LINE",
+            "id": "a4cc4aee-607c-4e1c-87f4-bb08cc8d2613",
+            "size": "64",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "V_String"
+          },
+          {
+            "name": "GEO_ADDR_LAST_LINE",
+            "id": "ebe74136-865e-45cf-83f8-7688d532d6c2",
+            "size": "64",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "V_String"
+          },
+          {
+            "name": "GEO_CENSUS_ID",
+            "id": "32d1c6b0-2652-4d46-aca2-525f3e97aab7",
+            "size": "15",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_CITY",
+            "id": "030490f5-331a-437c-afe0-0e45cd5e42f9",
+            "size": "28",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_LATITUDE",
+            "id": "32189738-2012-4a9e-b95b-52faeccdd2d8",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "Double"
+          },
+          {
+            "name": "GEO_LONGITUDE",
+            "id": "3a094646-de0e-420a-9017-10f30a5ce0ec",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "Double"
+          },
+          {
+            "name": "GEO_MATCH_SCORE",
+            "id": "fa7f4515-9777-44a6-998c-42d43c51b6aa",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "Int32"
+          },
+          {
+            "name": "GEO_NUMBER",
+            "id": "e520a5b1-7477-4663-9e42-f497f995d516",
+            "size": "10",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_POSTDIRECTIONAL",
+            "id": "dc22bd72-9bb6-4741-a7c3-3276a99878ae",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_POSTDIRECTIONAL2",
+            "id": "2215a509-a0b6-451a-bfa3-9c55a72e8e06",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_PREDIRECTIONAL",
+            "id": "03479ffa-ce0e-4311-8e4f-6cf1cd14f375",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_PREDIRECTIONAL2",
+            "id": "e09185c8-baaa-4254-b1e6-e0b2ea6f2c3f",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_RESULT_CATEGORY",
+            "id": "d5bab8ef-d012-4d35-91fd-b2e10e3e2930",
+            "size": "1",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_RESULT_FLAGS",
+            "id": "31632050-05ef-448f-8fae-fc5e23669f6c",
+            "size": "10",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STATE",
+            "id": "a8467d68-6512-41cf-b9e0-038a5fa37a94",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STATE_FIPS",
+            "id": "c3cefb53-6427-4bc4-ac68-9f5219f05a13",
+            "size": "2",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STREET_NAME",
+            "id": "751568f0-1880-4416-a466-970c508a36ad",
+            "size": "28",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STREET_NAME2",
+            "id": "e6855d97-96ec-4be9-81db-1ab9feb3850b",
+            "size": "28",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STREET_SUFFIX",
+            "id": "090d487d-1849-4fa4-9ebf-c8fd1c3a361b",
+            "size": "4",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_STREET_SUFFIX2",
+            "id": "72292c36-56e2-4900-ad65-58f381f5c8cf",
+            "size": "4",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_UNIT_DESIGNATOR",
+            "id": "7e51307b-2af7-4b92-bb38-cce6564ddf62",
+            "size": "4",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_UNIT_NUMBER",
+            "id": "7496a899-cdfe-4c8a-8a49-edaf0ff79d6e",
+            "size": "8",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "GEO_ZIP",
+            "id": "3a31785e-eace-4a59-b6ff-b1eee73f0f4a",
+            "size": "6",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "String"
+          },
+          {
+            "name": "SpatialObj",
+            "id": "54296ee1-34dd-4ecc-9a59-20b0183eb583",
+            "size": "2147483647",
+            "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+            "type": "SpatialObj"
+          },
+          {
+            "name": "Lat",
+            "id": "7a88d26f-de82-4d0b-91f6-b7d11bbdc3d5",
+            "source": "Formula: [GEO_LATITUDE]",
+            "type": "Double"
+          },
+          {
+            "name": "Lon",
+            "id": "b2ac4cc2-dcd8-459b-b026-304f726426c4",
+            "source": "Formula: [GEO_LONGITUDE]",
+            "type": "Double"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.RunCommand.RunCommand",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.RunCommand.RunCommand"
+          },
+          "Position": {
+            "attributes": {
+              "x": "366",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "Name",
+                "id": "fee3c499-286f-4f6e-9545-e0ff89cf0379",
+                "size": "30",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "Phone",
+                "id": "5d2a527a-82af-472a-bf0c-cfd6b68f4f39",
+                "size": "15",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "Address",
+                "id": "c54e9ca2-ce54-4199-be16-3fb837955ad8",
+                "size": "35",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "City",
+                "id": "db7e06f2-77b4-4ac2-bb34-69ed61b475d4",
+                "size": "25",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "State",
+                "id": "e76aa2b7-c324-4e74-94fd-94e9227acaa4",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "ZIP",
+                "id": "17280aeb-2ee2-42d5-9cfd-ba59adb600f0",
+                "size": "5",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "STD_ERROR_CODE",
+                "id": "e59ff16c-3366-4153-9fa0-4560af208b61",
+                "size": "1",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_ADDR_FIRST_LINE",
+                "id": "a4cc4aee-607c-4e1c-87f4-bb08cc8d2613",
+                "size": "64",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "V_String"
+              },
+              {
+                "name": "GEO_ADDR_LAST_LINE",
+                "id": "ebe74136-865e-45cf-83f8-7688d532d6c2",
+                "size": "64",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "V_String"
+              },
+              {
+                "name": "GEO_CENSUS_ID",
+                "id": "32d1c6b0-2652-4d46-aca2-525f3e97aab7",
+                "size": "15",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_CITY",
+                "id": "030490f5-331a-437c-afe0-0e45cd5e42f9",
+                "size": "28",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_LATITUDE",
+                "id": "32189738-2012-4a9e-b95b-52faeccdd2d8",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "Double"
+              },
+              {
+                "name": "GEO_LONGITUDE",
+                "id": "3a094646-de0e-420a-9017-10f30a5ce0ec",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "Double"
+              },
+              {
+                "name": "GEO_MATCH_SCORE",
+                "id": "fa7f4515-9777-44a6-998c-42d43c51b6aa",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "Int32"
+              },
+              {
+                "name": "GEO_NUMBER",
+                "id": "e520a5b1-7477-4663-9e42-f497f995d516",
+                "size": "10",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_POSTDIRECTIONAL",
+                "id": "dc22bd72-9bb6-4741-a7c3-3276a99878ae",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_POSTDIRECTIONAL2",
+                "id": "2215a509-a0b6-451a-bfa3-9c55a72e8e06",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_PREDIRECTIONAL",
+                "id": "03479ffa-ce0e-4311-8e4f-6cf1cd14f375",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_PREDIRECTIONAL2",
+                "id": "e09185c8-baaa-4254-b1e6-e0b2ea6f2c3f",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_RESULT_CATEGORY",
+                "id": "d5bab8ef-d012-4d35-91fd-b2e10e3e2930",
+                "size": "1",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_RESULT_FLAGS",
+                "id": "31632050-05ef-448f-8fae-fc5e23669f6c",
+                "size": "10",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STATE",
+                "id": "a8467d68-6512-41cf-b9e0-038a5fa37a94",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STATE_FIPS",
+                "id": "c3cefb53-6427-4bc4-ac68-9f5219f05a13",
+                "size": "2",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STREET_NAME",
+                "id": "751568f0-1880-4416-a466-970c508a36ad",
+                "size": "28",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STREET_NAME2",
+                "id": "e6855d97-96ec-4be9-81db-1ab9feb3850b",
+                "size": "28",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STREET_SUFFIX",
+                "id": "090d487d-1849-4fa4-9ebf-c8fd1c3a361b",
+                "size": "4",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_STREET_SUFFIX2",
+                "id": "72292c36-56e2-4900-ad65-58f381f5c8cf",
+                "size": "4",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_UNIT_DESIGNATOR",
+                "id": "7e51307b-2af7-4b92-bb38-cce6564ddf62",
+                "size": "4",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_UNIT_NUMBER",
+                "id": "7496a899-cdfe-4c8a-8a49-edaf0ff79d6e",
+                "size": "8",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "GEO_ZIP",
+                "id": "3a31785e-eace-4a59-b6ff-b1eee73f0f4a",
+                "size": "6",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "String"
+              },
+              {
+                "name": "SpatialObj",
+                "id": "54296ee1-34dd-4ecc-9a59-20b0183eb583",
+                "size": "2147483647",
+                "source": "File: C:\\Documents and Settings\\lsellers\\My Documents\\Alteryx\\AlteryxSource\\RuntimeData\\Samples\\SampleData\\Pet Stores.TAB",
+                "type": "SpatialObj"
+              },
+              {
+                "name": "Lat",
+                "id": "7a88d26f-de82-4d0b-91f6-b7d11bbdc3d5",
+                "source": "Formula: [GEO_LATITUDE]",
+                "type": "Double"
+              },
+              {
+                "name": "Lon",
+                "id": "b2ac4cc2-dcd8-459b-b026-304f726426c4",
+                "source": "Formula: [GEO_LONGITUDE]",
+                "type": "Double"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "RunCommand",
+          "display_name": "Run Command",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxRunCommand",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Run RunCommand.bat"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

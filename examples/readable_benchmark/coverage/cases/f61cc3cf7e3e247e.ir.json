@@ -1,0 +1,367 @@
+{
+  "workflow_id": "14 Find a file in a directory",
+  "workflow_name": "14 Find a file in a directory",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\14 Find a file in a directory.yxwz",
+  "source_hash": "3b6a545cb7f14ba67f85795bd239b0f7051cfdd686820eb85d9a3b8046c34d21",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "1",
+      "source_tool_id": "1",
+      "tool_type": "Directory",
+      "tool_name": "AlteryxBasePluginsGui.Directory.Directory",
+      "config": {
+        "Directory": {
+          "text": ".."
+        },
+        "FileSpec": {
+          "text": "*.yxmd"
+        },
+        "IncludeSubDirs": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "raw": {
+          "Directory": {
+            "text": ".."
+          },
+          "FileSpec": {
+            "text": "*.yxmd"
+          },
+          "IncludeSubDirs": {
+            "attributes": {
+              "value": "True"
+            }
+          }
+        },
+        "normalized": {
+          "directory": "..",
+          "file_spec": "*.yxmd",
+          "include_subdirs": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Action",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "61:Action->1:Action",
+        "57:Action->1:Action"
+      ],
+      "outgoing_edges": [
+        "1:Output->4:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "FullPath",
+            "size": "32767",
+            "source": "Directory:",
+            "type": "V_WString"
+          },
+          {
+            "name": "Directory",
+            "size": "32767",
+            "source": "Directory:",
+            "type": "V_WString"
+          },
+          {
+            "name": "FileName",
+            "size": "260",
+            "source": "Directory:",
+            "type": "V_WString"
+          },
+          {
+            "name": "ShortFileName",
+            "size": "14",
+            "source": "Directory:",
+            "type": "V_WString"
+          },
+          {
+            "name": "CreationTime",
+            "source": "Directory:",
+            "type": "DateTime"
+          },
+          {
+            "name": "LastAccessTime",
+            "source": "Directory:",
+            "type": "DateTime"
+          },
+          {
+            "name": "LastWriteTime",
+            "source": "Directory:",
+            "type": "DateTime"
+          },
+          {
+            "name": "Size",
+            "source": "Directory:",
+            "type": "Int64"
+          },
+          {
+            "name": "AttributeArchive",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeCompressed",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeEncrypted",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeHidden",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeNormal",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeOffline",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeReadonly",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeReparsePoint",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeSparseFile",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeSystem",
+            "source": "Directory:",
+            "type": "Bool"
+          },
+          {
+            "name": "AttributeTemporary",
+            "source": "Directory:",
+            "type": "Bool"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Directory.Directory",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Directory.Directory"
+          },
+          "Position": {
+            "attributes": {
+              "x": "54",
+              "y": "543"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "FullPath",
+                "size": "32767",
+                "source": "Directory:",
+                "type": "V_WString"
+              },
+              {
+                "name": "Directory",
+                "size": "32767",
+                "source": "Directory:",
+                "type": "V_WString"
+              },
+              {
+                "name": "FileName",
+                "size": "260",
+                "source": "Directory:",
+                "type": "V_WString"
+              },
+              {
+                "name": "ShortFileName",
+                "size": "14",
+                "source": "Directory:",
+                "type": "V_WString"
+              },
+              {
+                "name": "CreationTime",
+                "source": "Directory:",
+                "type": "DateTime"
+              },
+              {
+                "name": "LastAccessTime",
+                "source": "Directory:",
+                "type": "DateTime"
+              },
+              {
+                "name": "LastWriteTime",
+                "source": "Directory:",
+                "type": "DateTime"
+              },
+              {
+                "name": "Size",
+                "source": "Directory:",
+                "type": "Int64"
+              },
+              {
+                "name": "AttributeArchive",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeCompressed",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeEncrypted",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeHidden",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeNormal",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeOffline",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeReadonly",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeReparsePoint",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeSparseFile",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeSystem",
+                "source": "Directory:",
+                "type": "Bool"
+              },
+              {
+                "name": "AttributeTemporary",
+                "source": "Directory:",
+                "type": "Bool"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "Directory",
+          "display_name": "Directory",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDirectory",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "dir ..\\*.yxmd"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "1",
+      "target_anchor": "Action",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

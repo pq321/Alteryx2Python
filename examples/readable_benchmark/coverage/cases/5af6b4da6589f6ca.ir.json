@@ -1,0 +1,119 @@
+{
+  "workflow_id": "DateTimeNow",
+  "workflow_name": "DateTimeNow",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\01 In Out\\DateTimeNow.yxmd",
+  "source_hash": "bfd36019a65f0807e56bd3f4a1a795df0e19bba351f0adf70a423e92b1387b2f",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "103",
+      "source_tool_id": "103",
+      "tool_type": "DateTimeNow",
+      "tool_name": "DateTimeNow\\Supporting_Macros\\DTNEngine.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Language"
+            },
+            "text": "English"
+          },
+          {
+            "attributes": {
+              "name": "OutputFormat"
+            },
+            "text": "yyyy-MM-dd"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Language"
+              },
+              "text": "English"
+            },
+            {
+              "attributes": {
+                "name": "OutputFormat"
+              },
+              "text": "yyyy-MM-dd"
+            }
+          ]
+        },
+        "normalized": {
+          "language": "English",
+          "output_format": "yyyy-MM-dd",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\01 In Out",
+          "macro_path": "DateTimeNow\\Supporting_Macros\\DTNEngine.yxmc",
+          "macro_tool_type": "DateTimeNow"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "DTN",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "103:DTN->102:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "DateTimeNow\\Supporting_Macros\\DTNEngine.yxmc",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "DateTimeNow"
+          },
+          "Position": {
+            "attributes": {
+              "x": "54",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DateTimeNow",
+          "display_name": "Date Time Now (engine macro)",
+          "category": "In/Out",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "DateTimeNow\\Supporting_Macros\\DTNEngine.yxmc",
+          "source": "html-plugin+macro-path",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -325,7 +325,8 @@ def _assert_union_contract(
 ) -> list[ContractAssertion]:
     if not inputs or "Output" not in outputs:
         return []
-    ordered_frames = [inputs[anchor] for anchor in sorted(inputs)]
+    from alteryx2python.tools.union import _ordered_input_anchors
+    ordered_frames = [inputs[anchor] for anchor in _ordered_input_anchors(inputs, config)]
     mode = str(config.get("mode", "ByName")).lower()
     if mode == "bypos":
         expected_columns = _expected_output_columns(config.get("expected_output_schema")) or list(ordered_frames[0].columns)

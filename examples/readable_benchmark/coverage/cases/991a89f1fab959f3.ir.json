@@ -1,0 +1,143 @@
+{
+  "workflow_id": "04 Create_a_report_with_a_thematic_map",
+  "workflow_name": "04 Create_a_report_with_a_thematic_map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\04 Create_a_report_with_a_thematic_map.yxmd",
+  "source_hash": "5af2b79d9f956b96a12809db2fc7ba5eae359e9928c4997a662ec202dace7a83",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "79",
+      "source_tool_id": "79",
+      "tool_type": "ReportLegendSplitter",
+      "tool_name": "Legend_Splitter.yxmc",
+      "config": {
+        "Value": {
+          "attributes": {
+            "name": "Legend Field"
+          },
+          "text": "Legend"
+        },
+        "raw": {
+          "Value": {
+            "attributes": {
+              "name": "Legend Field"
+            },
+            "text": "Legend"
+          }
+        },
+        "normalized": {
+          "legend_field": "Legend",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced",
+          "macro_path": "Legend_Splitter.yxmc",
+          "macro_tool_type": "ReportLegendSplitter"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "64:Output->79:Input"
+      ],
+      "outgoing_edges": [
+        "79:Output->81:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Legend_Splitter.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "752",
+              "y": "260"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ReportLegendSplitter",
+          "display_name": "Legend Splitter",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Legend_Splitter.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "79",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

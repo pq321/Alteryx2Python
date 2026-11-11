@@ -1,0 +1,161 @@
+{
+  "workflow_id": "08 Using_a_tree_with_a_custom_file_database",
+  "workflow_name": "08 Using_a_tree_with_a_custom_file_database",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App\\08 Using_a_tree_with_a_custom_file_database.yxwz",
+  "source_hash": "4beee3632b729e4c92d2752d7632500e8435f12b645cc96f2c20cc554048dd1c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "42",
+      "source_tool_id": "42",
+      "tool_type": "Error",
+      "tool_name": "AlteryxGuiToolkit.Error.Error",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "1"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "IsEmpty([#1])\nPlease make a selection."
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "1"
+            },
+            "Name": {},
+            "DefaultAnnotationText": {
+              "text": "IsEmpty([#1])\nPlease make a selection."
+            },
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          },
+          "container_id": "44"
+        },
+        "normalized": {
+          "expression": "IsEmpty([#1])",
+          "message": "Please make a selection.",
+          "name": "",
+          "enforce": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\01 Build_an_App"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Question",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "40:Question->42:Question"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Error.Error",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Error.Error"
+          },
+          "Position": {
+            "attributes": {
+              "x": "112",
+              "y": "267",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Error",
+          "display_name": "Error",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "1"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "IsEmpty([#1])\nPlease make a selection."
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "42",
+      "target_anchor": "Question",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

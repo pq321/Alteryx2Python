@@ -19,6 +19,23 @@ def runcommand_tool(
         raise TypeError("Input anchor must contain a pandas DataFrame")
 
     output = input_frame.copy() if isinstance(input_frame, pd.DataFrame) else pd.DataFrame()
+    runtime = context.runtime_config or {}
+    executed = False
+    if runtime.get('execute_commands'):
+        from alteryx2python.tools.delivery import run_checked_command
+        from pathlib import Path
+        base = Path(runtime.get('input_dir') or config.get('base_dir', '.'))
+        directory = Path(config.get('working_dir') or base)
+        if not directory.is_absolute():
+            directory = base / directory
+        program = str(config.get('program_name', ''))
+        if not Path(program).is_absolute() and (base / program).is_file():
+            program = str((base / program).resolve())
+        output = run_checked_command(program, config.get('arguments', ''),
+            runtime.get('command_working_dir') or directory,
+            input_frame, config.get('input_file', ''), config.get('output_file', ''),
+            runtime.get('allowed_commands', ()), runtime.get('command_timeout', 30))
+        executed = True
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
@@ -33,7 +50,7 @@ def runcommand_tool(
             "working_dir": config.get("working_dir", ""),
             "input_file": config.get("input_file", ""),
             "output_file": config.get("output_file", ""),
-            "external_command_executed": False,
+            "external_command_executed": executed,
             "output_schema": snapshot_schema(output),
         },
     )

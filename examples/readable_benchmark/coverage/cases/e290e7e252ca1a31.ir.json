@@ -1,0 +1,202 @@
+{
+  "workflow_id": "Key Value Pairs",
+  "workflow_name": "Key Value Pairs",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision\\Key Value Pairs.yxmd",
+  "source_hash": "4d7e2cf7a419011bd70dbc69898d6011878e4fe32a9aa84b7f7f1a545382f406",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "110",
+      "source_tool_id": "110",
+      "tool_type": "KeyValuePairExtraction",
+      "tool_name": "KeyValuePairExtraction",
+      "config": {
+        "ImageField": {
+          "text": "image"
+        },
+        "Language": {
+          "text": "EN"
+        },
+        "KeyField": {
+          "text": "Field1"
+        },
+        "Fuzzy": {
+          "text": "true"
+        },
+        "raw": {
+          "ImageField": {
+            "text": "image"
+          },
+          "Language": {
+            "text": "EN"
+          },
+          "KeyField": {
+            "text": "Field1"
+          },
+          "Fuzzy": {
+            "text": "true"
+          },
+          "container_id": "119"
+        },
+        "normalized": {
+          "tool_type": "KeyValuePairExtraction",
+          "image_field": "image",
+          "language": "EN",
+          "key_field": "Field1",
+          "fuzzy": true,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\26 Computer Vision"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        },
+        {
+          "name": "Keys",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "108:Output->110:Data",
+        "111:Output->110:Keys"
+      ],
+      "outgoing_edges": [
+        "110:Output->109:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "KeyValuePairExtraction",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "KeyValuePairExtraction"
+          },
+          "Position": {
+            "attributes": {
+              "x": "293",
+              "y": "305"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "KeyValuePairExtraction",
+          "display_name": "KeyValuePairExtraction",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "KeyValuePairExtraction\\\\key_value_pair_extraction_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_1",
+      "source_tool_id": "probe_1",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "110",
+      "target_anchor": "Data",
+      "metadata": {}
+    },
+    {
+      "edge_id": "probe_edge_1",
+      "source_node_id": "probe_1",
+      "source_anchor": "Output",
+      "target_node_id": "110",
+      "target_anchor": "Keys",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

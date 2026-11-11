@@ -1,0 +1,187 @@
+{
+  "workflow_id": "OversampleField",
+  "workflow_name": "OversampleField",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation\\OversampleField.yxmd",
+  "source_hash": "216d5737375db02b4ee58549087758c136701c5da5d32c246cafa586cd3125a2",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "112",
+      "source_tool_id": "112",
+      "tool_type": "OversampleField",
+      "tool_name": "Predictive Tools\\Oversample_Field.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "Selected_Field"
+            },
+            "text": "Default"
+          },
+          {
+            "attributes": {
+              "name": "Oversample_Value"
+            },
+            "text": "Yes"
+          },
+          {
+            "attributes": {
+              "name": "Desired_Pct"
+            },
+            "text": "50"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "Selected_Field"
+              },
+              "text": "Default"
+            },
+            {
+              "attributes": {
+                "name": "Oversample_Value"
+              },
+              "text": "Yes"
+            },
+            {
+              "attributes": {
+                "name": "Desired_Pct"
+              },
+              "text": "50"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "OversampleField",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "Selected_Field"
+              },
+              "#text": "Default"
+            },
+            {
+              "@attributes": {
+                "name": "Oversample_Value"
+              },
+              "#text": "Yes"
+            },
+            {
+              "@attributes": {
+                "name": "Desired_Pct"
+              },
+              "#text": 50
+            }
+          ],
+          "Selected_Field": "Default",
+          "Oversample_Value": "Yes",
+          "Desired_Pct": "50",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\02 Preparation",
+          "macro_path": "Predictive Tools\\Oversample_Field.yxmc",
+          "macro_tool_type": "OversampleField"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "111:Output->112:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Predictive Tools\\Oversample_Field.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "186"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "OversampleField",
+          "display_name": "Oversample Field",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Predictive Tools\\Oversample_Field.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "112",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

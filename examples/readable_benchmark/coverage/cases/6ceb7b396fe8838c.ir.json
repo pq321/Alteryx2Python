@@ -1,0 +1,163 @@
+{
+  "workflow_id": "03 Map_trade_areas_1",
+  "workflow_name": "03 Map_trade_areas_1",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\03 Map_trade_areas_1.yxmd",
+  "source_hash": "75e9c5469aafeabc40f3e5b714d427653703aa5da49eb89bad2fd758c356acf0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "7",
+      "source_tool_id": "7",
+      "tool_type": "PolyBuild",
+      "tool_name": "AlteryxSpatialPluginsGui.PolyBuild.PolyBuild",
+      "config": {
+        "SpatialObj": {
+          "attributes": {
+            "field": "Centroid"
+          }
+        },
+        "GroupField": {
+          "attributes": {
+            "field": "RecordID"
+          }
+        },
+        "BuildType": {
+          "text": "ConvexHull"
+        },
+        "raw": {
+          "SpatialObj": {
+            "attributes": {
+              "field": "Centroid"
+            }
+          },
+          "GroupField": {
+            "attributes": {
+              "field": "RecordID"
+            }
+          },
+          "BuildType": {
+            "text": "ConvexHull"
+          }
+        },
+        "normalized": {
+          "spatial_field": "Centroid",
+          "group_field": "RecordID",
+          "build_type": "ConvexHull",
+          "sequence_field": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "4:Matched->7:Input"
+      ],
+      "outgoing_edges": [
+        "7:Output->63:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.PolyBuild.PolyBuild",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.PolyBuild.PolyBuild"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1036",
+              "y": "161"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PolyBuild",
+          "display_name": "PolyBuild",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxPolyBuild",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {
+            "text": "PolyBuild (7)"
+          },
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "7",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

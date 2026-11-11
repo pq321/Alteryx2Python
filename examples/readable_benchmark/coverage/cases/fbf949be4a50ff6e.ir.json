@@ -1,0 +1,207 @@
+{
+  "workflow_id": "02_CFML_Sampling",
+  "workflow_name": "02_CFML_Sampling",
+  "source_file": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time\\02_CFML_Sampling.yxmd",
+  "source_hash": "f40b757aea993a3e91d7734a987e9f0a79c6eb5a297337ff8d44852ba4b6b6ea",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "4",
+      "source_tool_id": "4",
+      "tool_type": "CreateSamples",
+      "tool_name": "Predictive Tools\\Create_Samples.yxmc",
+      "config": {
+        "Value": [
+          {
+            "attributes": {
+              "name": "estimation pct"
+            },
+            "text": "80"
+          },
+          {
+            "attributes": {
+              "name": "validation pct"
+            },
+            "text": "20"
+          },
+          {
+            "attributes": {
+              "name": "rand seed"
+            },
+            "text": "1"
+          }
+        ],
+        "raw": {
+          "Value": [
+            {
+              "attributes": {
+                "name": "estimation pct"
+              },
+              "text": "80"
+            },
+            {
+              "attributes": {
+                "name": "validation pct"
+              },
+              "text": "20"
+            },
+            {
+              "attributes": {
+                "name": "rand seed"
+              },
+              "text": "1"
+            }
+          ]
+        },
+        "normalized": {
+          "tool_type": "CreateSamples",
+          "Value": [
+            {
+              "@attributes": {
+                "name": "estimation pct"
+              },
+              "#text": 80
+            },
+            {
+              "@attributes": {
+                "name": "validation pct"
+              },
+              "#text": 20
+            },
+            {
+              "@attributes": {
+                "name": "rand seed"
+              },
+              "#text": 1
+            }
+          ],
+          "estimation pct": "80",
+          "validation pct": "20",
+          "rand seed": "1",
+          "estimation_pct": 80.0,
+          "validation_pct": 20.0,
+          "seed": 1,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\03 Learn_one_model_at_a_time",
+          "macro_path": "Predictive Tools\\Create_Samples.yxmc",
+          "macro_tool_type": "CreateSamples"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Estimation",
+          "direction": "output"
+        },
+        {
+          "name": "Holdout",
+          "direction": "output"
+        },
+        {
+          "name": "Validation",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "8:Output->4:Input"
+      ],
+      "outgoing_edges": [
+        "4:Estimation->5:Input",
+        "4:Validation->6:Input",
+        "4:Holdout->7:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "Predictive Tools\\Create_Samples.yxmc",
+        "raw_gui_settings": {
+          "Position": {
+            "attributes": {
+              "x": "486",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CreateSamples",
+          "display_name": "Create Samples",
+          "category": "Macro",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": "Predictive Tools\\Create_Samples.yxmc",
+          "source": "macro-file",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "4",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

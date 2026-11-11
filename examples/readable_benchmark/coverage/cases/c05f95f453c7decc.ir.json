@@ -1,0 +1,401 @@
+{
+  "workflow_id": "06 Analyze and report on traffic fatalities",
+  "workflow_name": "06 Analyze and report on traffic fatalities",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\06 Analyze and report on traffic fatalities.yxmd",
+  "source_hash": "3cb447f1d94ecf792b8af02841473452d99073724dd35550c2c9e9ee1757ea21",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "88",
+      "source_tool_id": "88",
+      "tool_type": "PlotlyCharting",
+      "tool_name": "PlotlyCharting",
+      "config": {
+        "ChartingFields": {
+          "Traces": {
+            "attributes": {
+              "{http://james.newtonking.com/projects/json}Array": "true"
+            },
+            "type": {
+              "text": "heatmap"
+            },
+            "mode": {
+              "text": "markers"
+            },
+            "xsrc": {
+              "text": "Weekday"
+            },
+            "ysrc": {
+              "text": "MONTH"
+            },
+            "zsrc": {
+              "text": "Count"
+            },
+            "zmin": {
+              "text": "49"
+            },
+            "zmax": {
+              "text": "136"
+            },
+            "zauto": {
+              "text": "true"
+            },
+            "colorbar": {
+              "title": {
+                "text": "Weekday Count per Month"
+              }
+            }
+          },
+          "Layout": {
+            "title": {},
+            "font": {
+              "family": {
+                "text": "sans-serif"
+              }
+            },
+            "showlegend": {
+              "text": "true"
+            },
+            "hovermode": {
+              "text": "closest"
+            },
+            "autosize": {
+              "text": "false"
+            },
+            "width": {
+              "text": "700"
+            },
+            "height": {
+              "text": "849"
+            },
+            "xaxis": {
+              "type": {
+                "text": "category"
+              },
+              "range": [
+                {
+                  "text": "-0.5"
+                },
+                {
+                  "text": "6.5"
+                }
+              ],
+              "autorange": {
+                "text": "true"
+              },
+              "title": {
+                "text": "Weekday"
+              }
+            },
+            "yaxis": {
+              "type": {
+                "text": "linear"
+              },
+              "range": [
+                {
+                  "text": "0.5"
+                },
+                {
+                  "text": "12.5"
+                }
+              ],
+              "autorange": {
+                "text": "true"
+              },
+              "title": {
+                "text": "Month"
+              }
+            }
+          }
+        },
+        "raw": {
+          "ChartingFields": {
+            "Traces": {
+              "attributes": {
+                "{http://james.newtonking.com/projects/json}Array": "true"
+              },
+              "type": {
+                "text": "heatmap"
+              },
+              "mode": {
+                "text": "markers"
+              },
+              "xsrc": {
+                "text": "Weekday"
+              },
+              "ysrc": {
+                "text": "MONTH"
+              },
+              "zsrc": {
+                "text": "Count"
+              },
+              "zmin": {
+                "text": "49"
+              },
+              "zmax": {
+                "text": "136"
+              },
+              "zauto": {
+                "text": "true"
+              },
+              "colorbar": {
+                "title": {
+                  "text": "Weekday Count per Month"
+                }
+              }
+            },
+            "Layout": {
+              "title": {},
+              "font": {
+                "family": {
+                  "text": "sans-serif"
+                }
+              },
+              "showlegend": {
+                "text": "true"
+              },
+              "hovermode": {
+                "text": "closest"
+              },
+              "autosize": {
+                "text": "false"
+              },
+              "width": {
+                "text": "700"
+              },
+              "height": {
+                "text": "849"
+              },
+              "xaxis": {
+                "type": {
+                  "text": "category"
+                },
+                "range": [
+                  {
+                    "text": "-0.5"
+                  },
+                  {
+                    "text": "6.5"
+                  }
+                ],
+                "autorange": {
+                  "text": "true"
+                },
+                "title": {
+                  "text": "Weekday"
+                }
+              },
+              "yaxis": {
+                "type": {
+                  "text": "linear"
+                },
+                "range": [
+                  {
+                    "text": "0.5"
+                  },
+                  {
+                    "text": "12.5"
+                  }
+                ],
+                "autorange": {
+                  "text": "true"
+                },
+                "title": {
+                  "text": "Month"
+                }
+              }
+            }
+          }
+        },
+        "normalized": {
+          "trace_count": 1,
+          "traces": [
+            {
+              "type": "heatmap",
+              "mode": "markers",
+              "name": "",
+              "x": "Weekday",
+              "y": "MONTH"
+            }
+          ],
+          "layout": {
+            "title": {},
+            "font": {
+              "family": {
+                "text": "sans-serif"
+              }
+            },
+            "showlegend": {
+              "text": "true"
+            },
+            "hovermode": {
+              "text": "closest"
+            },
+            "autosize": {
+              "text": "false"
+            },
+            "width": {
+              "text": "700"
+            },
+            "height": {
+              "text": "849"
+            },
+            "xaxis": {
+              "type": {
+                "text": "category"
+              },
+              "range": [
+                {
+                  "text": "-0.5"
+                },
+                {
+                  "text": "6.5"
+                }
+              ],
+              "autorange": {
+                "text": "true"
+              },
+              "title": {
+                "text": "Weekday"
+              }
+            },
+            "yaxis": {
+              "type": {
+                "text": "linear"
+              },
+              "range": [
+                {
+                  "text": "0.5"
+                },
+                {
+                  "text": "12.5"
+                }
+              ],
+              "autorange": {
+                "text": "true"
+              },
+              "title": {
+                "text": "Month"
+              }
+            }
+          },
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "132:Output->88:Input"
+      ],
+      "outgoing_edges": [
+        "88:Output->90:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "PlotlyCharting",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "PlotlyCharting"
+          },
+          "Position": {
+            "attributes": {
+              "x": "738",
+              "y": "532"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "PlotlyCharting",
+          "display_name": "Interactive Chart",
+          "category": "Reporting",
+          "engine_dll": "PortfolioPluginsEngine.dll",
+          "engine_entry": "ComposerInteractiveCharting",
+          "engine_macro": null,
+          "source": "html-plugin",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "17. Create a heatmap to compare \"Weekdays\"."
+          },
+          "DefaultAnnotationText": {
+            "text": "17. Create a heatmap to compare \"Weekdays\"."
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "88",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

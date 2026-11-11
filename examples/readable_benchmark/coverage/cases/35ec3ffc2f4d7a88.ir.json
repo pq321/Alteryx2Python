@@ -1,0 +1,116 @@
+{
+  "workflow_id": "FolderBrowse",
+  "workflow_name": "FolderBrowse",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface\\FolderBrowse.yxwz",
+  "source_hash": "4a83710647e00fe6da9c45cc1fc8d000076c93cb3d709f2722afdcf347ee437f",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "20",
+      "source_tool_id": "20",
+      "tool_type": "FolderBrowse",
+      "tool_name": "AlteryxGuiToolkit.Questions.FolderBrowse.FolderBrowse",
+      "config": {
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "raw": {
+          "annotation": {
+            "attributes": {
+              "DisplayMode": "0"
+            },
+            "Name": {},
+            "DefaultAnnotationText": {},
+            "Left": {
+              "attributes": {
+                "value": "False"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "name": "",
+          "prompt": "",
+          "default_value": "",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\10 Interface"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Question",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "20:Question->22:Question"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.Questions.FolderBrowse.FolderBrowse",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.Questions.FolderBrowse.FolderBrowse"
+          },
+          "Position": {
+            "attributes": {
+              "x": "318",
+              "y": "282",
+              "width": "59",
+              "height": "59"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "FolderBrowse",
+          "display_name": "Folder Browse",
+          "category": "Interface",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

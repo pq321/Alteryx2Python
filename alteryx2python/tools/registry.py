@@ -1420,6 +1420,14 @@ for _module_name in ("local_macros", "indb", "predictive", "timeseries", "local_
             TOOL_REGISTRY.register(_metadata)
 
 _category_by_type = {entry.tool_type: entry.category for entry in _TOOL_CATALOG}
+from alteryx2python.tools.delivery import email_tool
+_email_metadata = TOOL_REGISTRY.get('Email')
+TOOL_REGISTRY.replace(ToolMetadata(
+    tool_type='Email', function=email_tool, tool_class=_email_metadata.tool_class,
+    input_anchors=('Input',), output_anchors=(), maturity='L2_BASIC_IMPLEMENTATION',
+    semantics_doc='docs/tools/reporting.md', supports_certification=False,
+    execution_profile='html-draft-v1',
+))
 for _tool_type in TOOL_REGISTRY.list_tool_types():
     _old = TOOL_REGISTRY.get(_tool_type)
     if _old.semantics_doc != "docs/tools/baseline.md":

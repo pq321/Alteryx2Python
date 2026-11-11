@@ -1,0 +1,165 @@
+{
+  "workflow_id": "02 Map a trade area around a store",
+  "workflow_name": "02 Map a trade area around a store",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Map a trade area around a store.yxmd",
+  "source_hash": "ecfcf68cb8a7b68e7d3110ac63a92e3868c7ad0bf25d53ae5937c3c15ae03bc0",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "58",
+      "source_tool_id": "58",
+      "tool_type": "SpatialProcess",
+      "tool_name": "AlteryxSpatialPluginsGui.SpatialProcess.SpatialProcess",
+      "config": {
+        "SpatialObjFields": {
+          "attributes": {
+            "field1": "StoreSpObj",
+            "field2": "AdArea"
+          }
+        },
+        "Action": {
+          "attributes": {
+            "action": "Cut1_From2",
+            "noEmpty": "False"
+          }
+        },
+        "raw": {
+          "SpatialObjFields": {
+            "attributes": {
+              "field1": "StoreSpObj",
+              "field2": "AdArea"
+            }
+          },
+          "Action": {
+            "attributes": {
+              "action": "Cut1_From2",
+              "noEmpty": "False"
+            }
+          }
+        },
+        "normalized": {
+          "field1": "StoreSpObj",
+          "field2": "AdArea",
+          "action": "Cut1_From2",
+          "no_empty": false,
+          "output_field": "SpatialObj_Process",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "4:Matched->58:Input"
+      ],
+      "outgoing_edges": [
+        "58:Output->59:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.SpatialProcess.SpatialProcess",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.SpatialProcess.SpatialProcess"
+          },
+          "Position": {
+            "attributes": {
+              "x": "678",
+              "y": "162"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "SpatialProcess",
+          "display_name": "SpatialProcess",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxSpatialProcess",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "8. Extract the non-intersecting sections of the trade area."
+          },
+          "DefaultAnnotationText": {
+            "text": "Cut1_From2"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "58",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

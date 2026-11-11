@@ -1,0 +1,134 @@
+{
+  "workflow_id": "08 Create_an_XML_File",
+  "workflow_name": "08 Create_an_XML_File",
+  "source_file": "D:\\Alteryx\\Samples\\en\\04 Basic\\08 Create_an_XML_File.yxmd",
+  "source_hash": "87c71e9ebd4a1bf0b126746e9b7828c256f185fb151f2b2d13bb9a421998930c",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "22",
+      "source_tool_id": "22",
+      "tool_type": "TextInput",
+      "tool_name": "AlteryxBasePluginsGui.TextInput.TextInput",
+      "config": {
+        "NumRows": {
+          "attributes": {
+            "value": "1"
+          }
+        },
+        "Fields": {
+          "Field": {
+            "attributes": {
+              "name": "Field1"
+            }
+          }
+        },
+        "Data": {
+          "r": {
+            "c": {
+              "text": "</v>"
+            }
+          }
+        },
+        "raw": {
+          "NumRows": {
+            "attributes": {
+              "value": "1"
+            }
+          },
+          "Fields": {
+            "Field": {
+              "attributes": {
+                "name": "Field1"
+              }
+            }
+          },
+          "Data": {
+            "r": {
+              "c": {
+                "text": "</v>"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "fields": [
+            "Field1"
+          ],
+          "rows": [
+            [
+              "</v>"
+            ]
+          ],
+          "num_rows": 1,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\04 Basic"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [
+        "22:Output->15:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.TextInput.TextInput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.TextInput.TextInput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "699",
+              "y": "353"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "TextInput",
+          "display_name": "Text Input",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxTextInput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

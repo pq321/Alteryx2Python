@@ -1,0 +1,205 @@
+{
+  "workflow_id": "CalgaryCrossCountAppend",
+  "workflow_name": "CalgaryCrossCountAppend",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary\\CalgaryCrossCountAppend.yxmd",
+  "source_hash": "fc4e6905c62c9ced797d3b10c7079b5b71fdc545e84db8a1f1e4a4d205dcbb0a",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "121",
+      "source_tool_id": "121",
+      "tool_type": "CalgaryCrossCountAppend",
+      "tool_name": "CalgaryPluginsGui.CalgaryCrossCountAppend.CalgaryCrossCountAppend",
+      "config": {
+        "RootFileName": {
+          "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+        },
+        "LinkedTables": {},
+        "Query": {},
+        "JoinMode": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "CrossCount": {
+          "CrossCountFields": {
+            "attributes": {
+              "cacheSize": "256"
+            },
+            "Field": {
+              "attributes": {
+                "name": "CASS_CarrierRoute",
+                "type": "AString"
+              }
+            }
+          }
+        },
+        "JoinFields": {
+          "Field": {
+            "attributes": {
+              "field": "SpatialObject_TradeArea",
+              "indexField": "GEO_SpatialObj",
+              "queryType": "value",
+              "endField": ""
+            }
+          }
+        },
+        "raw": {
+          "RootFileName": {
+            "text": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb"
+          },
+          "LinkedTables": {},
+          "Query": {},
+          "JoinMode": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "CrossCount": {
+            "CrossCountFields": {
+              "attributes": {
+                "cacheSize": "256"
+              },
+              "Field": {
+                "attributes": {
+                  "name": "CASS_CarrierRoute",
+                  "type": "AString"
+                }
+              }
+            }
+          },
+          "JoinFields": {
+            "Field": {
+              "attributes": {
+                "field": "SpatialObject_TradeArea",
+                "indexField": "GEO_SpatialObj",
+                "queryType": "value",
+                "endField": ""
+              }
+            }
+          }
+        },
+        "normalized": {
+          "root_file_name": "..\\..\\..\\data\\SampleData\\CalgaryData\\Address.cydb",
+          "linked_tables": {},
+          "query": {
+            "text": ""
+          },
+          "cross_count_fields": [
+            {
+              "name": "",
+              "values": [
+                {}
+              ]
+            }
+          ],
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\21 Calgary"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "120:Output->121:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "CalgaryPluginsGui.CalgaryCrossCountAppend.CalgaryCrossCountAppend",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "CalgaryPluginsGui.CalgaryCrossCountAppend.CalgaryCrossCountAppend"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "306"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "CalgaryCrossCountAppend",
+          "display_name": "CalgaryCrossCountAppend",
+          "category": "Calgary",
+          "engine_dll": "CalgaryPlugins.dll",
+          "engine_entry": "AlteryxCalgaryCrossCountAppend",
+          "engine_macro": null,
+          "source": "managed-assembly+pe-exports",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {
+            "text": "Address.cydb"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "121",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

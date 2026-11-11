@@ -1,0 +1,123 @@
+{
+  "workflow_id": "08 Optimize_location_by_minimizing_distance",
+  "workflow_name": "08 Optimize_location_by_minimizing_distance",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Build_a_Macro\\08 Optimize_location_by_minimizing_distance.yxmd",
+  "source_hash": "8cb9c363fe08c091a6ebc5476d7a91afdf590d34788bc6123f76bef41474d94b",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "26",
+      "source_tool_id": "26",
+      "tool_type": "BrowseV2",
+      "tool_name": "AlteryxBasePluginsGui.BrowseV2.BrowseV2",
+      "config": {
+        "raw": {},
+        "normalized": {
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Build_a_Macro"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "25:Report->26:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.BrowseV2.BrowseV2",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.BrowseV2.BrowseV2"
+          },
+          "Position": {
+            "attributes": {
+              "x": "308",
+              "y": "193"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "BrowseV2",
+          "display_name": "Browse",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxBrowseV2",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "26",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

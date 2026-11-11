@@ -1,0 +1,152 @@
+{
+  "workflow_id": "Text_Input",
+  "workflow_name": "Text_Input",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\01 In Out\\Text_Input.yxmd",
+  "source_hash": "5d07c6dec69552ca95853b8edbd2bc8e8b875bd8c7066fd6206e455fc1dc89d4",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "83",
+      "source_tool_id": "83",
+      "tool_type": "TextBox",
+      "tool_name": "AlteryxGuiToolkit.TextBox.TextBox",
+      "config": {
+        "Text": {},
+        "Font": {
+          "attributes": {
+            "name": "Segoe UI",
+            "size": "8.25",
+            "style": "0"
+          }
+        },
+        "TextColor": {
+          "attributes": {
+            "name": "Black"
+          }
+        },
+        "FillColor": {
+          "attributes": {
+            "name": "White"
+          }
+        },
+        "Shape": {
+          "attributes": {
+            "shape": "3"
+          }
+        },
+        "Justification": {
+          "attributes": {
+            "Justification": "2"
+          }
+        },
+        "raw": {
+          "Text": {},
+          "Font": {
+            "attributes": {
+              "name": "Segoe UI",
+              "size": "8.25",
+              "style": "0"
+            }
+          },
+          "TextColor": {
+            "attributes": {
+              "name": "Black"
+            }
+          },
+          "FillColor": {
+            "attributes": {
+              "name": "White"
+            }
+          },
+          "Shape": {
+            "attributes": {
+              "shape": "3"
+            }
+          },
+          "Justification": {
+            "attributes": {
+              "Justification": "2"
+            }
+          }
+        },
+        "normalized": {
+          "text": "",
+          "font": {
+            "name": "Segoe UI",
+            "size": "8.25",
+            "style": "0"
+          },
+          "text_color": {
+            "name": "Black"
+          },
+          "fill_color": {
+            "name": "White"
+          },
+          "shape": "3",
+          "justification": "2",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\01 In Out"
+        }
+      },
+      "input_anchors": [],
+      "output_anchors": [],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxGuiToolkit.TextBox.TextBox",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxGuiToolkit.TextBox.TextBox"
+          },
+          "Position": {
+            "attributes": {
+              "x": "336",
+              "y": "240",
+              "width": "24",
+              "height": "20"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "TextBox",
+          "display_name": "Text Box (note)",
+          "category": "Documentation",
+          "engine_dll": null,
+          "engine_entry": null,
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": true
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

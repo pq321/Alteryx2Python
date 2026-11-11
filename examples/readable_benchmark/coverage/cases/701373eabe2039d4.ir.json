@@ -1,0 +1,176 @@
+{
+  "workflow_id": "05 Analyze a sales pipeline",
+  "workflow_name": "05 Analyze a sales pipeline",
+  "source_file": "D:\\Alteryx\\Samples\\en\\04 Basic\\05 Analyze a sales pipeline.yxmd",
+  "source_hash": "e26d9773909323833e2b73e0f7d597160bf0418043d6ed52b582f95f3aaefbf8",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "215",
+      "source_tool_id": "215",
+      "tool_type": "DbFileOutput",
+      "tool_name": "AlteryxBasePluginsGui.DbFileOutput.DbFileOutput",
+      "config": {
+        "File": {
+          "attributes": {
+            "FileFormat": "64",
+            "MaxRecords": ""
+          },
+          "text": "%temp%SalesPipeline_Output.hyper"
+        },
+        "Passwords": {},
+        "FormatSpecificOptions": {
+          "OutputOption": {
+            "text": "Create"
+          }
+        },
+        "MultiFile": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "File": {
+            "attributes": {
+              "FileFormat": "64",
+              "MaxRecords": ""
+            },
+            "text": "%temp%SalesPipeline_Output.hyper"
+          },
+          "Passwords": {},
+          "FormatSpecificOptions": {
+            "OutputOption": {
+              "text": "Create"
+            }
+          },
+          "MultiFile": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "file": "%temp%SalesPipeline_Output.hyper",
+          "file_attributes": {
+            "FileFormat": "64",
+            "MaxRecords": ""
+          },
+          "format_specific_options": {
+            "OutputOption": {
+              "text": "Create"
+            }
+          },
+          "output_option": "Create",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\04 Basic"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "195:True->215:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.DbFileOutput.DbFileOutput",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.DbFileOutput.DbFileOutput"
+          },
+          "Position": {
+            "attributes": {
+              "x": "1439",
+              "y": "291"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "DbFileOutput",
+          "display_name": "Output Data",
+          "category": "In/Out",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxDbFileOutput",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "AnnotationText": {
+            "text": "14. Output data to a Tableau hyper file."
+          },
+          "DefaultAnnotationText": {
+            "text": "%temp%SalesPipeline_Output.hyper"
+          },
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "215",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

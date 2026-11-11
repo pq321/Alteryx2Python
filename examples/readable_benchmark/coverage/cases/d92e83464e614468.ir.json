@@ -1,0 +1,265 @@
+{
+  "workflow_id": "XML_Parse",
+  "workflow_name": "XML_Parse",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\04 Parse\\XML_Parse.yxmd",
+  "source_hash": "1fb0fd56b51f977783bf5ac0527d08d331d8a76ffefe06f0d282b961034865a2",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "278",
+      "source_tool_id": "278",
+      "tool_type": "XMLParse",
+      "tool_name": "AlteryxBasePluginsGui.XMLParse.XMLParse",
+      "config": {
+        "XMLField": {
+          "text": "customer_xml"
+        },
+        "XMLElement": {},
+        "ChildValues": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "OuterXML": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ParseRoot": {
+          "attributes": {
+            "value": "True"
+          }
+        },
+        "IgnoreErrors": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "raw": {
+          "XMLField": {
+            "text": "customer_xml"
+          },
+          "XMLElement": {},
+          "ChildValues": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "OuterXML": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ParseRoot": {
+            "attributes": {
+              "value": "True"
+            }
+          },
+          "IgnoreErrors": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        },
+        "normalized": {
+          "xml_field": "customer_xml",
+          "xml_element": "",
+          "child_values": true,
+          "outer_xml": false,
+          "parse_root": true,
+          "ignore_errors": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\04 Parse"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "285:Output->278:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {
+        "connection": "Output",
+        "fields": [
+          {
+            "name": "row_id",
+            "source": "TextInput:",
+            "type": "Byte"
+          },
+          {
+            "name": "customer_xml",
+            "size": "2048",
+            "source": "Formula: (Multiple Sources)",
+            "type": "String"
+          },
+          {
+            "name": "customer",
+            "size": "7",
+            "type": "V_String"
+          },
+          {
+            "name": "id",
+            "size": "4",
+            "type": "V_String"
+          },
+          {
+            "name": "membership_level",
+            "size": "8",
+            "type": "V_String"
+          },
+          {
+            "name": "membership_start",
+            "size": "10",
+            "type": "V_String"
+          },
+          {
+            "name": "transactions",
+            "size": "14",
+            "type": "V_String"
+          }
+        ]
+      },
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.XMLParse.XMLParse",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.XMLParse.XMLParse"
+          },
+          "Position": {
+            "attributes": {
+              "x": "282",
+              "y": "336"
+            }
+          }
+        },
+        "meta_info": {
+          "Output": {
+            "connection": "Output",
+            "fields": [
+              {
+                "name": "row_id",
+                "source": "TextInput:",
+                "type": "Byte"
+              },
+              {
+                "name": "customer_xml",
+                "size": "2048",
+                "source": "Formula: (Multiple Sources)",
+                "type": "String"
+              },
+              {
+                "name": "customer",
+                "size": "7",
+                "type": "V_String"
+              },
+              {
+                "name": "id",
+                "size": "4",
+                "type": "V_String"
+              },
+              {
+                "name": "membership_level",
+                "size": "8",
+                "type": "V_String"
+              },
+              {
+                "name": "membership_start",
+                "size": "10",
+                "type": "V_String"
+              },
+              {
+                "name": "transactions",
+                "size": "14",
+                "type": "V_String"
+              }
+            ]
+          }
+        },
+        "catalog": {
+          "tool_type": "XMLParse",
+          "display_name": "XML Parse",
+          "category": "Parse",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxXMLParse",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "278",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,552 @@
+{
+  "workflow_id": "Report_Map",
+  "workflow_name": "Report_Map",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting\\Report_Map.yxmd",
+  "source_hash": "a66c33f13d5fa8c7e2c947265da96416f9bab525ed88332359acdd0da3c3c566",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "182",
+      "source_tool_id": "182",
+      "tool_type": "ReportMap",
+      "tool_name": "AlteryxSpatialPluginsGui.ReportMap.ReportMap",
+      "config": {
+        "TemporaryFileLocationXML": {
+          "text": "C:\\ProgramData\\Alteryx\\Engine\\Engine_3216_22f1a7d4c47d40a2bb1c447015a1a04d_\\Engine_1740_da038f7af80b47c08b39f9c22047f36c_.xml"
+        },
+        "IsMetric": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "ImageWidth": {
+          "text": "8"
+        },
+        "ImageHeight": {
+          "text": "6"
+        },
+        "ImageResolution": {
+          "text": "1"
+        },
+        "ReferenceMap": {},
+        "BackgroundColor": {
+          "text": "#fdfeff"
+        },
+        "DropShadow": {
+          "text": "False"
+        },
+        "ScaleUnits": {
+          "text": "Miles"
+        },
+        "ExpandExtent": {
+          "text": "10"
+        },
+        "MinimumWidth": {
+          "text": "0.5"
+        },
+        "DataConnections": {
+          "DataConnection": {
+            "attributes": {
+              "name": "#1"
+            },
+            "ConnectionType": {
+              "text": "IncomingConnection"
+            },
+            "Connection": {
+              "text": "#1"
+            },
+            "FileName": {},
+            "SpatialObj": {},
+            "GroupField": {},
+            "ThemeField": {},
+            "LabelField": {}
+          }
+        },
+        "Layers": {
+          "Layer": [
+            {
+              "attributes": {
+                "name": "Base Layers - Points",
+                "order": "0"
+              },
+              "DisplayName": {
+                "text": "Base Layers - Points"
+              },
+              "DataConnection": {},
+              "LayerType": {
+                "text": "Placeholder"
+              },
+              "ShowLabel": {
+                "attributes": {
+                  "value": "False"
+                }
+              }
+            },
+            {
+              "attributes": {
+                "name": "Base Layers - Lines",
+                "order": "1"
+              },
+              "DisplayName": {
+                "text": "Base Layers - Lines"
+              },
+              "DataConnection": {},
+              "LayerType": {
+                "text": "Placeholder"
+              },
+              "ShowLabel": {
+                "attributes": {
+                  "value": "False"
+                }
+              }
+            },
+            {
+              "attributes": {
+                "name": "Base Layers - Polygons",
+                "order": "3"
+              },
+              "DisplayName": {
+                "text": "Base Layers - Polygons"
+              },
+              "DataConnection": {},
+              "LayerType": {
+                "text": "Placeholder"
+              },
+              "ShowLabel": {
+                "attributes": {
+                  "value": "False"
+                }
+              }
+            },
+            {
+              "attributes": {
+                "name": "1",
+                "order": "2"
+              },
+              "LayerType": {
+                "text": "Polygons"
+              },
+              "isBaseLayer": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "isReorderedBaseLayer": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "isRestlyedBaseLayer": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "baseLabelOverriden": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "isThemeLayer": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "DisplayName": {
+                "text": "#1"
+              },
+              "DataConnection": {
+                "text": "#1"
+              },
+              "ShowInLegend": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "ZoomToLayer": {
+                "attributes": {
+                  "value": "True"
+                }
+              },
+              "Disable": {
+                "attributes": {
+                  "value": "False"
+                }
+              },
+              "PolygonStyle": {
+                "attributes": {
+                  "FillColor": "#988576",
+                  "HatchColor": "#000000",
+                  "HatchStyle": "single",
+                  "Hatched": "false",
+                  "Opacity": "50",
+                  "OutlineColor": "#000000",
+                  "OutlineSize": "3",
+                  "UseFillColor": "true"
+                }
+              },
+              "ThemeStyle": {
+                "attributes": {
+                  "ColorMethod": "Ramp",
+                  "EndColor": "#ff0000",
+                  "ManualTiles": "",
+                  "NoneSpecificValuesAction": "Color",
+                  "NumTiles": "5",
+                  "SpecificValues": "",
+                  "StartColor": "#0000ff",
+                  "TileMethod": "SmartTile",
+                  "UniqueColors": "#dc143c,#6495ed,#f0e68c,#228b22,#a9a9a9,#ffa500,#ba55d3,#a0522d,#ff69b4,#4b0082,#d3d3d3,#9acd32,#00ffff,#808000,#ffb6c1",
+                  "UpperCutoffIncludedExcluded": "Excluded"
+                }
+              },
+              "LabelStyle": {
+                "attributes": {
+                  "Disabled": "false"
+                }
+              }
+            }
+          ]
+        },
+        "Legend": {
+          "LegendStyle": {
+            "attributes": {
+              "Position": "Right",
+              "UseCommaSeparators": "false"
+            }
+          }
+        },
+        "raw": {
+          "TemporaryFileLocationXML": {
+            "text": "C:\\ProgramData\\Alteryx\\Engine\\Engine_3216_22f1a7d4c47d40a2bb1c447015a1a04d_\\Engine_1740_da038f7af80b47c08b39f9c22047f36c_.xml"
+          },
+          "IsMetric": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "ImageWidth": {
+            "text": "8"
+          },
+          "ImageHeight": {
+            "text": "6"
+          },
+          "ImageResolution": {
+            "text": "1"
+          },
+          "ReferenceMap": {},
+          "BackgroundColor": {
+            "text": "#fdfeff"
+          },
+          "DropShadow": {
+            "text": "False"
+          },
+          "ScaleUnits": {
+            "text": "Miles"
+          },
+          "ExpandExtent": {
+            "text": "10"
+          },
+          "MinimumWidth": {
+            "text": "0.5"
+          },
+          "DataConnections": {
+            "DataConnection": {
+              "attributes": {
+                "name": "#1"
+              },
+              "ConnectionType": {
+                "text": "IncomingConnection"
+              },
+              "Connection": {
+                "text": "#1"
+              },
+              "FileName": {},
+              "SpatialObj": {},
+              "GroupField": {},
+              "ThemeField": {},
+              "LabelField": {}
+            }
+          },
+          "Layers": {
+            "Layer": [
+              {
+                "attributes": {
+                  "name": "Base Layers - Points",
+                  "order": "0"
+                },
+                "DisplayName": {
+                  "text": "Base Layers - Points"
+                },
+                "DataConnection": {},
+                "LayerType": {
+                  "text": "Placeholder"
+                },
+                "ShowLabel": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Base Layers - Lines",
+                  "order": "1"
+                },
+                "DisplayName": {
+                  "text": "Base Layers - Lines"
+                },
+                "DataConnection": {},
+                "LayerType": {
+                  "text": "Placeholder"
+                },
+                "ShowLabel": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                }
+              },
+              {
+                "attributes": {
+                  "name": "Base Layers - Polygons",
+                  "order": "3"
+                },
+                "DisplayName": {
+                  "text": "Base Layers - Polygons"
+                },
+                "DataConnection": {},
+                "LayerType": {
+                  "text": "Placeholder"
+                },
+                "ShowLabel": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                }
+              },
+              {
+                "attributes": {
+                  "name": "1",
+                  "order": "2"
+                },
+                "LayerType": {
+                  "text": "Polygons"
+                },
+                "isBaseLayer": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "isReorderedBaseLayer": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "isRestlyedBaseLayer": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "baseLabelOverriden": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "isThemeLayer": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "DisplayName": {
+                  "text": "#1"
+                },
+                "DataConnection": {
+                  "text": "#1"
+                },
+                "ShowInLegend": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "ZoomToLayer": {
+                  "attributes": {
+                    "value": "True"
+                  }
+                },
+                "Disable": {
+                  "attributes": {
+                    "value": "False"
+                  }
+                },
+                "PolygonStyle": {
+                  "attributes": {
+                    "FillColor": "#988576",
+                    "HatchColor": "#000000",
+                    "HatchStyle": "single",
+                    "Hatched": "false",
+                    "Opacity": "50",
+                    "OutlineColor": "#000000",
+                    "OutlineSize": "3",
+                    "UseFillColor": "true"
+                  }
+                },
+                "ThemeStyle": {
+                  "attributes": {
+                    "ColorMethod": "Ramp",
+                    "EndColor": "#ff0000",
+                    "ManualTiles": "",
+                    "NoneSpecificValuesAction": "Color",
+                    "NumTiles": "5",
+                    "SpecificValues": "",
+                    "StartColor": "#0000ff",
+                    "TileMethod": "SmartTile",
+                    "UniqueColors": "#dc143c,#6495ed,#f0e68c,#228b22,#a9a9a9,#ffa500,#ba55d3,#a0522d,#ff69b4,#4b0082,#d3d3d3,#9acd32,#00ffff,#808000,#ffb6c1",
+                    "UpperCutoffIncludedExcluded": "Excluded"
+                  }
+                },
+                "LabelStyle": {
+                  "attributes": {
+                    "Disabled": "false"
+                  }
+                }
+              }
+            ]
+          },
+          "Legend": {
+            "LegendStyle": {
+              "attributes": {
+                "Position": "Right",
+                "UseCommaSeparators": "false"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "reference_map": "",
+          "image_width": "8",
+          "image_height": "6",
+          "image_resolution": "1",
+          "scale_units": "Miles",
+          "is_metric": false,
+          "legend": {
+            "LegendStyle": {
+              "attributes": {
+                "Position": "Right",
+                "UseCommaSeparators": "false"
+              }
+            }
+          },
+          "layer_count": 4,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\07 Reporting"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "212:Output->182:Input"
+      ],
+      "outgoing_edges": [
+        "182:Output->157:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxSpatialPluginsGui.ReportMap.ReportMap",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxSpatialPluginsGui.ReportMap.ReportMap"
+          },
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "198"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "ReportMap",
+          "display_name": "ReportMap",
+          "category": "Spatial",
+          "engine_dll": "AlteryxSpatialPluginsEngine.dll",
+          "engine_entry": "AlteryxReportMap",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "182",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

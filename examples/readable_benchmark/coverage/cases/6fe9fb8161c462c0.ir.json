@@ -1,0 +1,170 @@
+{
+  "workflow_id": "ControlContainer",
+  "workflow_name": "ControlContainer",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer\\ControlContainer.yxmd",
+  "source_hash": "70f5f0ecb4f6ff3f24813ef3c57c5731597f8cc9b3db30aa92e0f5ca48811b32",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "87",
+      "source_tool_id": "87",
+      "tool_type": "Message",
+      "tool_name": "AlteryxBasePluginsGui.Message.Message",
+      "config": {
+        "When": {
+          "text": "Last"
+        },
+        "Filter": {},
+        "Type": {
+          "text": "Error"
+        },
+        "Priority": {
+          "text": "High"
+        },
+        "Transient": {
+          "text": "False"
+        },
+        "MessageExpression": {
+          "text": "\"Conversion Errors present!\""
+        },
+        "raw": {
+          "When": {
+            "text": "Last"
+          },
+          "Filter": {},
+          "Type": {
+            "text": "Error"
+          },
+          "Priority": {
+            "text": "High"
+          },
+          "Transient": {
+            "text": "False"
+          },
+          "MessageExpression": {
+            "text": "\"Conversion Errors present!\""
+          },
+          "container_id": "94"
+        },
+        "normalized": {
+          "when": "Last",
+          "filter": "",
+          "type": "Error",
+          "priority": "High",
+          "transient": false,
+          "message_expression": "\"Conversion Errors present!\"",
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\22 Developer"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "86:True->87:Input"
+      ],
+      "outgoing_edges": [
+        "87:Output->90:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.Message.Message",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.Message.Message"
+          },
+          "Position": {
+            "attributes": {
+              "x": "364",
+              "y": "664"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Message",
+          "display_name": "Message",
+          "category": "Developer",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxMessage",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "87",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

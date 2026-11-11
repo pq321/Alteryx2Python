@@ -1,0 +1,168 @@
+{
+  "workflow_id": "10 Merge_to_a_master_file_with_fuzzy_matching",
+  "workflow_name": "10 Merge_to_a_master_file_with_fuzzy_matching",
+  "source_file": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Build_a_Macro\\10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+  "source_hash": "2e58ada6e8af2f2aada0bbc860ce1c69c8481cc367fce68cc9e917cad4da90f5",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "32",
+      "source_tool_id": "32",
+      "tool_type": "Select",
+      "tool_name": "AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect",
+      "config": {
+        "OrderChanged": {
+          "attributes": {
+            "value": "False"
+          }
+        },
+        "SelectFields": {
+          "SelectField": {
+            "attributes": {
+              "field": "*Unknown",
+              "selected": "True"
+            }
+          }
+        },
+        "raw": {
+          "OrderChanged": {
+            "attributes": {
+              "value": "False"
+            }
+          },
+          "SelectFields": {
+            "SelectField": {
+              "attributes": {
+                "field": "*Unknown",
+                "selected": "True"
+              }
+            }
+          }
+        },
+        "normalized": {
+          "select_fields": [
+            {
+              "source": "*Unknown",
+              "rename": "*Unknown",
+              "selected": true,
+              "dtype": null,
+              "forced": false,
+              "size": null
+            }
+          ],
+          "order_changed": false,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\05 Advanced\\02 Build_a_Macro"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "423:Output->32:Input"
+      ],
+      "outgoing_edges": [
+        "32:Output->66:Right"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect"
+          },
+          "Position": {
+            "attributes": {
+              "x": "322",
+              "y": "298"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "Select",
+          "display_name": "Select",
+          "category": "Preparation",
+          "engine_dll": "AlteryxBasePluginsEngine.dll",
+          "engine_entry": "AlteryxSelect",
+          "engine_macro": null,
+          "source": "managed-assembly",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "32",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

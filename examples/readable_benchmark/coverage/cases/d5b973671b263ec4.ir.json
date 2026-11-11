@@ -1,0 +1,338 @@
+{
+  "workflow_id": "Feature Types Build Features",
+  "workflow_name": "Feature Types Build Features",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning\\Feature Types Build Features.yxmd",
+  "source_hash": "68c08d79af3b3ba78a187184440a08f4e279123832a42b691dcd39ae3457c4cc",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "120",
+      "source_tool_id": "120",
+      "tool_type": "BuildFeatures",
+      "tool_name": "BuildFeatures",
+      "config": {
+        "target_table": {
+          "text": "#1"
+        },
+        "primary_key": [
+          {
+            "attributes": {
+              "name": "#1",
+              "primary_key": "id"
+            }
+          },
+          {
+            "attributes": {
+              "name": "#2",
+              "primary_key": "0"
+            }
+          }
+        ],
+        "relationships": {
+          "parent": {
+            "text": "#1"
+          },
+          "child": {
+            "text": "#2"
+          },
+          "child_key": {
+            "text": "RecordID"
+          },
+          "key": {
+            "text": "0"
+          }
+        },
+        "selected_primitives": [
+          {
+            "text": "day"
+          },
+          {
+            "text": "year"
+          },
+          {
+            "text": "month"
+          },
+          {
+            "text": "weekday"
+          },
+          {
+            "text": "haversine"
+          },
+          {
+            "text": "num_words"
+          },
+          {
+            "text": "num_characters"
+          },
+          {
+            "text": "sum"
+          },
+          {
+            "text": "std"
+          },
+          {
+            "text": "max"
+          },
+          {
+            "text": "skew"
+          },
+          {
+            "text": "min"
+          },
+          {
+            "text": "mean"
+          },
+          {
+            "text": "count"
+          },
+          {
+            "text": "percent_true"
+          },
+          {
+            "text": "num_unique"
+          },
+          {
+            "text": "mode"
+          }
+        ],
+        "table_depth": {
+          "text": "2"
+        },
+        "raw": {
+          "target_table": {
+            "text": "#1"
+          },
+          "primary_key": [
+            {
+              "attributes": {
+                "name": "#1",
+                "primary_key": "id"
+              }
+            },
+            {
+              "attributes": {
+                "name": "#2",
+                "primary_key": "0"
+              }
+            }
+          ],
+          "relationships": {
+            "parent": {
+              "text": "#1"
+            },
+            "child": {
+              "text": "#2"
+            },
+            "child_key": {
+              "text": "RecordID"
+            },
+            "key": {
+              "text": "0"
+            }
+          },
+          "selected_primitives": [
+            {
+              "text": "day"
+            },
+            {
+              "text": "year"
+            },
+            {
+              "text": "month"
+            },
+            {
+              "text": "weekday"
+            },
+            {
+              "text": "haversine"
+            },
+            {
+              "text": "num_words"
+            },
+            {
+              "text": "num_characters"
+            },
+            {
+              "text": "sum"
+            },
+            {
+              "text": "std"
+            },
+            {
+              "text": "max"
+            },
+            {
+              "text": "skew"
+            },
+            {
+              "text": "min"
+            },
+            {
+              "text": "mean"
+            },
+            {
+              "text": "count"
+            },
+            {
+              "text": "percent_true"
+            },
+            {
+              "text": "num_unique"
+            },
+            {
+              "text": "mode"
+            }
+          ],
+          "table_depth": {
+            "text": "2"
+          },
+          "container_id": "134"
+        },
+        "normalized": {
+          "tool_type": "BuildFeatures",
+          "target_table": "#1",
+          "primary_keys": [
+            {
+              "name": "#1",
+              "primary_key": "id"
+            },
+            {
+              "name": "#2",
+              "primary_key": "0"
+            }
+          ],
+          "relationships": {
+            "parent": "#1",
+            "child": "#2",
+            "child_key": "RecordID",
+            "key": 0
+          },
+          "selected_primitives": [
+            "day",
+            "year",
+            "month",
+            "weekday",
+            "haversine",
+            "num_words",
+            "num_characters",
+            "sum",
+            "std",
+            "max",
+            "skew",
+            "min",
+            "mean",
+            "count",
+            "percent_true",
+            "num_unique",
+            "mode"
+          ],
+          "table_depth": 2,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\24 Machine Learning"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Input",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [],
+      "incoming_edges": [
+        "125:Output->120:Input",
+        "124:Output->120:Input"
+      ],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "BuildFeatures",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "BuildFeatures"
+          },
+          "Position": {
+            "attributes": {
+              "x": "366",
+              "y": "510"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "BuildFeatures",
+          "display_name": "BuildFeatures",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "BuildFeatures\\\\main.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "120",
+      "target_anchor": "Input",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

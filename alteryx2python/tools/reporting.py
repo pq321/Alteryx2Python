@@ -91,6 +91,24 @@ def _report_fragment_tool(
     context: WorkflowContext,
     output_anchor: str = "Output",
 ) -> dict[str, pd.DataFrame]:
+    if (context.runtime_config or {}).get('delivery_profile') == 'html-draft-v1':
+        from alteryx2python.tools.delivery import report_table, report_text, report_layout
+        frame = _first_input(inputs)
+        if tool_type == 'PortfolioComposerTable':
+            if config.get('grouping_fields') or config.get('table_mode', 'Basic') != 'Basic' or config.get('show_bar_graph'):
+                raise NotImplementedError('HTML profile requires an ungrouped Basic table')
+            outputs = {output_anchor: report_table(frame, config.get('table_fields', []), config.get('show_header') is not False)}
+        elif tool_type == 'PortfolioComposerText':
+            if config.get('raw_mode') or config.get('rich_text_mode') or config.get('header_mode'):
+                raise NotImplementedError('Rich/dynamic report text is unsupported in HTML profile')
+            outputs = {output_anchor: report_text(config.get('message', ''), config.get('output_field') or 'Report')}
+        elif tool_type == 'PortfolioComposerLayout':
+            if config.get('grouping_fields') or config.get('orientation', '').lower() not in {'', 'vertical'}:
+                raise NotImplementedError('HTML profile requires ungrouped vertical layout')
+            outputs = {output_anchor: report_layout(frame, config.get('layout_fields', []))}
+        else:
+            raise NotImplementedError(f'No actual HTML renderer for {tool_type}')
+        return _record_report_node(tool_type=tool_type, inputs=inputs, outputs=outputs, config=config, context=context)
     outputs = {output_anchor: _fragment_frame(tool_type, config, inputs)}
     return _record_report_node(
         tool_type=tool_type,
@@ -210,6 +228,13 @@ def portfoliocomposerrender_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
+    if (context.runtime_config or {}).get('delivery_profile') == 'html-draft-v1':
+        from pathlib import Path
+        from alteryx2python.tools.delivery import render_html
+        if config.get('temp_file_type', '').lower() not in {'html', 'htm'} or config.get('batch_mode'):
+            raise NotImplementedError('HTML profile supports non-batched HTML output only')
+        destination = Path(context.runtime_config['output_dir']) / Path(config.get('output_file') or 'report.html').name
+        render_html(_first_input(inputs), config.get('data_field') or 'Report', destination)
     return _record_report_node(
         tool_type="PortfolioComposerRender",
         inputs=inputs,

@@ -1,0 +1,196 @@
+{
+  "workflow_id": "NER",
+  "workflow_name": "NER",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining\\NER.yxmd",
+  "source_hash": "ff51a8946cf97bc3cb6d8d5747e139e62752be36e36826cd924f936cc101cb9e",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "131",
+      "source_tool_id": "131",
+      "tool_type": "NamedEntityRecognition",
+      "tool_name": "NamedEntityRecognition",
+      "config": {
+        "Language": {
+          "text": "EN"
+        },
+        "Field": {
+          "text": "book_text"
+        },
+        "CustomEntities": {
+          "text": "false"
+        },
+        "FieldEntities": {
+          "text": "names"
+        },
+        "FieldLabels": {
+          "text": "label"
+        },
+        "CaseSensitive": {
+          "text": "false"
+        },
+        "Epochs": {
+          "text": "25"
+        },
+        "EarlyStopping": {
+          "text": "true"
+        },
+        "MaxBatchSize": {
+          "text": "32"
+        },
+        "raw": {
+          "Language": {
+            "text": "EN"
+          },
+          "Field": {
+            "text": "book_text"
+          },
+          "CustomEntities": {
+            "text": "false"
+          },
+          "FieldEntities": {
+            "text": "names"
+          },
+          "FieldLabels": {
+            "text": "label"
+          },
+          "CaseSensitive": {
+            "text": "false"
+          },
+          "Epochs": {
+            "text": "25"
+          },
+          "EarlyStopping": {
+            "text": "true"
+          },
+          "MaxBatchSize": {
+            "text": "32"
+          },
+          "container_id": "139"
+        },
+        "normalized": {
+          "tool_type": "NamedEntityRecognition",
+          "language": "EN",
+          "field": "book_text",
+          "custom_entities": false,
+          "field_entities": "names",
+          "field_labels": "label",
+          "case_sensitive": false,
+          "epochs": 25,
+          "early_stopping": true,
+          "max_batch_size": 32,
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "Data",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Data",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "142:Output->131:Data"
+      ],
+      "outgoing_edges": [
+        "131:Data->132:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "NamedEntityRecognition",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "NamedEntityRecognition"
+          },
+          "Position": {
+            "attributes": {
+              "x": "295",
+              "y": "281"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "NamedEntityRecognition",
+          "display_name": "NamedEntityRecognition",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "NamedEntityRecognition\\\\named_entity_recognition_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "131",
+      "target_anchor": "Data",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}

@@ -1,0 +1,232 @@
+{
+  "workflow_id": "WordCloud",
+  "workflow_name": "WordCloud",
+  "source_file": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining\\WordCloud.yxmd",
+  "source_hash": "c643c89595c0e8e0d581aa3ece9a540f98d60c82d3ca0483fc4410e0ebf71b2d",
+  "parser_version": "0.1.0",
+  "migration_spec_version": "0.1.0",
+  "nodes": [
+    {
+      "node_id": "119",
+      "source_tool_id": "119",
+      "tool_type": "WordCloud",
+      "tool_name": "WordCloud",
+      "config": {
+        "field": {
+          "text": "Text"
+        },
+        "customize": {
+          "text": "false"
+        },
+        "backgroundColor": {
+          "hex": {
+            "text": "#ffffff"
+          },
+          "hsl": {
+            "h": {
+              "text": "249.99999999999994"
+            },
+            "s": {
+              "text": "0"
+            },
+            "l": {
+              "text": "1"
+            },
+            "a": {
+              "text": "1"
+            }
+          }
+        },
+        "theme": {
+          "text": "viridis"
+        },
+        "maxWords": {
+          "text": "250"
+        },
+        "phrases": {
+          "text": "true"
+        },
+        "width": {
+          "text": "600"
+        },
+        "height": {
+          "text": "400"
+        },
+        "mask": {},
+        "raw": {
+          "field": {
+            "text": "Text"
+          },
+          "customize": {
+            "text": "false"
+          },
+          "backgroundColor": {
+            "hex": {
+              "text": "#ffffff"
+            },
+            "hsl": {
+              "h": {
+                "text": "249.99999999999994"
+              },
+              "s": {
+                "text": "0"
+              },
+              "l": {
+                "text": "1"
+              },
+              "a": {
+                "text": "1"
+              }
+            }
+          },
+          "theme": {
+            "text": "viridis"
+          },
+          "maxWords": {
+            "text": "250"
+          },
+          "phrases": {
+            "text": "true"
+          },
+          "width": {
+            "text": "600"
+          },
+          "height": {
+            "text": "400"
+          },
+          "mask": {},
+          "container_id": "129"
+        },
+        "normalized": {
+          "tool_type": "WordCloud",
+          "field": "Text",
+          "customize": false,
+          "background_color": {
+            "hex": "#ffffff",
+            "hsl": {
+              "h": 249.99999999999994,
+              "s": 0,
+              "l": 1,
+              "a": 1
+            }
+          },
+          "theme": "viridis",
+          "max_words": 250,
+          "phrases": true,
+          "width": 600,
+          "height": 400,
+          "mask": {},
+          "base_dir": "D:\\Alteryx\\Samples\\en\\02 Learn_one_tool_at_a_time\\25 Text Mining"
+        }
+      },
+      "input_anchors": [
+        {
+          "name": "textInput",
+          "direction": "input"
+        }
+      ],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [
+        "118:Output->119:textInput"
+      ],
+      "outgoing_edges": [
+        "119:Output->117:Input"
+      ],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {
+        "plugin_name": "WordCloud",
+        "raw_gui_settings": {
+          "attributes": {
+            "Plugin": "WordCloud"
+          },
+          "Position": {
+            "attributes": {
+              "x": "294",
+              "y": "258"
+            }
+          }
+        },
+        "meta_info": {},
+        "catalog": {
+          "tool_type": "WordCloud",
+          "display_name": "WordCloud",
+          "category": "Machine Learning",
+          "engine_dll": "Python",
+          "engine_entry": "WordCloud\\\\word_cloud_engine.py",
+          "engine_macro": null,
+          "source": "observed-sample",
+          "gui_only": false
+        },
+        "annotation": {
+          "attributes": {
+            "DisplayMode": "0"
+          },
+          "Name": {},
+          "DefaultAnnotationText": {},
+          "Left": {
+            "attributes": {
+              "value": "False"
+            }
+          }
+        }
+      },
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    },
+    {
+      "node_id": "probe_0",
+      "source_tool_id": "probe_0",
+      "tool_type": "TextInput",
+      "tool_name": "probe_input",
+      "config": {
+        "fields": [
+          "__compile_probe__"
+        ],
+        "rows": []
+      },
+      "input_anchors": [],
+      "output_anchors": [
+        {
+          "name": "Output",
+          "direction": "output"
+        }
+      ],
+      "incoming_edges": [],
+      "outgoing_edges": [],
+      "expected_input_schema": {},
+      "expected_output_schema": {},
+      "metadata": {},
+      "execution_semantics_version": "0.1.0",
+      "supported_status": "L1_PARSED_ONLY",
+      "warnings": [],
+      "errors": []
+    }
+  ],
+  "edges": [
+    {
+      "edge_id": "probe_edge_0",
+      "source_node_id": "probe_0",
+      "source_anchor": "Output",
+      "target_node_id": "119",
+      "target_anchor": "textInput",
+      "metadata": {}
+    }
+  ],
+  "inputs": [],
+  "outputs": [],
+  "macros": [],
+  "external_dependencies": [],
+  "warnings": [],
+  "errors": [],
+  "classification": "CLASS_D_PARTIAL_MIGRATION_ONLY",
+  "source_xml": "",
+  "metadata": {}
+}
