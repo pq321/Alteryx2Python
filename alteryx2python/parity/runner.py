@@ -189,11 +189,17 @@ def _capture_python(workflow_path: Path, output_directory: Path) -> dict:
 def prepare(workflow_path: Path, destination: Path) -> dict:
     workflow_path = workflow_path.resolve()
     workflow = XmlWorkflowParser().parse(workflow_path)
+    # Canvas annotation tools (catalog gui_only entries) carry no data flow;
+    # they document the canvas and must not block data parity capture.
+    from alteryx2python.parser.tool_catalog import CATALOG as _CATALOG
+
+    _gui_only = {entry.tool_type for entry in _CATALOG if entry.gui_only}
     unsupported = sorted(
         {
             node.tool_type
             for node in workflow.nodes
             if node.tool_type not in LOCAL_TOOLS
+            and node.tool_type not in _gui_only
             and not node.tool_type.startswith("Macro_")
         }
     )
