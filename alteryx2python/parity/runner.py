@@ -554,7 +554,22 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
                 anchor = f"{edge['input']}_{suffix}"
                 suffix += 1
             inputs[anchor] = output
+    # Engine console lines attribute failures to nodes ("ToolId 5: ... Error").
+    # Only the fact of failure is used (never the message text) so parity
+    # matches behaviour, not wording.
+    console_failed_nodes = set()
+    for line in console.splitlines():
+        match = re.match(r"s*ToolId (d+):.*Error", line, re.I)
+        if match:
+            console_failed_nodes.add(match.group(1))
+    workflow_failed = run.get("status") == "failed" or (
+        review is not None and review.get("status") == "failed"
+    )
     for node_id, node in nodes.items():
+        if node_id in console_failed_nodes:
+            node["status"] = "failed"
+            node["failure_source"] = "engine_error"
+            continue
         if review is not None:
             node["status"] = review["node_outcomes"].get(node_id, "unknown")
         elif run["status"] == "success":
@@ -563,6 +578,13 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
             ]
             if all(probe["anchor"] in node["outputs"] for probe in expected):
                 node["status"] = "success"
+        # A failed workflow never wrote these probes: the node demonstrably
+        # produced no output, which is itself the behaviour to compare.
+        if workflow_failed and node["status"] in {"unknown"} and not node["outputs"]:
+            node["status"] = "failed"
+            node["failure_source"] = "no_probe_written"
+        if not node["outputs"] and node["status"] == "success":
+            node["status"] = "unknown"
     return {
         "producer": "alteryx",
         "source_sha256": manifest["source_sha256"],

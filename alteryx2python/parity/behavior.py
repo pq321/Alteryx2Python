@@ -40,9 +40,27 @@ def compare_behavior_runs(
         left_status, right_status = left.get("status"), right.get("status")
         known = {"success", "failed", "not_run"}
         if left_status in known and right_status in known:
-            if left_status != right_status:
+            no_output = {"failed", "not_run"}
+            if left_status == "success" and right_status == "success":
+                pass  # both produced output: compare the data below
+            elif left_status in no_output and right_status in no_output:
+                # Both sides agree the node produced no output (an upstream
+                # failure propagates as failed or not_run). Matching the
+                # absence of output is the behavioural contract; replicating
+                # native error wording is explicitly out of scope.
+                comparisons.append(
+                    {
+                        "node_id": node_id,
+                        "direction": "outputs",
+                        "anchor": "*",
+                        "status": "no_output_match",
+                        "native_status": left_status,
+                        "python_status": right_status,
+                    }
+                )
+                continue
+            else:
                 issues.append(f"node_{node_id}_outcome_mismatch")
-            if left_status != "success" or right_status != "success":
                 continue
         else:
             incomplete.append(f"node_{node_id}_outcome_unverified")
