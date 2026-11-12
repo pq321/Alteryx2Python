@@ -7,9 +7,10 @@ import ast
 from copy import deepcopy
 
 
-def validate_business_source(tree):
+def validate_business_source(tree, native_functions=()):
     from alteryx2python.generator.source_linker import UnsupportedLowering
-    residual = {item.id for item in ast.walk(tree) if isinstance(item, ast.Name)
+    inspected = ast.Module(body=[item for item in tree.body if not isinstance(item, ast.FunctionDef) or item.name not in native_functions], type_ignores=[])
+    residual = {item.id for item in ast.walk(inspected) if isinstance(item, ast.Name)
                 and isinstance(item.ctx, ast.Load) and item.id in {'config', 'inputs', 'checkpoints'}}
     if residual:
         raise UnsupportedLowering('A native template is required; runtime configuration/anchor machinery remains: ' + ', '.join(sorted(residual)))
@@ -92,7 +93,12 @@ def _inline(statement, functions, reserved):
 
 
 class _Delivery(ast.NodeTransformer):
+    def __init__(self, native_functions=()):
+        self.native_functions = set(native_functions)
+
     def visit_FunctionDef(self, node):
+        if node.name in self.native_functions:
+            return node
         node = self.generic_visit(node)
         # Only the assembler's positional stage argument and run_workflow's
         # keyword-only argument are instrumentation parameters.
@@ -158,9 +164,9 @@ def _prune(tree):
     return tree
 
 
-def assemble(source, mapping):
+def assemble(source, mapping, native_functions=()):
     tree = ast.parse(source)
-    functions = {line.name: line for line in tree.body if isinstance(line, ast.FunctionDef) and line.name in {item['function'] for item in mapping}}
+    functions = {line.name: line for line in tree.body if isinstance(line, ast.FunctionDef) and line.name in {item['function'] for item in mapping if item.get('tool_type') != 'JupyterCode'}}
     by_id = {item['node_id']: item for item in mapping}
     variables = {name for item in mapping for name in item['variables'].values()}
     consumers = {name: set() for name in variables}
@@ -263,6 +269,6 @@ def assemble(source, mapping):
             return node
     tree = LocalAnnotations().visit(tree)
     verification = ast.unparse(ast.fix_missing_locations(_prune(deepcopy(tree)))) + '\n'
-    delivery_tree = _prune(_Delivery().visit(tree))
+    delivery_tree = _prune(_Delivery(native_functions).visit(tree))
     delivery = ast.unparse(ast.fix_missing_locations(delivery_tree)) + '\n'
     return delivery, verification

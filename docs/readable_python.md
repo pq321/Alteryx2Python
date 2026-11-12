@@ -161,3 +161,68 @@ The EngineCmd probe on November 11, 2026 returned:
 The Feature "API or FlowChartMode" is not licensed. Native equivalence remains
 unverified. Python-to-Python agreement proves preservation of tested baseline
 behavior; it cannot establish that the baseline matches Alteryx.
+
+## Component Mapping Expansion (November 12, 2026)
+
+The changes extend the compiler framework. Generated business source is never
+edited to make an individual workflow pass. See [component mapping status](component_mapping_status.md)
+for the current evidence and remaining gaps.
+
+Supported question/Action/target groups become named Python parameters. Numeric,
+text, Boolean/radio/checkbox, date, dropdown and file questions can bind the
+supported expression operands, entire file paths or Text Input cells. Boolean
+Actions can also control Tool Container and Control Container Disabled values.
+Descendant guards follow nested container membership. Raw expression replacement
+rejects quotes, escapes and newlines whose interpretation would change semantics.
+Conditional, formula and raw-XML Actions require explicit specialized export:
+their current answers configure the graph before native lowering. The resulting
+source contains those ordinary operations, without an Action/XML interpreter.
+
+```powershell
+uv run python -m alteryx2python.cli readable app.yxwz --output migrated/app --answers answers.json --parameter-mode specialized --constants constants.json --delivery-profile html-draft-v1
+```
+
+Dynamic mode remains the default and emits named parameters for supported
+bindings, direct Question references and percent-token expressions. Specialized
+mode fixes the selected answers and records them, the export mode and constant
+overrides in the manifest. It never silently substitutes for dynamic export.
+
+Saved Python Tool programs retain their ordinary Python code. The boundary
+lowering supports numbered reads/writes, input names, workflow constant lookups,
+readMetadata and column metadata on writes. Renames, supported types and declared
+lengths use the common field contract. Unknown vendor APIs and package installs
+block conversion. User functions and identifiers survive delivery assembly;
+compilation never executes the saved program.
+
+User/Global constants are resolved from saved declarations, with isolated nested
+macro scopes. Root overrides use runtime_config.constants in Phase One. Phase Two
+emits editable named module constants. Engine defaults describe the Python target
+environment. Static custom/nested macros can use embedded sources after their
+original files are removed. Batch/iterative native compilation and macro-local
+events remain blocked. The repository's BenchmarkParallelBlock fixture does not
+certify an unavailable vendor Parallel Block implementation.
+
+WaitASecond and WaitSeconds have an explicit finite, nonnegative delay contract.
+They do not substitute for arbitrary third-party wait macros without their source.
+
+Email has two explicit delivery profiles. html-draft-v1 writes reproducible .eml
+drafts. html-smtp-v1 sends via the standard-library SMTP client, with configuration
+read at execution from SMTP_HOST, SMTP_PORT, SMTP_SECURITY, SMTP_USERNAME and
+SMTP_PASSWORD. Security defaults to starttls; ssl and explicit plain are also
+supported. Credentials are never embedded into generated source. This migration
+profile uses environment settings; it does not translate every native Email/SMTP
+configuration. SMTP validation uses mocked connections and sends no real mail.
+
+Workflow email events use the native email_From/To/Subject/Body/Attachments
+schema, plain message bodies and explicit draft/SMTP profiles. Native transport
+settings provide nonsecret defaults; SMTP_* environment settings override them.
+Encrypted Alteryx passwords are not reused. Attachments from redirected sinks
+resolve to their current output files, rather than stale input-directory copies.
+Before/After/AfterError/AfterNoError/Disabled and warning aliases are recognized.
+
+The inventory accepts repeated --samples arguments, including .yxmc sources,
+deduplicates paths and tries alternate configurations before declaring a tool
+blocked. It writes coverage.json, per-tool IR fixtures and missing-components.md.
+It stops after one successful configuration per tool type, so compilation counts
+never claim every configuration or actual execution. Interface rows need grouped
+question/Action/target evidence rather than isolated-node probes.

@@ -1,3 +1,4 @@
+import { tr } from './i18n.js';
 export const NODE_W = 190, NODE_H = 76;
 export const labels = {
     TextInput: '文本输入', DbFileInput: '文件输入', DbFileOutput: '输出数据', Formula: '公式', Filter: '筛选',
@@ -11,6 +12,9 @@ export const symbols = {
     RecordID: '#', Sample: '⅟', RunningTotal: '∑', Rank: '≡', TextToColumns: '⋮', Join: '⋈', Union: '∪', RegEx: '.*',
 };
 export const categories = { 'In/Out': '输入 / 输出', Preparation: '数据准备', Transform: '数据转换', Join: '数据连接', Parse: '解析' };
+export const toolLabel = (tool) => tool ? tr(labels[tool.type] ?? ('label' in tool && typeof tool.label === 'string' ? tool.label : tool.type)) : '';
+export const categoryLabel = (category) => tr(categories[category] ?? category);
+export function ports(node, tools, input) { return (input ? node.inputs : node.outputs) ?? (input ? tools.find(t => t.type === node.type)?.inputs : tools.find(t => t.type === node.type)?.outputs) ?? []; }
 export const text = (config, key, fallback = '') => String(config[key] ?? fallback);
 export function strings(config, key) {
     const value = config[key];
@@ -75,20 +79,20 @@ export function pasteCells(config, source, startRow, startCol) {
 export function connectError(graph, edge, tools) {
     const source = graph.nodes.find(n => n.id === edge.from), target = graph.nodes.find(n => n.id === edge.to);
     if (!source || !target)
-        return '连线引用了不存在的节点';
-    if (!tools.find(t => t.type === source.type)?.outputs.includes(edge.fromAnchor) || !tools.find(t => t.type === target.type)?.inputs.includes(edge.toAnchor))
-        return '输入或输出端口不存在';
+        return tr('连线引用了不存在的节点');
+    if (!ports(source, tools, false).includes(edge.fromAnchor) || !ports(target, tools, true).includes(edge.toAnchor))
+        return tr('输入或输出端口不存在');
     if (edge.from === edge.to)
-        return '节点不能连接到自身';
+        return tr('节点不能连接到自身');
     if (graph.edges.some(e => e.from === edge.from && e.to === edge.to && e.fromAnchor === edge.fromAnchor && e.toAnchor === edge.toAnchor))
-        return '这条连线已存在';
+        return tr('这条连线已存在');
     if (!tools.find(t => t.type === target.type)?.multiInput && graph.edges.some(e => e.to === edge.to && e.toAnchor === edge.toAnchor))
-        return '该输入已有连线，请先移除原连线';
+        return tr('该输入已有连线，请先移除原连线');
     const pending = [edge.to], visited = new Set();
     while (pending.length) {
         const id = pending.pop();
         if (id === edge.from)
-            return '连线会形成循环';
+            return tr('连线会形成循环');
         if (visited.has(id))
             continue;
         visited.add(id);
@@ -104,8 +108,12 @@ export function upstreamFields(graph, id, seen = new Set(), anchor = 'Output') {
     if (!node)
         return [];
     const c = node.config;
-    if (node.type === 'TextInput' || node.type === 'DbFileInput')
-        return strings(c, 'fields');
+    if (node.type === 'TextInput' || node.type === 'DbFileInput') {
+        if (strings(c, 'fields').length || typeof c.configurationXml !== 'string' || typeof DOMParser === 'undefined')
+            return strings(c, 'fields');
+        const document = new DOMParser().parseFromString(c.configurationXml, 'application/xml');
+        return Array.from(document.querySelectorAll('Fields > Field, RecordInfo > Field')).map(field => field.getAttribute('name') ?? '').filter(Boolean);
+    }
     const incoming = graph.edges.filter(e => e.to === id);
     if (node.type === 'Join')
         return incoming.flatMap(e => {
@@ -117,7 +125,7 @@ export function upstreamFields(graph, id, seen = new Set(), anchor = 'Output') {
     let result = [...new Set(incoming.flatMap(e => upstreamFields(graph, e.from, new Set(seen), e.fromAnchor)))];
     if (node.type === 'Select') {
         const picks = entries(c, 'fields');
-        result = result.filter(f => picks.find(p => p.field === f)?.selected !== 'False' && (Boolean(c.includeUnknown) || picks.some(p => p.field === f)));
+        result = result.filter(f => picks.find(p => p.field === f)?.selected !== 'False' && (Boolean(c.includeUnknown) || picks.some(p => p.field === f))).map(f => picks.find(p => p.field === f)?.rename || f);
     }
     if (node.type === 'Formula')
         result.push(...entries(c, 'expressions').map(e => e.field ?? ''));
@@ -142,41 +150,49 @@ export function upstreamFields(graph, id, seen = new Set(), anchor = 'Output') {
 function object(value) { return !!value && typeof value === 'object' && !Array.isArray(value); }
 export function decodeGraph(value, tools) {
     if (!object(value) || typeof value.name !== 'string' || !Array.isArray(value.nodes) || !Array.isArray(value.edges))
-        throw new Error('工作流需要 name、nodes 和 edges');
+        throw new Error(tr('工作流需要 name、nodes 和 edges'));
+    const definitions = value.toolDefinitions ?? [];
+    if (!Array.isArray(definitions))
+        throw new Error(tr('工作流包含无效的节点配置'));
+    for (const definition of definitions) {
+        if (!object(definition) || typeof definition.type !== 'string' || typeof definition.label !== 'string' || typeof definition.category !== 'string' || !Array.isArray(definition.inputs) || !definition.inputs.every(item => typeof item === 'string') || !Array.isArray(definition.outputs) || !definition.outputs.every(item => typeof item === 'string') || !object(definition.defaults) || !isJson(definition.defaults))
+            throw new Error(tr('工作流包含无效的节点配置'));
+    }
+    tools = [...tools, ...definitions];
     const nodes = [], ids = new Set();
     for (const raw of value.nodes) {
-        if (!object(raw) || typeof raw.id !== 'string' || ids.has(raw.id) || typeof raw.type !== 'string' || !tools.some(t => t.type === raw.type) || typeof raw.x !== 'number' || !Number.isFinite(raw.x) || typeof raw.y !== 'number' || !Number.isFinite(raw.y) || !object(raw.config))
-            throw new Error('工作流包含无效或重复节点');
+        if (!object(raw) || typeof raw.id !== 'string' || ids.has(raw.id) || typeof raw.type !== 'string' || (!tools.some(t => t.type === raw.type) && !value.workflowXml && !(object(raw.config) && typeof raw.config.engineSettingsXml === 'string' && /\bMacro\s*=/.test(raw.config.engineSettingsXml))) || typeof raw.x !== 'number' || !Number.isFinite(raw.x) || typeof raw.y !== 'number' || !Number.isFinite(raw.y) || !object(raw.config))
+            throw new Error(tr('工作流包含无效或重复节点'));
         const tool = tools.find(t => t.type === raw.type);
-        const config = structuredClone(tool.defaults);
+        const config = typeof raw.config.configurationXml === 'string' ? {} : structuredClone(tool?.defaults ?? {});
         for (const [key, item] of Object.entries(raw.config)) {
-            if (typeof item === 'string' || typeof item === 'boolean' || typeof item === 'number')
-                config[key] = item;
-            else if (Array.isArray(item) && item.every(v => typeof v === 'string'))
-                config[key] = item;
-            else if (Array.isArray(item) && item.every(v => Array.isArray(v) && v.every(c => c === null || ['string', 'number', 'boolean'].includes(typeof c))))
-                config[key] = item;
-            else if (Array.isArray(item) && item.every(v => object(v) && Object.values(v).every(c => typeof c === 'string')))
-                config[key] = item;
+            if (isJson(item))
+                Object.defineProperty(config, key, { value: structuredClone(item), writable: true, enumerable: true, configurable: true });
             else
-                throw new Error('工作流包含无效的节点配置');
+                throw new Error(tr('工作流包含无效的节点配置'));
         }
-        if (raw.type === 'TextInput' && (!strings(config, 'fields').length || config.fields.some(v => typeof v !== 'string')))
-            throw new Error('文本输入的字段配置无效');
-        nodes.push({ id: raw.id, type: raw.type, x: raw.x, y: raw.y, config });
+        if (!config.configurationXml && raw.type === 'TextInput' && (!strings(config, 'fields').length || config.fields.some(v => typeof v !== 'string')))
+            throw new Error(tr('文本输入的字段配置无效'));
+        for (const key of ['inputs', 'outputs'])
+            if (raw[key] !== undefined && (!Array.isArray(raw[key]) || !raw[key].every(port => typeof port === 'string')))
+                throw new Error(tr('工作流包含无效或重复节点'));
+        nodes.push({ ...structuredClone(raw), id: raw.id, type: raw.type, x: raw.x, y: raw.y, config });
         ids.add(raw.id);
     }
-    const graph = { name: value.name, nodes, edges: [] };
+    const graph = { ...structuredClone(value), name: value.name, nodes, edges: [] };
     for (const raw of value.edges) {
         if (!object(raw) || !['from', 'to', 'fromAnchor', 'toAnchor'].every(k => typeof raw[k] === 'string'))
-            throw new Error('连线格式无效');
+            throw new Error(tr('连线格式无效'));
         const edge = raw;
-        const error = connectError(graph, edge, tools);
+        const error = graph.workflowXml ? (!ids.has(edge.from) || !ids.has(edge.to) ? '连线引用了不存在的节点' : null) : connectError(graph, edge, tools);
         if (error)
             throw new Error(error);
         graph.edges.push(edge);
     }
     return graph;
+}
+export function isJson(value) {
+    return value === null || typeof value === 'string' || typeof value === 'boolean' || (typeof value === 'number' && Number.isFinite(value)) || (Array.isArray(value) ? value.every(isJson) : object(value) && Object.values(value).every(isJson));
 }
 export function exampleGraph() {
     return {

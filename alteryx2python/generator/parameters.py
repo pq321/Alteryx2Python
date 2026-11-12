@@ -75,8 +75,10 @@ def _merge(current, base, changed, name, original_value, alternate_value):
     raise UnsupportedLowering(f'Unsupported question action: {name}')
 
 
-def prepare_parameters(workflow, answers):
+def prepare_parameters(workflow, answers, constants=None):
     prepared = prepare_workflow(workflow, answers)
+    from alteryx2python.runtime.variables import bind_workflow_variables
+    bound = bind_workflow_variables(prepared, constants)
     questions = question_manifest(ET.fromstring(workflow.source_xml)) if workflow.source_xml else []
     expressions, specs, bindings = {}, [], []
     actual = prepared.metadata.get('answers', {})
@@ -90,17 +92,36 @@ def prepare_parameters(workflow, answers):
         actions = ET.fromstring(workflow.source_xml).find('Properties/RuntimeProperties/Actions')
         if actions is not None and any(item.tag == 'Condition' or item.tag == 'Action' and item.findtext('Type') not in {'UpdateValue', 'UpdateValueReplace', 'UpdateInput', 'UpdateOutput'} for item in actions.iter()):
             raise UnsupportedLowering('Conditional/formula/raw-XML Actions require a structural parameter template')
-        variant = prepare_workflow(workflow, {**actual,question.name:alternate})
-        before,after = {n.node_id:n for n in prepared.nodes},{n.node_id:n for n in variant.nodes}
+        variant = bind_workflow_variables(prepare_workflow(workflow, {**actual,question.name:alternate}), constants)
+        before,after = {n.node_id:n for n in bound.nodes},{n.node_id:n for n in variant.nodes}
         if before.keys() != after.keys() or prepared.edges != variant.edges:
             raise UnsupportedLowering(f'Question changes graph topology: {question.name}')
         changed_count = 0
+        reference_targets = set()
+        expression_text = False
         for node_id,node in before.items():
+            config = node.config.get('normalized', node.config)
+            if node.tool_type == 'Formula':
+                candidates = [item.get('expression', '') for item in config.get('formula_fields', [])]
+            elif node.tool_type in {'Filter', 'MultiRowFormula', 'MultiFieldFormula'}:
+                candidates = [config.get('expression', '')]
+            elif node.tool_type == 'GenerateRows':
+                candidates = [config.get(key, '') for key in ('expression_init', 'expression_cond', 'expression_loop')]
+            else:
+                candidates = []
+            if any(f'[Question.{question.name}]' in text or f'[%Question.{question.name}%]' in text for text in candidates):
+                changed_count += 1
+                reference_targets.add(node_id)
             for path,base,changed in _differences(node.config.get('normalized',node.config),after[node_id].config.get('normalized',after[node_id].config)):
                 if node.tool_type == 'Filter' and path == ('expression',) or node.tool_type == 'Formula' and len(path) == 3 and path[0] == 'formula_fields' and path[2] == 'expression':
+                    expression_text |= isinstance(value, str)
                     key = (node_id,path)
                     parsed = parse_expression(base)
                     expressions[key] = _merge(expressions.get(key,parsed), parsed, parse_expression(changed), question.name,value,alternate)
+                elif node.tool_type in {'ToolContainer', 'ControlContainer'} and path == ('disabled',) and question.kind in BOOLEAN_QUESTIONS:
+                    if base is not value or changed is not alternate:
+                        raise UnsupportedLowering('Container actions must bind the complete Disabled value')
+                    bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'disabled'})
                 elif node.tool_type in {'DbFileInput', 'DbFileOutput'} and path == ('file',):
                     if str(base) != str(value) or str(changed) != str(alternate):
                         raise UnsupportedLowering('File parameters must replace the complete configured path')
@@ -113,11 +134,15 @@ def prepare_parameters(workflow, answers):
                 else:
                     raise UnsupportedLowering(f'Question {question.name} changes unsupported configuration {node.tool_type}/{path}')
                 changed_count += 1
+        from alteryx2python.workflow_events import workflow_events
+        if f'%Question.{question.name}%' in str(workflow_events(workflow.source_xml)):
+            changed_count += 1
         if not changed_count:
             raise UnsupportedLowering(f'Question has no recognized editable action: {question.name}')
         specs.append({'name':question.name, 'kind':question.kind, 'default':value,'minimum':minimum,'maximum':maximum,
                       'required':question.required,'choices':list(question.choices), 'source_node_id':question.node_id,
-                      'target_node_ids':sorted({node_id for node_id, node in before.items() if node.config != after[node_id].config})})
+                      'expression_text':expression_text,
+                      'target_node_ids':sorted(reference_targets | {node_id for node_id, node in before.items() if node.config != after[node_id].config})})
     seen = set()
     for binding in bindings:
         key = (binding['node_id'], tuple(binding['path']))
@@ -125,6 +150,10 @@ def prepare_parameters(workflow, answers):
             raise UnsupportedLowering('Multiple questions overwrite the same configuration cell')
         seen.add(key)
     prepared.metadata['parameter_bindings'] = bindings
+    for binding in bindings:
+        if binding['kind'] == 'disabled':
+            node = next(node for node in prepared.nodes if node.node_id == binding['node_id'])
+            node.metadata['disabled_parameter'] = binding['name']
     return prepared, expressions, specs
 
 
@@ -147,4 +176,8 @@ def validation_lines(spec, name):
         lines += [f'if {name} is None or {name} == "":', f'    raise ValueError("Required input: {name}")']
     if spec['choices']:
         lines += [f'if {name} not in {spec["choices"]!r}:', f'    raise ValueError("Invalid choice: {name}")']
+    if spec.get('expression_text'):
+        # XML Actions perform raw replacement, so escaping would change semantics.
+        lines += [f'if any(char in {name} for char in {chr(39) + chr(34) + chr(92) + chr(10) + chr(13)!r}):',
+                  f'    raise ValueError("Expression text input contains unsupported quoting or escapes: {name}")']
     return lines

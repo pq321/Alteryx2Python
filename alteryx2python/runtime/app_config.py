@@ -183,6 +183,15 @@ def _serialize(value):
     return "" if value is None else str(value)
 
 
+def _field_list(value):
+    if isinstance(value, (list, tuple)):
+        return [str(item) for item in value]
+    import csv
+    text = str(value)
+    delimiter = ';' if ';' in text and ',' not in text else ','
+    return [item.strip() for item in next(csv.reader([text], delimiter=delimiter)) if item.strip()]
+
+
 def bind_answers(root, answers=None):
     answers = answers or {}
     questions = question_manifest(root)
@@ -270,11 +279,7 @@ def apply_actions(root, values):
                 raise ToolUnavailableError(
                     f"Action variable has no bound question: {variable!r}"
                 )
-            selected_names = {
-                item.strip()
-                for item in str(_serialize(values[variable])).replace(";", ",").split(",")
-                if item.strip()
-            }
+            selected_names = set(_field_list(values[variable]))
             tool = _value(action, "Destination").split("/", 1)[0]
             select_fields = out.find(
                 f".//Node[@ToolID='{tool}']/Properties/Configuration/SelectFields"
@@ -294,25 +299,14 @@ def apply_actions(root, values):
                 raise ToolUnavailableError(
                     f"Action variable has no bound question: {variable!r}"
                 )
-            entries = values[variable]
-            if not isinstance(entries, (list, tuple)):
-                entries = [
-                    item.strip() for item in str(entries).replace(";", ",").split(",") if item.strip()
-                ]
-            tool = _value(action, "Destination").split("/", 1)[0]
-            config_node = out.find(
-                f".//Node[@ToolID='{tool}']/Properties/Configuration"
-            )
-            if config_node is None:
-                raise ValueError(f"UpdateFieldList target tool not found: {tool}")
-            for old_list in list(config_node):
-                if old_list.tag.endswith("Fields"):
-                    config_node.remove(old_list)
-            fields_element = ET.SubElement(config_node, "Fields")
-            for entry in entries:
-                field_element = ET.SubElement(fields_element, "Field")
-                field_element.set("field", str(entry))
-                field_element.set("selected", "True")
+            entries = _field_list(values[variable])
+            targets, attribute = _destination(out, _value(action, "Destination"))
+            if attribute or any(not target.tag.endswith('Fields') for target in targets):
+                raise ToolUnavailableError('UpdateFieldList requires an explicit Fields destination')
+            for target in targets:
+                target[:] = []
+                for entry in entries:
+                    ET.SubElement(target, 'Field', field=entry, selected='True')
             return
         if mode == "EditExpression":
             # Set the target expression text to the evaluated string.

@@ -275,7 +275,7 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("Join").supports_certification is True
     assert TOOL_REGISTRY.get("JoinMultiple").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("JSONParse").input_anchors == ("Input",)
-    assert TOOL_REGISTRY.get("JupyterCode").output_anchors == ("Output",)
+    assert TOOL_REGISTRY.get("JupyterCode").output_anchors == ()  # Saved write calls declare the numbered outputs.
     assert TOOL_REGISTRY.get("Label").output_anchors == ()
     assert TOOL_REGISTRY.get("LabelGroup").output_anchors == ()
     assert TOOL_REGISTRY.get("Link").output_anchors == ()

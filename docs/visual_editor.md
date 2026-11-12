@@ -49,8 +49,9 @@ or separate frontend server is required.
 
 ## Workflow Controls
 
-The palette contains 21 editor-supported tools, grouped and searchable in
-Chinese or English. Click a tool to append it to the selected node when an
+The palette is derived from executable runtime registry adapters. Metadata-only
+and unavailable adapters are listed separately by the capabilities API and are
+not offered as working tools. Click a tool to append it to the selected node when an
 input/output connection is possible; drag to position a node independently.
 
 The canvas supports node dragging, background panning, zoom, fit, and either
@@ -63,9 +64,24 @@ small screens. Closing configuration does not delete the node.
 
 Field selectors use upstream schema suggestions. Formula, sort, summarize,
 select, transpose and other supported tools expose their actual configurations.
+Select supports rename, type, size and scale. Advanced XML and JSON editors
+preserve configurations beyond the convenient forms; changes must be applied
+before running or exporting. Editing a configuration never implies that every
+setting has an executable implementation.
 Workflow JSON can be opened/downloaded, and the local browser draft is saved
 automatically. Undo/redo preserves graph and configuration edits. Replacing a
 nonempty workflow asks for confirmation and can be undone.
+
+The language selector switches between Chinese and English and persists locally.
+Workflow data, expressions, native XML keys and Python code retain their values.
+
+Open YXMD, YXWZ or YXMC files to preserve workflow Properties, RuntimeProperties,
+Events, Constants, nested containers, node settings and connection metadata.
+Workflow settings expose user answers, variable overrides, command permissions,
+runtime options and full XML sections for Questions/Actions and other properties.
+Macro files can be uploaded together with nested dependencies while retaining
+relative directories. Local file references still require available local files;
+the server cannot infer an original directory from a browser upload filename.
 
 ## Execution And Export
 
@@ -73,31 +89,46 @@ nonempty workflow asks for confirmation and can be undone.
   workflows without an Output Data sink. Each node/anchor has a result preview.
 - Result previews show at most 500 rows; CSV downloads contain all output rows.
   Filter's True/False and Unique's Unique/Duplicates are separate outputs.
-- Preview runs isolate output sinks in a temporary directory. They do not write
-  configured output paths. Use CSV download for results; exported scripts write
-  their configured output paths when executed.
-- Generate Code produces Designer-format XML and a standalone pandas script.
+- Preview runs isolate normal data/report sinks in a temporary directory and
+  return downloadable files, warnings, diagnostics and stdout. Explicitly allowed
+  commands or external runtimes retain their configured effects.
+- Generate Code uses the canonical ReadablePythonGenerator and produces
+  Designer-format XML and a standalone native Python script with a manifest.
   Python export respects file inputs, branch anchors, Select's includeUnknown,
   Record ID field names, and UTF-8 output. Unsupported translations are visible
   and block Python download. XML can still be downloaded.
+- Dynamic export preserves supported named user parameters. Specialized export
+  explicitly fixes current answers, allowing supported structural Actions to be
+  applied before compilation. Both exports use deterministic compiler templates.
 - Editing marks old results/code stale and disables their download until the
   relevant workflow version is run/compiled again. Compilation and execution
   errors remain visible instead of being presented as successful results.
 
 The editor is a supported subset, not a promise of complete Alteryx equivalence.
-The standalone generator retains its existing expression/operation limits.
+The canonical compiler retains explicit expression/operation limits.
 Python/runtime agreement tests do not constitute native Alteryx certification
 or completed user acceptance.
 
 ## API
 
-- `GET /api/tools`: tool types, anchors, defaults.
+- `GET /api/tools`: executable tool types, anchors, defaults, capability profiles
+  and separately listed unavailable adapters.
 - `POST /api/import`: `{name, content: base64, sheet?}`, or
   `{sourceFile, name, sheet}` to change an existing uploaded workbook's sheet.
   Returns local file paths, fields, first 100 rows, total row count and sheets.
-- `POST /api/compile`: `{name, nodes, edges}` to Python/XML plus limitations.
+- `POST /api/workflow/import`: `{name, xml, sourcePath?}` to an editable graph
+  preserving original XML. sourcePath is an optional local path for dependencies.
+- `POST /api/macros/import`: `{name, xml, files?: [{name, xml}]}` to an uploaded
+  macro tool and local dependency bundle. Names are relative .yxmc paths.
+- `POST /api/compile`: `{name, nodes, edges, workflowXml?, runtime?, parameterMode?}`
+  to XML, native source/manifest or typed compilation blockers.
 - `POST /api/run`: the same graph, compiled artifacts and per-node/anchor
   `previews` with columns, first 500 rows, rowCount and complete CSV data.
+
+Runtime options include answers, constants, delivery_profile, allowed_commands,
+input_dir, command_working_dir, event_working_dir, command_timeout and
+allow_external_runtimes. SMTP defaults to draft mode; credentials belong in the
+server environment. Unknown runtime options fail validation.
 
 ## Verification
 

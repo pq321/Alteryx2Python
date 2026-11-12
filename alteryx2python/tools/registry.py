@@ -690,7 +690,7 @@ TOOL_REGISTRY.register(
         function=jupytercode_tool,
         tool_class=JupyterCodeTool,
         input_anchors=("Input",),
-        output_anchors=("Output",),
+        output_anchors=(),
         maturity="L2_BASIC_IMPLEMENTATION",
         semantics_doc="docs/tools/jupytercode.md",
         supports_certification=False,
@@ -1393,7 +1393,7 @@ def _canonical_local_call(tool_type, function):
     return execute
 
 
-for _module_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "macro_engine", "text_models", "local_runtimes", "survival", "local_vision"):
+for _module_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "macro_engine", "text_models", "local_runtimes", "survival", "local_vision", "wait"):
     _module = _import_tool_module(f"alteryx2python.tools.{_module_name}")
     for _tool_type, _implementation in _module.IMPLEMENTATIONS.items():
         if isinstance(_implementation, type):

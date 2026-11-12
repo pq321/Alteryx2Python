@@ -91,7 +91,7 @@ def _report_fragment_tool(
     context: WorkflowContext,
     output_anchor: str = "Output",
 ) -> dict[str, pd.DataFrame]:
-    if (context.runtime_config or {}).get('delivery_profile') == 'html-draft-v1':
+    if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from alteryx2python.tools.delivery import report_table, report_text, report_layout
         frame = _first_input(inputs)
         if tool_type == 'PortfolioComposerTable':
@@ -228,7 +228,7 @@ def portfoliocomposerrender_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
-    if (context.runtime_config or {}).get('delivery_profile') == 'html-draft-v1':
+    if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from pathlib import Path
         from alteryx2python.tools.delivery import render_html
         if config.get('temp_file_type', '').lower() not in {'html', 'htm'} or config.get('batch_mode'):

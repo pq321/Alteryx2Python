@@ -18,14 +18,18 @@ def evaluate_expression(node, row: dict[str, Any], constants: dict[str, Any] | N
     if isinstance(node, LiteralExpression):
         return node.value
     if isinstance(node, FieldReference):
+        if constants is None:
+            from alteryx2python.runtime.variables import ACTIVE_VARIABLES
+            constants = ACTIVE_VARIABLES.get()
         try:
             return row[node.name]
         except KeyError:
             # Engine constants ([Engine.WorkflowDirectory] and friends) are
             # valid field references outside the record context.
             if constants:
-                if node.name in constants:
-                    return constants[node.name]
+                name = node.name.strip('%')
+                if name in constants:
+                    return constants[name]
                 bare = node.name.removeprefix("Engine.")
                 if bare in constants:
                     return constants[bare]

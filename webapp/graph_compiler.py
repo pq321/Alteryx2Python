@@ -8,30 +8,55 @@ canvas is a real, Designer-loadable workflow.
 from __future__ import annotations
 
 from typing import Any
+from xml.etree import ElementTree as ET
 
 from alteryx2python.workflow_generator import WorkflowBuilder, escape
+from alteryx2python.parser.tool_catalog import CATALOG
+from alteryx2python.tools.registry import TOOL_REGISTRY
+
+try:
+    from .workflow_documents import parse_element, render_document
+except ImportError:
+    from workflow_documents import parse_element, render_document
 
 
 def compile_graph_to_yxmd(graph: dict[str, Any]) -> str:
     """Render an editor graph document into .yxmd XML."""
-    builder = WorkflowBuilder()
-    node_ids: dict[str, int] = {}
+    return render_document(graph, _make_node)
 
-    for node in graph.get("nodes", []):
-        node_ids[str(node["id"])] = _add_node(builder, node)
 
-    for edge in graph.get("edges", []):
-        source = node_ids.get(str(edge["from"]))
-        target = node_ids.get(str(edge["to"]))
-        if source is None or target is None:
-            raise ValueError(f"edge references unknown node: {edge}")
-        builder.connect(
-            source,
-            target,
-            source_anchor=str(edge.get("fromAnchor", "Output")),
-            target_anchor=str(edge.get("toAnchor", "Input")),
-        )
-    return builder.render()
+def _make_node(node):
+    kind, config = str(node.get("type", "")), node.get("config") or {}
+    if "configurationXml" not in config:
+        builder = WorkflowBuilder()
+        _add_node(builder, node)
+        element = ET.fromstring(builder.nodes_xml[-1])
+        if kind == "Select":
+            for field, settings in zip(element.findall("Properties/Configuration/SelectFields/SelectField"), config.get("fields", [])):
+                for key in ("type", "size", "scale", "rename", "description"):
+                    if settings.get(key) not in (None, ""):
+                        field.set(key, str(settings[key]))
+        if kind == "Formula":
+            for field, settings in zip(element.findall("Properties/Configuration/FormulaFields/FormulaField"), config.get("expressions", [])):
+                if settings.get("scale") not in (None, ""):
+                    field.set("scale", str(settings["scale"]))
+        return element
+    if kind not in TOOL_REGISTRY.list_tool_types() and kind != "Macro" and not kind.startswith("Macro_"):
+        raise ValueError(f"unsupported editor tool type: {kind}")
+    entry = next((entry for entry in CATALOG if entry.tool_type == kind), None)
+    element = ET.Element("Node", ToolID=str(node["id"]))
+    gui = ET.SubElement(element, "GuiSettings", Plugin=entry.plugin_id if entry else f"AlteryxBasePluginsGui.{kind}.{kind}")
+    ET.SubElement(gui, "Position", x=str(node.get("x", 0)), y=str(node.get("y", 0)))
+    properties = ET.SubElement(element, "Properties")
+    properties.append(parse_element(config["configurationXml"], "Configuration"))
+    if "engineSettingsXml" in config:
+        element.append(parse_element(config["engineSettingsXml"], "EngineSettings"))
+    else:
+        attributes = {}
+        if entry:
+            attributes = {key: value for key, value in (("EngineDll", entry.engine_dll), ("EngineDllEntryPoint", entry.engine_entry), ("Macro", entry.engine_macro)) if value}
+        ET.SubElement(element, "EngineSettings", attributes)
+    return element
 
 
 def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:

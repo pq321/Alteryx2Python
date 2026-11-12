@@ -118,12 +118,6 @@ def execute_static_macro(
             else XmlWorkflowParser().parse(path),
             answers,
         )
-        # Macro bodies reference interface values as %Question.<Name>% tokens
-        # inside tool configuration strings (e.g. Filter expressions); resolve
-        # them against the bound answers before the inner graph executes.
-        from alteryx2python.engine_variables import resolve_workflow_tokens
-
-        resolve_workflow_tokens(macro, answers)
         initial, outputs, active_nodes = {}, {}, []
         boundaries = [node for node in macro.nodes if node.tool_type == "MacroInput"]
         for node in macro.nodes:
@@ -152,9 +146,11 @@ def execute_static_macro(
             for edge in macro.edges
             if edge.source_node_id in active_ids and edge.target_node_id in active_ids
         ]
+        child_runtime = dict(context.runtime_config or {})
+        child_runtime.pop('constants', None)
         child = WorkflowContext(
             runtime_config={
-                **(context.runtime_config or {}),
+                **child_runtime,
                 "macro_stack": [*stack, str(path)],
             }
         )

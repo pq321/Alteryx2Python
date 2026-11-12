@@ -2,17 +2,35 @@
 from __future__ import annotations
 
 import ast
+import json
 
 from alteryx2python.generator.source_linker import UnsupportedLowering
 
 
 def output_anchor(number):
+    if isinstance(number, str) and number.lstrip('#').isdigit():
+        number = int(number.lstrip('#'))
     if isinstance(number, bool) or not isinstance(number, int) or not 1 <= number <= 5:
         raise UnsupportedLowering('Python Tool output must be a literal number from 1 to 5')
     return 'Output' if number == 1 else f'Output{number}'
 
 
-def lower_python_script(script, inputs, constants=None):
+def saved_python_script(config):
+    script = config.get('production_mode_script', '')
+    if script and str(script).strip():
+        return str(script)
+    notebook = config.get('notebook')
+    if not notebook:
+        return ''
+    try:
+        notebook = json.loads(notebook) if isinstance(notebook, str) else notebook
+        cells = notebook['cells']
+        return '\n'.join(''.join(cell.get('source', [])) for cell in cells if cell.get('cell_type') == 'code')
+    except (ValueError, KeyError, TypeError) as exc:
+        raise UnsupportedLowering('Invalid saved Python Tool notebook') from exc
+
+
+def lower_python_script(script, inputs, constants=None, linker=None):
     """Return native statements and output anchors; never execute during compilation."""
     if not script or not str(script).strip():
         raise UnsupportedLowering('Python Tool has no saved production script')
@@ -45,7 +63,14 @@ def lower_python_script(script, inputs, constants=None):
         return name
 
     pandas = fresh('_python_pandas')
+    captured_inputs = {anchor: fresh('_python_input') for anchor in inputs}
     outputs = {}
+
+    def metadata_helper(name):
+        from alteryx2python.tools import python_metadata
+        if linker is None:
+            raise UnsupportedLowering('Python Tool metadata requires the native source linker')
+        return linker.function(getattr(python_metadata, name))
 
     class Boundaries(ast.NodeTransformer):
         depth = 0
@@ -78,29 +103,41 @@ def lower_python_script(script, inputs, constants=None):
             if self.api(node.value) != 'write':
                 return self.generic_visit(node)
             call = node.value
-            if self.depth or len(call.args) != 2 or call.keywords:
+            if self.depth or len(call.args) not in {2, 3} or any(item.arg != 'columns' for item in call.keywords) or (len(call.args) == 3 and call.keywords):
                 raise UnsupportedLowering('Python Tool write requires a top-level statement with dataframe and literal output number')
             if not isinstance(call.args[1], ast.Constant):
                 raise UnsupportedLowering('Python Tool write output must be a literal number')
             anchor = output_anchor(call.args[1].value)
             name = outputs.setdefault(anchor, fresh('_python_' + anchor.lower()))
             value = self.visit(call.args[0])
+            columns = call.args[2] if len(call.args) == 3 else call.keywords[0].value if call.keywords else None
+            if columns is not None and not (isinstance(columns, ast.Constant) and columns.value is None):
+                value = ast.Call(func=ast.Name(id=metadata_helper('write_dataframe_metadata'), ctx=ast.Load()),
+                                 args=[value, self.visit(columns)], keywords=[])
             return ast.Assign(targets=[ast.Name(id=name, ctx=ast.Store())], value=ast.Call(func=ast.Attribute(value=value, attr='copy', ctx=ast.Load()), args=[], keywords=[]))
 
         def visit_Call(self, node):
             method = self.api(node)
             if method is None:
                 return self.generic_visit(node)
-            if method == 'read' and len(node.args) == 1 and isinstance(node.args[0], ast.Constant) and not node.keywords:
+            if method in {'read', 'readMetadata'} and len(node.args) == 1 and isinstance(node.args[0], ast.Constant) and not node.keywords:
                 anchor = str(node.args[0].value)
-                if anchor.startswith('#'):
+                if anchor not in inputs and anchor.startswith('#'):
                     number = anchor[1:]
-                    anchor = 'Input' if number == '1' else 'Input' + number
+                    anchor = number if number in inputs else 'Input' if number == '1' else 'Input' + number
                 if anchor not in inputs:
                     raise UnsupportedLowering(f'Python Tool input is not connected: {anchor}')
-                return ast.parse(inputs[anchor] + '.copy()', mode='eval').body
-            if method == 'getIncomingConnectionNames' and not node.args and not node.keywords:
-                names = ['#' + ('1' if name == 'Input' else name.removeprefix('Input')) for name in inputs]
+                value = ast.parse(captured_inputs[anchor] + '.copy()', mode='eval').body
+                if method == 'readMetadata':
+                    value = ast.Call(func=ast.Name(id=metadata_helper('dataframe_metadata'), ctx=ast.Load()), args=[value], keywords=[])
+                return value
+            if method == 'readMetadata' and len(node.args) == 1 and not node.keywords:
+                return ast.Call(func=ast.Name(id=metadata_helper('dataframe_metadata'), ctx=ast.Load()), args=[self.visit(node.args[0])], keywords=[])
+            if method in {'getWorkflowConstants', 'getWorkflowConstantNames'} and not node.args and not node.keywords:
+                values = dict(constants or {}) if method == 'getWorkflowConstants' else list(constants or {})
+                return ast.parse(repr(values), mode='eval').body
+            if method in {'getIncomingConnectionNames', 'getIncomingAnchorNames'} and not node.args and not node.keywords:
+                names = ['#' + ('1' if name == 'Input' else name.removeprefix('Input').lstrip('#')) for name in inputs]
                 return ast.parse(repr(names), mode='eval').body
             if method == 'getWorkflowConstant' and len(node.args) == 1 and isinstance(node.args[0], ast.Constant) and not node.keywords:
                 name = node.args[0].value
@@ -115,6 +152,8 @@ def lower_python_script(script, inputs, constants=None):
         raise UnsupportedLowering('Unmapped Python Tool vendor API: ' + ', '.join(sorted(residual)))
     anchors = sorted(outputs, key=lambda name: 1 if name == 'Output' else int(name[6:]))
     prefix = [ast.Import(names=[ast.alias(name='pandas', asname=pandas)])]
+    prefix += [ast.Assign(targets=[ast.Name(id=captured_inputs[anchor], ctx=ast.Store())],
+                          value=ast.parse(value + '.copy()', mode='eval').body) for anchor, value in inputs.items()]
     prefix += [ast.Assign(targets=[ast.Name(id=outputs[name], ctx=ast.Store())], value=ast.Constant(None)) for name in anchors]
     checks = [ast.parse(f'if not isinstance({outputs[name]}, {pandas}.DataFrame):\n    raise ValueError("Python Tool did not write dataframe to {name}")').body[0] for name in anchors]
     values = [ast.Name(id=outputs[name], ctx=ast.Load()) for name in anchors]

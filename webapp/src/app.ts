@@ -1,16 +1,21 @@
-import {type Graph, type Tool, type WorkflowNode, type Point, type CompileResult, type RunResult, type ImportedData, type Preview, NODE_W, NODE_H, labels, symbols, categories, decodeGraph, exampleGraph, connectError} from './model.js';
+import {t, tr, getLanguage, setLanguage, localizeStatic, type Language} from './i18n.js';
+import {type Graph, type Tool, type WorkflowNode, type Point, type CompileResult, type RunResult, type ImportedData, type Preview, NODE_W, NODE_H, labels, symbols, toolLabel, categoryLabel, decodeGraph, exampleGraph, connectError} from './model.js';
 import {el, byId, button, request, download, confirmReplace} from './ui.js';
 import {Canvas} from './canvas.js';
 import {ConfigPanel} from './config.js';
 import {readTable} from './ui.js';
+import {WorkflowSettings} from './settings.js';
+import {hasPendingEdits} from './advanced.js';
 const STORAGE = 'alteryx2python.editor.v2';
-let graph: Graph = {name: '未命名工作流', nodes: [], edges: []}, tools: Tool[] = [], selected: string | null = null;
+let graph: Graph = {name: tr('未命名工作流'), nodes: [], edges: []}, tools: Tool[] = [], selected: string | null = null;
 let history: string[] = [], cursor = -1, compiled: CompileResult | null = null, result: RunResult | null = null;
 let compiledGraph = '', runGraph = '', activeTab = 'result', busy = false, importTarget: string | null = null;
+let lastRunSeconds: string | null = null;
 let saveTimer: ReturnType<typeof setTimeout> | undefined, brokenDraft = false;
 const nameInput = byId<HTMLInputElement>('wfName'), dataInput = byId<HTMLInputElement>('dataFile');
 const previewSelect = byId<HTMLSelectElement>('previewSelect');
-const status = (message: string, error = false): void => { byId('status').textContent = message; byId('status').classList.toggle('error', error); };
+let statusMessage = '', statusError = false;
+const status = (message: string, error = false): void => { statusMessage = message; statusError = error; byId('status').textContent = tr(message); byId('status').classList.toggle('error', error); };
 const guard = (action: () => Promise<void>): void => { void action().catch(error => status(error instanceof Error ? error.message : String(error), true)); };
 const fingerprint = (): string => JSON.stringify(graph);
 const currentNode = (): WorkflowNode | undefined => graph.nodes.find(n => n.id === selected);
@@ -19,20 +24,78 @@ const panel = new ConfigPanel(() => graph, () => tools, changed, pickFile, (node
   const owner = graph;
   const imported = await request<ImportedData>('/api/import', {sourceFile: node.config.sourceFile, name: node.config.name, sheet});
   if (graph !== owner || !graph.nodes.includes(node)) return;
-  node.config = {...imported}; changed(); panel.render(node); status('已切换工作表');
+  node.config = {...imported}; changed(); panel.render(node); status(tr('已切换工作表'));
 }));
+const settings = new WorkflowSettings(() => graph, changed);
+let macroFiles: File[] = [];
+function registerGraphTools(): void {
+  if (!Array.isArray(graph.toolDefinitions)) return;
+  for (const item of graph.toolDefinitions as Tool[]) {
+    if (typeof item.type === 'string' && typeof item.label === 'string' && typeof item.category === 'string' && Array.isArray(item.inputs) && item.inputs.every(port => typeof port === 'string') && Array.isArray(item.outputs) && item.outputs.every(port => typeof port === 'string') && item.defaults && typeof item.defaults === 'object' && !tools.some(tool => tool.type === item.type)) tools.push(item);
+  }
+}
+function refreshPreviewLabels(): void {
+  const value = previewSelect.value; previewSelect.replaceChildren();
+  result?.previews.forEach(preview => { const node = graph.nodes.find(n => n.id === preview.node), option = el('option', '', '#' + preview.node + ' ' + toolLabel(tools.find(tool => tool.type === node?.type) ?? node) + ' / ' + preview.anchor); option.value = previewKey(preview); previewSelect.append(option); });
+  if (Array.from(previewSelect.options).some(option => option.value === value)) previewSelect.value = value;
+}
+function showExecution(output = result?.stdout ?? ''): void {
+  byId('executionOutput').textContent = output + (result?.diagnostics?.length ? '\n' + JSON.stringify(result.diagnostics, null, 2) : '');
+  const list = byId('artifactList'); list.replaceChildren();
+  for (const artifact of result?.artifacts ?? []) {
+    const row = el('div', 'artifact-row'), label = el('span', '', artifact.name + ' · ' + artifact.size.toLocaleString() + ' B');
+    const save = button('↧', () => {
+      if (!artifact.content) return;
+      const bytes = Uint8Array.from(atob(artifact.content), char => char.charCodeAt(0)); download(artifact.name, new Blob([bytes], {type: 'application/octet-stream'}));
+    }, 'icon-button', artifact.available ? tr('下载当前结果') : tr('文件未包含在响应中'));
+    save.disabled = !artifact.available || artifact.content === undefined || runGraph !== fingerprint(); row.append(label, save); list.append(row);
+  }
+  byId('executionDetails').hidden = !output && !result?.diagnostics?.length && !result?.artifacts?.length;
+}
+async function importWorkflow(file: File): Promise<void> {
+  if (file.size > 25 * 1024 * 1024) throw new Error(t('工作流文件超过 25 MB'));
+  const owner = graph, source = await file.text();
+  const response = /\.json$/i.test(file.name) ? JSON.parse(source) as Graph : await request<Graph & {graph?: Graph}>('/api/workflow/import', {name: file.name, xml: source});
+  if (graph !== owner) { status(t('工作流已切换，未添加导入节点')); return; }
+  const next = typeof response.graph === 'object' ? response.graph : response;
+  await replaceGraph(decodeGraph(next, tools));
+}
+function chooseMacros(files: File[]): void {
+  macroFiles = files.filter(file => /\.yxmc$/i.test(file.name));
+  const root = byId<HTMLSelectElement>('macroRoot'); root.replaceChildren();
+  macroFiles.forEach(file => { const option = el('option', '', file.webkitRelativePath || file.name); option.value = file.webkitRelativePath || file.name; root.append(option); });
+  byId<HTMLButtonElement>('btnImportMacroBundle').disabled = !macroFiles.length;
+}
+async function importMacro(): Promise<void> {
+  const owner = graph, root = byId<HTMLSelectElement>('macroRoot').value;
+  const files = await Promise.all(macroFiles.map(async file => { if (file.size > 25 * 1024 * 1024) throw new Error(t('工作流文件超过 25 MB')); return {name: file.webkitRelativePath || file.name, xml: await file.text()}; }));
+  const main = files.find(file => file.name === root); if (!main) return;
+  const response = await request<{tool: Tool; path: string}>('/api/macros/import', {...main, files: files.filter(file => file !== main)});
+  if (graph !== owner) { status(t('工作流已切换，未添加导入节点')); return; }
+  tools = [...tools.filter(tool => tool.type !== response.tool.type), response.tool];
+  graph.toolDefinitions = [...(Array.isArray(graph.toolDefinitions) ? (graph.toolDefinitions as Tool[]).filter(tool => tool.type !== response.tool.type) : []), response.tool];
+  palette(); addNode(response.tool.type); byId<HTMLDialogElement>('macroDialog').close(); status(t('宏已导入'));
+}
+function refreshLanguage(): void {
+  localizeStatic(document.body); byId<HTMLSelectElement>('languageSelect').value = getLanguage();
+  palette(); canvas.render(); panel.render(currentNode());
+  if (byId<HTMLDialogElement>('workflowSettingsDialog').open) settings.render();
+  refreshPreviewLabels(); if (result) { showPreview(); showExecution(); } else { byId('resultCount').textContent = t('{rows} 行 · {columns} 列', {rows: 0, columns: 0}); byId('tabResult').replaceChildren(el('div', 'result-empty', t('暂无运行结果'))); }
+  byId('saveState').textContent = t('已自动保存'); status(statusMessage, statusError); updateNotice();
+  if (lastRunSeconds !== null) byId('runTime').textContent = t('运行耗时 {seconds}s', {seconds: lastRunSeconds});
+}
 function persist(): void {
   if (brokenDraft) return;
-  try { localStorage.setItem(STORAGE, fingerprint()); byId('saveState').textContent = '已自动保存'; }
-  catch { byId('saveState').textContent = '自动保存失败'; status('本地存储不可用或空间不足，请下载 JSON 保存工作流', true); }
+  try { localStorage.setItem(STORAGE, fingerprint()); byId('saveState').textContent = tr('已自动保存'); }
+  catch { byId('saveState').textContent = tr('自动保存失败'); status(tr('本地存储不可用或空间不足，请下载 JSON 保存工作流'), true); }
 }
 function changed(): void {
   brokenDraft = false;
   const value = fingerprint();
   if (history[cursor] !== value) { history = history.slice(0, cursor + 1); history.push(value); if (history.length > 100) history.shift(); cursor = history.length - 1; }
   byId<HTMLButtonElement>('btnUndo').disabled = cursor <= 0; byId<HTMLButtonElement>('btnRedo').disabled = cursor >= history.length - 1;
-  byId('saveState').textContent = '保存中…'; clearTimeout(saveTimer); saveTimer = setTimeout(persist, 250);
-  canvas.render(); updateNotice(); updateDownload();
+  byId('saveState').textContent = tr('保存中…'); clearTimeout(saveTimer); saveTimer = setTimeout(persist, 250);
+  canvas.render(); panel.refreshAdvanced(); updateNotice(); updateDownload(); if (result) showExecution();
 }
 function select(id: string | null): void {
   selected = id; canvas.render(); panel.render(currentNode());
@@ -44,66 +107,70 @@ function select(id: string | null): void {
 function historyStep(delta: number): void {
   const next = cursor + delta; if (next < 0 || next >= history.length) return;
   cursor = next; graph = decodeGraph(JSON.parse(history[cursor]!), tools); nameInput.value = graph.name; selected = graph.nodes.some(n => n.id === selected) ? selected : null;
-  changed(); select(selected); status(delta < 0 ? '已撤销' : '已重做');
+  changed(); select(selected); status(delta < 0 ? tr('已撤销') : tr('已重做'));
 }
 function nextId(): string { let id = 1; while (graph.nodes.some(n => n.id === String(id))) id++; return String(id); }
 function addNode(type: string, point?: Point, autoConnect = true): WorkflowNode | undefined {
   const tool = tools.find(t => t.type === type); if (!tool) return;
   const source = currentNode(), center = point ?? (source && autoConnect ? {x: source.x + NODE_W + 75 + NODE_W / 2, y: source.y + NODE_H / 2} : canvas.center());
-  const node: WorkflowNode = {id: nextId(), type, x: Math.round(center.x - NODE_W / 2), y: Math.round(center.y - NODE_H / 2), config: structuredClone(tool.defaults)};
+  const node: WorkflowNode = {id: nextId(), type, x: Math.round(center.x - NODE_W / 2), y: Math.round(center.y - NODE_H / 2), inputs: [...tool.inputs], outputs: [...tool.outputs], config: structuredClone(tool.defaults)};
   graph.nodes.push(node);
-  const sourceTool = tools.find(t => t.type === source?.type);
-  if (source && autoConnect && sourceTool?.outputs.length && tool.inputs.length) {
-    const edge = {from: source.id, fromAnchor: sourceTool.outputs[0]!, to: node.id, toAnchor: tool.inputs[0]!};
+  const sourceTool = tools.find(t => t.type === source?.type), sourceOutputs = source?.outputs ?? sourceTool?.outputs ?? [];
+  if (source && autoConnect && sourceOutputs.length && tool.inputs.length) {
+    const edge = {from: source.id, fromAnchor: sourceOutputs[0]!, to: node.id, toAnchor: tool.inputs[0]!};
     if (!connectError(graph, edge, tools)) graph.edges.push(edge);
   }
   byId('palettePanel').classList.remove('mobile-open'); changed(); select(node.id); if (!point) canvas.fit(); return node;
 }
 function deleteNode(): void {
   if (!selected) return;
-  graph.nodes = graph.nodes.filter(n => n.id !== selected); graph.edges = graph.edges.filter(e => e.from !== selected && e.to !== selected); changed(); select(null); status('已删除节点');
+  graph.nodes = graph.nodes.filter(n => n.id !== selected); graph.edges = graph.edges.filter(e => e.from !== selected && e.to !== selected); changed(); select(null); status(tr('已删除节点'));
 }
 function palette(): void {
   const container = byId('palette'), query = byId<HTMLInputElement>('toolSearch').value.toLowerCase(); container.replaceChildren();
-  const visible = tools.filter(t => [t.type, t.label, labels[t.type] ?? '', categories[t.category] ?? ''].join(' ').toLowerCase().includes(query));
+  const visible = tools.filter(t => [t.type, t.label, labels[t.type] ?? '', categoryLabel(t.category)].join(' ').toLowerCase().includes(query));
   for (const category of [...new Set(visible.map(t => t.category))]) {
-    const group = el('section', 'palette-group'); group.append(el('h3', '', categories[category] ?? category));
+    const group = el('section', 'palette-group'); group.append(el('h3', '', categoryLabel(category)));
     visible.filter(t => t.category === category).forEach(tool => {
       const item = button('', () => addNode(tool.type), 'palette-item', tool.label); item.dataset.category = category; item.draggable = true; item.dataset.tool = tool.type;
-      item.append(el('span', 'tool-icon', symbols[tool.type] ?? '◇'), el('span', '', labels[tool.type] ?? tool.label));
+      item.append(el('span', 'tool-icon', symbols[tool.type] ?? '◇'), el('span', '', toolLabel(tool)));
       item.addEventListener('dragstart', event => { event.dataTransfer?.setData('application/x-workflow-tool', tool.type); if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy'; }); group.append(item);
     }); container.append(group);
   }
-  if (!visible.length) container.append(el('p', 'muted', '没有匹配的工具'));
+  if (!visible.length) container.append(el('p', 'muted', tr('没有匹配的工具')));
 }
 function pickFile(target: string | null = null): void { importTarget = target; dataInput.value = ''; dataInput.click(); }
 async function fileData(file: File): Promise<string> {
-  return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onerror = () => reject(new Error('无法读取文件')); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.readAsDataURL(file); });
+  return new Promise((resolve, reject) => { const reader = new FileReader(); reader.onerror = () => reject(new Error(tr('无法读取文件'))); reader.onload = () => resolve(String(reader.result).split(',')[1] ?? ''); reader.readAsDataURL(file); });
 }
 async function importFiles(files: File[], target: string | null = null, point?: Point): Promise<void> {
   const owner = graph;
   for (const [index, file] of files.entries()) {
-    if (!/\.(csv|tsv|txt|xlsx)$/i.test(file.name)) throw new Error('支持 CSV、TSV、TXT 和 XLSX 文件：' + file.name);
-    if (file.size > 20 * 1024 * 1024) throw new Error('文件超过 20 MB：' + file.name);
-    status('正在导入 ' + file.name + '…');
+    if (/\.(json|yxmd|yxwz|yxmc)$/i.test(file.name)) { await importWorkflow(file); continue; }
+    if (!/\.(csv|tsv|txt|xlsx)$/i.test(file.name)) throw new Error(t('支持 CSV、TSV、TXT 和 XLSX 文件：{name}', {name: file.name}));
+    if (file.size > 20 * 1024 * 1024) throw new Error(t('文件超过 20 MB：{name}', {name: file.name}));
+    status(t('正在导入 {name}…', {name: file.name}));
     const data = await request<ImportedData>('/api/import', {name: file.name, content: await fileData(file)});
-    if (owner !== graph) { status('工作流已切换，未添加导入节点'); return; }
+    if (owner !== graph) { status(tr('工作流已切换，未添加导入节点')); return; }
     let node = index === 0 && target ? graph.nodes.find(n => n.id === target && n.type === 'DbFileInput') : undefined;
-    if (index === 0 && target && !node) { status('目标节点已移除，未添加文件'); return; }
+    if (index === 0 && target && !node) { status(tr('目标节点已移除，未添加文件')); return; }
     node ??= addNode('DbFileInput', point ? {x: point.x + index * 230, y: point.y} : undefined, false);
     if (!node) return;
-    node.config = {...data}; changed(); select(node.id); status('已导入 ' + file.name + ' · ' + data.rowCount + ' 行');
+    node.config = {...node.config, ...data}; changed(); select(node.id); status(t('已导入 {name} · {rows} 行', {name: file.name, rows: data.rowCount}));
   }
 }
 function updateNotice(): void {
   const notice = byId('resultNotice'), notes: string[] = [];
-  if ((result && runGraph !== fingerprint()) || (compiled && compiledGraph !== fingerprint())) notes.push('工作流已修改，当前显示的是上一次结果。请重新运行或生成代码。');
-  if (compiled?.unsupported.length) notes.push('独立 Python 导出存在限制：' + compiled.unsupported.join('；'));
+  if ((result && runGraph !== fingerprint()) || (compiled && compiledGraph !== fingerprint())) notes.push(tr('工作流已修改，当前显示的是上一次结果。请重新运行或生成代码。'));
+  if (compiled?.unsupported?.length) notes.push(t('独立 Python 导出存在限制：{details}', {details: compiled.unsupported.join('; ')}));
+  if (result && runGraph === fingerprint() && result.warnings?.length) notes.push(...result.warnings);
   notice.textContent = notes.join(' '); notice.hidden = !notes.length;
 }
 function updateDownload(): void {
   const fresh = activeTab === 'result' ? !!result && runGraph === fingerprint() && !!previewSelect.value : !!compiled && compiledGraph === fingerprint() && !(activeTab === 'python' && compiled.unsupported.length);
   byId<HTMLButtonElement>('btnDownload').disabled = !fresh; byId('downloadLabel').textContent = activeTab === 'result' ? 'CSV' : activeTab === 'python' ? '.py' : '.yxmd';
+  byId<HTMLButtonElement>('btnManifest').disabled = !compiled?.manifest || compiledGraph !== fingerprint();
+  byId('btnManifest').hidden = !compiled?.manifest;
 }
 function tab(name: string): void {
   activeTab = name; byId('bottomPanel').classList.remove('collapsed');
@@ -116,45 +183,58 @@ function showPreview(): void {
   const preview = result?.previews.find(p => previewKey(p) === previewSelect.value); if (!preview) return;
   const container = byId('tabResult'); container.replaceChildren(readTable(preview.columns, preview.rows));
   byId('resultBadge').textContent = preview.rowCount.toLocaleString();
-  byId('resultCount').textContent = preview.rowCount.toLocaleString() + ' 行 · ' + preview.columns.length + ' 列' + (preview.rowCount > preview.rows.length ? ' · 预览前 ' + preview.rows.length + ' 行' : ''); updateDownload();
+  byId('resultCount').textContent = t('{rows} 行 · {columns} 列', {rows: preview.rowCount.toLocaleString(), columns: preview.columns.length}) + (preview.rowCount > preview.rows.length ? ' · ' + t('预览前 {n} 行', {n: preview.rows.length}) : ''); updateDownload();
 }
 async function execute(run: boolean): Promise<void> {
   if (busy) return;
-  if (!graph.nodes.length) { status('请先添加数据节点', true); return; }
+  if (hasPendingEdits(graph)) { status(t('配置未应用'), true); return; }
+  if (!graph.nodes.length) { status(tr('请先添加数据节点'), true); return; }
   busy = true; byId<HTMLButtonElement>('btnRun').disabled = true; byId<HTMLButtonElement>('btnCompile').disabled = true;
-  const snapshot = fingerprint(), started = performance.now(); status(run ? '正在运行…' : '正在生成代码…');
+  const snapshot = fingerprint(), started = performance.now(); status(run ? tr('正在运行…') : tr('正在生成代码…'));
   try {
     const response = await request<RunResult | CompileResult>(run ? '/api/run' : '/api/compile', JSON.parse(snapshot));
-    compiled = response; compiledGraph = snapshot; byId('tabPython').textContent = response.python; byId('tabYxmd').textContent = response.yxmd;
+    response.unsupported ??= []; compiled = response; compiledGraph = snapshot; byId('tabPython').textContent = response.python ?? ''; byId('tabYxmd').textContent = response.yxmd ?? '';
     if ('previews' in response) {
       result = response; runGraph = snapshot; previewSelect.replaceChildren();
-      result.previews.forEach(preview => { const node = graph.nodes.find(n => n.id === preview.node), option = el('option', '', '#' + preview.node + ' ' + (labels[node?.type ?? ''] ?? '') + ' / ' + preview.anchor); option.value = previewKey(preview); previewSelect.append(option); });
+      refreshPreviewLabels();
       const last = result.previews.at(-1);
       const final = [...result.previews].reverse().find(p => graph.nodes.find(n => n.id === p.node)?.type === 'DbFileOutput') ?? result.previews.find(p => p.node === last?.node);
       if (final) previewSelect.value = previewKey(final);
-      byId('runTime').textContent = '运行耗时 ' + ((performance.now() - started) / 1000).toFixed(2) + ' s'; showPreview(); tab('result');
+      lastRunSeconds = ((performance.now() - started) / 1000).toFixed(2); byId('runTime').textContent = t('运行耗时 {seconds}s', {seconds: lastRunSeconds}); showPreview(); tab('result');
     } else tab('python');
-    updateNotice(); status(run ? '运行完成' : '代码已生成');
+    if ('previews' in response) showExecution();
+    updateNotice(); status(run ? tr('运行完成') : response.unsupported.length ? t('独立 Python 导出存在限制：{details}', {details: response.unsupported.join('; ')}) : tr('代码已生成'), !run && !!response.unsupported.length);
   } catch (error) {
     if (run) { runGraph = ''; byId('tabResult').replaceChildren(el('div', 'inline-error', error instanceof Error ? error.message : String(error))); tab('result'); }
+    if (error && typeof error === 'object' && 'details' in error && error.details && typeof error.details === 'object' && 'stdout' in error.details) showExecution(String(error.details.stdout));
     status(error instanceof Error ? error.message : String(error), true); updateNotice(); updateDownload();
   } finally { busy = false; byId<HTMLButtonElement>('btnRun').disabled = false; byId<HTMLButtonElement>('btnCompile').disabled = false; }
 }
 function resetResults(): void {
+  lastRunSeconds = null;
   compiled = null; result = null; runGraph = ''; compiledGraph = ''; previewSelect.replaceChildren(); previewSelect.hidden = true;
-  byId('tabPython').textContent = ''; byId('tabYxmd').textContent = ''; byId('tabResult').replaceChildren(el('div', 'result-empty', '暂无运行结果'));
-  byId('resultBadge').textContent = '0'; byId('resultCount').textContent = '0 行 · 0 列'; byId('runTime').textContent = ''; updateNotice(); updateDownload();
+  byId('tabPython').textContent = ''; byId('tabYxmd').textContent = ''; byId('tabResult').replaceChildren(el('div', 'result-empty', tr('暂无运行结果')));
+  byId('resultBadge').textContent = '0'; byId('resultCount').textContent = t('{rows} 行 · {columns} 列', {rows: 0, columns: 0}); byId('runTime').textContent = ''; byId('executionDetails').hidden = true; byId('executionOutput').textContent = ''; byId('artifactList').replaceChildren(); updateNotice(); updateDownload();
 }
 async function replaceGraph(next: Graph): Promise<void> {
-  if (graph.nodes.length && !await confirmReplace('替换当前工作流？')) return;
-  graph = next; nameInput.value = graph.name; resetResults(); changed(); select(graph.nodes[0]?.id ?? null); canvas.fit(); status('工作流已载入');
+  if (graph.nodes.length && !await confirmReplace(tr('替换当前工作流？'))) return;
+  graph = next; registerGraphTools(); palette(); nameInput.value = graph.name; resetResults(); changed(); select(graph.nodes[0]?.id ?? null); canvas.fit(); status(tr('工作流已载入'));
 }
 function bind(id: string, action: () => void): void { byId(id).addEventListener('click', action); }
 bind('btnUndo', () => historyStep(-1)); bind('btnRedo', () => historyStep(1)); bind('btnDeleteNode', deleteNode);
+bind('btnManifest', () => { if (compiled?.manifest && compiledGraph === fingerprint()) download(graph.name.replace(/[<>:"/\\|?*]/g, '_') + '.manifest.json', JSON.stringify(compiled.manifest, null, 2), 'application/json'); });
+bind('btnWorkflowSettings', () => settings.open());
+bind('btnCloseSettings', () => byId<HTMLDialogElement>('workflowSettingsDialog').close());
+bind('btnMacro', () => byId<HTMLDialogElement>('macroDialog').showModal());
+bind('btnCloseMacro', () => byId<HTMLDialogElement>('macroDialog').close());
+bind('btnImportMacroBundle', () => guard(importMacro));
+byId<HTMLInputElement>('macroFiles').addEventListener('change', event => chooseMacros(Array.from((event.target as HTMLInputElement).files ?? [])));
+byId<HTMLInputElement>('macroFolder').addEventListener('change', event => chooseMacros(Array.from((event.target as HTMLInputElement).files ?? [])));
+byId<HTMLSelectElement>('languageSelect').addEventListener('change', event => { setLanguage((event.target as HTMLSelectElement).value as Language); refreshLanguage(); });
 bind('btnCloseConfig', () => select(null));
 bind('btnToggleTools', () => { select(null); byId('palettePanel').hidden = false; byId('palettePanel').classList.toggle('mobile-open'); });
 bind('btnCompile', () => guard(() => execute(false))); bind('btnRun', () => guard(() => execute(true)));
-bind('btnNew', () => guard(() => replaceGraph({name: '未命名工作流', nodes: [], edges: []})));
+bind('btnNew', () => guard(() => replaceGraph({name: tr('未命名工作流'), nodes: [], edges: []})));
 for (const id of ['btnExample', 'btnStartExample']) bind(id, () => guard(() => replaceGraph(exampleGraph())));
 bind('btnStartTable', () => { addNode('TextInput'); });
 for (const id of ['btnImport', 'btnStartFile']) bind(id, () => pickFile());
@@ -172,8 +252,8 @@ nameInput.addEventListener('input', () => { graph.name = nameInput.value; change
 byId('toolSearch').addEventListener('input', palette); previewSelect.addEventListener('change', showPreview);
 dataInput.addEventListener('change', () => { const target = importTarget; importTarget = null; guard(() => importFiles(Array.from(dataInput.files ?? []), target)); });
 byId<HTMLInputElement>('workflowFile').addEventListener('change', event => guard(async () => {
-  const file = (event.target as HTMLInputElement).files?.[0]; if (!file) return; if (file.size > 25 * 1024 * 1024) throw new Error('工作流文件超过 25 MB');
-  await replaceGraph(decodeGraph(JSON.parse(await file.text()), tools));
+  const file = (event.target as HTMLInputElement).files?.[0]; if (file) await importWorkflow(file);
+  (event.target as HTMLInputElement).value = '';
 }));
 document.querySelectorAll<HTMLButtonElement>('[data-tab]').forEach(item => {
   item.addEventListener('click', () => tab(item.dataset.tab!));
@@ -219,12 +299,13 @@ window.addEventListener('beforeunload', persist);
 async function init(): Promise<void> {
   try {
     tools = (await request<{tools: Tool[]}>('/api/tools')).tools;
-    if (!Array.isArray(tools) || !tools.length) throw new Error('工具列表为空');
+    if (!Array.isArray(tools) || !tools.length) throw new Error(tr('工具列表为空'));
     let saved: string | null = null;
-    try { saved = localStorage.getItem(STORAGE); } catch { status('本地存储不可用', true); }
-    if (saved) { try { graph = decodeGraph(JSON.parse(saved), tools); } catch { brokenDraft = true; status('本地草稿无法读取，已保留原草稿；请打开有效的工作流 JSON', true); palette(); canvas.render(); panel.render(undefined); return; } }
-    nameInput.value = graph.name; palette(); changed(); select(null); canvas.fit(); status(saved ? '已恢复本地草稿' : '就绪');
-  } catch (error) { status('连接失败：' + (error instanceof Error ? error.message : String(error)), true); byId('connectionStatus').textContent = '服务未连接'; }
+    try { saved = localStorage.getItem(STORAGE); } catch { status(tr('本地存储不可用'), true); }
+    if (saved) { try { graph = decodeGraph(JSON.parse(saved), tools); } catch { brokenDraft = true; status(tr('本地草稿无法读取，已保留原草稿；请打开有效的工作流 JSON'), true); palette(); canvas.render(); panel.render(undefined); return; } }
+    registerGraphTools(); nameInput.value = graph.name; refreshLanguage(); changed(); select(null); canvas.fit(); status(saved ? tr('已恢复本地草稿') : tr('就绪'));
+  } catch (error) { status(t('连接失败：{message}', {message: error instanceof Error ? error.message : String(error)}), true); byId('connectionStatus').textContent = tr('服务未连接'); }
 }
+localizeStatic(document.body); byId<HTMLSelectElement>('languageSelect').value = getLanguage();
 void init();
 

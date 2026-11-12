@@ -50,13 +50,31 @@ def run_workflow_graph(
     initial_inputs: dict[str, dict[str, pd.DataFrame]] | None = None,
     target_node_ids: set[str] | None = None,
 ) -> WorkflowGraphResult:
-    from alteryx2python.workflow_events import workflow_events, run_events
-    from alteryx2python.engine_variables import resolve_workflow_tokens
+    from alteryx2python.runtime.variables import workflow_variables, variable_scope, bind_workflow_variables
+    from alteryx2python.runtime.app_config import prepare_workflow
+    from xml.etree import ElementTree as ET
+    runtime = context.runtime_config or {}
+    with variable_scope(workflow_variables(workflow, runtime.get('constants'))):
+        if workflow.source_xml and not workflow.metadata.get('configuration_applied') and not runtime.get('skip_app_configuration'):
+            root = ET.fromstring(workflow.source_xml)
+            if root.find('./Properties/RuntimeProperties/Questions') is not None or root.find('./Properties/RuntimeProperties/Actions') is not None:
+                workflow = prepare_workflow(workflow, runtime.get('answers'))
+        workflow = bind_workflow_variables(workflow, runtime.get('constants'))
+        original_runtime = context.runtime_config
+        context.runtime_config = {**runtime, 'workflow_constants': workflow.metadata['workflow_constants']}
+        try:
+            with variable_scope(workflow.metadata['workflow_constants']):
+                return _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids)
+        finally:
+            context.runtime_config = original_runtime
+
+
+def _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids):
+    from alteryx2python.workflow_events import workflow_events, run_events, attachment_bindings
+    from alteryx2python.runtime.variables import resolve_variable_tokens
     from pathlib import Path
-    _answers = (context.runtime_config or {}).get("answers") or {}
-    if _answers or getattr(workflow, "source_xml", ""):
-        resolve_workflow_tokens(workflow, _answers)
-    events = workflow_events(workflow.source_xml)
+    events = resolve_variable_tokens(workflow_events(workflow.source_xml), workflow.metadata['workflow_constants'])
+    attachments = attachment_bindings(workflow, redirect_sinks=bool((context.runtime_config or {}).get('redirect_sinks')))
     if events:
         context.runtime_config = {'workflow_dir': str(Path(workflow.source_file).resolve().parent),
                                   **(context.runtime_config or {})}
@@ -66,16 +84,16 @@ def run_workflow_graph(
     with warnings.catch_warnings(record=True) as emitted:
         warnings.simplefilter('always', RuntimeWarning)
         try:
-            run_events(events, 'before', context)
+            run_events(events, 'before', context, attachments)
             result = _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
         except Exception:
             for warning in emitted:
                 context.record_warning(str(warning.message))
-            run_events(events, 'failure', context)
+            run_events(events, 'failure', context, attachments)
             raise
         for warning in emitted:
             context.record_warning(str(warning.message))
-    run_events(events, 'success', context)
+    run_events(events, 'success', context, attachments)
     return result
 
 

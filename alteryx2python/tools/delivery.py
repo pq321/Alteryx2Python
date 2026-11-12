@@ -1,4 +1,4 @@
-"""Explicit portable HTML/draft profile; no network email is sent."""
+"""Explicit HTML report, draft email and opt-in SMTP delivery profiles."""
 from __future__ import annotations
 
 import hashlib
@@ -8,6 +8,8 @@ import os
 import shlex
 import shutil
 import subprocess
+import smtplib
+import ssl
 from email.message import EmailMessage
 from email.policy import SMTP
 from pathlib import Path
@@ -16,6 +18,7 @@ import pandas as pd
 
 
 PROFILE = 'html-draft-v1'
+SMTP_PROFILE = 'html-smtp-v1'
 
 
 def report_table(frame, fields, show_header=True):
@@ -41,14 +44,15 @@ def render_html(frame, data_field, destination):
     destination.write_text(document, encoding='utf-8', newline='')
 
 
-def draft_email(frame, sender, recipient, subject, body_field, attachments, destination):
+def email_message(frame, sender, recipient, subject, body_field, attachments, draft=True):
     if len(frame.index) != 1:
-        raise ValueError('Draft profile requires exactly one message record')
+        raise ValueError('Email profile requires exactly one message record')
     message = EmailMessage(policy=SMTP)
     message['From'] = sender
     message['To'] = recipient
     message['Subject'] = subject
-    message['X-Unsent'] = '1'
+    if draft:
+        message['X-Unsent'] = '1'
     message.set_content('This message contains an HTML report.')
     message.add_alternative(str(frame.iloc[0][body_field]), subtype='html')
     for attachment in attachments:
@@ -60,9 +64,67 @@ def draft_email(frame, sender, recipient, subject, body_field, attachments, dest
     for index, part in enumerate(message.walk()):
         if part.is_multipart():
             part.set_boundary('migration-' + hashlib.sha256((subject + str(index)).encode()).hexdigest()[:24])
+    return message
+
+
+def draft_email(frame, sender, recipient, subject, body_field, attachments, destination):
+    message = email_message(frame, sender, recipient, subject, body_field, attachments)
     destination = Path(destination)
     destination.parent.mkdir(parents=True, exist_ok=True)
     destination.write_bytes(message.as_bytes())
+
+
+def send_email(frame, sender, recipient, subject, body_field, attachments):
+    message = email_message(frame, sender, recipient, subject, body_field, attachments, draft=False)
+    smtp_send(message)
+
+
+def smtp_send(message, host='', port='', security='', authentication=None, username=''):
+    server = os.environ.get('SMTP_HOST') or host
+    security = (os.environ.get('SMTP_SECURITY') or security or 'starttls').lower()
+    if not server or security not in {'starttls', 'ssl', 'plain'}:
+        raise ValueError('SMTP_HOST and a supported SMTP_SECURITY are required')
+    port = int(os.environ.get('SMTP_PORT') or port or ('465' if security == 'ssl' else '587'))
+    if not 1 <= port <= 65535:
+        raise ValueError('SMTP_PORT must be between 1 and 65535')
+    username = (os.environ.get('SMTP_USERNAME') or username) if authentication is not False else None
+    password = os.environ.get('SMTP_PASSWORD') if authentication is not False else None
+    if bool(username) != bool(password):
+        raise ValueError('SMTP_USERNAME and SMTP_PASSWORD must be supplied together')
+    if authentication is True and not username:
+        raise ValueError('Authenticated email event requires SMTP_USERNAME and SMTP_PASSWORD')
+    tls = ssl.create_default_context()
+    connection = smtplib.SMTP_SSL(server, port, timeout=30, context=tls) if security == 'ssl' else smtplib.SMTP(server, port, timeout=30)
+    with connection as client:
+        if security == 'starttls':
+            client.starttls(context=tls)
+        if username:
+            client.login(username, password)
+        refused = client.send_message(message)
+        if refused:
+            raise smtplib.SMTPRecipientsRefused(refused)
+
+
+def deliver_event_email(sender, recipient, subject, body, attachments, destination=None,
+                       host='', port='', security='', authentication=False, username=''):
+    message = EmailMessage(policy=SMTP)
+    message['From'], message['To'], message['Subject'] = sender, recipient, subject
+    message.set_content(body)
+    for attachment in attachments:
+        path = Path(attachment)
+        media = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'
+        main, sub = media.split('/', 1)
+        message.add_attachment(path.read_bytes(), maintype=main, subtype=sub, filename=path.name)
+    for index, part in enumerate(message.walk()):
+        if part.is_multipart():
+            part.set_boundary('migration-' + hashlib.sha256((subject + str(index)).encode()).hexdigest()[:24])
+    if destination is None:
+        smtp_send(message, host, port, security, authentication, username)
+    else:
+        message['X-Unsent'] = '1'
+        destination = Path(destination)
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        destination.write_bytes(message.as_bytes())
 
 
 def command_arguments(arguments):
@@ -117,19 +179,23 @@ def run_checked_command(program, arguments, working_dir, input_frame, input_file
 
 def email_tool(inputs, config, context):
     runtime = context.runtime_config or {}
-    if runtime.get('delivery_profile') != PROFILE:
-        raise NotImplementedError('Email requires the explicit html-draft-v1 delivery profile')
+    profile = runtime.get('delivery_profile')
+    if profile not in {PROFILE, SMTP_PROFILE}:
+        raise NotImplementedError('Email requires an explicit html-draft-v1 or html-smtp-v1 delivery profile')
     if config.get('unsupported_options'):
         raise NotImplementedError(f"Email configuration needs a template: {config['unsupported_options']}")
     frame = inputs.get('Input')
     if frame is None:
         raise KeyError('Email requires Input')
-    destination = Path(runtime['output_dir']) / f"email-{config['node_id']}.eml"
-    draft_email(frame, config.get('from', ''), config.get('to', ''), config.get('subject', ''),
-                config.get('body', 'Report'),
-                [Path(runtime['output_dir']) / Path(value).name for value in config.get('attachments', [])],
-                destination)
+    attachments = [Path(runtime['output_dir']) / Path(value).name for value in config.get('attachments', [])]
+    arguments = (frame, config.get('from', ''), config.get('to', ''), config.get('subject', ''), config.get('body') or 'Report', attachments)
+    destination = None
+    if profile == SMTP_PROFILE:
+        send_email(*arguments)
+    else:
+        destination = Path(runtime['output_dir']) / f"email-{config['node_id']}.eml"
+        draft_email(*arguments, destination)
     context.record_node(node_id=str(config['node_id']), tool_type='Email',
                         source_tool_id=config.get('source_tool_id'), inputs=inputs, outputs={}, status='success',
-                        config={'delivery_profile': PROFILE, 'draft_file': str(destination), 'sent': False})
+                        config={'delivery_profile': profile, 'draft_file': str(destination) if destination else None, 'sent': profile == SMTP_PROFILE})
     return {}

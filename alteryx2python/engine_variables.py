@@ -12,9 +12,9 @@ Two substitution systems run inside the native engine:
    [Engine.GuiInteraction] - names harvested from the shipped engine DLL
    string tables.
 
-User variables: the engine has no separate user-variable store; user-defined
-values enter through analytic app Questions (answers dict) or macro interface
-values, both of which feed the "%Question.<Name>%" namespace here.
+User/Global declarations and nested scopes are handled by runtime.variables.
+The Engine defaults below describe the Python execution environment. They are
+target-runtime values, not evidence of native engine equivalence.
 """
 from __future__ import annotations
 

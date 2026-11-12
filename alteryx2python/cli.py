@@ -42,14 +42,17 @@ def _build_parser() -> argparse.ArgumentParser:
     readable.add_argument('source', help='Native workflow, preserved .ir.json, or recognized phase-one .py')
     readable.add_argument('--output', required=True)
     readable.add_argument('--answers', help='JSON file containing default user answers')
-    readable.add_argument('--delivery-profile', choices=['html-draft-v1'])
+    readable.add_argument('--constants', help='JSON file containing workflow constant overrides')
+    readable.add_argument('--parameter-mode', choices=['dynamic', 'specialized'], default='dynamic',
+                          help='Keep named parameters, or freeze current answers before native compilation')
+    readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1'])
     readable.set_defaults(func=_readable_command)
     benchmark = subparsers.add_parser('benchmark', help='Build or verify the deterministic two-phase benchmark')
     benchmark.add_argument('action', choices=['build', 'run', 'inventory'])
     benchmark.add_argument('--output', required=True)
     benchmark.add_argument('--source')
     benchmark.add_argument('--data', default='examples/readable_benchmark/data/iris.data')
-    benchmark.add_argument('--samples', default='D:/Alteryx/Samples/en')
+    benchmark.add_argument('--samples', action='append', help='Sample file or directory; repeat to include workflows, apps and macros')
     benchmark.add_argument('--answers')
     benchmark.set_defaults(func=_benchmark_command)
 
@@ -864,7 +867,9 @@ def _readable_command(args):
     else:
         workflow = XmlWorkflowParser().parse(source)
     answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
-    artifact = ReadablePythonGenerator().generate(workflow, answers=answers, delivery_profile=args.delivery_profile)
+    constants = json.loads(Path(args.constants).read_text(encoding='utf-8-sig')) if args.constants else None
+    artifact = ReadablePythonGenerator().generate(workflow, answers=answers, constants=constants,
+        parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile)
     paths = artifact.write(args.output)
     return {'status': 'generated', 'phase': 2, 'files': [str(path.resolve()) for path in paths],
             'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0
@@ -877,7 +882,7 @@ def _benchmark_command(args):
         return {'status': 'built', 'source': str(source.resolve())}, 0
     if args.action == 'inventory':
         from alteryx2python.benchmark_inventory import build_inventory
-        report = build_inventory(args.output, args.samples, args.source)
+        report = build_inventory(args.output, args.samples or ['D:/Alteryx/Samples/en'], args.source)
         return report, 0 if report['fully_covered'] else 2
     if not args.source:
         raise ValueError('benchmark run requires --source')

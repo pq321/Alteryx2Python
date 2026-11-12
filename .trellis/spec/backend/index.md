@@ -21,6 +21,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
 | [Parity Evidence](./parity-evidence.md) | Native differential evidence and coverage gates | Active |
 | [Readable Python](./readable-python.md) | Deterministic lowering, ownership and acceptance gates | Active |
+| [Web Editor](./web-editor.md) | Lossless configuration, native export, capabilities and bilingual clients | Active |
 
 ---
 

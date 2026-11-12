@@ -110,3 +110,37 @@ dialog { border: 1px solid var(--line); border-radius: 8px; max-width: min(400px
 }
 @media (max-width: 420px) { #wfName { width: 105px; } #graphCount, #connectionStatus { display: none; } #previewSelect { max-width: 90px; } .tabs { gap: 8px; } }
 @media (max-height: 700px) { :root { --result-height: 180px; } }
+
+#languageSelect { width: 86px; padding: 5px; min-height: 32px; flex-shrink: 0; }
+.palette-actions { border-top: 1px solid var(--line); display: flex; flex-wrap: wrap; }
+.palette-actions .import-button { flex: 1; width: auto; min-width: 70px; border-top: 0; }
+.advanced-section { border-top: 1px solid var(--line); margin-top: 18px; padding-top: 12px; min-width: 0; }
+summary { cursor: pointer; padding: 7px 0; font-weight: 600; overflow-wrap: anywhere; }
+.code-editor { font-family: Consolas, monospace; font-size: 12px; line-height: 1.5; min-height: 140px; resize: vertical; tab-size: 2; white-space: pre; overflow: auto; width: 100%; }
+.advanced-field { min-width: 0; margin: 10px 0 16px; }
+.advanced-field .config-field { margin-bottom: 5px; }
+.advanced-field .inline-error:empty { display: none; }
+.editor-actions { display: flex; align-items: center; gap: 10px; }
+.select-field { border-bottom: 1px solid var(--line); padding: 5px 0; }
+.settings-dialog { width: min(760px, calc(100vw - 28px)); max-width: calc(100vw - 28px); max-height: calc(100dvh - 28px); padding: 0; border: 1px solid var(--line); border-radius: 8px; color: inherit; }
+.settings-dialog::backdrop { background: #15291b65; }
+.settings-dialog .panel-heading { position: sticky; top: 0; background: white; z-index: 1; }
+#workflowSettingsBody, .macro-body { padding: 18px; }
+#workflowSettingsBody > .config-field { margin-bottom: 14px; }
+#executionDetails { flex-shrink: 0; padding: 0 16px; border-bottom: 1px solid var(--line); max-height: 45%; overflow: auto; background: #fafcfa; }
+#executionDetails summary { font-size: 11px; }
+#executionOutput { white-space: pre-wrap; overflow-wrap: anywhere; margin: 5px 0; font-size: 11px; max-height: 140px; overflow: auto; }
+.artifact-row { display: flex; align-items: center; gap: 8px; font-size: 11px; }
+.artifact-row span { min-width: 0; overflow-wrap: anywhere; }
+.palette-item > span:last-child { white-space: normal; overflow-wrap: anywhere; line-height: 1.3; text-align: left; }
+@media (max-width: 760px) {
+  .topbar { gap: 5px; padding: 0 8px; flex-wrap: wrap; height: auto; min-height: 96px; align-content: center; }
+  .topbar .top-actions { width: 100%; justify-content: flex-end; gap: 3px; }
+  .topbar .top-actions button { padding-left: 6px; padding-right: 6px; }
+  #languageSelect { margin-right: auto; width: 76px; }
+  .workspace-bar { gap: 4px; padding: 0 6px; }
+  .workspace-title { display: none; }
+  .history-actions { margin-left: 0; gap: 1px; }
+  .history-actions button { padding: 5px; font-size: 11px; }
+  #workflowSettingsBody, .macro-body { padding: 12px; }
+}

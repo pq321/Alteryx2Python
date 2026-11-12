@@ -12,7 +12,7 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "webapp"))
 import server  # noqa: E402
 from graph_compiler import compile_graph_to_yxmd  # noqa: E402
-from standalone_gen import generate_standalone  # noqa: E402
+from backend import compile_workflow  # noqa: E402
 from alteryx2python.parser.xml_parser import XmlWorkflowParser  # noqa: E402
 
 
@@ -32,6 +32,16 @@ def node(node_id, kind, config):
 
 def edge(source, target, anchor="Output"):
     return {"from": source, "fromAnchor": anchor, "to": target, "toAnchor": "Input"}
+
+
+def run_export(graph, tmp_path):
+    compiled = compile_workflow(graph, tmp_path)
+    assert compiled["phase2Status"] == "compiled", compiled["blockers"]
+    source = compiled["python"]
+    assert "checkpoints" not in source and "run_workflow_graph" not in source
+    namespace = {"__file__": str(tmp_path / "native.py")}
+    exec(source, namespace)
+    return namespace["run_workflow"](input_dir=tmp_path, output_dir=tmp_path / "native")
 
 
 def test_csv_import_preserves_quoted_newline_comma_bom_and_chinese(uploads):
@@ -69,11 +79,10 @@ def test_import_preview_limit_does_not_truncate_runtime_data(uploads):
     assert preview["rowCount"] == 750
     assert len(preview["rows"]) == 500
     assert len(preview["csv"].splitlines()) == 751
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    namespace = {}
-    exec(code, namespace)
-    assert len(namespace["df_42"]) == 750
+    graph["nodes"].append(node("43", "DbFileOutput", {"file": "all-records.csv"}))
+    graph["edges"] = [edge("42", "43")]
+    directory = run_export(graph, uploads)
+    assert pd.read_csv(directory / "all-records.csv")["A"].tolist() == list(range(750))
 
 
 def test_excel_sheet_selection_and_execution(uploads):
@@ -103,11 +112,12 @@ def test_record_id_config_and_utf8_sink_match_generated_python(tmp_path):
     assert output.read_text(encoding="utf-8") == "do not overwrite"
     assert result["columns"] == ["RowNumber", "Name"]
     assert result["rows"] == [["1", "中文"]]
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    exec(code, {})
-    assert pd.read_csv(output).columns.tolist() == result["columns"]
-    assert pd.read_csv(output)["Name"].tolist() == ["中文"]
+    directory = run_export(graph, tmp_path)
+    assert output.read_text(encoding="utf-8") == "do not overwrite"
+    actual = pd.read_csv(directory / output.name)
+    assert actual.columns.tolist() == result["columns"]
+    assert actual["Name"].tolist() == ["中文"]
+    assert actual["RowNumber"].tolist() == [1]
 
 
 @pytest.mark.parametrize("anchor,expected", [("True", [3]), ("False", [1, 2])])
@@ -120,10 +130,8 @@ def test_filter_branch_boolean_expression_runtime_and_export(tmp_path, anchor, e
     ], "edges": [edge("1", "2"), edge("2", "3", anchor)]}
     result = server._run(graph)
     assert [int(row[0]) for row in result["rows"]] == expected
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    exec(code, {})
-    assert pd.read_csv(output)["A"].tolist() == expected
+    directory = run_export(graph, tmp_path)
+    assert pd.read_csv(directory / output.name)["A"].tolist() == expected
     assert {p["anchor"] for p in result["previews"] if p["node"] == "2"} == {"True", "False"}
 
 
@@ -136,20 +144,19 @@ def test_select_unknown_and_unique_duplicates_are_not_dropped(tmp_path):
     ], "edges": [edge("1", "2"), edge("2", "3"), edge("3", "4", "Duplicates")]}
     result = server._run(graph)
     assert result["columns"] == ["A", "C"]
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    exec(code, {})
-    actual = pd.read_csv(tmp_path / "unique.csv", dtype=str)
+    directory = run_export(graph, tmp_path)
+    actual = pd.read_csv(directory / "unique.csv", dtype=str)
     assert actual.values.tolist() == result["rows"] == [["x", "4"]]
 
 
-def test_generated_text_column_names_are_escaped():
+def test_generated_text_column_names_are_escaped(tmp_path):
     graph = {"nodes": [node("1", "TextInput", {"fields": ['quote"column', 'back\\slash'], "rows": [["one", "two"]]})], "edges": []}
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    namespace = {}
-    exec(code, namespace)
-    assert namespace["df_1"].columns.tolist() == graph["nodes"][0]["config"]["fields"]
+    graph["nodes"].append(node("2", "DbFileOutput", {"file": "escaped.csv"}))
+    graph["edges"] = [edge("1", "2")]
+    directory = run_export(graph, tmp_path)
+    actual = pd.read_csv(directory / "escaped.csv", keep_default_na=False)
+    assert actual.columns.tolist() == graph["nodes"][0]["config"]["fields"]
+    assert actual.values.tolist() == [["one", "two"]]
 
 
 def test_file_input_compiles_to_real_dbfileinput_node(uploads):
@@ -195,10 +202,8 @@ def test_visible_tool_configuration_matches_runtime_and_export(tmp_path, kind, c
         node("2", kind, config), node("3", "DbFileOutput", {"file": str(tmp_path / "result.csv")}),
     ], "edges": [edge("1", "2"), edge("2", "3")]}
     result = server._run(graph)
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    exec(code, {})
-    actual = pd.read_csv(tmp_path / "result.csv", dtype=str, keep_default_na=False)
+    directory = run_export(graph, tmp_path)
+    actual = pd.read_csv(directory / "result.csv", dtype=str, keep_default_na=False)
     assert actual.columns.tolist() == result["columns"]
     assert actual.values.tolist() == result["rows"]
 
@@ -216,10 +221,8 @@ def test_join_ports_preserve_schema_and_use_correct_input_order(tmp_path, anchor
         edge("3", "4", anchor),
     ]}
     result = server._run(graph)
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
-    exec(code, {})
-    actual = pd.read_csv(tmp_path / "join.csv", dtype=str, keep_default_na=False)
+    directory = run_export(graph, tmp_path)
+    actual = pd.read_csv(directory / "join.csv", dtype=str, keep_default_na=False)
     assert actual.columns.tolist() == result["columns"]
     assert actual.values.tolist() == result["rows"]
 

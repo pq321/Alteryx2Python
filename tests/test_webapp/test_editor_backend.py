@@ -3,7 +3,6 @@ from __future__ import annotations
 
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +11,8 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "webapp"))
 
 from graph_compiler import compile_graph_to_yxmd  # noqa: E402
-from standalone_gen import generate_standalone, translate_expression  # noqa: E402
+from backend import compile_workflow  # noqa: E402
+from workflow_documents import import_workflow  # noqa: E402
 from alteryx2python.parser.xml_parser import XmlWorkflowParser  # noqa: E402
 from alteryx2python.equivalence import find_output_node, run_python_workflow  # noqa: E402
 
@@ -69,13 +69,15 @@ def test_standalone_output_matches_runtime_output(tmp_path):
 
     runtime_frame = run_python_workflow(yxmd_path, find_output_node(yxmd_path), tmp_path / "runtime_out.csv")
 
-    code, unsupported = generate_standalone(graph)
-    assert unsupported == []
+    compiled = compile_workflow(graph, tmp_path)
+    assert compiled["phase2Status"] == "compiled", compiled["blockers"]
+    code = compiled["python"]
+    assert "checkpoints" not in code and "run_workflow_graph" not in code
     script = tmp_path / "standalone.py"
     script.write_text(code, encoding="utf-8")
-    completed = subprocess.run([sys.executable, str(script)], capture_output=True, text=True)
+    completed = subprocess.run([sys.executable, str(script), "--output-dir", str(tmp_path / "native")], capture_output=True, text=True)
     assert completed.returncode == 0, completed.stderr
-    standalone_csv = tmp_path / "runtime.csv"  # the graph's configured output file
+    standalone_csv = tmp_path / "native/runtime.csv"
     assert standalone_csv.exists(), "standalone script did not write its output"
     standalone_frame = pd.read_csv(standalone_csv, dtype=object, keep_default_na=False)
 
@@ -85,10 +87,41 @@ def test_standalone_output_matches_runtime_output(tmp_path):
     assert list(standalone_frame.columns) == list(runtime_frame.columns)
 
 
-def test_translate_expression_subset():
-    assert translate_expression("[Qty] >= 4", "df") == 'df["Qty"] >= 4'
-    assert translate_expression("[A] = 3 AND [B] = 4", "df") == 'df["A"] == 3 and df["B"] == 4'
-    assert translate_expression("NOT [Flag]", "df") == 'not df["Flag"]'
+@pytest.mark.parametrize("expression,expected", [
+    ("[Qty] >= 4", [5, 6]),
+    ("[A] = 3 AND [B] = 4", [3]),
+    ("![Flag]", [3, 6]),
+])
+def test_canonical_expression_export_matches_runtime(tmp_path, expression, expected):
+    from server import _run
+    graph = _demo_graph("expression.csv")
+    graph["nodes"][0]["config"] = {"fields": ["Qty", "A", "B", "Flag"],
+                                     "rows": [["3", "3", "4", "0"], ["5", "3", "0", "1"], ["6", "0", "4", "0"]]}
+    graph["nodes"] = [graph["nodes"][0], graph["nodes"][2], graph["nodes"][4]]
+    graph["nodes"][1]["config"]["expression"] = expression
+    graph["edges"] = [{"from": "1", "to": "3"}, {"from": "3", "fromAnchor": "True", "to": "5"}]
+    result = _run(graph)
+    assert result["phase2Status"] == "compiled", result["blockers"]
+    namespace = {"__file__": str(tmp_path / "expression.py")}
+    exec(result["python"], namespace)
+    namespace["run_workflow"](input_dir=tmp_path, output_dir=tmp_path)
+    assert pd.read_csv(tmp_path / "expression.csv")["Qty"].tolist() == expected
+    assert [int(row[0]) for row in result["rows"]] == expected
+
+
+def test_unimplemented_expression_syntax_blocks_without_regex_rewriting(tmp_path):
+    from backend import ApiError
+    from server import _run
+    graph = {"nodes": [
+        {"id": "1", "type": "TextInput", "config": {"fields": ["Flag"], "rows": [["0"], ["1"]]}},
+        {"id": "2", "type": "Filter", "config": {"expression": "NOT [Flag]"}},
+    ], "edges": [{"from": "1", "to": "2"}]}
+    result = compile_workflow(graph, tmp_path)
+    assert result["phase2Status"] == "blocked" and result["python"] == ""
+    assert result["blockers"][0]["errorType"] == "UnsupportedExpressionError"
+    with pytest.raises(ApiError) as raised:
+        _run(graph)
+    assert raised.value.status == 422 and raised.value.code == "runtime_unavailable"
 
 
 def test_unsupported_tool_reports_instead_of_failing(tmp_path):
@@ -100,12 +133,14 @@ def test_unsupported_tool_reports_instead_of_failing(tmp_path):
         ],
         "edges": [{"from": "1", "fromAnchor": "Output", "to": "2", "toAnchor": "Input"}],
     }
-    code, unsupported = generate_standalone(graph)
-    assert len(unsupported) == 1
-    assert "MysteryTool" in unsupported[0]
-    assert "MysteryTool" in code  # noted as a comment in the generated source
     with pytest.raises(ValueError):
         compile_graph_to_yxmd(graph)  # yxmd path is strict about known tools
+    imported = import_workflow({"name": "unknown.yxmd", "xml":
+        '<AlteryxDocument><Nodes><Node ToolID="1"><GuiSettings Plugin="Vendor.MysteryTool"/>'
+        '<Properties><Configuration/></Properties></Node></Nodes></AlteryxDocument>'}, tmp_path)
+    result = compile_workflow(imported, tmp_path)
+    assert result["phase2Status"] == "blocked" and result["python"] == ""
+    assert result["unsupported"] and result["blockers"][0]["code"] == "phase2_unsupported"
 
 
 def test_server_tool_palette_shape():

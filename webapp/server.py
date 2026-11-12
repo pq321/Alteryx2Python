@@ -18,8 +18,6 @@ import csv
 import io
 import json
 import sys
-import tempfile
-import traceback
 import uuid
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
@@ -32,7 +30,9 @@ if str(WEBAPP_DIR) not in sys.path:
     sys.path.insert(0, str(WEBAPP_DIR))
 
 from graph_compiler import compile_graph_to_yxmd  # noqa: E402
-from standalone_gen import generate_standalone  # noqa: E402
+from backend import compile_workflow, run_workflow, error_payload  # noqa: E402
+from tool_palette import build_palette  # noqa: E402
+from workflow_documents import import_workflow, import_macro, parse_element  # noqa: E402
 
 EDITOR_TOOLS = [
     {"type": "TextInput", "label": "Text Input", "category": "In/Out", "inputs": [], "outputs": ["Output"],
@@ -84,6 +84,10 @@ EDITOR_TOOLS = [
 ]
 
 
+SIMPLE_TOOLS = EDITOR_TOOLS
+EDITOR_TOOLS = build_palette(SIMPLE_TOOLS)["tools"]
+
+
 class EditorHandler(BaseHTTPRequestHandler):
     def log_message(self, fmt, *args):  # quiet
         pass
@@ -100,7 +104,10 @@ class EditorHandler(BaseHTTPRequestHandler):
         length = int(self.headers.get("Content-Length", "0"))
         if length < 0 or length > 30 * 1024 * 1024:
             raise ValueError("Request exceeds 30 MB")
-        return json.loads(self.rfile.read(length) or b"{}")
+        payload = json.loads(self.rfile.read(length) or b"{}")
+        if not isinstance(payload, dict):
+            raise ValueError("Request body must be a JSON object")
+        return payload
 
     def do_GET(self):
         path = self.path.split("?")[0]
@@ -109,7 +116,7 @@ class EditorHandler(BaseHTTPRequestHandler):
             self.end_headers()
             return
         if path == "/api/tools":
-            self._send_json({"tools": EDITOR_TOOLS})
+            self._send_json(build_palette(SIMPLE_TOOLS))
             return
         static = {
             "/": ("static/index.html", "text/html; charset=utf-8"),
@@ -137,6 +144,11 @@ class EditorHandler(BaseHTTPRequestHandler):
             graph = self._read_json()
             if path == "/api/import":
                 self._send_json(_import_data(graph))
+            elif path == "/api/workflow/import":
+                imported = import_workflow(graph, PROJECT_ROOT)
+                self._send_json({**imported, "graph": imported})
+            elif path == "/api/macros/import":
+                self._send_json(import_macro(graph, WEBAPP_DIR / ".uploads"))
             elif path == "/api/compile":
                 self._send_json(_compile(graph))
             elif path == "/api/run":
@@ -144,80 +156,47 @@ class EditorHandler(BaseHTTPRequestHandler):
             else:
                 self._send_json({"error": "not found", "path": path}, 404)
         except Exception as exc:  # noqa: BLE001
-            self._send_json(
-                {"error": str(exc), "trace": traceback.format_exc()[-2000:]}, 400
-            )
+            payload, status = error_payload(exc)
+            self._send_json(payload, status)
 
 
 def _compile(graph: dict) -> dict:
     _validate_graph(graph)
-    yxmd = compile_graph_to_yxmd(graph)
-    python, unsupported = generate_standalone(graph)
-    return {
-        "name": graph.get("name", "workflow"),
-        "yxmd": yxmd,
-        "python": python,
-        "unsupported": unsupported,
-    }
+    return compile_workflow(graph, PROJECT_ROOT)
 
 
 def _run(graph: dict) -> dict:
-    from alteryx2python.parser.xml_parser import XmlWorkflowParser
-    from alteryx2python.runtime.context import WorkflowContext
-    from alteryx2python.runtime.executor import run_workflow_graph
-
-    compile_result = _compile(graph)
-    with tempfile.TemporaryDirectory(prefix="ayx_editor_") as tmp:
-        yxmd_path = Path(tmp) / "workflow.yxmd"
-        yxmd_path.write_text(compile_result["yxmd"], encoding="utf-8")
-        workflow = XmlWorkflowParser().parse(yxmd_path)
-        output_nodes = [node for node in workflow.nodes if node.tool_type == "DbFileOutput"]
-        # Preview runs isolate sinks; only the user's downloaded script writes configured paths.
-        for node in output_nodes:
-            normalized = node.config["normalized"]
-            normalized["file"] = str(Path(tmp) / (node.node_id + ".csv"))
-            normalized["format_specific_options"]["CodePage"] = {"text": "65001"}
-        context = WorkflowContext()
-        result = run_workflow_graph(workflow, context)
-        import pandas as pd
-
-        original_ids = {str(index + 1): str(node["id"]) for index, node in enumerate(graph["nodes"])}
-        previews = []
-        for node_id, node_result in result.node_results.items():
-            for anchor, frame in node_result.outputs.items():
-                previews.append(_preview(original_ids[node_id], anchor, frame))
-        for node in output_nodes:
-            output = Path(node.config["normalized"]["file"])
-            frame = pd.read_csv(output, dtype=object, keep_default_na=False)
-            previews.append(_preview(original_ids[node.node_id], "Input", frame))
-        final = previews[-1] if previews else {"columns": [], "rows": []}
-        return {**compile_result, "previews": previews, "columns": final["columns"], "rows": final["rows"]}
-
-
-def _preview(node_id, anchor, frame):
-    return {
-        "node": node_id, "anchor": anchor, "columns": [str(column) for column in frame.columns],
-        "rows": json.loads(frame.head(500).to_json(orient="split", date_format="iso"))["data"],
-        "rowCount": len(frame), "csv": frame.to_csv(index=False),
-    }
+    _validate_graph(graph)
+    return run_workflow(graph, PROJECT_ROOT)
 
 
 def _validate_graph(graph):
     if not isinstance(graph, dict) or not isinstance(graph.get("nodes"), list) or not graph["nodes"]:
         raise ValueError("Workflow requires at least one node")
     tools = {tool["type"]: tool for tool in EDITOR_TOOLS}
+    source_nodes = {}
+    if graph.get("workflowXml"):
+        root = parse_element(graph["workflowXml"], "AlteryxDocument")
+        source_nodes = {element.get("ToolID"): element for element in root.iter("Node")}
     nodes = {}
     for node in graph["nodes"]:
         node_id = str(node["id"])
-        if node_id in nodes or node.get("type") not in tools:
+        if node_id in nodes or not node_id:
             raise ValueError(f"Invalid or duplicate node: {node_id}")
+        kind = str(node.get("type", ""))
+        if kind not in tools and node_id not in source_nodes and not kind.startswith("Macro_"):
+            raise ValueError(f"Unsupported editor tool type: {kind}")
         nodes[node_id] = node
         config = node.get("config", {})
-        if node["type"] == "TextInput":
+        if "configurationXml" in config:
+            parse_element(config["configurationXml"], "Configuration")
+        if "engineSettingsXml" in config:
+            parse_element(config["engineSettingsXml"], "EngineSettings")
+        if node["type"] == "TextInput" and "configurationXml" not in config:
             _validate_fields(config.get("fields", []))
             if any(len(row) != len(config["fields"]) for row in config.get("rows", [])):
                 raise ValueError(f"Text Input #{node_id}: row width must match fields")
-        if node["type"] == "DbFileInput" and not config.get("file"):
+        if node["type"] == "DbFileInput" and "configurationXml" not in config and not config.get("file"):
             raise ValueError(f"Input File #{node_id}: import a data file first")
     occupied = set()
     adjacency = {node_id: [] for node_id in nodes}
@@ -228,20 +207,25 @@ def _validate_graph(graph):
         if source not in nodes or target not in nodes:
             raise ValueError("Connection references an unknown node")
         out_anchor, in_anchor = edge.get("fromAnchor", "Output"), edge.get("toAnchor", "Input")
-        source_tool, target_tool = tools[nodes[source]["type"]], tools[nodes[target]["type"]]
-        if out_anchor not in source_tool["outputs"] or in_anchor not in target_tool["inputs"]:
+        source_node, target_node = nodes[source], nodes[target]
+        source_tool, target_tool = tools.get(source_node["type"], {}), tools.get(target_node["type"], {})
+        source_anchors = source_node.get("outputs", source_tool.get("outputs", []))
+        target_anchors = target_node.get("inputs", target_tool.get("inputs", []))
+        if out_anchor not in source_anchors or in_anchor not in target_anchors:
             raise ValueError(f"Invalid connection anchor: {source} -> {target}")
         key = (source, out_anchor, target, in_anchor)
         if key in edge_keys:
             raise ValueError("Duplicate connection")
         edge_keys.add(key)
-        if (target, in_anchor) in occupied and not target_tool.get("multiInput"):
+        if (target, in_anchor) in occupied and not target_tool.get("multiInput") and "configurationXml" not in target_node.get("config", {}):
             raise ValueError(f"Node #{target}: input {in_anchor} already connected")
         occupied.add((target, in_anchor))
         adjacency[source].append(target)
         indegree[target] += 1
     for node_id, node in nodes.items():
-        for anchor in tools[node["type"]]["inputs"]:
+        if "configurationXml" in node.get("config", {}):
+            continue
+        for anchor in tools.get(node["type"], {}).get("inputs", []):
             if (node_id, anchor) not in occupied:
                 raise ValueError(f"{node['type']} #{node_id}: connect the {anchor} input")
     pending = [node_id for node_id, degree in indegree.items() if degree == 0]

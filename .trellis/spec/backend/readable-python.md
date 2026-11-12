@@ -15,8 +15,18 @@
   mappings and original IR in sidecars. Never overwrite maintained artifacts.
 - Unknown tools, dynamic configurations, unhandled enabled events and metadata
   stubs are explicit compile blockers. A registered tool is not an implementation.
+- Explicit specialized exports bind current answers before native compilation;
+  record mode/answers/constant overrides. Never silently freeze dynamic inputs.
+- Direct Question references and event tokens use current dynamic parameters.
+  Record-field precedence applies even to User/Global/Engine/Question names.
+- Workflow email attachments use relocated sink bindings when applicable;
+  external attachments preserve their configured paths. Never choose stale
+  input files merely because a same-named current output exists elsewhere.
 - Native field type/size declarations must survive conversion, including fixed
   integer storage widths, string widths and decimal width/scale.
+- Python Tool explicit types bypass dtype inference and use output storage
+  widths; unspecified source/description inherit input metadata. Supplied
+  metadata overrides inherited values in runtime and generated code alike.
 - Command/event execution is explicit and allowlisted. Verification overrides
   working directories; ordinary execution respects configured directories.
 - Blocking branch scheduling and nested container membership apply in both the

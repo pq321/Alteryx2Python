@@ -481,7 +481,7 @@ def _merged_local_parser(base, specific):
     return parse
 
 
-for _local_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "text_models", "local_runtimes", "survival", "local_vision"):
+for _local_name in ("local_macros", "indb", "predictive", "timeseries", "local_media", "statistics_extra", "ml_extra", "text_models", "local_runtimes", "survival", "local_vision", "wait"):
     _local_module = _import_parser_module(f"alteryx2python.tools.{_local_name}")
     for _local_type, _local_parser in _local_module.PARSERS.items():
         TOOL_PARSERS[_local_type] = _merged_local_parser(TOOL_PARSERS.get(_local_type), _local_parser)

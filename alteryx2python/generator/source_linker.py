@@ -280,6 +280,29 @@ class SourceLinker:
         if not isinstance(tree, (ast.FunctionDef, ast.ClassDef)):
             raise UnsupportedLowering(f'Non-function helper: {name}')
         tree.decorator_list = []
+        inline_config = bindings and 'config' in bindings
+        if inline_config:
+            parents = {child: parent for parent in ast.walk(tree) for child in ast.iter_child_nodes(parent)}
+            namespace = function.__globals__
+            for item in ast.walk(tree):
+                if not isinstance(item, ast.Name) or item.id != 'config':
+                    continue
+                parent = parents.get(item)
+                allowed = (isinstance(item.ctx, ast.Load) and
+                           (isinstance(parent, ast.Attribute) and parent.value is item and parent.attr in {'get', 'keys', 'items', 'values'} or
+                            isinstance(parent, ast.Subscript) and parent.value is item and isinstance(parent.ctx, ast.Load) and isinstance(parent.slice, ast.Constant)))
+                if isinstance(parent, ast.Call) and isinstance(parent.func, ast.Name):
+                    callee = namespace.get(parent.func.id)
+                    allowed |= isinstance(item.ctx, ast.Load) and (parent.func.id in {'bool', 'len', 'str'} or
+                        inspect.isfunction(callee) and callee.__module__.startswith('alteryx2python.tools.'))
+                if not allowed:
+                    raise UnsupportedLowering(f'Configuration escapes read-only helper specialization: {function.__name__}')
+            if any(isinstance(item, ast.arg) and item.arg == 'config' for line in tree.body for item in ast.walk(line)):
+                raise UnsupportedLowering('Nested helper shadows bound configuration')
+            class InlineConfig(ast.NodeTransformer):
+                def visit_Name(self, node):
+                    return ast.copy_location(ast.parse(repr(bindings['config']), mode='eval').body, node) if node.id == 'config' and isinstance(node.ctx, ast.Load) else node
+            tree = InlineConfig().visit(tree)
         if isinstance(tree, ast.FunctionDef) and any(arg.arg == "context" for arg in tree.args.args):
             tree = RemoveTracing().visit(tree)
         if isinstance(tree, ast.FunctionDef):
@@ -291,7 +314,7 @@ class SourceLinker:
                 pairs = [(arg, default) for arg, default in zip(tree.args.kwonlyargs, tree.args.kw_defaults) if arg.arg not in bindings]
                 tree.args.kwonlyargs = [arg for arg, _ in pairs]
                 tree.args.kw_defaults = [default for _, default in pairs]
-                tree.body[0:0] = [ast.Assign(targets=[ast.Name(id=key, ctx=ast.Store())], value=ast.parse(repr(value), mode='eval').body) for key, value in bindings.items()]
+                tree.body[0:0] = [ast.Assign(targets=[ast.Name(id=key, ctx=ast.Store())], value=ast.parse(repr(value), mode='eval').body) for key, value in bindings.items() if key != 'config' or not inline_config]
         from alteryx2python.generator.partial_eval import specialize
         if not isinstance(tree, ast.ClassDef):
             tree = specialize(tree)
@@ -319,6 +342,50 @@ class SourceLinker:
                 function = namespace.get(node.func.id) if isinstance(node.func, ast.Name) else None
                 if not inspect.isfunction(function) or not function.__module__.startswith('alteryx2python.'):
                     return node
+                # These audited boundary helpers only select a frame or return
+                # outputs after tracing has been removed. Resolve their static
+                # anchor maps before ordinary helper specialization.
+                if function.__module__ == 'alteryx2python.tools.local_macros':
+                    if function.__name__ == '_in' and len(node.args) == 1 and isinstance(node.args[0], ast.Dict):
+                        if not node.args[0].values:
+                            raise UnsupportedLowering('Local macro requires a connected dataframe')
+                        linker.digests['native_macro_input'] = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+                        return node.args[0].values[0]
+                    if function.__name__ == '_done' and len(node.args) >= 3:
+                        linker.digests['native_macro_output'] = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+                        return node.args[2]
+                if function.__module__ == 'alteryx2python.tools.findreplace' and function.__name__ == '_input_frame' and len(node.args) == 2 and isinstance(node.args[0], ast.Dict) and isinstance(node.args[1], ast.Constant):
+                    for key, value in zip(node.args[0].keys, node.args[0].values):
+                        if isinstance(key, ast.Constant) and key.value == node.args[1].value:
+                            return value
+                    raise UnsupportedLowering('FindReplace requires both connected inputs')
+                module = function.__module__.removeprefix('alteryx2python.tools.')
+                fixed_frame = function.__name__ == '_input_frame' and module in {
+                    'buffer', 'createpoints', 'distance', 'generalize', 'polybuild',
+                    'polysplit', 'smooth', 'spatialinfo', 'spatialprocess', 'tradearea',
+                    'dynamicselect', 'detour'}
+                named_frame = function.__name__ == '_frame' and module in {'spatialmatch', 'findnearest', 'expectequal', 'appendfields'}
+                if (fixed_frame or named_frame) and node.args and isinstance(node.args[0], ast.Dict):
+                    anchor = 'Input' if fixed_frame else ast.literal_eval(node.args[1])
+                    frame = next((value for key, value in zip(node.args[0].keys, node.args[0].values)
+                                  if isinstance(key, ast.Constant) and key.value == anchor), None)
+                    if frame is None:
+                        raise UnsupportedLowering(f'{module} requires a connected {anchor} anchor')
+                    linker.definitions['require_dataframe'] = 'def require_dataframe(frame):\n    if not isinstance(frame, pd.DataFrame):\n        raise TypeError("Input anchor must contain a pandas DataFrame")\n    return frame'
+                    linker.digests['native_input_' + module] = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+                    return ast.Call(func=ast.Name(id='require_dataframe', ctx=ast.Load()), args=[frame], keywords=[])
+                if module == 'datacleansing' and function.__name__ == '_input_frame' and node.args and isinstance(node.args[0], ast.Dict):
+                    for anchor in ('Input2', 'Input'):
+                        for key, value in zip(node.args[0].keys, node.args[0].values):
+                            if isinstance(key, ast.Constant) and key.value == anchor:
+                                linker.digests['native_input_datacleansing'] = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+                                return value
+                    raise UnsupportedLowering('DataCleansing requires a connected Input2 or Input anchor')
+                if module == 'joinmultiple' and function.__name__ == '_ordered_inputs' and node.args and isinstance(node.args[0], ast.Dict):
+                    entries = [(ast.literal_eval(key), value) for key, value in zip(node.args[0].keys, node.args[0].values)]
+                    linker.digests['native_input_joinmultiple'] = hashlib.sha256(inspect.getsource(function).encode()).hexdigest()
+                    return ast.List(elts=[ast.Tuple(elts=[ast.Constant(key), value], ctx=ast.Load())
+                                          for key, value in sorted(entries, key=lambda pair: (pair[0] != 'Input', pair[0]))], ctx=ast.Load())
                 signature = inspect.signature(function)
                 if any(arg.kind in (arg.VAR_POSITIONAL, arg.VAR_KEYWORD) for arg in signature.parameters.values()):
                     return node
@@ -394,7 +461,7 @@ class SourceLinker:
                 renames[name] = constant
             elif isinstance(value, type) and origin == 'alteryx2python.expressions.errors':
                 self.definitions[name] = f'class {name}(ValueError):\n    pass'
-            elif name in imports:
+            elif name in imports and not isinstance(value, (dict, list, tuple, set, str, int, float, bool, type(None))):
                 statement = imports[name]
                 if isinstance(statement, ast.ImportFrom) and statement.module.startswith('alteryx2python'):
                     raise UnsupportedLowering(f'Runtime dependency remains: {statement.module}.{name}')

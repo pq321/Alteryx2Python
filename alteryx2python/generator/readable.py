@@ -17,7 +17,7 @@ from alteryx2python.generator.source_linker import SourceLinker, UnsupportedLowe
 from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 
 
-TEMPLATE_VERSION = 'readable-python/2.0.0'
+TEMPLATE_VERSION = 'readable-python/2.1.0'
 # Each entry uses the checked-in implementation as a versioned source template.
 # Metadata stubs, opaque model wrappers and graph interpreters are deliberately absent.
 SOURCE_TEMPLATES = frozenset({
@@ -31,7 +31,7 @@ SPECIAL_TEMPLATES = frozenset({'Formula', 'Filter', 'BlockUntilDone', 'ToolConta
     'GenerateRows', 'MultiFieldFormula', 'MultiRowFormula',
     'TextBox', 'HtmlBox', 'BrowseV2', 'RunCommand', 'Email', 'PortfolioComposerText',
     'PortfolioComposerTable', 'PortfolioComposerLayout', 'PortfolioComposerRender',
-    'MacroBoundaryInput', 'MacroOutput', 'MacroResult', 'ControlContainer', 'JupyterCode'})
+    'MacroBoundaryInput', 'MacroOutput', 'MacroResult', 'ControlContainer', 'JupyterCode', 'WaitASecond', 'WaitSeconds'})
 
 
 def identifier(value):
@@ -187,6 +187,16 @@ class ReadablePythonGenerator:
         if isinstance(expression, LiteralExpression):
             return repr(expression.value)
         if isinstance(expression, FieldReference):
+            constant = expression.name.strip('%')
+            parameters = getattr(self, 'current_parameter_names', {})
+            if constant.startswith('Question.') and constant[9:] in parameters:
+                return f'row.get({expression.name!r}, {parameters[constant[9:]]})'
+            values = getattr(self, 'current_constants', {})
+            if constant in values:
+                import hashlib
+                name = identifier(constant).upper() + '_' + hashlib.sha256(repr(values[constant]).encode()).hexdigest()[:8].upper()
+                self.linker.definitions[name] = f'{name} = {values[constant]!r}'
+                return f'row.get({expression.name!r}, {name})'
             return f'row[{expression.name!r}]'
         if isinstance(expression, ConditionalExpression):
             return f'({self.expression(expression.true_value)} if bool({self.expression(expression.condition)}) else {self.expression(expression.false_value)})'
@@ -249,6 +259,8 @@ class ReadablePythonGenerator:
                     if attrs.get('name'):
                         answers[attrs['name']] = value.get('text', value.get('#text', ''))
             child = prepare_workflow(XmlWorkflowParser().parse_xml(xml, path), answers)
+            from alteryx2python.runtime.variables import bind_workflow_variables
+            child = bind_workflow_variables(child)
             child.metadata['embedded_macros'] = embedded
             child = self._expand_macros(child, (*stack, str(path)))
             names = {node.get('ToolID'): node.findtext('Properties/Configuration/Name', 'Input') for node in root.iter('Node')}
@@ -263,8 +275,8 @@ class ReadablePythonGenerator:
                     node.config['container_id'] = prefix + node.config['container_id']
                 if node.config.get('child_node_ids'):
                     node.config['child_node_ids'] = [prefix + value for value in node.config['child_node_ids']]
-                node.metadata['macro_source'] = str(path)
-                node.metadata['macro_parent'] = parent.node_id
+                node.metadata.setdefault('macro_source', str(path))
+                node.metadata['macro_parent'] = prefix + node.metadata['macro_parent'] if node.metadata.get('macro_parent') else parent.node_id
                 if node.tool_type == 'MacroInput':
                     node.tool_type = 'MacroBoundaryInput'
                     matches = [edge for edge in incoming if edge.target_anchor == names[original]]
@@ -274,7 +286,7 @@ class ReadablePythonGenerator:
                         raise UnsupportedLowering(f'Macro input binding is ambiguous: {path}/{original}')
                     edge = replace(matches[0], target_node_id=node.node_id, target_anchor='Input')
                     result.edges.append(edge)
-                elif node.tool_type == 'MacroOutput':
+                elif node.tool_type == 'MacroOutput' and original in names:
                     name = names[original]
                     outputs.append(name)
                     result.edges.append(EdgeIR(prefix + 'return_' + original, node.node_id, 'Output', parent.node_id, name))
@@ -296,6 +308,13 @@ class ReadablePythonGenerator:
         from alteryx2python.expressions.parser import parse_expression
         from alteryx2python.tools import delivery
         kind = node.tool_type
+        if kind in {'WaitASecond', 'WaitSeconds'}:
+            import math
+            seconds = float(config.get('seconds', 1))
+            if not math.isfinite(seconds) or seconds < 0:
+                raise UnsupportedLowering('Wait duration must be finite and nonnegative')
+            self.linker.imports.add('import time')
+            return [f'time.sleep({seconds!r})', f'return {next(iter(arguments.values()))}.copy()']
         frame = next(iter(arguments.values()), None)
         if kind == 'GenerateRows':
             from alteryx2python.tools.generaterows import _strip_comments
@@ -391,6 +410,8 @@ class ReadablePythonGenerator:
             if not outputs:
                 return ['return None']
             active = 'False' if config.get('disabled') else (f'len({arguments["Control"]}.index) > 0' if 'Control' in arguments else 'True')
+            if config.get('_disabled_parameter'):
+                active = f'(not {config["_disabled_parameter"]}) and ({active})'
             return [f'return pd.DataFrame({{"Message": [{config.get("caption", "Container completed")!r}]}} if {active} else {{"Message": []}})']
         if kind in {'ToolContainer', 'TextBox', 'HtmlBox', 'BrowseV2'}:
             return ['return None']
@@ -403,7 +424,7 @@ class ReadablePythonGenerator:
                     f'return {function}(program, {config.get("arguments", "")!r}, command_working_dir or input_dir / {config.get("working_dir", "")!r}, '
                     f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands)']
         if kind.startswith('PortfolioComposer') or kind == 'Email':
-            if self.profile != delivery.PROFILE:
+            if self.profile not in {delivery.PROFILE, delivery.SMTP_PROFILE}:
                 raise UnsupportedLowering(f'{kind} requires explicit html-draft-v1 profile; metadata output is not a report')
             if kind == 'PortfolioComposerTable':
                 if config.get('grouping_fields') or config.get('table_mode', 'Basic') != 'Basic' or config.get('show_bar_graph'):
@@ -429,13 +450,14 @@ class ReadablePythonGenerator:
             if kind == 'Email':
                 if config.get('unsupported_options'):
                     raise UnsupportedLowering(f"Email configuration needs a template: {config['unsupported_options']}")
-                function = self.linker.function(delivery.draft_email)
+                function = self.linker.function(delivery.send_email if self.profile == delivery.SMTP_PROFILE else delivery.draft_email)
                 attachments = '[output_dir / name for name in ' + repr([Path(value).name for value in config.get('attachments', [])]) + ']'
+                destination = '' if self.profile == delivery.SMTP_PROFILE else f', output_dir / {"email-" + node.node_id + ".eml"!r}'
                 return [f'{function}({frame}, {config.get("from", "")!r}, {config.get("to", "")!r}, {config.get("subject", "")!r}, '
-                        f'{config.get("body") or "Report"!r}, {attachments}, output_dir / {"email-" + node.node_id + ".eml"!r})', 'return None']
+                        f'{config.get("body") or "Report"!r}, {attachments}{destination})', 'return None']
         raise UnsupportedLowering(f'No deterministic template for {kind}')
 
-    def generate(self, workflow, *, answers=None, delivery_profile=None):
+    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None):
         # Generator instances are reusable without leaking previous helpers/configuration.
         self.__init__()
         self.profile = delivery_profile
@@ -443,7 +465,15 @@ class ReadablePythonGenerator:
         from alteryx2python.runtime.executor import _topological_order, _next_input_anchor_name, _edge_connection_name
         from alteryx2python.tools.registry import TOOL_REGISTRY
         original = deepcopy(workflow)
-        prepared, self.parameter_expressions, self.parameters = prepare_parameters(workflow, answers)
+        if parameter_mode == 'dynamic':
+            prepared, self.parameter_expressions, self.parameters = prepare_parameters(workflow, answers, constants)
+        elif parameter_mode == 'specialized':
+            from alteryx2python.runtime.app_config import prepare_workflow
+            prepared = prepare_workflow(deepcopy(workflow), answers)
+        else:
+            raise ValueError(f'Unknown parameter mode: {parameter_mode}')
+        from alteryx2python.runtime.variables import bind_workflow_variables
+        prepared = bind_workflow_variables(prepared, constants)
         reserved_parameters = {'input_dir', 'output_dir', 'allowed_commands', 'event_working_dir', 'command_working_dir',
             'checkpoints', 'config', 'inputs', 'context', 'pd', 'math', 'warnings', 're', 'html', 'os', 'hashlib', 'mimetypes', 'shlex', 'shutil',
             'subprocess', 'argparse', 'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings'}
@@ -461,9 +491,13 @@ class ReadablePythonGenerator:
             parameter['python_name'] = name
             self.parameter_names[parameter['name']] = name
         workflow = self._expand_macros(prepared)
+        for node in workflow.nodes:
+            if node.metadata.get('disabled_parameter'):
+                node.config.get('normalized', node.config)['disabled'] = False
         by_id = {node.node_id: node for node in workflow.nodes}
         order = _topological_order(workflow.nodes, workflow.edges)
         variables = {}
+        native_python_functions = set()
         used_names = {'run_workflow'}
         calls = []
         issues = []
@@ -504,11 +538,14 @@ class ReadablePythonGenerator:
                 fields = [field['field'] for field in config.get('summarize_fields', []) if field.get('action') == 'GroupBy']
                 roles['Summarize'] = 'summarize_by_' + '_and_'.join(fields[:2]) if fields else 'summarize_rows'
             base_name = identifier(annotation or roles.get(node.tool_type, node.tool_type))
-            name, suffix = '_operation_' + base_name, 1
+            prefix = 'python_' if node.tool_type == 'JupyterCode' else '_operation_'
+            name, suffix = prefix + base_name, 1
             while name in used_names:
                 suffix += 1
-                name = f'_operation_{base_name}_{suffix}'
+                name = f'{prefix}{base_name}_{suffix}'
             used_names.add(name)
+            if node.tool_type == 'JupyterCode':
+                native_python_functions.add(name)
             try:
                 metadata = TOOL_REGISTRY.get(node.tool_type) if node.tool_type not in {'MacroResult', 'MacroBoundaryInput'} else None
                 outputs = tuple(anchor.name for anchor in node.output_anchors) if node.tool_type in {'MacroResult', 'ControlContainer'} else (
@@ -530,6 +567,19 @@ class ReadablePythonGenerator:
                 for (parameter_node,_), expression in self.parameter_expressions.items():
                     if parameter_node == node_id:
                         collect_parameters(expression)
+                self.current_parameter_names = {} if node.metadata.get('macro_parent') else self.parameter_names
+                def collect_question_fields(value):
+                    if isinstance(value, str):
+                        for question, python_name in self.current_parameter_names.items():
+                            if f'[Question.{question}]' in value or f'[%Question.{question}%]' in value:
+                                parameter_names.add(python_name)
+                    elif isinstance(value, dict):
+                        for item in value.values():
+                            collect_question_fields(item)
+                    elif isinstance(value, list):
+                        for item in value:
+                            collect_question_fields(item)
+                collect_question_fields(config)
                 for binding in prepared.metadata.get('parameter_bindings', []):
                     if binding['node_id'] != node_id:
                         continue
@@ -539,14 +589,17 @@ class ReadablePythonGenerator:
                         config['_file_parameter'] = parameter_name
                     elif binding['kind'] == 'cell':
                         config.setdefault('_cell_parameters', {})[':'.join(map(str, binding['path'][1:]))] = parameter_name
+                    elif binding['kind'] == 'disabled':
+                        config['_disabled_parameter'] = parameter_name
                 runtime_arguments.extend(sorted(parameter_names))
                 from alteryx2python.generator.native_io import lower_io
+                self.current_constants = node.metadata.get('workflow_constants', prepared.metadata.get('workflow_constants', {}))
                 from alteryx2python.generator.native_tabular import lower_tabular
                 from alteryx2python.generator.native_relational import lower_relational
                 from alteryx2python.generator.native_reshape import lower_reshape
                 if node.tool_type == 'JupyterCode':
-                    from alteryx2python.generator.python_tool import lower_python_script
-                    body, outputs = lower_python_script(config.get('production_mode_script', ''), arguments, prepared.metadata.get('workflow_constants'))
+                    from alteryx2python.generator.python_tool import lower_python_script, saved_python_script
+                    body, outputs = lower_python_script(saved_python_script(config), arguments, self.current_constants, self.linker)
                 else:
                     body = lower_io(node.tool_type, config, next(iter(arguments.values()), None), self)
                 if body is None:
@@ -594,6 +647,7 @@ class ReadablePythonGenerator:
                     import warnings
                     namespace = {**function.__globals__, **inspect.getclosurevars(function).nonlocals, 'warnings':warnings}
                     tree = self.linker.bind_globals(tree, namespace)
+                    tree = simplify_template(tree)
                     self.functions.append(ast.unparse(ast.fix_missing_locations(tree)))
                     template_hash = hashlib.sha256(source.encode()).hexdigest()
                 else:
@@ -613,8 +667,15 @@ class ReadablePythonGenerator:
                 calls.append('    # ' + node.tool_type + ' / source node ' + node_id)
                 from alteryx2python.runtime.scheduling import container_guards
                 guards = container_guards(node, by_id, workflow.edges)
-                if guards:
-                    condition = ' and '.join('False' if guard is None else f'len({variables[guard]}.index) > 0' for guard in guards)
+                conditions = ['False' if guard is None else f'len({variables[guard]}.index) > 0' for guard in guards]
+                parent = node.config.get('container_id')
+                while parent:
+                    container = by_id[parent]
+                    if container.metadata.get('disabled_parameter'):
+                        conditions.append('not ' + self.parameter_names[container.metadata['disabled_parameter']])
+                    parent = container.config.get('container_id')
+                if conditions:
+                    condition = ' and '.join(conditions)
                     calls.append('    if ' + condition + ':')
                     calls.append('        ' + (', '.join(node_vars) + ' = ' if node_vars else '') + call)
                     if node_vars:
@@ -656,20 +717,73 @@ class ReadablePythonGenerator:
             elif item['kind'] == 'Date':
                 self.linker.imports.add('from datetime import date')
             pipeline += textwrap.indent('\n'.join(validation_lines(item, name)), '    ') + '\n'
-        from alteryx2python.workflow_events import workflow_events
-        from alteryx2python.tools.delivery import run_checked_command
-        events = workflow_events(original.source_xml)
+        from alteryx2python.workflow_events import workflow_events, attachment_bindings, attachment_output
+        from alteryx2python.tools.delivery import run_checked_command, deliver_event_email, PROFILE, SMTP_PROFILE
+        from alteryx2python.runtime.variables import resolve_variable_tokens, TOKEN
+        raw_events = workflow_events(original.source_xml)
+        event_constants = prepared.metadata.get('workflow_constants', {})
+        events = resolve_variable_tokens(raw_events, event_constants)
+        event_outputs = attachment_bindings(workflow, redirect_sinks=True)
         if events:
-            command = self.linker.function(run_checked_command)
+            def event_value(value):
+                pieces, start = [], 0
+                for match in TOKEN.finditer(value):
+                    question = match.group(2) if match.group(1) == 'Question' else None
+                    if question not in self.parameter_names:
+                        continue
+                    pieces.extend([repr(resolve_variable_tokens(value[start:match.start()], event_constants)),
+                                   f'str({self.parameter_names[question]})'])
+                    start = match.end()
+                pieces.append(repr(resolve_variable_tokens(value[start:], event_constants)))
+                return ' + '.join(pieces)
             def event_calls(timings, success=False):
                 result = []
-                for event in events:
+                for event in raw_events:
                     timing = event['when']
                     condition = ('bool(workflow_warnings)' if timing in {'warnings', 'failure_or_warnings'} else
                                  'not workflow_warnings' if timing == 'clean_success' else None)
                     if timing not in timings and not (success and condition):
                         continue
-                    call = f'{command}(' + (repr(event['program']) if Path(event['program']).is_absolute() else f'(str(input_dir / {event["program"]!r}) if (input_dir / {event["program"]!r}).is_file() else {event["program"]!r})') + f', {event["arguments"]!r}, event_working_dir or input_dir / {event["working_dir"]!r}, None, "", "", allowed_commands, {event["timeout"]!r})'
+                    if event.get('kind') == 'email':
+                        if delivery_profile not in {PROFILE, SMTP_PROFILE}:
+                            raise UnsupportedLowering('Email events require an explicit html-draft-v1 or html-smtp-v1 profile')
+                        if event['dcm'] and delivery_profile == SMTP_PROFILE:
+                            raise UnsupportedLowering('Email event DCM connection needs an explicit SMTP adapter')
+                        function = self.linker.function(deliver_event_email)
+                        arguments = ', '.join(event_value(event[key]) for key in ('sender', 'recipient', 'subject', 'body'))
+                        attachments = []
+                        for item in event['attachments']:
+                            resolved = resolve_variable_tokens(item, event_constants)
+                            produced = attachment_output(resolved, event_outputs)
+                            dynamic = any(match.group(1) == 'Question' and match.group(2) in self.parameter_names for match in TOKEN.finditer(item))
+                            value = event_value(item)
+                            path = 'input_dir / (' + value + ')'
+                            if dynamic:
+                                for sink in workflow.nodes:
+                                    settings = sink.config.get('normalized', sink.config)
+                                    if sink.tool_type == 'DbFileOutput':
+                                        source = repr(str(settings.get('file', '')).partition('|||')[0])
+                                        binding = next((binding for binding in prepared.metadata.get('parameter_bindings', [])
+                                            if binding['node_id'] == sink.node_id and binding['kind'] == 'file'), None)
+                                        if binding:
+                                            source = self.parameter_names[binding['name']]
+                                    elif sink.tool_type == 'PortfolioComposerRender':
+                                        source = repr(settings.get('output_file') or 'report.html')
+                                    else:
+                                        continue
+                                    path = f'(output_dir / Path({source}).name if input_dir / Path({value}) == input_dir / Path({source}) else {path})'
+                            elif produced:
+                                path = f'output_dir / {produced!r}'
+                            attachments.append(path)
+                        attachments = '[' + ', '.join(attachments) + ']'
+                        destination = f'output_dir / {"event-" + event["id"] + ".eml"!r}' if delivery_profile == PROFILE else 'None'
+                        options = ', '.join(event_value(event[key]) for key in ('host', 'port', 'security'))
+                        call = f'{function}({arguments}, {attachments}, {destination}, {options}, {event["authentication"]!r}, {event_value(event["username"])})'
+                    else:
+                        command = self.linker.function(run_checked_command)
+                        program = event_value(event['program'])
+                        resolved = f'(str(input_dir / ({program})) if (input_dir / ({program})).is_file() else ({program}))'
+                        call = f'{command}({resolved}, {event_value(event["arguments"])}, event_working_dir or input_dir / ({event_value(event["working_dir"])}), None, "", "", allowed_commands, {event["timeout"]!r})'
                     result.append(('if ' + condition + ':\n    ' if condition and timing not in timings else '') + call)
                 return result
             self.linker.imports.add('import warnings')
@@ -698,10 +812,10 @@ class ReadablePythonGenerator:
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
         source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + pipeline + main
         from alteryx2python.generator.business_source import assemble
-        source, verification_source = assemble(source, self.mapping)
+        source, verification_source = assemble(source, self.mapping, native_python_functions)
         parsed_source = ast.parse(source)
         from alteryx2python.generator.business_source import validate_business_source
-        validate_business_source(parsed_source)
+        validate_business_source(parsed_source, native_python_functions)
         for item in ast.walk(parsed_source):
             modules = [item.module or ''] if isinstance(item, ast.ImportFrom) else [alias.name for alias in item.names] if isinstance(item, ast.Import) else []
             if any(module.startswith(('alteryx2python', 'alteryx_runtime')) for module in modules):
@@ -715,10 +829,12 @@ class ReadablePythonGenerator:
         manifest = {'format_version': 1, 'template_version': TEMPLATE_VERSION,
             'workflow_id': original.workflow_id, 'source_sha256': original.source_hash,
             'generated_sha256': hashlib.sha256(source.encode()).hexdigest(),
-            'delivery_profile': delivery_profile, 'bound_answers': answers or {},
+            'delivery_profile': delivery_profile, 'bound_answers': prepared.metadata.get('answers', {}),
+            'parameter_mode': parameter_mode, 'constant_overrides': constants or {},
             'native_equivalence': 'unverified', 'python_differential': 'unverified',
             'helper_sha256': self.linker.digests, 'nodes': self.mapping}
         manifest['events'] = events
+        manifest['workflow_constants'] = prepared.metadata.get('workflow_constants', {})
         manifest['parameters'] = self.parameters
         manifest['verification_sha256'] = hashlib.sha256(verification_source.encode()).hexdigest()
         manifest['compiler_sha256'] = {name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()

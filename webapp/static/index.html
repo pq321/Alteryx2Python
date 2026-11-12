@@ -9,6 +9,7 @@
   <a class="brand" href="/" aria-label="Alteryx2Python 首页"><span class="brand-mark" aria-hidden="true">a²p</span><strong>Alteryx2Python</strong></a>
   <span class="top-divider"></span><input id="wfName" aria-label="工作流名称" value="未命名工作流" maxlength="120"><span id="saveState" class="muted">本地草稿</span>
   <div class="top-actions">
+    <select id="languageSelect" aria-label="Language / 语言"><option value="zh">中文</option><option value="en">English</option></select>
     <button id="btnOpen" title="打开工作流 JSON">↥ <span class="action-label">打开</span></button>
     <button id="btnSave" title="保存工作流 JSON">↧ <span class="action-label">保存</span></button>
     <button id="btnCompile" class="secondary">生成代码</button><button id="btnRun" class="primary">▶ 运行</button>
@@ -19,14 +20,14 @@
   <div class="history-actions">
     <button id="btnUndo" class="icon-button" title="撤销 (Ctrl+Z)" aria-label="撤销" disabled>↶</button>
     <button id="btnRedo" class="icon-button" title="重做 (Ctrl+Shift+Z)" aria-label="重做" disabled>↷</button>
-    <span class="small-divider"></span><button id="btnNew">新建</button><button id="btnExample">示例</button>
+    <span class="small-divider"></span><button id="btnNew">新建</button><button id="btnExample">示例</button><button id="btnWorkflowSettings">工作流设置</button>
   </div><span id="graphCount" class="muted">0 个节点</span>
 </div>
 <main id="workspace">
   <aside id="palettePanel" aria-label="工具库">
     <div class="panel-heading"><h2>工具库</h2><button id="btnPalette" class="icon-button" title="折叠工具库" aria-label="折叠工具库">‹</button></div>
     <label class="search-box"><span aria-hidden="true">⌕</span><input id="toolSearch" type="search" placeholder="搜索工具…" aria-label="搜索工具"></label>
-    <div id="palette"></div><button id="btnImport" class="import-button">↥ 导入数据</button>
+    <div id="palette" data-i18n-skip></div><div class="palette-actions"><button id="btnImport" class="import-button">↥ 导入数据</button><button id="btnMacro" class="import-button">导入宏</button></div>
   </aside>
   <section id="canvasWrap" aria-label="工作流画布" tabindex="0">
     <svg id="canvas" aria-label="工作流节点与连线"><g id="scene"></g></svg>
@@ -45,7 +46,7 @@
   <div id="configResize" class="resize-handle vertical" role="separator" aria-label="调整配置区宽度" aria-orientation="vertical" tabindex="0"></div>
   <aside id="configPanel" aria-label="节点配置">
     <div class="panel-heading config-heading"><div><span id="configCategory" class="eyebrow">工作流</span><h2 id="configTitle">节点配置</h2></div><div class="config-actions"><button id="btnDeleteNode" class="danger" title="删除节点" aria-label="删除节点" hidden>删除</button><button id="btnCloseConfig" class="icon-button" title="关闭配置" aria-label="关闭配置">×</button></div></div>
-    <div id="configBody"></div>
+    <div id="configBody" data-i18n-skip></div>
   </aside>
 </main>
 <div id="resultResize" class="resize-handle horizontal" role="separator" aria-label="调整结果区高度" aria-orientation="horizontal" tabindex="0"></div>
@@ -56,15 +57,18 @@
       <button id="tab-python" data-tab="python" role="tab" aria-controls="tabPython" aria-selected="false">Python</button>
       <button id="tab-yxmd" data-tab="yxmd" role="tab" aria-controls="tabYxmd" aria-selected="false">Alteryx XML</button>
     </div>
-    <div class="result-actions"><select id="previewSelect" aria-label="选择节点输出" hidden></select><button id="btnDownload" title="下载当前结果" disabled>↧ <span id="downloadLabel">CSV</span></button><button id="btnCollapseResult" class="icon-button" title="折叠结果区" aria-label="折叠结果区">⌄</button></div>
+    <div class="result-actions"><select id="previewSelect" aria-label="选择节点输出" hidden></select><button id="btnManifest" title="下载代码映射清单" aria-label="下载代码映射清单" disabled hidden>manifest.json</button><button id="btnDownload" title="下载当前结果" disabled>↧ <span id="downloadLabel">CSV</span></button><button id="btnCollapseResult" class="icon-button" title="折叠结果区" aria-label="折叠结果区">⌄</button></div>
   </div>
   <div id="resultNotice" class="result-notice" hidden></div>
+  <details id="executionDetails" hidden><summary>执行记录与文件</summary><pre id="executionOutput" data-i18n-skip></pre><div id="artifactList" data-i18n-skip></div></details>
   <div id="tabResult" class="tab-page active" role="tabpanel" aria-labelledby="tab-result"><div class="result-empty"><span aria-hidden="true">▤</span><p>暂无运行结果</p></div></div>
   <pre id="tabPython" class="tab-page" role="tabpanel" aria-labelledby="tab-python"></pre><pre id="tabYxmd" class="tab-page" role="tabpanel" aria-labelledby="tab-yxmd"></pre>
   <div class="result-footer"><span id="resultCount">0 行 · 0 列</span><span id="runTime"></span></div>
 </section>
 <footer class="statusbar"><span id="status" role="status" aria-live="polite">正在连接…</span><span id="connectionStatus">本地执行</span></footer>
-<input id="dataFile" type="file" accept=".csv,.tsv,.txt,.xlsx" multiple hidden><input id="workflowFile" type="file" accept=".json" hidden>
+<input id="dataFile" type="file" accept=".csv,.tsv,.txt,.xlsx" multiple hidden><input id="workflowFile" type="file" accept=".json,.yxmd,.yxwz,.yxmc" hidden>
 <dialog id="confirmDialog"><form method="dialog"><h2 id="confirmTitle"></h2><p id="confirmMessage"></p><div class="dialog-actions"><button value="cancel">取消</button><button value="confirm" class="primary">确认</button></div></form></dialog>
+<dialog id="workflowSettingsDialog" class="settings-dialog" aria-labelledby="workflowSettingsTitle"><div class="panel-heading"><h2 id="workflowSettingsTitle">工作流设置</h2><button id="btnCloseSettings" class="icon-button" aria-label="关闭配置">×</button></div><div id="workflowSettingsBody" data-i18n-skip></div></dialog>
+<dialog id="macroDialog" class="settings-dialog" aria-labelledby="macroTitle"><div class="panel-heading"><h2 id="macroTitle">导入宏</h2><button id="btnCloseMacro" class="icon-button" aria-label="关闭配置">×</button></div><div class="macro-body"><label class="config-field">选择宏文件<input id="macroFiles" type="file" accept=".yxmc" multiple></label><label class="config-field">选择宏目录<input id="macroFolder" type="file" webkitdirectory multiple></label><label class="config-field">入口宏<select id="macroRoot"></select></label><button id="btnImportMacroBundle" class="primary" disabled>导入宏</button></div></dialog>
 <script type="module" src="/dist/app.js"></script>
 </body></html>

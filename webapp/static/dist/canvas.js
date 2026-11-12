@@ -1,4 +1,5 @@
-import { NODE_W, NODE_H, labels, symbols, strings, rows, text, connectError } from './model.js';
+import { t, tr } from './i18n.js';
+import { NODE_W, NODE_H, toolLabel, ports as nodePorts, symbols, strings, rows, text, connectError } from './model.js';
 import { byId } from './ui.js';
 const NS = 'http://www.w3.org/2000/svg';
 function svg(tag, attributes, content = '') {
@@ -41,7 +42,7 @@ export class Canvas {
     point(client) { const box = this.svg.getBoundingClientRect(); return { x: (client.x - box.left - this.view.x) / this.view.scale, y: (client.y - box.top - this.view.y) / this.view.scale }; }
     center() { const box = this.svg.getBoundingClientRect(); return this.point({ x: box.left + box.width / 2, y: box.top + box.height / 2 }); }
     anchor(node, name, input) {
-        const tool = this.tools().find(t => t.type === node.type), ports = (input ? tool?.inputs : tool?.outputs) ?? [];
+        const ports = nodePorts(node, this.tools(), input);
         return { x: node.x + (input ? 0 : NODE_W), y: node.y + 20 + (ports.indexOf(name) + .5) * (NODE_H - 28) / Math.max(ports.length, 1) };
     }
     render() {
@@ -54,7 +55,7 @@ export class Canvas {
                 return;
             const a = this.anchor(from, edge.fromAnchor, false), b = this.anchor(to, edge.toAnchor, true), d = curve(a, b);
             const hit = svg('path', { d, class: 'edge-hit', 'data-edge': index });
-            const title = svg('title', {}, '双击移除连线');
+            const title = svg('title', {}, tr('双击移除连线'));
             hit.append(title);
             hit.addEventListener('dblclick', () => { graph.edges.splice(index, 1); this.edge = null; this.changed(); this.select(this.selected()); });
             this.scene.append(hit, svg('path', { d, class: 'edge' + (this.edge === index ? ' selected' : ''), 'pointer-events': 'none' }));
@@ -62,10 +63,10 @@ export class Canvas {
                 this.scene.append(svg('text', { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 - 8, class: 'edge-label', 'text-anchor': 'middle' }, edge.fromAnchor));
         });
         graph.nodes.forEach(node => {
-            const tool = this.tools().find(t => t.type === node.type), group = svg('g', { transform: 'translate(' + node.x + ' ' + node.y + ')', class: 'node' + (this.selected() === node.id ? ' selected' : ''), 'data-node': node.id, tabindex: 0, role: 'button', 'aria-label': (labels[node.type] ?? node.type) + ' #' + node.id });
+            const group = svg('g', { transform: 'translate(' + node.x + ' ' + node.y + ')', class: 'node' + (this.selected() === node.id ? ' selected' : ''), 'data-node': node.id, tabindex: 0, role: 'button', 'aria-label': toolLabel(node) + ' #' + node.id });
             group.append(svg('rect', { width: NODE_W, height: NODE_H, rx: 6, class: 'body' }), svg('rect', { x: 13, y: 17, width: 31, height: 31, rx: 5, fill: '#eff6f0' }), svg('text', { x: 28, y: 39, class: 'node-symbol', 'text-anchor': 'middle' }, symbols[node.type] ?? '◇'));
-            group.append(svg('text', { x: 54, y: 30, class: 'title' }, labels[node.type] ?? node.type), svg('text', { x: 54, y: 47, class: 'summary' }, this.summary(node).slice(0, 21)), svg('text', { x: 13, y: 66, class: 'summary' }, '#' + node.id));
-            const title = svg('title', {}, (tool?.label ?? node.type) + ' · ' + this.summary(node));
+            group.append(svg('text', { x: 54, y: 30, class: 'title', ...(toolLabel(node).length > 20 ? { textLength: 120, lengthAdjust: 'spacingAndGlyphs' } : {}) }, toolLabel(node)), svg('text', { x: 54, y: 47, class: 'summary' }, this.summary(node).slice(0, 21)), svg('text', { x: 13, y: 66, class: 'summary' }, '#' + node.id));
+            const title = svg('title', {}, toolLabel(node) + ' · ' + this.summary(node));
             group.append(title);
             const ports = (names, input) => names.forEach(name => {
                 const position = this.anchor(node, name, input), circle = svg('circle', { cx: position.x - node.x, cy: position.y - node.y, r: 5, class: 'anchor', 'data-port': name, 'data-direction': input ? 'input' : 'output', 'data-node': node.id });
@@ -74,8 +75,8 @@ export class Canvas {
                 if (names.length > 1)
                     group.append(svg('text', { x: input ? 8 : NODE_W - 8, y: position.y - node.y + 3, 'text-anchor': input ? 'start' : 'end', class: 'anchor-label' }, name));
             });
-            ports(tool?.inputs ?? [], true);
-            ports(tool?.outputs ?? [], false);
+            ports(nodePorts(node, this.tools(), true), true);
+            ports(nodePorts(node, this.tools(), false), false);
             group.addEventListener('keydown', event => { if (event.key === 'Enter')
                 this.select(node.id); });
             this.scene.append(group);
@@ -86,21 +87,21 @@ export class Canvas {
                 this.scene.append(svg('path', { d: curve(this.anchor(source, this.link.fromAnchor, false), this.link.point), class: 'link-preview' }));
         }
         byId('canvasEmpty').hidden = graph.nodes.length > 0;
-        byId('graphCount').textContent = graph.nodes.length + ' 个节点 · ' + graph.edges.length + ' 条连线';
+        byId('graphCount').textContent = t('{count} 个节点', { count: graph.nodes.length }) + ' · ' + t('{count} 条连接', { count: graph.edges.length });
         byId('zoomValue').textContent = Math.round(this.view.scale * 100) + '%';
         byId('canvasMeta').textContent = this.graph().name;
     }
     summary(node) {
         const c = node.config;
         if (node.type === 'TextInput')
-            return rows(c).length + ' 行 · ' + strings(c, 'fields').length + ' 列';
+            return t('{rows} 行 · {columns} 列', { rows: rows(c).length, columns: strings(c, 'fields').length });
         if (node.type === 'DbFileInput')
-            return text(c, 'name', '等待导入文件');
+            return text(c, 'name', tr('等待导入文件'));
         if (node.type === 'Filter')
             return text(c, 'expression');
         if (node.type === 'DbFileOutput')
             return text(c, 'file');
-        return this.tools().find(t => t.type === node.type)?.label ?? node.type;
+        return toolLabel(this.tools().find(t => t.type === node.type) ?? node);
     }
     down(event) {
         if (event.button !== 0)
@@ -108,7 +109,7 @@ export class Canvas {
         const target = event.target, port = target.closest('[data-port]'), node = target.closest('[data-node]');
         if (port?.dataset.direction === 'output') {
             this.link = { from: port.dataset.node, fromAnchor: port.dataset.port, point: this.point({ x: event.clientX, y: event.clientY }) };
-            this.status('选择输入端口');
+            this.status(tr('选择输入端口'));
             this.render();
             return;
         }
@@ -178,7 +179,7 @@ export class Canvas {
             this.graph().edges.push(edge);
             this.changed();
             this.select(edge.to);
-            this.status('已连接');
+            this.status(tr('已连接'));
         }
         this.render();
     }
