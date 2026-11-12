@@ -58,6 +58,32 @@ LOCAL_TOOLS = {
     "Base64Encoder",
 }
 
+# Tools whose Python side deliberately executes external code, commands, or
+# network traffic: excluded from automatic batch parity (the native side would
+# run them too, but silent mass execution of arbitrary side effects is unsafe).
+SIDE_EFFECT_TOOLS = {
+    "RunCommand",
+    "JupyterCode",
+    "Download",
+    "ApiOutput",
+    "DynamicInput",
+    "BlobInput",
+}
+
+
+def _dynamic_local_tools() -> set[str]:
+    """Whitelist = curated base + every registry tool with a real (non-baseline)
+    Python implementation, minus side-effect tools."""
+    from alteryx2python.tools.baseline import BaselineTool
+    from alteryx2python.tools.registry import TOOL_REGISTRY
+
+    real = {
+        tool_type
+        for tool_type, metadata in TOOL_REGISTRY._registry.items()
+        if getattr(metadata, "maturity", "").startswith("L2")
+    }
+    return (LOCAL_TOOLS | real) - SIDE_EFFECT_TOOLS
+
 
 def write_json(path: Path, value: Any) -> None:
     path.write_text(
@@ -194,11 +220,12 @@ def prepare(workflow_path: Path, destination: Path) -> dict:
     from alteryx2python.parser.tool_catalog import CATALOG as _CATALOG
 
     _gui_only = {entry.tool_type for entry in _CATALOG if entry.gui_only}
+    _local_tools = _dynamic_local_tools()
     unsupported = sorted(
         {
             node.tool_type
             for node in workflow.nodes
-            if node.tool_type not in LOCAL_TOOLS
+            if node.tool_type not in _local_tools
             and node.tool_type not in _gui_only
             and not node.tool_type.startswith("Macro_")
         }
