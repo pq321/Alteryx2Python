@@ -265,6 +265,33 @@ def test_configured_report_path_creates_default_date_folder(tmp_path):
     assert workbook_snapshot(first / name) == workbook_snapshot(second / name)
 
 
+def test_dynamic_input_blank_headers_reach_downstream_formula(tmp_path):
+    for filename, values in [('template.xlsx', [3, 4]), ('input.xlsx', [6, 8])]:
+        rows = [['Label', 'Unnamed: 0', None, None], ['row', 'text', *values]]
+        pd.DataFrame(rows).to_excel(tmp_path / filename, sheet_name='Config', index=False, header=False)
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(['File'], [['input.xlsx|||Config$']])
+    dynamic = builder._node('DynamicInput', '''
+        <InputConfiguration><Configuration><File FileFormat="25">template.xlsx|||Config$</File></Configuration></InputConfiguration>
+        <Mode>ReadList</Mode><ReadList_Field>File</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+    ''', (200, 100))
+    formula = builder.add_formula([('Total', 'Int64', '8', '[F3] + [F4]')])
+    sink = builder.add_csv_output('result.csv')
+    builder.connect(source, dynamic)
+    builder.connect(dynamic, formula)
+    builder.connect(formula, sink)
+    workflow = save_workflow(builder, tmp_path)
+    graph = run_workflow_graph(workflow, WorkflowContext())
+    assert graph.node_results[str(dynamic)].outputs['Output'].columns.tolist() == ['Label', 'Unnamed: 0', 'F3', 'F4']
+    script = tmp_path / 'phase_two.py'
+    ReadablePythonGenerator().generate(workflow).write(script)
+    standalone = tmp_path / 'delivery'
+    run = subprocess.run([sys.executable, '-I', str(script), '--output-dir', str(standalone)], capture_output=True)
+    assert run.returncode == 0, run.stderr
+    assert (standalone / 'result.csv').read_bytes() == (tmp_path / 'result.csv').read_bytes()
+    assert pd.read_csv(standalone / 'result.csv')['Total'].tolist() == [14]
+
+
 def test_output_directory_creation_reports_permission_failure(tmp_path, monkeypatch):
     from alteryx2python.tools.dbfileoutput import ensure_output_directory
 

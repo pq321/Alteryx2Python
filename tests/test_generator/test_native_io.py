@@ -155,13 +155,26 @@ def test_excel_selects_nonfirst_sheet(tmp_path):
     pd.testing.assert_frame_equal(actual, expected, check_exact=True)
 
 
+def test_excel_range_names_blank_headers_by_selected_position(tmp_path):
+    path = tmp_path / 'input.xlsx'
+    pd.DataFrame([['skip', 'Label', 'Unnamed: 0', None, None], ['skip', 'a', 'b', 3, 4]]).to_excel(
+        path, sheet_name='Data', startrow=1, header=False, index=False,
+    )
+    settings = {'file': 'input.xlsx|||Data$B2:E3', 'base_dir': str(tmp_path)}
+    expected = dbfileinput_tool({}, settings, WorkflowContext())['Output']
+    actual = _compile('DbFileInput', settings)(input_dir=tmp_path, output_dir=tmp_path)
+    assert actual.columns.tolist() == ['Label', 'Unnamed: 0', 'F3', 'F4']
+    assert actual.iloc[0].tolist() == ['a', 'b', 3, 4]
+    pd.testing.assert_frame_equal(actual, expected, check_exact=True)
+
+
 def test_excel_missing_engine_retains_runtime_blocker(tmp_path, monkeypatch):
     def missing_engine(*args, **kwargs):
         raise ImportError("missing optional engine")
 
     config = {"file": "input.xlsx", "base_dir": str(tmp_path)}
     run = _compile("DbFileInput", config)
-    monkeypatch.setattr(pd, "read_excel", missing_engine)
+    monkeypatch.setattr(pd, "ExcelFile", missing_engine)
     with pytest.raises(NotImplementedError, match="optional Excel engine"):
         run(input_dir=tmp_path, output_dir=tmp_path)
 

@@ -143,11 +143,44 @@ def excel_selection_options(selector, options, *, allow_bare=False):
             "skiprows": int(start) - 1 + offset, "nrows": rows if limit is None else min(rows, limit)}
 
 
-def read_excel_selection(path, selector, *, allow_bare=False, **options):
+def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, **options):
     try:
-        return pd.read_excel(path, **excel_selection_options(selector, options, allow_bare=allow_bare))
+        with pd.ExcelFile(path) as workbook:
+            frame = workbook.parse(sheet_name, header=header, skiprows=skiprows, usecols=usecols, **options)
+            if header != 0 or not any(isinstance(name, str) and name.startswith('Unnamed: ') for name in frame.columns):
+                return frame
+
+            # Inspect the actual header cells to distinguish blanks from literal "Unnamed: n" names.
+            header_row = workbook.parse(sheet_name, header=None, skiprows=skiprows, nrows=1,
+                                        dtype=object, keep_default_na=False)
     except ImportError as exc:
         raise NotImplementedError("Excel input requires pandas optional Excel engine support") from exc
+
+    start = 0
+    if usecols is not None:
+        from openpyxl.utils.cell import column_index_from_string
+
+        start = column_index_from_string(usecols.split(':', 1)[0]) - 1
+    labels = header_row.iloc[0].tolist() if not header_row.empty else []
+    names = list(frame.columns)
+    named_columns = {name for index, name in enumerate(names, start)
+                     if index < len(labels) and labels[index] not in (None, '')}
+    for index in range(len(names)):
+        if start + index < len(labels) and labels[start + index] not in (None, ''):
+            continue
+        fallback = f'F{index + 1}'
+        replacement, suffix = fallback, 1
+        while replacement in named_columns:
+            replacement = f'{fallback}.{suffix}'
+            suffix += 1
+        named_columns.add(replacement)
+        names[index] = replacement
+    frame.columns = names
+    return frame
+
+
+def read_excel_selection(path, selector, *, allow_bare=False, **options):
+    return read_excel_data(path, **excel_selection_options(selector, options, allow_bare=allow_bare))
 
 
 def _read_excel(path: Path, selector: str | None, config: dict[str, Any]) -> pd.DataFrame:

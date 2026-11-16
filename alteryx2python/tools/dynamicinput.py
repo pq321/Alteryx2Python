@@ -72,7 +72,9 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
     if has_invalid_path:
         references.append(None)
     try:
-        expected_columns = list(read_one(template, {**read_options, "nrows": 0}).columns) if references else None
+        # A header-only Excel parse can drop trailing blank headers whose columns contain data.
+        schema_options = read_options if suffix == ".xlsx" else {**read_options, "nrows": 0}
+        expected_columns = list(read_one(template, schema_options).columns) if references else None
     except (OSError, ValueError, BadZipFile, NotImplementedError):
         # A portable workflow can still use a complete source path when its saved template is unavailable.
         expected_columns = None

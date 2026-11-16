@@ -17,6 +17,7 @@ from alteryx2python.tools.dbfileinput import (
     _record_limit,
     _split_alteryx_file_reference,
     excel_selection_options,
+    read_excel_data,
 )
 from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records, delivery_output_path, ensure_output_directory, write_xlsx, xlsx_output_options
 from alteryx2python.tools.textinput import _infer_types, _normalize_row
@@ -107,12 +108,8 @@ def _input(config: dict, raw: str, selector: str | None, compiler) -> list[str]:
     else:
         selection = excel_selection_options(selector, dict(skiprows=skiprows, nrows=limit, header=0 if header else None))
         excel_options = ', '.join(f'{key}={value!r}' for key, value in selection.items())
-        lines += [
-            "try:",
-            f"    output = pd.read_excel(path, {excel_options})",
-            "except ImportError as exc:",
-            '    raise NotImplementedError("Excel input requires pandas optional Excel engine support") from exc',
-        ]
+        read_excel = compiler.linker.function(read_excel_data) if compiler is not None else 'read_excel_data'
+        lines.append(f"output = {read_excel}(path, {excel_options})")
     if not header:
         lines.append('output.columns = [f"F{index}" for index in range(1, len(output.columns) + 1)]')
     return lines + ["return output"]
