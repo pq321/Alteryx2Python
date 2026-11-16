@@ -36,7 +36,9 @@ def encode_value(value: Any) -> dict[str, Any]:
             "kind": "bytes",
             "value": base64.b64encode(bytes(value)).decode("ascii"),
         }
-    if isinstance(value, (datetime, date, time)):
+    if isinstance(value, datetime):
+        return {"kind": "datetime", "value": value.isoformat()}
+    if isinstance(value, (date, time)):
         return {"kind": type(value).__name__, "value": value.isoformat()}
     if type(value).__module__.startswith("PIL."):
         from PIL.Image import Image

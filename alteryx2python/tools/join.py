@@ -20,17 +20,28 @@ def _prefix_frame(frame: pd.DataFrame, prefix: str) -> pd.DataFrame:
     return frame.rename(columns={column: f"{prefix}_{column}" for column in frame.columns})
 
 
-def _selected_output(joined: pd.DataFrame, select_fields: list[dict[str, Any]]) -> pd.DataFrame:
-    output_columns: dict[str, pd.Series] = {}
-    for field in select_fields:
-        if not field.get("selected", True):
-            continue
-        source = str(field.get("source", ""))
+def _selected_output(joined, select_fields, left_columns, right_columns, order_changed):
+    fields = {field["source"]: field for field in select_fields}
+    include_unknown = fields.get("*Unknown", {}).get("selected", False)
+    default_names = {f"Left_{name}": name for name in left_columns}
+    default_names.update({
+        f"Right_{name}": f"Right_{name}" if name in left_columns else name
+        for name in right_columns
+    })
+    selected = []
+    for source in fields if order_changed else joined.columns:
         if source == "*Unknown":
-            continue
-        rename = str(field.get("rename", source))
-        output_columns[rename] = joined[source]
-    return pd.DataFrame(output_columns, index=joined.index)
+            if include_unknown:
+                selected.extend((name, default_names[name]) for name in joined if name not in fields)
+        elif source in fields:
+            field = fields[source]
+            if field.get("selected", True) and source in joined:
+                selected.append((source, field.get("rename", default_names[source])))
+        elif include_unknown:
+            selected.append((source, default_names[source]))
+    result = joined[[source for source, _ in selected]].copy()
+    result.columns = [name for _, name in selected]
+    return result
 
 
 def join_tool(
@@ -68,7 +79,7 @@ def join_tool(
     joined = pd.concat([left_prefixed, right_prefixed], axis=1)
     select_fields = [field for field in config.get("select_fields", []) if isinstance(field, dict)]
     if select_fields:
-        output = _selected_output(joined, select_fields)
+        output = _selected_output(joined, select_fields, left.columns, right.columns, config.get("order_changed", True))
     else:
         output = joined
     outputs = {

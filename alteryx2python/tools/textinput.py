@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 import pandas as pd
@@ -13,6 +14,8 @@ def textinput_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
     context: WorkflowContext,
+    *,
+    infer_dates: bool = True,
 ) -> dict[str, pd.DataFrame]:
     data_inputs = {anchor: frame for anchor, frame in inputs.items() if anchor != "Action"}
     if data_inputs:
@@ -26,7 +29,7 @@ def textinput_tool(
         raise ValueError("TextInput config requires fields")
 
     normalized_rows = [_normalize_row(row, fields) for row in rows]
-    output = _infer_types(pd.DataFrame(normalized_rows, columns=fields, dtype=object))
+    output = _infer_types(pd.DataFrame(normalized_rows, columns=fields, dtype=object), infer_dates)
 
     outputs = {"Output": output}
     context.record_node(
@@ -55,14 +58,15 @@ def _normalize_row(row: Any, fields: list[str]) -> list[str | None]:
     return [None if value is None else str(value) for value in row]
 
 
-def _infer_types(frame: pd.DataFrame) -> pd.DataFrame:
+def _infer_types(frame: pd.DataFrame, infer_dates: bool = True) -> pd.DataFrame:
     """Infer column dtypes the way the native TextInput engine does.
 
     A column where every non-empty cell parses as an integer becomes Int64;
     a column where every non-empty cell parses as a float becomes Double;
-    anything else stays as object strings. Empty cells become None.
+    an ISO date column becomes a datetime column. Other values stay as text.
     """
     inferred = frame.copy()
+    dates = []
     for column in inferred.columns:
         values = inferred[column]
         non_empty = [value for value in values if value is not None and str(value) != ""]
@@ -79,6 +83,13 @@ def _infer_types(frame: pd.DataFrame) -> pd.DataFrame:
                 )
         elif all(_is_float(value) for value in non_empty):
             inferred[column] = values.map(_to_float_or_none)
+        elif infer_dates and all(re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value) for value in non_empty):
+            parsed = pd.to_datetime(values, format="%Y-%m-%d", errors="coerce")
+            if parsed.notna().sum() == len(non_empty):
+                inferred[column] = parsed
+                dates.append({"name": column, "type": "Date", "size": 10})
+    if dates:
+        inferred.attrs["alteryx_schema"] = dates
     return inferred
 
 

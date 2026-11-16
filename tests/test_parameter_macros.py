@@ -9,6 +9,15 @@ from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.executor import run_workflow_graph
 
 
+@pytest.mark.parametrize("name", ["Factor", "BatchFactor"])
+def test_cli_macro_examples_have_native_question_tabs(name):
+    root = ET.parse(Path("examples/cli") / f"{name}.yxmc").getroot()
+    assert root.get("yxmdVer")
+    questions = root.findall("./Properties/RuntimeProperties/Questions/Question")
+    assert questions and all(q.findtext("Type") == "Tab" for q in questions)
+    assert root.findtext(".//Questions/Question/Questions/Question/Name") == "factor"
+
+
 def _node(tool_id, kind, config):
     return f'<Node ToolID="{tool_id}"><GuiSettings Plugin="AlteryxBasePluginsGui.{kind}.{kind}"/><Properties><Configuration>{config}</Configuration></Properties></Node>'
 
@@ -115,6 +124,20 @@ def test_batch_reconfigures_each_control_record_without_mixing_inputs(tmp_path):
         },
     )
     assert result.node_results["10"].outputs["Output"]["y"].tolist() == [2, 6, 5, 15]
+
+
+def test_batch_macro_reads_native_controlparams_mapping(tmp_path):
+    macro = _factor_macro(tmp_path, batch=True)
+    workflow = _outer(tmp_path, macro.name, '<Value name="ControlParams">factor=coeff\n</Value>')
+    result = run_workflow_graph(
+        workflow,
+        WorkflowContext(),
+        initial_inputs={"10": {
+            "Input": pd.DataFrame({"x": [2]}),
+            "Control": pd.DataFrame({"ignored": [100, 100], "coeff": [3, 4]}),
+        }},
+    )
+    assert result.node_results["10"].outputs["Output"]["y"].tolist() == [6, 8]
 
 
 def test_native_proof_rejects_changed_macro_dependencies(tmp_path):

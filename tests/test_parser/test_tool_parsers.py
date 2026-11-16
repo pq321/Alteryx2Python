@@ -1274,6 +1274,7 @@ def test_runningtotal_parser_normalizes_groups_and_total_fields():
     assert result.normalized_config == {
         "group_by_fields": ["City"],
         "running_total_fields": ["Visits", "Spend"],
+        "output_prefix": "RunTot_",
     }
 
 

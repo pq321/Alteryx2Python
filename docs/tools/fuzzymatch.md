@@ -1,8 +1,11 @@
 # FuzzyMatch
 
-Baseline implementation for Sample Workflow coverage.
-
 - Inputs: `Input`.
 - Outputs: `Output`.
-- Semantics: passes records through and can add metadata columns for configured score/key/group fields.
-- Limitations: does not perform fuzzy similarity grouping or key generation. Match field configuration and thresholds are retained in traces for later certification work.
+- Supports pair output for WholeField, Digits and DigitsReverse keys without
+  a secondary scoring algorithm. It also supports cross-source pairs and the
+  optional score in this profile.
+- Four native Designer cases cover WholeField and DigitsReverse keys in Merge
+  and Purge modes, including case differences and trailing spaces.
+- Phonetic keys, Jaro/TF-IDF scoring, generated-key output, unmatched rows
+  and group suppression still need native calibration.

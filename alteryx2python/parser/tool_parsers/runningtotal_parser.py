@@ -18,5 +18,6 @@ def parse_runningtotal_config(raw_config: dict[str, Any]) -> ToolParserResult:
         normalized_config={
             "group_by_fields": _field_names(raw_config.get("GroupByFields", {})),
             "running_total_fields": _field_names(raw_config.get("RunningTotalFields", {})),
+            "output_prefix": "RunTot_",
         }
     )

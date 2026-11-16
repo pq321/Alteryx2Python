@@ -64,13 +64,13 @@ def weighted_avg(inputs, config, context):
     for key, frame in partitions:
         x = pd.to_numeric(frame[value], errors="raise")
         w = pd.to_numeric(frame[weight], errors="raise")
-        valid = x.notna() & w.notna()
-        denominator = w[valid].sum()
-        average = (
-            float((x[valid] * w[valid]).sum() / denominator)
-            if denominator != 0
-            else None
-        )
+        numerator = denominator = 0.0
+        for value_cell, weight_cell in zip(x, w):
+            if pd.isna(value_cell) or pd.isna(weight_cell):
+                continue
+            numerator += float(value_cell) * float(weight_cell)
+            denominator += float(weight_cell)
+        average = numerator / denominator if denominator else None
         key = key if isinstance(key, tuple) else (key,)
         rows.append({**dict(zip(groups, key)), output_name: average})
     out = {"Output": pd.DataFrame(rows, columns=[*groups, output_name])}
@@ -239,7 +239,7 @@ def imputation(inputs, config, context):
         mask = (
             values.isna()
             if config.get("replace_from", "null") == "null"
-            else values.eq(float(config["replace_from"]))
+            else values.eq(float(config["replace_from"])).fillna(False)
         )
         source = values.loc[~mask]
         if method == "constant":
@@ -255,9 +255,11 @@ def imputation(inputs, config, context):
                 else getattr(source, method)()
             )
         target = col + "_ImputedValue" if config.get("separate_field") else col
+        if pd.api.types.is_integer_dtype(values.dtype):
+            fill = int(fill)
         f[target] = values.where(~mask, fill)
         if config.get("indicator"):
-            f[col + "_Indicator"] = mask.astype("int8")
+            f[col + "_Indicator"] = mask.astype("int16")
     return _done("Imputation", inputs, {"Output": f}, config, context)
 
 
@@ -445,6 +447,7 @@ def _parse_values(raw: dict[str, Any]) -> dict[str, Any]:
             result["source_field"] = (
                 str(macro_input).split("Text=", 1)[1].strip().splitlines()[0]
             )
+            result["output_field"] = "Base64_encoded"
     return ToolParserResult(normalized_config=result)
 
 

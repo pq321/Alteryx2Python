@@ -749,7 +749,7 @@ def test_runningtotal_sample_config_executes_against_small_frame():
         WorkflowContext(),
     )["Output"]
 
-    assert output["RunningTotal_Spend"].tolist() == [2, 5, 4]
+    assert output["RunTot_Spend"].tolist() == [2, 5, 4]
 
 
 def test_summarize_sample_config_executes_against_small_frame():
@@ -873,7 +873,7 @@ def test_datetimenow_sample_config_executes_with_injected_clock():
     workflow = _parse_sample(path)
     config = _node_config(workflow, "DateTimeNow")
 
-    output = datetimenow_tool({}, {**config, "now": "2026-06-22T15:04:05"}, WorkflowContext())["Output"]
+    output = datetimenow_tool({}, {**config, "now": "2026-06-22T15:04:05"}, WorkflowContext())["DTN"]
 
     assert output.loc[0, "DateTimeNow"] == "2026-06-22"
 

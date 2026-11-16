@@ -4,12 +4,13 @@ import builtins
 from copy import deepcopy
 from pathlib import Path
 import textwrap
+from types import SimpleNamespace
 
 import pandas as pd
 import pytest
 
 from alteryx2python.generator.native_io import lower_io
-from alteryx2python.generator.source_linker import UnsupportedLowering
+from alteryx2python.generator.source_linker import SourceLinker, UnsupportedLowering
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.dbfileinput import dbfileinput_tool
 from alteryx2python.tools.dbfileoutput import dbfileoutput_tool
@@ -18,9 +19,10 @@ from alteryx2python.tools.textinput import textinput_tool
 
 def _compile(kind, config, frame=None):
     original = deepcopy(config)
-    lines = lower_io(kind, config, frame)
+    compiler = SimpleNamespace(linker=SourceLinker())
+    lines = lower_io(kind, config, frame, compiler)
     assert lines is not None
-    assert lower_io(kind, config, frame) == lines
+    assert lower_io(kind, config, frame, compiler) == lines
     assert config == original
     source = "def run(source_frame=None, *, input_dir, output_dir):\n" + textwrap.indent("\n".join(lines), "    ")
     tree = ast.parse(source)
@@ -35,7 +37,7 @@ def _compile(kind, config, frame=None):
         return builtins.__import__(name, *args, **kwargs)
 
     namespace = {"pd": pd, "Path": Path, "__builtins__": {**vars(builtins), "__import__": import_library}}
-    exec(compile(tree, "<native_io>", "exec"), namespace)
+    exec(compile(compiler.linker.render() + "\n\n" + source, "<native_io>", "exec"), namespace)
     return namespace["run"]
 
 
@@ -280,7 +282,8 @@ def test_unbound_absolute_input_is_blocked(tmp_path):
 def test_windows_paths_are_portable():
     lines = lower_io("DbFileInput", {"file": "C:\\workflow\\data\\input.csv", "base_dir": "C:\\workflow"}, None)
     assert lines[0] == "path = input_dir / 'data/input.csv'"
-    lines = lower_io("DbFileOutput", {"file": "C:\\workflow\\results\\output.csv"}, "source_frame")
+    compiler = SimpleNamespace(linker=SourceLinker())
+    lines = lower_io("DbFileOutput", {"file": "C:\\workflow\\results\\output.csv"}, "source_frame", compiler)
     assert "path = output_dir / 'output.csv'" in lines
 
 

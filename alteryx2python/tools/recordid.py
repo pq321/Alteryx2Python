@@ -20,18 +20,6 @@ def _sequence(length: int, start_value: int) -> pd.Series:
     return pd.Series(range(start_value, start_value + length), dtype="Int64")
 
 
-def _grouped_sequence(frame: pd.DataFrame, group_fields: list[str], start_value: int) -> pd.Series:
-    if not group_fields:
-        return _sequence(len(frame.index), start_value)
-    missing = [field for field in group_fields if field not in frame.columns]
-    if missing:
-        raise KeyError(f"Missing RecordID group fields: {', '.join(missing)}")
-    values = pd.Series(index=frame.index, dtype="Int64")
-    for _, group in frame.groupby(group_fields, sort=False, dropna=False):
-        values.loc[group.index] = _sequence(len(group.index), start_value).to_numpy()
-    return values.astype("Int64")
-
-
 def recordid_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -52,7 +40,15 @@ def recordid_tool(
         raise ValueError(f"Unsupported RecordID field_type: {field_type}")
 
     output = input_frame.copy()
-    values = _grouped_sequence(output, group_fields, start_value).astype(TYPE_MAP[field_type])
+    if group_fields:
+        missing = [field for field in group_fields if field not in output.columns]
+        if missing:
+            raise KeyError(f"Missing RecordID group fields: {', '.join(missing)}")
+        output = output.sort_values(group_fields, kind="stable", na_position="first").reset_index(drop=True)
+        values = output.groupby(group_fields, sort=False, dropna=False).cumcount() + start_value
+    else:
+        values = _sequence(len(output), start_value)
+    values = values.astype(TYPE_MAP[field_type])
     values.index = output.index
     output[field_name] = values
     if position == 0:

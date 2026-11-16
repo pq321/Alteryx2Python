@@ -19,9 +19,12 @@ from alteryx2python.ir.models import WorkflowIR
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
+from .amp_export import native_probe_path
 from .runner import (
     CaptureContext,
+    file_artifacts,
     file_hash,
+    native_sink_artifacts,
     read_yxdb,
     runtime_hash,
     verify_manifest,
@@ -34,6 +37,7 @@ def attest_native(
     status: str,
     *,
     failed_nodes: list[str] | None = None,
+    skipped_nodes: list[str] | None = None,
     reviewer: str = "manual",
     note: str = "",
 ) -> dict[str, Any]:
@@ -42,6 +46,7 @@ def attest_native(
         raise ValueError("Native outcome must be success or failed")
     manifest = verify_manifest(directory)
     failures = set(failed_nodes or [])
+    skips = set(skipped_nodes or [])
     ids = {node["node_id"] for node in manifest["nodes"]}
     if not failures <= ids:
         raise ValueError("Failed node is not in the original workflow")
@@ -49,20 +54,30 @@ def attest_native(
         raise ValueError(
             "Failed runs require failed node IDs; successful runs cannot have failed nodes"
         )
+    if skips & failures or not skips <= {
+        node["node_id"] for node in manifest["nodes"] if node.get("may_skip")
+    }:
+        raise ValueError("Skipped nodes must be observed container members distinct from failed nodes")
     hashes: dict[str, str] = {}
     available: dict[str, set[str]] = {node_id: set() for node_id in ids}
     for probe in manifest["probes"]:
         path = directory / probe["file"]
         if path.exists():
-            read_yxdb(path)  # Refuse corrupt/unreadable evidence at confirmation.
+            if probe["node_id"] in skips:
+                raise ValueError(f"Skipped node produced native output {probe['file']}")
+            readable_path = native_probe_path(path)
+            read_yxdb(readable_path)  # Refuse corrupt/unreadable evidence at confirmation.
             hashes[path.name] = file_hash(path)
+            if readable_path != path:
+                hashes[readable_path.relative_to(directory).as_posix()] = file_hash(readable_path)
             available[probe["node_id"]].add(probe["anchor"])
-        elif status == "success":
+        elif status == "success" and probe["node_id"] not in skips:
             raise ValueError(
                 f"Successful review is missing native output {probe['file']}"
             )
     outcomes = {}
-    for node_id in ids:
+    for node in manifest["nodes"]:
+        node_id = node["node_id"]
         expected = {
             probe["anchor"]
             for probe in manifest["probes"]
@@ -71,16 +86,28 @@ def attest_native(
         outcomes[node_id] = (
             "failed"
             if node_id in failures
+            else "skipped"
+            if node.get("skip_reason") or node_id in skips
             else "success"
             if expected <= available[node_id] and (expected or status == "success")
             else "not_run"
         )
+    sink_artifacts = native_sink_artifacts(directory, manifest)
+    for node_id, filename in manifest.get("sink_files", {}).items():
+        if outcomes[node_id] == "skipped" and node_id in sink_artifacts:
+            raise ValueError(f"Skipped node produced native sink {filename}")
+        if status == "success" and outcomes[node_id] != "skipped" and node_id not in sink_artifacts:
+            raise ValueError(f"Successful review is missing native sink {filename}")
     review = {
         "status": status,
         "source_sha256": manifest["source_sha256"],
         "instrumented_sha256": manifest["instrumented_sha256"],
         "output_sha256": hashes,
         "node_outcomes": outcomes,
+        "skipped_nodes": sorted(skips),
+        "answers": manifest.get("answers"),
+        **({"event_artifacts": file_artifacts(directory / "native-events")} if manifest.get("event_commands_sha256") else {}),
+        **({"sink_artifacts": sink_artifacts} if manifest.get("sink_files") else {}),
         "reviewer": reviewer,
         "note": note,
         "method": "Designer/manual outcome attestation",

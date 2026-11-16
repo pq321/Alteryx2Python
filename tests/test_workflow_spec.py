@@ -58,6 +58,48 @@ def test_catalog_bindings_and_generated_branch_runs():
     assert result.node_results["3"].outputs["Output"]["twice"].tolist() == [6]
 
 
+@pytest.mark.parametrize(("dtype", "size"), [
+    ("Bool", "1"), ("Byte", "1"), ("Int16", "2"), ("Int32", "4"), ("Int64", "8"),
+    ("FixedDecimal", "19.6"), ("Float", "4"), ("Double", "8"),
+    ("String", "8192"), ("WString", "8192"), ("V_String", "65536"), ("V_WString", "65536"),
+    ("Date", "10"), ("Time", "8"), ("DateTime", "19"),
+])
+def test_generated_field_sizes_agree_across_builders(dtype, size):
+    from alteryx2python.workflow_generator import WorkflowBuilder
+
+    builder = WorkflowBuilder()
+    builder.add_formula([("value", dtype, "", "1")])
+    builder.add_select([("value", "True")], field_types={"value": (dtype, None)})
+
+    formula = NodeSpec("1", "Formula", f'<FormulaFields><FormulaField field="value" type="{dtype}"/></FormulaFields>')
+    select = NodeSpec("2", "Select", f'<SelectFields><SelectField field="value" type="{dtype}"/></SelectFields>')
+    generated = ET.fromstring(builder.render())
+    assert generated.find(".//FormulaField").get("size") == formula.element().find(".//FormulaField").get("size") == size
+    assert generated.find(".//SelectField").get("size") == select.element().find(".//SelectField").get("size") == size
+
+
+def test_generated_select_keeps_explicit_sizes_and_native_forced_flag():
+    from alteryx2python.workflow_generator import WorkflowBuilder
+
+    builder = WorkflowBuilder()
+    builder.add_select(
+        [("name", "True"), ("label", "True")],
+        field_types={"name": ("V_WString: Force", None), "label": ("V_WString", 20)},
+    )
+    root = ET.fromstring(builder.render())
+    forced, explicit, unknown = root.findall(".//SelectField")
+    assert forced.attrib == {"field": "name", "selected": "True", "type": "V_WString",
+                             "size": "65536", "forced": "True"}
+    assert explicit.get("size") == "20"
+    assert unknown.get("size") is None
+
+    spec = NodeSpec("1", "Select", '<SelectFields><SelectField field="name" type="V_WString: Forced"/></SelectFields>')
+    field = spec.element().find(".//SelectField")
+    assert field.get("type") == "V_WString"
+    assert field.get("forced") == "True"
+    assert field.get("size") == "65536"
+
+
 def test_invalid_anchors_cycles_and_duplicate_ids_fail():
     spec = graph()
     spec.edges[0].source_anchor = "Typo"

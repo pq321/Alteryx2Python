@@ -12,6 +12,18 @@ STRING_TYPES = {'String', 'V_String', 'WString', 'V_WString', 'string'}
 DEFAULT_SIZES = {'String': 254, 'WString': 254, 'V_String': 65535, 'V_WString': 65535,
                  'FixedDecimal': '19.6', 'Float': 4, 'Double': 8, 'Bool': 1,
                  'Date': 10, 'Time': 8, 'DateTime': 19, **INTEGER_BYTES}
+GENERATED_SIZES = {
+    **DEFAULT_SIZES,
+    'String': 8192,
+    'WString': 8192,
+    'V_String': 65536,
+    'V_WString': 65536,
+}
+
+
+def select_type_and_force(label: str) -> tuple[str, bool]:
+    dtype, _, suffix = label.partition(':')
+    return (dtype.strip(), True) if suffix.strip().lower() in {'force', 'forced'} else (label, False)
 
 
 def field_contract(dtype, size=None):

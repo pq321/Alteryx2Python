@@ -28,14 +28,20 @@ def _match_fields(match_fields_node: Any) -> list[dict[str, Any]]:
     fields = []
     for field in as_list(child(match_fields_node, "MatchField")):
         style = child(field, "Style")
-        fields.append(
-            {
+        data = {
                 "field_name": text(child(field, "FieldName"), ""),
                 "style_name": attributes(style).get("Name", ""),
                 "match_function": text(child(child(style, "Match"), "MatchFunction"), ""),
                 "match_threshold": _float_attr(child(child(style, "Match"), "MatchThreshold"), 0.0),
-            }
-        )
+        }
+        key = child(style, "KeyGeneration")
+        if key:
+            data["key_function"] = text(child(key, "KeyFunction"), "")
+            data["ignore_empty"] = _bool_attr(child(key, "IgnoreEmpty"))
+            data["max_key_length"] = int(_float_attr(child(key, "MaxKeyLen")))
+        if child(style, "PreProcess"):
+            data["preprocess"] = True
+        fields.append(data)
     return fields
 
 

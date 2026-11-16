@@ -152,8 +152,14 @@ def dbfileinput_tool(
     file_format = _file_attribute(config, "FileFormat")
 
     if path.suffix.lower() == ".yxdb" or file_format == "19":
-        raise NotImplementedError("YXDB input is not supported yet")
-    if file_format == "0" or path.suffix.lower() == ".csv":
+        from alteryx2python.yxdb_file import read_yxdb_records
+
+        if selector:
+            raise NotImplementedError("YXDB input does not support a sheet or range selector")
+        schema, rows = read_yxdb_records(path, limit=_record_limit(config))
+        output = pd.DataFrame(rows, columns=[field["name"] for field in schema], dtype=object)
+        output.attrs["alteryx_schema"] = schema
+    elif file_format == "0" or path.suffix.lower() == ".csv":
         output = _read_csv(path, config)
     elif file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
         output = _read_excel(path, selector, config)

@@ -409,10 +409,13 @@ class ReadablePythonGenerator:
         if kind == 'ControlContainer':
             if not outputs:
                 return ['return None']
+            from alteryx2python.tools.canvas import control_log_frame
+
             active = 'False' if config.get('disabled') else (f'len({arguments["Control"]}.index) > 0' if 'Control' in arguments else 'True')
             if config.get('_disabled_parameter'):
                 active = f'(not {config["_disabled_parameter"]}) and ({active})'
-            return [f'return pd.DataFrame({{"Message": [{config.get("caption", "Container completed")!r}]}} if {active} else {{"Message": []}})']
+            log = self.linker.function(control_log_frame)
+            return [f'return {log}({config["node_id"]!r}, {active})']
         if kind in {'ToolContainer', 'TextBox', 'HtmlBox', 'BrowseV2'}:
             return ['return None']
         if kind == 'RunCommand':

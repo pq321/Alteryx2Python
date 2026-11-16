@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import accumulate
 from typing import Any
 
 import pandas as pd
@@ -24,12 +25,16 @@ def runningtotal_tool(
     ensure_fields_exist(input_frame, [*group_fields, *total_fields])
 
     output = input_frame.copy()
+    if group_fields:
+        output = output.sort_values(group_fields, kind="stable", na_position="first").reset_index(drop=True)
+    prefix = config.get("output_prefix", "RunningTotal_")
     for field in total_fields:
         numeric = pd.to_numeric(output[field], errors="coerce").fillna(0)
-        output[f"RunningTotal_{field}"] = (
-            numeric.groupby([output[group] for group in group_fields], sort=False).cumsum()
+        output[f"{prefix}{field}"] = (
+            numeric.groupby([output[group] for group in group_fields], sort=False, dropna=False)
+            .transform(lambda group: list(accumulate(group)))
             if group_fields
-            else numeric.cumsum()
+            else list(accumulate(numeric))
         )
 
     outputs = {"Output": output}

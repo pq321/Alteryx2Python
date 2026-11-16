@@ -15,10 +15,12 @@ def parse_join_config(raw_config: dict[str, Any]) -> ToolParserResult:
         for join_info in join_info_nodes
     ]
     select_config_node = child(raw_config, "SelectConfiguration")
+    select_config = child(select_config_node, "Configuration")
     normalized = {
         "join_by_record_pos": str(attributes(raw_config).get("joinByRecordPos", "False")).lower() == "true",
         "joins": joins,
-        "output_connection": attributes(child(select_config_node, "Configuration")).get("outputConnection", ""),
+        "output_connection": attributes(select_config).get("outputConnection", ""),
+        "order_changed": str(attributes(child(select_config, "OrderChanged")).get("value", "False")).lower() == "true",
         "select_fields": [
             {
                 "source": attributes(select_field).get("field", ""),

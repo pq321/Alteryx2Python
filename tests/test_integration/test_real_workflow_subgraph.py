@@ -134,6 +134,7 @@ def test_official_text_input_workflow_executes_complete_data_output():
     # Native Text Input infers column dtypes from the embedded data, so the
     # oracle CSV is read with pandas type inference (not forced to strings).
     expected = pd.read_csv(EXPECTED_TEXT_INPUT, keep_default_na=False,
+                           parse_dates=["JoinDate", "FirstPurchaseDate"],
                            na_values={"LastName": [""]})  # Native XML <c/> is null.
 
     diff = compare_dataframes(output, expected)

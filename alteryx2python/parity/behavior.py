@@ -13,13 +13,20 @@ def compare_behavior_runs(
     issues: list[str] = []
     incomplete: list[str] = []
     comparisons: list[dict[str, Any]] = []
-    for key in ("source_sha256",):
+    for key in ("source_sha256", "answers"):
         if native.get(key) != python.get(key):
             issues.append(f"{key}_mismatch")
     if native.get("producer") != "alteryx" or python.get("producer") != "python":
         issues.append("invalid_producer")
     if python.get("runtime_sha256") != current_runtime_hash:
         issues.append("python_runtime_changed_or_unrecorded")
+    for key in ("event_artifacts", "sink_artifacts"):
+        if key not in native:
+            continue
+        if native.get(key) is None or python.get(key) is None:
+            incomplete.append(f"{key}_unverified")
+        elif native[key] != python[key]:
+            issues.append(f"{key}_mismatch")
     outcomes = (native.get("status"), python.get("status"))
     if all(status in {"success", "failed"} for status in outcomes):
         if outcomes[0] != outcomes[1]:
@@ -38,6 +45,16 @@ def compare_behavior_runs(
         if right.get("baseline"):
             incomplete.append(f"node_{node_id}_placeholder_execution")
         left_status, right_status = left.get("status"), right.get("status")
+        if "skipped" in (left_status, right_status):
+            if left_status != right_status or left.get("outputs") or right.get("outputs"):
+                issues.append(f"node_{node_id}_skip_mismatch")
+            else:
+                comparisons.append({
+                    "node_id": node_id,
+                    "status": "skipped",
+                    "reason": left.get("skip_reason") or right.get("skip_reason"),
+                })
+            continue
         known = {"success", "failed", "not_run"}
         if left_status in known and right_status in known:
             no_output = {"failed", "not_run"}
@@ -86,7 +103,9 @@ def compare_behavior_runs(
         incomplete.append("unreadable_native_outputs")
     if not both_failed and native.get("missing"):
         incomplete.append("missing_native_outputs")
-    if outcomes == ("success", "success") and not comparisons:
+    if outcomes == ("success", "success") and not any(
+        item["status"] == "match" for item in comparisons
+    ):
         incomplete.append("no_successful_data_evidence")
     states = {item["status"] for item in comparisons}
     if "blocked" in outcomes:

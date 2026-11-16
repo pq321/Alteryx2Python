@@ -137,6 +137,7 @@ def test_generated_code_executes_official_text_input_workflow_roundtrip():
     expected = pd.read_csv(
         "tests/fixtures/real_workflows/text_input_expected.csv",
         keep_default_na=False,
+        parse_dates=["JoinDate", "FirstPurchaseDate"],
         na_values={"LastName": [""]},  # Native empty Text Input cell is null.
     )
     actual = result.node_results["98"].outputs["Output"]

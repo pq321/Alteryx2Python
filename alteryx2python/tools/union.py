@@ -30,8 +30,10 @@ def union_tool(
             renamed = frame.copy()
             renamed.columns = columns[: len(renamed.columns)]
             aligned.append(renamed.reindex(columns=columns))
+    elif mode.lower() in {"manual", "manualdelayed"}:
+        aligned = _align_manual(ordered_anchors, inputs, config)
     else:
-        raise NotImplementedError("Union currently supports ByName and ByPos modes")
+        raise NotImplementedError(f"Unsupported Union mode: {mode}")
     concatenated = pd.concat(aligned, ignore_index=True)
     output = concatenated.astype(object).where(pd.notna(concatenated), None)
     outputs = {"Output": output}
@@ -49,6 +51,37 @@ def union_tool(
         },
     )
     return outputs
+
+
+def _align_manual(anchors, inputs, config):
+    definitions = config.get("manual_inputs", {})
+    connections = config.get("input_connection_names", {})
+    labels = {}
+    mappings = []
+    for index, anchor in enumerate(anchors, 1):
+        connection = connections.get(anchor) or f"#{index}"
+        if connection not in definitions:
+            raise ValueError(f"Union has no saved manual mapping for {connection}")
+        small = {}
+        frame = inputs[anchor]
+        for field in definitions[connection]:
+            column, name = field["column"], field["name"]
+            if column < 1:
+                continue
+            if column in small:
+                raise ValueError(f"Union input {connection} maps multiple fields to column {column}")
+            if name not in frame:
+                raise ValueError(f"Union input {connection} has no field {name!r}")
+            labels.setdefault(column, name)
+            small[column] = frame[name].astype(object)
+        mappings.append((frame.index, small))
+    columns = sorted(labels)
+    result = []
+    for index, mapping in mappings:
+        frame = pd.DataFrame(mapping, index=index).reindex(columns=columns)
+        frame.columns = [labels[column] for column in columns]
+        result.append(frame)
+    return result
 
 
 class UnionTool(BaseTool):

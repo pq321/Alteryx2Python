@@ -83,14 +83,16 @@ def _is_empty(value: Any) -> bool:
 
 def _clean_series(series: pd.Series, config: dict[str, Any]) -> pd.Series:
     cleaned = series.copy()
-    if config.get("replace_string_nulls"):
+    numeric = pd.api.types.is_numeric_dtype(series)
+    textual = isinstance(series.dtype, pd.StringDtype) or pd.api.types.infer_dtype(series, skipna=True) in {"string", "empty"}
+    if config.get("replace_string_nulls") and textual:
         cleaned = cleaned.fillna("")
-    if config.get("replace_numeric_nulls"):
+    if config.get("replace_numeric_nulls") and numeric:
         cleaned = cleaned.fillna(0)
 
     # Native DataCleansing text options (whitespace, case, strip letters or
     # digits) only apply to string fields; numeric columns pass through.
-    if _uses_text_operations(config) and not pd.api.types.is_numeric_dtype(cleaned):
+    if _uses_text_operations(config) and textual:
         cleaned = cleaned.map(lambda value: _clean_text_value(value, config))
     return cleaned
 
@@ -114,18 +116,18 @@ def _clean_text_value(value: Any, config: dict[str, Any]) -> Any:
     if pd.isna(value):
         return value
     text = str(value)
-    if config.get("remove_leading_trailing_whitespace"):
-        text = text.strip()
     if config.get("remove_tabs_line_breaks_duplicate_whitespace"):
         text = re.sub(r"\s+", " ", text)
     if config.get("remove_all_whitespace"):
         text = re.sub(r"\s+", "", text)
     if config.get("remove_letters"):
-        text = re.sub(r"[A-Za-z]", "", text)
+        text = "".join(char for char in text if not char.isalpha())
     if config.get("remove_numbers"):
-        text = re.sub(r"\d", "", text)
+        text = re.sub(r"[0-9０-９]", "", text)
     if config.get("remove_punctuation"):
         text = text.translate(PUNCTUATION_TRANSLATION)
+    if config.get("remove_leading_trailing_whitespace"):
+        text = text.strip(" \t\n\r\u00a0")
     if config.get("modify_case"):
         text = _modify_case(text, str(config.get("case_mode", "")))
     return text

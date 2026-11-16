@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 
@@ -15,6 +15,24 @@ class WorkflowContext:
     warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
     diagnostics: list[dict[str, Any]] = field(default_factory=list)
+    deferred_messages: list[tuple[str, Callable[[], None]]] = field(default_factory=list)
+
+    def flush_deferred_messages(self, members: set[str] | None = None) -> None:
+        callbacks, remaining = [], []
+        for node_id, emit in self.deferred_messages:
+            if members is None or node_id in members:
+                callbacks.append(emit)
+            else:
+                remaining.append((node_id, emit))
+        self.deferred_messages = remaining
+        for emit in callbacks:
+            emit()
+
+    def macro_context(
+        self, runtime_config: dict[str, Any], caller_id: str, invocation: int
+    ) -> WorkflowContext:
+        """Create an isolated context for one execution of a macro body."""
+        return WorkflowContext(runtime_config=runtime_config)
 
     def record_warning(self, message: str) -> None:
         self.warnings.append(message)

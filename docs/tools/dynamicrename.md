@@ -2,16 +2,11 @@
 
 Status: `L2_BASIC_IMPLEMENTATION`
 
-Implemented semantics in the current slice:
+`Targets` supplies the data, and the right-hand `Source` supplies field names
+in the right-input modes. `Output` emits the renamed data.
 
-- one input anchor named `Targets`
-- one output anchor named `Output`
-- Formula rename mode
-- `_CurrentField_` expression variable for field-by-field rename formulas
-- duplicate output names fail explicitly
-
-Deferred semantics:
-
-- non-formula rename modes
-- field metadata updates beyond column names
-- dynamic unknown-field behavior outside observed workflow usage
+The installed Designer sample covers Formula using `_CurrentField_`, First
+Row, Add Prefix, Remove Suffix, Right Input Metadata, and both positional and
+mapped Right Input Rows. The implementation applies the saved field selections
+and raises an error on duplicate output names. Right Input Metadata type and
+size changes still require a runtime adapter.

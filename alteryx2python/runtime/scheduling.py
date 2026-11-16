@@ -2,6 +2,17 @@
 from __future__ import annotations
 
 
+def container_members(container, by_id):
+    members = set(container.config.get("child_node_ids", ())) & by_id.keys()
+    pending = list(members)
+    while pending:
+        child = by_id[pending.pop()]
+        nested = (set(child.config.get("child_node_ids", ())) & by_id.keys()) - members
+        members.update(nested)
+        pending.extend(nested)
+    return members
+
+
 def scheduling_dependencies(nodes, edges):
     by_id = {node.node_id: node for node in nodes}
     pairs = {(edge.source_node_id, edge.target_node_id) for edge in edges}
@@ -12,13 +23,7 @@ def scheduling_dependencies(nodes, edges):
     for node in nodes:
         if node.tool_type != 'ControlContainer':
             continue
-        children = set(node.config.get('child_node_ids', [])) & by_id.keys()
-        pending = list(children)
-        while pending:
-            member = by_id[pending.pop()]
-            nested = (set(member.config.get('child_node_ids', [])) & by_id.keys()) - children
-            children |= nested
-            pending.extend(nested)
+        children = container_members(node, by_id)
         triggers = [edge.source_node_id for edge in edges if edge.target_node_id == node.node_id and edge.target_anchor == 'Control']
         pairs.update((trigger, child) for trigger in triggers for child in children)
         pairs.update((child, node.node_id) for child in children)
@@ -73,3 +78,24 @@ def container_guards(node, by_id, edges):
                           if edge.target_node_id == parent and edge.target_anchor == 'Control')
         parent = container.config.get('container_id')
     return guards
+
+
+def detour_exclusions(nodes, edges):
+    """Find the inactive Detour anchors and nodes reachable only through them."""
+    inactive = {
+        (node.node_id, "Left" if node.config.get("normalized", node.config).get("detour_right") else "Right")
+        for node in nodes
+        if node.tool_type == "Detour"
+    }
+    incoming = {}
+    for edge in edges:
+        incoming.setdefault(edge.target_node_id, []).append((edge.source_node_id, edge.source_anchor))
+    skipped = set()
+    while True:
+        newly_skipped = {
+            node_id for node_id, sources in incoming.items()
+            if node_id not in skipped and all(source in skipped or (source, anchor) in inactive for source, anchor in sources)
+        }
+        if not newly_skipped:
+            return inactive, skipped
+        skipped.update(newly_skipped)

@@ -18,9 +18,9 @@ def test_unique_splits_first_rows_and_duplicates(workflow_context):
     )
 
     assert outputs["Unique"].to_dict("records") == [
+        {"FirstName": "Ada", "LastName": "Byron"},
         {"FirstName": "Ada", "LastName": "Lovelace"},
         {"FirstName": "Grace", "LastName": "Hopper"},
-        {"FirstName": "Ada", "LastName": "Byron"},
     ]
     assert outputs["Duplicates"].to_dict("records") == [
         {"FirstName": "Ada", "LastName": "Lovelace"}

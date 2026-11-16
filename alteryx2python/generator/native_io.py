@@ -17,7 +17,7 @@ from alteryx2python.tools.dbfileinput import (
     _record_limit,
     _split_alteryx_file_reference,
 )
-from alteryx2python.tools.dbfileoutput import _format_option, _line_ending, _max_records
+from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records
 from alteryx2python.tools.textinput import _infer_types, _normalize_row
 
 
@@ -43,6 +43,10 @@ def _portable_input(raw: str, base_dir: str | None) -> str:
 def _cell_literal(value: object) -> str:
     if value is pd.NA:
         return "pd.NA"
+    if value is pd.NaT:
+        return "pd.NaT"
+    if isinstance(value, pd.Timestamp):
+        return f"pd.Timestamp({value.isoformat()!r})"
     if isinstance(value, float) and not math.isfinite(value):
         return f"float({str(value)!r})"
     return repr(value)
@@ -65,11 +69,14 @@ def _text_input(config: dict, compiler=None) -> list[str]:
             columns.append(f'{field!r}: [{", ".join(values)}]')
         return [f'return {infer}(pd.DataFrame({{{", ".join(columns)}}}, dtype=object))']
     frame = _infer_types(pd.DataFrame(normalized, columns=fields, dtype=object))
-    lines = ["return pd.DataFrame({"]
+    lines = ["output = pd.DataFrame({"]
     for name in fields:
         values = ", ".join(_cell_literal(value) for value in frame[name].tolist())
         lines.append(f"    {name!r}: pd.Series([{values}], dtype={str(frame[name].dtype)!r}),")
-    return lines + ["})"]
+    lines.append("})")
+    if schema := frame.attrs.get("alteryx_schema"):
+        lines.append(f'output.attrs["alteryx_schema"] = {schema!r}')
+    return lines + ["return output"]
 
 
 def _input(config: dict, raw: str, selector: str | None) -> list[str]:
@@ -113,7 +120,7 @@ def _input(config: dict, raw: str, selector: str | None) -> list[str]:
     return lines + ["return output"]
 
 
-def _output(config: dict, raw: str, frame: str) -> list[str]:
+def _output(config: dict, raw: str, frame: str, compiler) -> list[str]:
     path = _path(raw)
     file_format = _file_attribute(config, "FileFormat")
     if not (file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}):
@@ -128,30 +135,29 @@ def _output(config: dict, raw: str, frame: str) -> list[str]:
     code_page = _format_option(config, "CodePage", "28591")
     encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
     limit = _max_records(config)
-    cell = (
-        '"" if value is None or (not isinstance(value, str) and pd.isna(value)) '
-        "else str(int(value)) if isinstance(value, float) and value == int(value) and abs(value) < 1e15 "
-        "else str(value)"
-    )
+    format_cell = compiler.linker.function(_format_cell)
+    date_columns = compiler.linker.function(_date_columns)
     lines = [
         f"output = {frame}.head({limit!r})" if limit is not None else f"output = {frame}",
         f"path = output_dir / {path.name!r}",
         "path.parent.mkdir(parents=True, exist_ok=True)",
+        f"date_columns = {date_columns}(output)",
     ]
     if config.get('_file_parameter'):
         parameter = config['_file_parameter']
         lines[1:2] = [f'if Path({parameter}).suffix.lower() != {path.suffix.lower()!r}:', '    raise ValueError("File output parameter changes configured format")', f'path = output_dir / Path({parameter}).name']
     write_csv = [
         "rendered = output.astype(object)",
-        "for column in range(len(rendered.columns)):",
-        f"    rendered.iloc[:, column] = [{cell} for value in rendered.iloc[:, column]]",
+        "for index, column in enumerate(rendered.columns):",
+        f"    rendered.iloc[:, index] = [{format_cell}(value, column in date_columns) for value in rendered.iloc[:, index]]",
         f"rendered.to_csv(path, index=False, header={header!r}, sep={delimiter!r}, "
         f"lineterminator={ending!r}, encoding={encoding!r})",
     ]
     if not header:
         lines += [
             "if len(output.columns) == 1:",
-            f"    values = [{cell} for value in output.iloc[:, 0].astype(object)]",
+            "    date_only = output.columns[0] in date_columns",
+            f"    values = [{format_cell}(value, date_only) for value in output.iloc[:, 0]]",
             f'    path.write_text({ending!r}.join(values) + {ending!r}, encoding={encoding!r}, newline="")',
             "else:",
         ] + ["    " + line for line in write_csv]
@@ -175,7 +181,7 @@ def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[
         if not file_value:
             raise UnsupportedLowering(f"{kind} config requires file")
         raw, selector = _split_alteryx_file_reference(file_value)
-        return _input(config, raw, selector) if kind == "DbFileInput" else _output(config, raw, frame)
+        return _input(config, raw, selector) if kind == "DbFileInput" else _output(config, raw, frame, compiler)
     except (ValueError, TypeError, OverflowError) as exc:
         if isinstance(exc, UnsupportedLowering):
             raise

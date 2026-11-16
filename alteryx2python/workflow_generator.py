@@ -147,9 +147,12 @@ class WorkflowBuilder:
         position: tuple[int, int] = (250, 186),
     ) -> int:
         """expressions: list of (field, type, size, expression)."""
+        from alteryx2python.tools.field_contracts import GENERATED_SIZES
+
         fields_xml = []
         for name, ftype, size, expr in expressions:
-            size_attr = f' size="{size}"' if size else ""
+            width = size or GENERATED_SIZES.get(ftype)
+            size_attr = f' size="{escape(width)}"' if width is not None else ""
             fields_xml.append(
                 f'<FormulaField field="{escape(name)}"{size_attr} type="{ftype}"'
                 f' expression="{escape(expr)}" />'
@@ -173,17 +176,34 @@ class WorkflowBuilder:
         fields: list[tuple[str, str]],
         include_unknown: bool = True,
         position: tuple[int, int] = (250, 186),
+        *,
+        field_types: dict[str, tuple[str, int | str | None]] | None = None,
     ) -> int:
-        entries = "".join(
-            f'<SelectField field="{escape(name)}" selected="{selected}" />'
-            for name, selected in fields
-        )
+        from alteryx2python.tools.field_contracts import GENERATED_SIZES, field_contract, select_type_and_force
+
+        field_types = field_types or {}
+        entries = []
+        for name, selected in fields:
+            declaration = field_types.get(name)
+            attributes = ""
+            if declaration:
+                label, size = declaration
+                data_type, forced = select_type_and_force(label)
+                if size in (None, ""):
+                    size = GENERATED_SIZES.get(data_type)
+                width = field_contract(data_type, size)["size"]
+                attributes = f' type="{escape(data_type)}"'
+                if width is not None:
+                    attributes += f' size="{escape(width)}"'
+                if forced:
+                    attributes += ' forced="True"'
+            entries.append(f'<SelectField field="{escape(name)}" selected="{selected}"{attributes} />')
         if include_unknown:
-            entries += '<SelectField field="*Unknown" selected="True" />'
+            entries.append('<SelectField field="*Unknown" selected="True" />')
         config = (
             '<OrderChanged value="False" />'
             '<CommaDecimal value="False" />'
-            f"<SelectFields>{entries}</SelectFields>"
+            f"<SelectFields>{''.join(entries)}</SelectFields>"
         )
         return self._node("Select", config, position)
 

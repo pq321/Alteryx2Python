@@ -40,3 +40,13 @@ configuration-specific differential acceptance. Unknown native node diagnostics 
 ## 8. CLI construction and configuration
 Graph specifications preserve unknown source/template XML structurally and resolve native engine bindings from active catalog entries. Do not parse commented EngineSettings with regular expressions. Native construction is separate from configuration execution and proof.
 Native Questions/Actions bind before data graph routing, including targeted execution; partial migration slices explicitly use skip_app_configuration. Compiled data workflows remove applied Actions so replacements cannot execute twice. Generated Python preserves all IR fields/source XML and snapshots recursively resolved macro configuration dependencies. File sinks in proof runs are isolated; existing oracle files must never be deleted or overwritten by Python execution. CSV-only comparisons cannot certify null/type/intermediate-node equivalence. Blocked/incomplete proof suites must return nonzero, and tool-case attribution must reference tools present in the tested workflow. Native automation uses EngineCmd; never start/attach Designer or create scheduled tasks to claim guaranteed background execution.
+
+## 9. Disabled branches and call boundaries
+Place native output probes beside their source tools in the XML container
+hierarchy. Static disabled descendants have an explicit skipped status.
+Attest dynamic skips from observed Designer behavior. Compare present zero-row
+outputs and treat missing active probes as incomplete. Typed macro replay
+inputs must come from the actual caller edges and retain attested file hashes.
+Store repeated and nested Python macro executions under caller ID and
+invocation number. Preserve the distinction between caller-boundary parity
+and parity inside a native macro body.

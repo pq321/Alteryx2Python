@@ -7,6 +7,10 @@ Provide reproducible local learning workflows and honest, per-node evidence for 
 The working tree started with 48 changed/untracked paths. Local engine: 2025.1.2.165. Catalog registration includes baseline stubs and is not semantic proof. Current traces contain counts/schema summaries, not complete records.
 
 ## Acceptance
+- 2026-11-16 Phase One continuation. Implement and verify the screenshot-selected
+  palette and workflow features against independently captured Designer cases.
+  The reproducible scope, fixture generation, and proof commands are documented
+  in `docs/tools/phase_one_parity.md`.
 - 2026-11-10 continuation: audit and repair preset/native/equivalence CLI; add general catalog-backed graph generation/editing, exact node templates, yxmc and native question/action configuration; preserve all existing dirty changes and the restored Designer environment. Default remains outcome/result equivalence, never blanket universal proof.
 - User clarification: default equivalence is outcome equivalence. Both fail => matching outcome regardless of exception class/message; both succeed => compare observable node results. Raw diagnostics and physical metadata remain optional detailed profiles, not default blockers.
 - Implement mappings and executable local behavior, not only audits. Cover the complete official identifier inventory; explicit unavailable adapters must fail rather than silently return input. Distinguish mapping completion from implemented behavior and validated cases.

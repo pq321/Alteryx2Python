@@ -74,6 +74,11 @@ def _record_report_node(
             "node_id": config.get("node_id"),
             "source_tool_id": config.get("source_tool_id"),
             "input_schemas": _input_schemas(inputs),
+            **(
+                {"baseline_semantics": "report_metadata_only"}
+                if (context.runtime_config or {}).get("delivery_profile") not in {"html-draft-v1", "html-smtp-v1"}
+                else {}
+            ),
             "report_config": {
                 key: value
                 for key, value in config.items()

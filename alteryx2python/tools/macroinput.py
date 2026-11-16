@@ -15,7 +15,7 @@ def macroinput_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
-    outputs = textinput_tool(inputs, config, context)
+    outputs = textinput_tool(inputs, config, context, infer_dates=False)
     output = outputs["Output"]
     context.traces.pop()
     context.record_node(

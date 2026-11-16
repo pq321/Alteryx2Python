@@ -2,13 +2,12 @@
 
 Usage:
     uv run python scripts/parity_batch.py plan    <workflow-or-dir> --root E:/tmp/parity_runs
-    uv run python scripts/parity_batch.py attest  E:/tmp/parity_runs --reviewer me
+    uv run python scripts/parity_batch.py attest  E:/tmp/parity_runs --outcomes outcomes.json --reviewer me
     uv run python scripts/parity_batch.py collect E:/tmp/parity_runs
 
 plan    - prepare a probe-instrumented copy of every .yxmd under the target
           (one run directory per workflow); reports ready/blocked with reasons.
-attest  - after you run each <run>/instrumented.yxmd in Designer (F5), record
-          the native success outcome and lock the probe files.
+attest  - after Designer runs, import observed outcomes keyed by run directory.
 collect - read every run's probes, compare node-by-node with the Python side,
           and write an aggregate summary (summary.json + summary.csv).
 """
@@ -16,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import json
 import subprocess
 import sys
@@ -35,10 +35,14 @@ def _sh(args: list[str]) -> dict:
         return {"_raw": (completed.stdout or "") + (completed.stderr or "")}
 
 
-def _workflows(target: Path) -> list[Path]:
+def _workflows(target: Path, output_root: Path) -> list[Path]:
     if target.is_file():
         return [target]
-    return sorted(target.rglob("*.yxmd"))
+    return sorted(
+        path for path in target.rglob("*")
+        if path.is_file() and path.suffix.lower() in {".yxmd", ".yxwz"}
+        and not path.is_relative_to(output_root)
+    )
 
 
 def slug(path: Path) -> str:
@@ -47,24 +51,21 @@ def slug(path: Path) -> str:
 
 
 def cmd_plan(args: argparse.Namespace) -> int:
-    root: Path = args.root
+    root = args.root.resolve()
     root.mkdir(parents=True, exist_ok=True)
     rows = []
-    for workflow in _workflows(Path(args.target)):
-        run_dir = root / slug(workflow)
-        if run_dir.exists():
+    for workflow in _workflows(Path(args.target).resolve(), root):
+        identity = hashlib.sha256(str(workflow.resolve()).encode()).hexdigest()[:10]
+        run_dir = root / f"{slug(workflow)}-{identity}"
+        if (run_dir / "manifest.json").is_file() and (run_dir / "python.json").is_file():
             rows.append({"workflow": str(workflow), "run_dir": str(run_dir), "status": "already_prepared"})
             continue
         result = _sh(["prepare", str(workflow), "--output-dir", str(run_dir)])
         if result.get("status") == "prepared":
-            rows.append({"workflow": str(workflow), "run_dir": str(run_dir), "status": "ready"})
+            rows.append({"workflow": str(workflow), "run_dir": str(run_dir), "designer_file": result["workflow"], "status": "ready"})
         else:
             reason = result.get("error") or result.get("_raw", "")[:200]
             rows.append({"workflow": str(workflow), "run_dir": "", "status": "blocked", "reason": reason})
-            if run_dir.exists():
-                for stale in run_dir.rglob("*"):
-                    stale.unlink()
-                run_dir.rmdir()
     ready = [row for row in rows if row["status"] in {"ready", "already_prepared"}]
     blocked = [row for row in rows if row["status"] == "blocked"]
     (root / "plan.json").write_text(json.dumps(rows, ensure_ascii=False, indent=1), encoding="utf-8")
@@ -80,32 +81,33 @@ def cmd_plan(args: argparse.Namespace) -> int:
             marker = text.split(":")[-1].strip() if "adapter for:" in text else text[:40]
             reasons[marker] += 1
         print("  blocking tools:", dict(reasons.most_common(10)))
-    print("next: open each <run_dir>/instrumented.yxmd in Designer, press F5, then run the attest command")
+    print("next: run each instrumented workflow in Designer and record the actual outcome")
     return 0
 
 
 def cmd_attest(args: argparse.Namespace) -> int:
     root: Path = args.root
-    runs = [d for d in sorted(root.iterdir()) if (d / "instrumented.yxmd").exists()]
-    done = skipped = 0
-    for run in runs:
-        review = run / "manual-review.json"
-        if review.exists():
-            skipped += 1
+    outcomes = json.loads(args.outcomes.read_text(encoding="utf-8-sig"))
+    runs = {path.name: path for path in root.iterdir() if (path / "python.json").is_file()}
+    errors = {}
+    for name, outcome in outcomes.items():
+        if name not in runs:
+            errors[name] = "Unknown run"
             continue
-        probes = list(run.glob("probe-*.yxdb"))
-        if not probes:
-            print(f"  SKIP {run.name}: no probe files yet (did you run it in Designer?)")
-            continue
-        _sh(["attest", str(run), "--status", "success", "--reviewer", args.reviewer])
-        done += 1
-    print(f"attested: {done}  already attested: {skipped}")
-    return 0
+        command = ["attest", str(runs[name]), "--status", outcome["status"], "--reviewer", args.reviewer]
+        for field, option in (("failed_nodes", "--failed-node"), ("skipped_nodes", "--skipped-node")):
+            for node_id in outcome.get(field, []):
+                command.extend((option, str(node_id)))
+        result = _sh(command)
+        if result.get("status") != outcome["status"]:
+            errors[name] = result.get("error", result)
+    print(json.dumps({"attested": len(outcomes) - len(errors), "errors": errors}, ensure_ascii=False))
+    return int(bool(errors))
 
 
 def cmd_collect(args: argparse.Namespace) -> int:
     root: Path = args.root
-    runs = [d for d in sorted(root.iterdir()) if (d / "instrumented.yxmd").exists()]
+    runs = [d for d in sorted(root.iterdir()) if (d / "python.json").is_file()]
     rows = []
     for run in runs:
         if not (run / "manual-review.json").exists():
@@ -117,8 +119,15 @@ def cmd_collect(args: argparse.Namespace) -> int:
                 "run": run.name,
                 "status": result.get("status", "unknown"),
                 "issues": ";".join(result.get("issues", []) or [])[:200],
-                "pending": ";".join(result.get("pending", []) or [])[:200],
+                "pending": ";".join(result.get("incomplete_evidence", []) or [])[:200],
             }
+        )
+    plan_file = root / "plan.json"
+    if plan_file.is_file():
+        plan = json.loads(plan_file.read_text(encoding="utf-8"))
+        rows.extend(
+            {"run": entry["workflow"], "status": "blocked", "issues": entry["reason"]}
+            for entry in plan if entry["status"] == "blocked"
         )
     summary = {
         "total": len(rows),
@@ -137,7 +146,7 @@ def cmd_collect(args: argparse.Namespace) -> int:
     for row in rows:
         if row["status"] not in {"match"}:
             print(f"  {row['status']:<20} {row['run']} {row.get('issues', '')[:100]}")
-    return 0
+    return int(not rows or summary["match"] != summary["total"])
 
 
 def main() -> int:
@@ -148,6 +157,7 @@ def main() -> int:
     plan.add_argument("--root", type=Path, required=True)
     attest = sub.add_parser("attest")
     attest.add_argument("root", type=Path)
+    attest.add_argument("--outcomes", type=Path, required=True)
     attest.add_argument("--reviewer", default="manual")
     collect = sub.add_parser("collect")
     collect.add_argument("root", type=Path)

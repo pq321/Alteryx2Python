@@ -26,6 +26,7 @@ SUPPORTED_FUNCTIONS = {
     "ROUND",
     "RIGHT",
     "STARTSWITH",
+    "CONTAINS",
     "TITLECASE",
     "TRIM",
     "TOSTRING",

@@ -256,7 +256,7 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("Download").supports_certification is False
     assert TOOL_REGISTRY.get("DropDown").output_anchors == ("Question",)
     assert TOOL_REGISTRY.get("DynamicInput").output_anchors == ("Output",)
-    assert TOOL_REGISTRY.get("DynamicRename").input_anchors == ("Targets",)
+    assert TOOL_REGISTRY.get("DynamicRename").input_anchors == ("Targets", "Source")
     assert TOOL_REGISTRY.get("DynamicReplace").output_anchors == ("Output", "Counts")
     assert TOOL_REGISTRY.get("DynamicSelect").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("Error").output_anchors == ()
@@ -287,7 +287,7 @@ def test_registry_contains_first_migrated_tool_set():
     assert TOOL_REGISTRY.get("MakeGroup").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("Map").output_anchors == ("Question",)
     assert TOOL_REGISTRY.get("MapInput").output_anchors == ("Output",)
-    assert TOOL_REGISTRY.get("Message").output_anchors == ()
+    assert TOOL_REGISTRY.get("Message").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("MultiFieldFormula").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("MultiRowFormula").output_anchors == ("Output",)
     assert TOOL_REGISTRY.get("NumericUpDown").output_anchors == ("Question",)

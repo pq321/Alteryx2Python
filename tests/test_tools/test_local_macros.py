@@ -27,6 +27,16 @@ def test_random_records_duplicate_index_and_validation():
     except ValueError: pass
     else: raise AssertionError('out of range count must fail')
 
+
+def test_imputation_preserves_integer_values_and_nullable_non_matches(workflow_context):
+    frame = pd.DataFrame({"x": pd.Series([4, 7, -1, None], dtype="Int32")})
+    config = {"fields": ["x"], "method": "mean", "replace_from": "-1", "indicator": True}
+    result = imputation({"Input": frame}, config, workflow_context)["Output"]
+
+    pd.testing.assert_series_equal(result["x"], pd.Series([4, 7, 5, None], dtype="Int32", name="x"))
+    assert result["x_Indicator"].tolist() == [0, 0, 1, 0]
+    assert result["x_Indicator"].dtype == "int16"
+
 def test_ranges_create_samples_and_oversample_edge():
     c=WorkflowContext(); frame=pd.DataFrame({'g':['yes','no','no','no']})
     split=select_records({'Input':frame},{'ranges':[(1,1),(3,3)]},c)

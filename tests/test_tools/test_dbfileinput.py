@@ -112,7 +112,6 @@ def test_dbfileinput_reads_excel_sheet_without_header_row_as_f_fields(workflow_c
 @pytest.mark.parametrize(
     "file_value",
     [
-        "tests/fixtures/input_data_basic.yxdb",
         "tests/fixtures/input_data_basic.xlsx|||`NamedRangeExample`",
         "tests/fixtures/input_data_basic.xlsx|||<List of Sheet Names>",
     ],
@@ -121,9 +120,21 @@ def test_dbfileinput_rejects_deferred_sources(file_value, workflow_context):
     with pytest.raises(NotImplementedError):
         dbfileinput_tool(
             {},
-            {"file": file_value, "file_attributes": {"FileFormat": "19"}, "format_specific_options": {}},
+            {"file": file_value, "file_attributes": {"FileFormat": "25"}, "format_specific_options": {}},
             workflow_context,
         )
+
+
+def test_dbfileinput_reads_yxdb_schema_and_null_values(workflow_context):
+    output = dbfileinput_tool(
+        {},
+        {"file": "tests/fixtures/parity/native_textinput.yxdb", "file_attributes": {"RecordLimit": "2"}},
+        workflow_context,
+    )["Output"]
+    assert output.to_dict("records") == [{"key": "a", "label": "中文"}, {"key": "b", "label": None}]
+    assert output.attrs["alteryx_schema"][1] == {
+        "name": "label", "type": "WString", "size": "3", "scale": None
+    }
 
 
 def test_dbfileinput_tool_class_executes_same_contract(workflow_context):

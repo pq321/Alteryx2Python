@@ -1,7 +1,8 @@
 # BlobOutput
 
-Baseline support records the intended blob write configuration without writing files.
-
 - Input anchor: `Input`
 - Output anchors: none
-- Current behavior: validates the input frame, records filename/blob-field metadata, and marks `external_write_performed=false`.
+- Writes actual bytes for fixed destinations and for per-row filename or path
+  replacement. Relative paths resolve from the workflow directory.
+- Run test cases with isolated output paths. Native output comparison and
+  additional filename modes still require dedicated fixtures.

@@ -6,6 +6,17 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 
+def resolve_macro_path(raw, base, embedded=()):
+    path = Path(raw)
+    roots = (Path(base), Path("D:/Alteryx/bin/RuntimeData/Macros"), Path("D:/Alteryx/bin/HtmlPlugins"))
+    candidates = (path,) if path.is_absolute() else (root / path for root in roots)
+    for candidate in candidates:
+        selected = candidate.resolve()
+        if selected.is_file() or str(selected) in embedded:
+            return selected
+    return None
+
+
 def ordered_macro_outputs(root):
     """Accept an explicit contract or an independently inspected macro fingerprint."""
     import hashlib
@@ -22,9 +33,7 @@ def attach_macro_ordering(workflow, embedded):
         if not node.tool_type.startswith('Macro_'):
             continue
         cfg = node.config.get('normalized', node.config)
-        raw = Path(cfg.get('macro_path', ''))
-        candidates = [raw] if raw.is_absolute() else [Path(cfg.get('base_dir', '.')) / raw, Path('D:/Alteryx/bin/RuntimeData/Macros') / raw]
-        path = next((item.resolve() for item in candidates if item.is_file() or str(item.resolve()) in embedded), None)
+        path = resolve_macro_path(cfg.get('macro_path', ''), cfg.get('base_dir', '.'), embedded)
         if path is not None:
             root = ET.fromstring(embedded[str(path)]) if str(path) in embedded else ET.parse(path).getroot()
             outputs = ordered_macro_outputs(root)
@@ -36,13 +45,7 @@ def collect_macro_sources(workflow):
     sources, missing = {}, []
 
     def visit(raw, base):
-        path = Path(raw)
-        candidates = (
-            [path]
-            if path.is_absolute()
-            else [base / path, Path("D:/Alteryx/bin/RuntimeData/Macros") / path]
-        )
-        selected = next((p.resolve() for p in candidates if p.is_file()), None)
+        selected = resolve_macro_path(raw, base)
         if selected is None:
             missing.append(str(base / raw))
             return

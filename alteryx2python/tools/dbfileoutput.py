@@ -66,7 +66,7 @@ def _line_ending(config: dict[str, Any]) -> str:
     return "\r\n"
 
 
-def _format_cell(value: Any) -> str:
+def _format_cell(value: Any, date_only: bool = False) -> str:
     """Format a value the way the native CSV writer renders it.
 
     Alteryx writes integral doubles without a trailing ".0" (3.0 -> "3") and
@@ -74,9 +74,18 @@ def _format_cell(value: Any) -> str:
     """
     if value is None or (not isinstance(value, str) and pd.isna(value)):
         return ""
+    if date_only and isinstance(value, pd.Timestamp):
+        return value.date().isoformat()
     if isinstance(value, float) and value == int(value) and abs(value) < 1e15:
         return str(int(value))
     return str(value)
+
+
+def _date_columns(frame: pd.DataFrame) -> set[str]:
+    return {
+        field["name"] for field in frame.attrs.get("alteryx_schema") or []
+        if field.get("type") == "Date"
+    }
 
 
 def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[str, Any]) -> None:
@@ -86,15 +95,17 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
     code_page = _format_option(config, "CodePage", "28591")
     encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
 
+    date_columns = _date_columns(output_frame)
     path.parent.mkdir(parents=True, exist_ok=True)
     if not header and len(output_frame.columns) == 1:
-        values = output_frame.iloc[:, 0].map(_format_cell).tolist()
+        date_only = output_frame.columns[0] in date_columns
+        values = [_format_cell(value, date_only) for value in output_frame.iloc[:, 0]]
         path.write_text(line_ending.join(values) + line_ending, encoding=encoding, newline="")
         return
 
-    rendered = output_frame.copy()
-    for column in rendered.columns:
-        rendered[column] = rendered[column].map(_format_cell)
+    rendered = output_frame.astype(object)
+    for index, column in enumerate(rendered.columns):
+        rendered.iloc[:, index] = [_format_cell(value, column in date_columns) for value in rendered.iloc[:, index]]
     rendered.to_csv(path, index=False, header=header, sep=delimiter, lineterminator=line_ending, encoding=encoding)
 
 

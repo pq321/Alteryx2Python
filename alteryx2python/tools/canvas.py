@@ -61,6 +61,26 @@ def toolcontainer_tool(
     return _record_canvas_node(tool_type="ToolContainer", inputs=inputs, config=config, context=context)
 
 
+def control_log_frame(node_id: str, active: bool, messages=()) -> pd.DataFrame:
+    rows = []
+    if active:
+        rows.append((int(node_id), "Info", "Control Container Activated."))
+        rows.extend(
+            (int(entry["node_id"]), "Warning" if entry["severity"] == "warning" else "Info", entry["message"])
+            for entry in messages
+        )
+        rows.append((int(node_id), "Info", "Control Container Completed."))
+    log = pd.DataFrame(rows, columns=["ToolID", "MessageType", "Message"]).astype(
+        {"ToolID": "int32", "MessageType": object, "Message": object}
+    )
+    log.attrs["alteryx_schema"] = [
+        {"name": "ToolID", "type": "Int32", "size": None, "scale": None},
+        *({"name": name, "type": "V_WString", "size": "64000", "scale": None}
+          for name in ("MessageType", "Message")),
+    ]
+    return log
+
+
 def controlcontainer_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -68,9 +88,10 @@ def controlcontainer_tool(
 ) -> dict[str, pd.DataFrame]:
     if 'Log' not in config.get('node_output_anchors', []):
         return _record_canvas_node(tool_type="ControlContainer", inputs=inputs, config=config, context=context)
-    active = not config.get('disabled', False) and ('Control' not in inputs or len(inputs['Control'].index) > 0)
-    outputs = {'Log': pd.DataFrame({'Message': [config.get('caption', 'Container completed')]} if active else {'Message': []})}
-    context.record_node(node_id=str(config.get('node_id', 'unknown')), tool_type='ControlContainer',
+    node_id = str(config.get("node_id", "0"))
+    active = not config.get("disabled", False) and ("Control" not in inputs or not inputs["Control"].empty)
+    outputs = {"Log": control_log_frame(node_id, active, config.get("control_log_messages", ()))}
+    context.record_node(node_id=node_id, tool_type='ControlContainer',
                         source_tool_id=config.get('source_tool_id'), inputs=inputs, outputs=outputs, status='success', config=config)
     return outputs
 
@@ -88,7 +109,59 @@ def message_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
-    return _record_canvas_node(tool_type="Message", inputs=inputs, config=config, context=context)
+    from alteryx2python.expressions.evaluator import evaluate_expression
+    from alteryx2python.expressions.parser import parse_expression
+
+    frame = inputs["Input"]
+    when = (config.get("when") or "First").lower()
+    if when == "first":
+        candidates = frame.head(1).to_dict("records") or [{}]
+    elif when == "last":
+        candidates = frame.tail(1).to_dict("records") or [{}]
+    elif when == "filter":
+        predicate = parse_expression(config["filter"])
+        candidates = [
+            row for row in frame.to_dict("records") if evaluate_expression(predicate, row)
+        ]
+    elif when == "all":
+        candidates = [{}]
+    else:
+        raise NotImplementedError(f"Unsupported Message timing: {when}")
+    severity = (config.get("type") or "Message").lower()
+    if severity not in {"message", "warning", "error"}:
+        raise NotImplementedError(f"Unsupported Message type: {severity}")
+    expression = parse_expression(config["message_expression"])
+
+    def emit():
+        for row in candidates:
+            message = str(evaluate_expression(expression, row))
+            if severity == "error":
+                context.record_error(message)
+                raise ValueError(message)
+            if severity == "warning":
+                context.record_warning(message)
+            context.record_diagnostic({
+                "kind": "message",
+                "node_id": str(config.get("node_id", "unknown")),
+                "severity": severity,
+                "message": message,
+            })
+
+    if when == "all":
+        context.deferred_messages.append((str(config.get("node_id", "unknown")), emit))
+    else:
+        emit()
+    outputs = {"Output": frame.copy()}
+    context.record_node(
+        node_id=str(config.get("node_id", "unknown")),
+        tool_type="Message",
+        source_tool_id=config.get("source_tool_id"),
+        inputs=inputs,
+        outputs=outputs,
+        status="success",
+        config=config,
+    )
+    return outputs
 
 
 class TextBoxTool(BaseTool):
@@ -164,7 +237,7 @@ class BrowseV2Tool(BaseTool):
 class MessageTool(BaseTool):
     tool_type = "Message"
     input_anchors = ("Input",)
-    output_anchors = ()
+    output_anchors = ("Output",)
 
     def execute(
         self,

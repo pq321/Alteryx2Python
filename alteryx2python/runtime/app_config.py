@@ -477,7 +477,7 @@ def compile_workflow(source, answers=None):
                 runtime.remove(element)
         module_type = runtime.find("ModuleType")
         if module_type is not None and module_type.text != "Macro":
-            module_type.text = "Standard"
+            runtime.remove(module_type)
     return configured, values
 
 

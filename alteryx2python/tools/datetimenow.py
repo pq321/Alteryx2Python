@@ -36,7 +36,8 @@ def datetimenow_tool(
         raise NotImplementedError(f"DateTimeNow output format is not supported: {output_format}")
 
     output = pd.DataFrame({"DateTimeNow": [now.strftime(strftime_format)]})
-    outputs = {"Output": output}
+    declared_anchors = config.get("node_output_anchors", ())
+    outputs = {"DTN" if "DTN" in declared_anchors or config.get("macro_path") else "Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
         tool_type="DateTimeNow",

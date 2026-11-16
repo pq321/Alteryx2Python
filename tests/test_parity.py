@@ -15,7 +15,8 @@ import pytest
 from alteryx2python.parity.__main__ import main
 from alteryx2python.parity.coverage import ToolsListParser, coverage_report
 from alteryx2python.parity.runner import (
-    capture_python, collect_native, compare_runs, execute_native, prepare, read_yxdb, runtime_hash, verify_manifest,
+    _without_probe_messages, capture_python, collect_native, compare_runs, execute_native, prepare,
+    read_yxdb, runtime_hash, verify_manifest,
 )
 from alteryx2python.parity.samples import generate_samples
 from alteryx2python.parity.snapshot import compare_snapshots, encode_value, frame_snapshot
@@ -222,6 +223,39 @@ def test_unreadable_yxdb_is_an_explicit_failure(tmp_path):
     path.write_bytes(b"bad")
     with pytest.raises(Exception, match="not a valid YXDB"):
         read_yxdb(path)
+
+
+def test_control_log_excludes_only_the_matching_probe_file_event(tmp_path):
+    probe = tmp_path / "probe-0000.yxdb"
+    message = f'{probe}|1 records were written to "{probe}"'
+    snapshot = frame_snapshot(pd.DataFrame(
+        [(8, "FileOutput", message), (6, "FileOutput", message), (8, "Info", message),
+         (8, "FileOutput", f"{tmp_path / 'other.yxdb'}|different output")],
+        columns=["ToolID", "MessageType", "Message"],
+    ))
+
+    visible, removed = _without_probe_messages(snapshot, {"8": probe})
+
+    assert removed == snapshot["rows"][:1]
+    assert visible["rows"] == snapshot["rows"][1:]
+    assert len(snapshot["rows"]) == 4
+
+
+def test_amp_probe_export_binds_native_input_and_conversion_workflow(prepared):
+    from alteryx2python.parity.amp_export import AMP_HEADER, native_probe_path, prepare_amp_export
+
+    _, directory = prepared
+    raw = directory / "probe-0000.yxdb"
+    raw.write_bytes(AMP_HEADER + b"raw fixture")
+    with pytest.raises(ValueError, match="requires a Designer classic export"):
+        native_probe_path(raw)
+    recipe = prepare_amp_export(directory)
+
+    assert Path(recipe["workflow"]).is_file()
+    assert native_probe_path(raw) == directory / "classic-export" / raw.name
+    raw.write_bytes(AMP_HEADER + b"altered fixture")
+    with pytest.raises(ValueError, match="AMP input changed"):
+        native_probe_path(raw)
 
 
 def test_saved_native_yxdb_preserves_null_unicode_and_ignores_sortinfo_fields():

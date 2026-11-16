@@ -46,6 +46,13 @@ def _starts_with(value: Any, prefix: Any) -> bool:
     return ("" if value is None else str(value)).startswith(str(prefix))
 
 
+def _contains(value: Any, substring: Any, case_insensitive: Any = True) -> bool:
+    if _is_null(value) or _is_null(substring):
+        return False
+    text, part = str(value), str(substring)
+    return part.casefold() in text.casefold() if case_insensitive else part in text
+
+
 def _to_string(value: Any) -> str:
     if value is None or bool(pd.isna(value)):
         return ""
@@ -131,6 +138,7 @@ def _null() -> None:
 
 
 FUNCTION_REGISTRY = {
+    "CONTAINS": _contains,
     "DATETIMEADD": _datetime_add,
     "DATETIMEDIFF": _datetime_diff,
     "AVERAGE": _average,

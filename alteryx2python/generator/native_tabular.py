@@ -60,8 +60,11 @@ def lower_tabular(compiler, kind, config, frame):
             raise UnsupportedLowering('Sort requires fields')
         return [f'return {frame}.sort_values(by={[field["field"] for field in fields]!r}, ascending={[_is_ascending(field.get("order", "Ascending")) for field in fields]!r}, kind="mergesort").reset_index(drop=True)']
     if kind == 'Unique':
-        subset = config.get('unique_fields') or None
-        return [f'duplicate = {frame}.duplicated(subset={subset!r}, keep="first")', f'return {frame}.loc[~duplicate].copy(), {frame}.loc[duplicate].copy()']
+        fields = config.get('unique_fields')
+        subset = repr(fields) if fields else f'list({frame}.columns)'
+        return [f'keys = {subset}', f'ordered = {frame}.sort_values(keys, kind="stable", na_position="first")',
+                'duplicate = ordered.duplicated(subset=keys, keep="first")',
+                'return ordered.loc[~duplicate].copy(), ordered.loc[duplicate].copy()']
     if kind == 'RecordID':
         from alteryx2python.tools.recordid import TYPE_MAP
         field, start, position = config.get('field_name', 'RecordID'), int(config.get('start_value', 1)), int(config.get('position', 0))
@@ -70,7 +73,8 @@ def lower_tabular(compiler, kind, config, frame):
             raise UnsupportedLowering('Unsupported RecordID type/position')
         lines = [f'output = {frame}.copy()']
         if groups:
-            lines += [f'output[{field!r}] = (output.groupby({groups!r}, sort=False, dropna=False).cumcount() + {start}).astype({dtype!r})']
+            lines += [f'output = output.sort_values({groups!r}, kind="stable", na_position="first").reset_index(drop=True)',
+                      f'output[{field!r}] = (output.groupby({groups!r}, sort=False, dropna=False).cumcount() + {start}).astype({dtype!r})']
         else:
             lines += [f'output[{field!r}] = pd.Series(range({start}, {start} + len(output)), index=output.index, dtype={dtype!r})']
         if position == 0:
@@ -98,11 +102,18 @@ def lower_tabular(compiler, kind, config, frame):
     if kind in {'RunningTotal', 'Rank'}:
         groups = config.get('group_by_fields' if kind == 'RunningTotal' else 'group_fields', [])
         if kind == 'RunningTotal':
+            compiler.linker.imports.add('from itertools import accumulate')
             lines = [f'output = {frame}.copy()']
+            if groups:
+                lines += [f'output = output.sort_values({groups!r}, kind="stable", na_position="first").reset_index(drop=True)']
+            prefix = config.get('output_prefix', 'RunningTotal_')
             for field in config.get('running_total_fields', []):
                 numeric = f'pd.to_numeric(output[{field!r}], errors="coerce").fillna(0)'
-                grouped = f'.groupby([output[field] for field in {groups!r}], sort=False)' if groups else ''
-                lines += [f'output[{"RunningTotal_" + field!r}] = {numeric}{grouped}.cumsum()']
+                if groups:
+                    expression = f'{numeric}.groupby([output[field] for field in {groups!r}], sort=False, dropna=False).transform(lambda group: list(accumulate(group)))'
+                else:
+                    expression = f'list(accumulate({numeric}))'
+                lines += [f'output[{prefix + field!r}] = {expression}']
         else:
             from alteryx2python.tools.rank import RANK_METHODS
             fields, modes = config.get('sort_fields', []), config.get('ranking_modes', ['Ordinal'])

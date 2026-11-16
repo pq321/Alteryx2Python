@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
 from xml.etree import ElementTree as ET
 
@@ -53,27 +52,15 @@ def execute_static_macro(
 ) -> dict[str, pd.DataFrame]:
     from alteryx2python.parser.xml_parser import XmlWorkflowParser
     from alteryx2python.runtime.executor import run_workflow_graph
+    from alteryx2python.generator.macro_sources import resolve_macro_path
 
     raw_path = str(config.get("macro_path", ""))
     if not raw_path:
         raise ToolUnavailableError(
             "Macro path was not preserved in the parsed workflow"
         )
-    path = Path(raw_path)
-    roots = [
-        Path(str(config.get("base_dir", "."))),
-        Path("D:/Alteryx/bin/RuntimeData/Macros"),
-    ]
-    candidates = [path] if path.is_absolute() else [root / path for root in roots]
     embedded = (context.runtime_config or {}).get("_embedded_macros", {})
-    path = next(
-        (
-            candidate.resolve()
-            for candidate in candidates
-            if candidate.is_file() or str(candidate.resolve()) in embedded
-        ),
-        None,
-    )
+    path = resolve_macro_path(raw_path, config.get("base_dir", "."), embedded)
     if path is None:
         raise ToolUnavailableError(f"Local macro file is unavailable: {raw_path}")
     stack = list((context.runtime_config or {}).get("macro_stack", []))
@@ -148,15 +135,19 @@ def execute_static_macro(
         ]
         child_runtime = dict(context.runtime_config or {})
         child_runtime.pop('constants', None)
-        child = WorkflowContext(
-            runtime_config={
+        child = context.macro_context(
+            {
                 **child_runtime,
                 "macro_stack": [*stack, str(path)],
-            }
+            },
+            str(config.get("node_id", "unknown")),
+            len(runs) + 1,
         )
-        result = run_workflow_graph(macro, child, initial_inputs=initial)
-        context.warnings.extend(child.warnings)
-        context.errors.extend(child.errors)
+        try:
+            result = run_workflow_graph(macro, child, initial_inputs=initial)
+        finally:
+            context.warnings.extend(child.warnings)
+            context.errors.extend(child.errors)
         runs.append(result.execution_order)
         mapped = {
             name: result.node_results[node_id].outputs["Output"]
@@ -175,11 +166,19 @@ def execute_static_macro(
                 "Local batch profile requires exactly one ControlParam"
             )
         control = controls[0]
-        control_anchor = config.get("control_anchor", control.name)
+        default_control_anchor = "Control" if "Control" in inputs else control.name
+        control_anchor = config.get("control_anchor", default_control_anchor)
         control_frame = inputs.get(control_anchor)
         if control_frame is None:
             raise KeyError(f"Batch macro control input is missing: {control_anchor}")
-        field = config.get("control_field", values.get(control.name))
+        bindings = {}
+        for line in str(values.pop("ControlParams", "")).splitlines():
+            name, marker, field_name = line.partition("=")
+            if line.strip() and (not marker or not name or not field_name or name in bindings):
+                raise ValueError("Malformed ControlParams field mapping")
+            if marker:
+                bindings[name] = field_name
+        field = config.get("control_field", bindings.get(control.name, values.get(control.name)))
         if field is None and len(control_frame.columns) == 1:
             field = control_frame.columns[0]
         if field not in control_frame:

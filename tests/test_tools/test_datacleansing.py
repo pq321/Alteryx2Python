@@ -49,3 +49,15 @@ def test_datacleansing_tool_class_executes_same_contract(workflow_context):
     )
 
     assert result["Output26"]["value"].tolist() == ["ok"]
+
+
+def test_datacleansing_uses_type_specific_null_replacements(workflow_context):
+    frame = pd.DataFrame({"text": [" x ", None], "number": pd.Series([4, None], dtype="Int64")})
+    output = datacleansing_tool(
+        {"Input": frame},
+        {"replace_string_nulls": True, "replace_numeric_nulls": True,
+         "remove_leading_trailing_whitespace": True},
+        workflow_context,
+    )["Output26"]
+    assert output.to_dict("records") == [{"text": "x", "number": 4}, {"text": "", "number": 0}]
+    assert output["number"].dtype == frame["number"].dtype

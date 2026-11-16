@@ -14,6 +14,7 @@ from pathlib import Path
 from xml.etree import ElementTree as ET
 
 from alteryx2python.parser.tool_catalog import CATALOG, catalog_entry_for_plugin
+from alteryx2python.tools.field_contracts import GENERATED_SIZES, select_type_and_force
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
 
@@ -86,6 +87,7 @@ class NodeSpec:
             )
             if len(wrapped) == 1 and wrapped[0].tag == "Configuration":
                 wrapped = deepcopy(wrapped[0])
+            _apply_generated_field_sizes(wrapped, self.tool_type)
             props.insert(0, wrapped)
         elif props.find("Configuration") is None:
             ET.SubElement(props, "Configuration")
@@ -113,6 +115,24 @@ class NodeSpec:
 
             resolve_file_references(node, Path(self.source_dir) / "source.yxmd")
         return node
+
+
+def _apply_generated_field_sizes(configuration: ET.Element, tool_type: str) -> None:
+    path = {"Formula": "FormulaFields/FormulaField", "Select": "SelectFields/SelectField"}.get(tool_type)
+    if path is None:
+        return
+    for field in configuration.findall(path):
+        dtype = field.get("type")
+        if not dtype or field.get("field") == "*Unknown":
+            continue
+        if tool_type == "Select":
+            dtype, forced = select_type_and_force(dtype)
+            if forced:
+                field.set("type", dtype)
+                field.set("forced", "True")
+        width = GENERATED_SIZES.get(dtype)
+        if not field.get("size") and width is not None:
+            field.set("size", str(width))
 
 
 @dataclass
@@ -275,12 +295,11 @@ class WorkflowSpec:
             root.remove(props)
             root.append(replacement)
             props = replacement
-        if not self.source_xml and self.properties_xml is None:
+        if not self.source_xml and self.properties_xml is None and self.kind != "yxmd":
             runtime = _child(props, "RuntimeProperties")
             _child(runtime, "ModuleType").text = {
                 "yxmc": "Macro",
                 "yxwz": "Wizard",
-                "yxmd": "Standard",
             }[self.kind]
         if self.base_dir:
             from alteryx2python.parser.file_references import resolve_file_references

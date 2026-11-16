@@ -24,9 +24,10 @@ def unique_tool(
         unique_fields = list(input_frame.columns)
     ensure_fields_exist(input_frame, unique_fields)
 
-    duplicate_mask = input_frame.duplicated(subset=unique_fields, keep="first")
-    unique_output = input_frame.loc[~duplicate_mask].copy()
-    duplicate_output = input_frame.loc[duplicate_mask].copy()
+    ordered = input_frame.sort_values(unique_fields, kind="stable", na_position="first")
+    duplicate_mask = ordered.duplicated(subset=unique_fields, keep="first")
+    unique_output = ordered.loc[~duplicate_mask].copy()
+    duplicate_output = ordered.loc[duplicate_mask].copy()
     outputs = {"Unique": unique_output, "Duplicates": duplicate_output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

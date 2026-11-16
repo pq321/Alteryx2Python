@@ -67,6 +67,7 @@ def run_workflow_graph(
                 return _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids)
         finally:
             context.runtime_config = original_runtime
+            context.deferred_messages.clear()
 
 
 def _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids):
@@ -131,13 +132,24 @@ def _run_workflow_graph(
 
     initial_inputs = initial_inputs or {}
     node_results: dict[str, NodeResult] = {}
+    from alteryx2python.runtime.scheduling import container_guards, container_members, detour_exclusions
+    inactive_detours, detour_skips = detour_exclusions(executable_nodes, executable_edges)
+    diagnostic_start = len(context.diagnostics)
 
     for node_id in execution_order:
         node = nodes_by_id[node_id]
+        guards = [] if target_node_ids and (context.runtime_config or {}).get('skip_app_configuration') else container_guards(node, nodes_by_id, workflow.edges)
+        enabled = node_id not in detour_skips and all(
+            guard is not None and len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards
+        )
         inputs = dict(initial_inputs.get(node_id, {}))
         input_connection_names: dict[str, str] = {}
         for edge in incoming_edges.get(node_id, []):
+            if edge.source_node_id in detour_skips or (edge.source_node_id, edge.source_anchor) in inactive_detours:
+                continue
             upstream = node_results.get(edge.source_node_id)
+            if not enabled and (upstream is None or edge.source_anchor not in upstream.outputs):
+                continue
             if upstream is None:
                 exc = KeyError(f"Missing upstream result for node {edge.source_node_id}")
                 config = _execution_config(node)
@@ -165,21 +177,22 @@ def _run_workflow_graph(
             if connection_name:
                 input_connection_names[target_anchor] = connection_name
 
-        from alteryx2python.runtime.scheduling import container_guards
-        guards = [] if target_node_ids and (context.runtime_config or {}).get('skip_app_configuration') else container_guards(node, nodes_by_id, workflow.edges)
-        enabled = all(guard is not None and len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards)
         if not enabled:
-            metadata = _metadata_for_node(node, context)
             from alteryx2python.tools.empty_schema import skipped_frame
             frame = next(iter(inputs.values()), None)
             if node.tool_type == 'Select' and frame is not None:
                 from alteryx2python.runtime.context import WorkflowContext
+                metadata = _metadata_for_node(node, context)
                 outputs = metadata.function({'Input': frame.iloc[:0]}, _execution_config(node), WorkflowContext())
             else:
+                anchors = {anchor.name for anchor in node.output_anchors}
+                if not node.tool_type.startswith("Macro_") and node.tool_type in TOOL_REGISTRY.list_tool_types():
+                    anchors.update(_metadata_for_node(node, context).output_anchors)
                 outputs = {anchor: skipped_frame(node.tool_type, _execution_config(node), frame, node.expected_output_schema)
-                           for anchor in metadata.output_anchors}
+                           for anchor in sorted(anchors)}
             context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
-                                inputs=inputs, outputs=outputs, status='skipped', config={'reason': 'container_disabled_or_empty_control'})
+                                inputs=inputs, outputs=outputs, status='skipped',
+                                config={'reason': 'detour_inactive' if node_id in detour_skips else 'container_disabled_or_empty_control'})
             node_results[node_id] = NodeResult(node_id=node_id, tool_type=node.tool_type, outputs=outputs, trace=context.traces[-1])
             continue
         config = _execution_config(node)
@@ -198,6 +211,14 @@ def _run_workflow_graph(
         if input_connection_names:
             config["input_connection_names"] = input_connection_names
         try:
+            if node.tool_type == "ControlContainer":
+                members = container_members(node, nodes_by_id)
+                context.flush_deferred_messages(members)
+                if "Log" in config["node_output_anchors"]:
+                    config["control_log_messages"] = [
+                        entry for entry in context.diagnostics[diagnostic_start:]
+                        if entry.get("kind") == "message" and entry["node_id"] in members
+                    ]
             metadata = _metadata_for_node(node, context)
             node_results[node_id] = run_tool_node(
                 metadata,
@@ -210,6 +231,7 @@ def _run_workflow_graph(
             _record_node_failure(workflow, context, node, inputs, config, exc)
             raise
 
+    context.flush_deferred_messages()
     warnings = _record_frontier_warnings(workflow, context, executable_node_ids, outgoing_edges, nodes_by_id)
     skipped_node_ids = [node.node_id for node in workflow.nodes if node.node_id not in executable_node_ids]
     return WorkflowGraphResult(
@@ -225,13 +247,11 @@ def _metadata_for_node(node: "NodeIR", context: "WorkflowContext") -> "ToolMetad
         from alteryx2python.tools.macro_engine import execute_static_macro
         from alteryx2python.tools.registry import ToolMetadata
         from alteryx2python.tools.base_tool import BaseTool
-        from pathlib import Path
+        from alteryx2python.generator.macro_sources import resolve_macro_path
         from xml.etree import ElementTree as ET
         cfg = _execution_config(node)
-        macro_path = Path(str(cfg.get("macro_path", "")))
-        candidates = [macro_path] if macro_path.is_absolute() else [Path(str(cfg.get("base_dir", "."))) / macro_path, Path("D:/Alteryx/bin/RuntimeData/Macros") / macro_path]
         embedded = (context.runtime_config or {}).get("_embedded_macros", {})
-        available = next((p.resolve() for p in candidates if p.is_file() or str(p.resolve()) in embedded), None)
+        available = resolve_macro_path(cfg.get("macro_path", ""), cfg.get("base_dir", "."), embedded)
         declared_outputs = tuple(anchor.name for anchor in node.output_anchors)
         if available is not None:
             root = ET.fromstring(embedded[str(available)]) if str(available) in embedded else ET.parse(available).getroot()
@@ -247,6 +267,12 @@ def _metadata_for_node(node: "NodeIR", context: "WorkflowContext") -> "ToolMetad
                             supports_certification=False, execution_profile="local-static-macro")
     try:
         metadata = TOOL_REGISTRY.get(node.tool_type)
+        if node.tool_type == "DateTimeNow" and (
+            "DTN" in {anchor.name for anchor in node.output_anchors}
+            or _execution_config(node).get("macro_path")
+        ):
+            from dataclasses import replace
+            return replace(metadata, output_anchors=("DTN",))
         if node.tool_type == 'ControlContainer' and any(anchor.name == 'Log' for anchor in node.output_anchors):
             from dataclasses import replace
             metadata = replace(metadata, output_anchors=('Log',))
