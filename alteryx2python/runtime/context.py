@@ -8,6 +8,10 @@ import pandas as pd
 from alteryx2python.runtime.trace import AnchorTrace, NodeExecutionTrace
 
 
+class WorkflowMessageError(ValueError):
+    """An error explicitly raised by the workflow's Message tool."""
+
+
 @dataclass(slots=True)
 class WorkflowContext:
     runtime_config: dict[str, Any] | None = None

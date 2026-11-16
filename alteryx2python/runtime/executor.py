@@ -94,6 +94,11 @@ def _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids):
     from alteryx2python.runtime.variables import resolve_variable_tokens
     from pathlib import Path
     runtime = dict(context.runtime_config or {})
+    if runtime.get('_workflow_audit'):
+        from alteryx2python.workflow_audit import audit_events
+
+        audit_events(workflow, context)
+        return _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
     events = bind_logging_events(workflow_events(workflow.source_xml), runtime.pop('log_event_ids', ()))
     events = resolve_variable_tokens(events, workflow.metadata['workflow_constants'])
     attachments = attachment_bindings(workflow, redirect_sinks=bool(runtime.get('redirect_sinks')))
@@ -141,7 +146,8 @@ def _run_workflow_graph(
                 context.record_diagnostic({"kind": "configuration", "source_sha256": workflow.source_hash,
                                            "bound_questions": list(workflow.metadata.get("answers", {}))})
     from alteryx2python.generator.macro_sources import attach_macro_ordering
-    attach_macro_ordering(workflow, (context.runtime_config or {}).get('_embedded_macros', {}))
+    audit = (context.runtime_config or {}).get('_workflow_audit', False)
+    attach_macro_ordering(workflow, (context.runtime_config or {}).get('_embedded_macros', {}), tolerate_unreadable=audit)
     nodes_by_id = {node.node_id: node for node in workflow.nodes}
     incoming_edges = _incoming_edges_by_target(workflow.edges)
     outgoing_edges = _outgoing_edges_by_source(workflow.edges)
@@ -161,21 +167,28 @@ def _run_workflow_graph(
     diagnostic_start = len(context.diagnostics)
     stop_on_error = (context.runtime_config or {}).get('_cancel_on_error', True)
     errors_start = len(context.continuing_errors)
-    blocked_by_command = set()
+    blocked = set()
 
     for node_id in execution_order:
         node = nodes_by_id[node_id]
         guards = [] if target_node_ids and (context.runtime_config or {}).get('skip_app_configuration') else container_guards(node, nodes_by_id, workflow.edges)
-        if any(guard is not None and guard[0] in blocked_by_command for guard in guards) or any(
-            edge.source_node_id in blocked_by_command for edge in incoming_edges.get(node_id, [])
+        blocked_by = {guard[0] for guard in guards if guard is not None and guard[0] in blocked}
+        blocked_by.update(
+            edge.source_node_id for edge in incoming_edges.get(node_id, []) if edge.source_node_id in blocked
             if (edge.source_node_id, edge.source_anchor) not in inactive_detours
-        ):
-            blocked_by_command.add(node_id)
+        )
+        if audit and node.tool_type == 'ControlContainer':
+            blocked_by.update(container_members(node, nodes_by_id) & blocked)
+        statically_skipped = node_id in detour_skips or None in guards
+        if blocked_by and (not audit or not statically_skipped):
+            blocked.add(node_id)
             context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
-                                inputs={}, outputs={}, status='skipped', config={'reason': 'upstream_command_failed'})
+                                inputs={}, outputs={}, status='blocked' if audit else 'skipped',
+                                config={'reason': 'dependency_unavailable' if audit else 'upstream_command_failed',
+                                        'blocked_by': sorted(blocked_by)})
             continue
-        enabled = node_id not in detour_skips and all(
-            guard is not None and len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards
+        enabled = not statically_skipped and all(
+            len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards
         )
         inputs = dict(initial_inputs.get(node_id, {}))
         input_connection_names: dict[str, str] = {}
@@ -189,6 +202,9 @@ def _run_workflow_graph(
                 exc = KeyError(f"Missing upstream result for node {edge.source_node_id}")
                 config = _execution_config(node)
                 _record_node_failure(workflow, context, node, inputs, config, exc)
+                if audit:
+                    blocked.add(node_id)
+                    break
                 raise exc
             if edge.source_anchor not in upstream.outputs:
                 exc = KeyError(
@@ -205,12 +221,18 @@ def _run_workflow_graph(
                     )
                 )
                 _record_failed_trace(context, node, inputs, _execution_config(node), exc)
+                if audit:
+                    blocked.add(node_id)
+                    break
                 raise exc
             target_anchor = _next_input_anchor_name(inputs, edge.target_anchor)
             inputs[target_anchor] = upstream.outputs[edge.source_anchor]
             connection_name = _edge_connection_name(edge)
             if connection_name:
                 input_connection_names[target_anchor] = connection_name
+
+        if node_id in blocked:
+            continue
 
         if not enabled:
             from alteryx2python.tools.empty_schema import skipped_frame
@@ -240,9 +262,13 @@ def _run_workflow_graph(
         if capture_dir and node.tool_type == "DbFileOutput":
             from pathlib import Path
             import hashlib
-            suffix = Path(str(config.get("file", "output.csv")).split("|||", 1)[0]).suffix
+            filename, separator, selector = str(config.get('file', 'output.csv')).partition('|||')
+            suffix = Path(filename).suffix
             identity = hashlib.sha256(workflow.source_file.encode()).hexdigest()[:12]
-            config["file"] = str(Path(capture_dir) / f"python-sink-{identity}-{node.node_id}{suffix}")
+            if not audit or config.get('file'):
+                config['file'] = str(Path(capture_dir) / f'python-sink-{identity}-{node_id}{suffix}')
+                if audit and separator:
+                    config['file'] += separator + selector
         if input_connection_names:
             config["input_connection_names"] = input_connection_names
         try:
@@ -255,6 +281,19 @@ def _run_workflow_graph(
                         if entry.get("kind") == "message" and entry["node_id"] in members
                     ]
             metadata = _metadata_for_node(node, context)
+            if audit:
+                from alteryx2python.workflow_audit import audit_side_effect, diagnostic_message_only, feeds_control_log, review_message
+
+                if audit_side_effect(node.tool_type, metadata):
+                    context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
+                                        inputs=inputs, outputs={}, status='blocked', config={'reason': 'side_effect_not_run'})
+                    blocked.add(node_id)
+                    continue
+                exposed = runtime.get('_audit_messages_exposed', False)
+                if node.tool_type.startswith('Macro_'):
+                    config['_audit_messages_exposed'] = exposed or feeds_control_log(node, nodes_by_id, workflow.edges)
+                if diagnostic_message_only(node, config, nodes_by_id, workflow.edges, exposed=exposed):
+                    metadata = review_message(metadata)
             node_results[node_id] = run_tool_node(
                 metadata,
                 inputs,
@@ -264,10 +303,16 @@ def _run_workflow_graph(
             )
         except Exception as exc:
             _record_node_failure(workflow, context, node, inputs, config, exc)
+            if audit:
+                from alteryx2python.runtime.context import WorkflowMessageError
+
+                if not isinstance(exc, WorkflowMessageError):
+                    blocked.add(node_id)
+                    continue
             if stop_on_error or node.tool_type != 'RunCommand' or not isinstance(exc, (CalledProcessError, TimeoutExpired, FileNotFoundError)):
                 raise
             context.continuing_errors.append(exc)
-            blocked_by_command.add(node_id)
+            blocked.add(node_id)
 
     context.flush_deferred_messages()
     if len(context.continuing_errors) > errors_start:

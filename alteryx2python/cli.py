@@ -74,6 +74,18 @@ def _build_parser() -> argparse.ArgumentParser:
     support_parser.add_argument("--log")
     support_parser.set_defaults(func=_support_map_command)
 
+    audit_parser = subparsers.add_parser('audit', help='List workflow gaps and optionally run independent branches')
+    audit_parser.add_argument('workflow')
+    audit_parser.add_argument('--run', action='store_true', help='Attempt the Python diagnostic execution')
+    audit_parser.add_argument('--answers')
+    audit_parser.add_argument('--as-of')
+    audit_parser.add_argument('--input-dir', type=Path)
+    audit_parser.add_argument('--bind-input', action='append', default=[], metavar='NODE_ID=PATH')
+    audit_parser.add_argument('--parameter-mode', choices=['dynamic', 'specialized'], default='dynamic')
+    audit_parser.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
+    audit_parser.add_argument('--log')
+    audit_parser.set_defaults(func=_audit_command)
+
     generate_parser = subparsers.add_parser("generate", help="Generate a Python script for one workflow")
     generate_parser.add_argument("workflow")
     generate_parser.add_argument("--output", required=True)
@@ -348,6 +360,19 @@ def _generate_samples_command(args: argparse.Namespace) -> tuple[dict[str, Any],
         "errors": errors,
         "unsupported_tool_types": _unsupported_tool_type_counts(generated),
     }, 0 if not errors else 1
+
+
+def _audit_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
+    from alteryx2python.input_bindings import parse_input_bindings
+    from alteryx2python.workflow_audit import audit_workflow
+
+    workflow = XmlWorkflowParser().parse(Path(args.workflow).resolve())
+    runtime = {'as_of': args.as_of, 'input_bindings': parse_input_bindings(args.bind_input)}
+    if args.input_dir is not None:
+        runtime['input_dir'] = args.input_dir.resolve()
+    report = audit_workflow(workflow, run=args.run, answers=_read_answers(args.answers) if args.answers else None, runtime=runtime,
+                            parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile)
+    return report, 0 if report['status'] == 'completed' else 2
 
 
 def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:

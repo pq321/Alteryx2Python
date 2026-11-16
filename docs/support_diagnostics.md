@@ -47,6 +47,29 @@ Initial diagnostics cover these common support cases:
 - upstream schema drift, especially missing or renamed columns
 - generic node execution failure with node, graph, config, and input traces
 
+## Audit a Whole Workflow
+
+```powershell
+& .venv/Scripts/python.exe -m alteryx2python.cli audit 'C:/work/105671.yxwz' --run --answers 'C:/work/answers.json' --as-of 2026-10-13 --parameter-mode specialized --delivery-profile xlsx-table-v1 --log 'C:/work/105671.audit.json'
+```
+
+Omit `--run` to inventory formulas, Actions, runtime settings and nested macro
+references and check Phase Two compilation without executing the workflow.
+Use `--bind-input NODE_ID=PATH` for individual file replacements. The inventory
+keeps inactive container and Detour findings visible with `active: false`.
+
+In a diagnostic run, a missing formula in a display-only `Message` can be
+deferred while its records continue unchanged. A missing data or control result
+blocks dependent nodes. Other branches continue and the report records each
+blocker's node ID. An actual workflow `Message` error still honors the saved
+cancel-on-error setting.
+
+File output tests use a temporary directory. Events, external programs and
+delivery actions such as email are listed for separate verification. The
+report includes compile issues, run outcomes and any deferred checks. Exit 2
+means the report has items to review. Audit results carry no native parity
+claim.
+
 ## Example: Column Rename Drift
 
 If a `Select` node expects `customer_id` but upstream data now provides `client_id`, the CLI returns a non-zero exit code and a report shaped like:

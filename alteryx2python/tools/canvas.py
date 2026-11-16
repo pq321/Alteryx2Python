@@ -5,7 +5,7 @@ from typing import Any
 import pandas as pd
 
 from alteryx2python.comparison.schema_diff import snapshot_schema
-from alteryx2python.runtime.context import WorkflowContext
+from alteryx2python.runtime.context import WorkflowContext, WorkflowMessageError
 from alteryx2python.tools.base_tool import BaseTool
 
 
@@ -137,7 +137,7 @@ def message_tool(
             message = str(evaluate_expression(expression, row))
             if severity in {"error", "errorstop"}:
                 context.record_error(message)
-                error = ValueError(message)
+                error = WorkflowMessageError(message)
                 if (context.runtime_config or {}).get('_cancel_on_error', True):
                     raise error
                 context.continuing_errors.append(error)

@@ -15,6 +15,11 @@ from alteryx2python.expressions.evaluator import evaluate_expression
 from alteryx2python.tools.unavailable import ToolUnavailableError
 
 LAYOUT = {"Tab", "Label", "LabelGroup", "Link", "MacroInput", "MacroOutput"}
+VALUE_ACTION_TYPES = {"UpdateValue", "UpdateValueReplace", "UpdateValueFormula", "UpdateRawXml"}
+SUPPORTED_ACTION_TYPES = VALUE_ACTION_TYPES | {
+    "Dynamic", "Error", "UpdateInput", "UpdateOutput", "UpdateSelect", "UpdateFieldList",
+    "EditExpression", "UpdateMap", "DeleteTool",
+}
 INTERFACE = {
     "Action",
     "Condition",
@@ -419,12 +424,7 @@ def apply_actions(root, values):
             raise ToolUnavailableError(
                 "DynamicAction is data-driven and has no static Python mapping"
             )
-        if mode not in {
-            "UpdateValue",
-            "UpdateValueReplace",
-            "UpdateValueFormula",
-            "UpdateRawXml",
-        }:
+        if mode not in VALUE_ACTION_TYPES:
             raise ToolUnavailableError(f"unsupported Action mode: {mode}")
         if mode in {"UpdateValueFormula", "UpdateRawXml"}:
             value = _expression(_value(action, "Expression"), values)

@@ -13,6 +13,7 @@ import re
 import textwrap
 from xml.etree import ElementTree as ET
 
+from alteryx2python.expressions.errors import UnsupportedExpressionError
 from alteryx2python.generator.source_linker import SourceLinker, UnsupportedLowering, strip_annotations, RemoveTracing, simplify_template
 from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 
@@ -514,7 +515,8 @@ class ReadablePythonGenerator:
                         f'{config.get("body") or "Report"!r}, {attachments}{destination})', 'return None']
         raise UnsupportedLowering(f'No deterministic template for {kind}')
 
-    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None, log_event_ids=(), input_bindings=None):
+    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None,
+                 log_event_ids=(), input_bindings=None, collect_expression_issues=False):
         # Generator instances are reusable without leaking previous helpers/configuration.
         self.__init__()
         self.profile = delivery_profile
@@ -804,7 +806,9 @@ class ReadablePythonGenerator:
                     'tool_type': node.tool_type, 'function': name, 'template_sha256': template_hash,
                     'inputs': dict(input_vars), 'variables': dict(zip(outputs, node_vars)),
                     'template_version': TEMPLATE_VERSION, 'outputs': list(outputs), 'config_sha256': hashlib.sha256(json.dumps(config, sort_keys=True, default=str).encode()).hexdigest()})
-            except (UnsupportedLowering, KeyError, ValueError) as exc:
+            except (UnsupportedLowering, UnsupportedExpressionError, KeyError, ValueError) as exc:
+                if isinstance(exc, UnsupportedExpressionError) and not collect_expression_issues:
+                    raise
                 issues.append({'node_id': node_id, 'tool_type': node.tool_type, 'reason': str(exc)})
         if issues:
             error = UnsupportedLowering(json.dumps({'status': 'blocked', 'nodes': issues}, indent=2))

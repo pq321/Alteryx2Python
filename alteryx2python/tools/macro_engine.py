@@ -135,6 +135,8 @@ def execute_static_macro(
         ]
         child_runtime = dict(context.runtime_config or {})
         child_runtime.pop('constants', None)
+        if child_runtime.get('_workflow_audit'):
+            child_runtime['_audit_messages_exposed'] = config.get('_audit_messages_exposed', False)
         child = context.macro_context(
             {
                 **child_runtime,
@@ -148,7 +150,17 @@ def execute_static_macro(
         finally:
             context.warnings.extend(child.warnings)
             context.errors.extend(child.errors)
+            if child_runtime.get('_workflow_audit'):
+                call = str(config.get('node_id', 'unknown'))
+                context.diagnostics.extend({**entry, 'macro_call_path': [call, *entry.get('macro_call_path', ())]}
+                                           for entry in child.diagnostics if entry.get('kind') == 'audit_gap')
+                context.diagnostics.extend({'kind': 'audit_gap', 'code': 'macro_node_incomplete', 'macro_call_path': [call],
+                                            'node_id': trace.node_id, 'tool_type': trace.tool_type,
+                                            'status': trace.status, 'message': trace.config.get('error_message', trace.config.get('reason'))}
+                                           for trace in child.traces if trace.status in {'failed', 'blocked'})
         runs.append(result.execution_order)
+        if child_runtime.get('_workflow_audit') and any(node_id not in result.node_results for node_id in outputs):
+            raise ToolUnavailableError(f'Macro output depends on an incomplete branch: {path.name}')
         mapped = {
             name: result.node_results[node_id].outputs["Output"]
             for node_id, name in outputs.items()

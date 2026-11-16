@@ -28,14 +28,19 @@ def ordered_macro_outputs(root):
             if node.find('GuiSettings') is not None and 'MacroOutput' in node.find('GuiSettings').get('Plugin', '')]
 
 
-def attach_macro_ordering(workflow, embedded):
+def attach_macro_ordering(workflow, embedded, *, tolerate_unreadable=False):
     for node in workflow.nodes:
         if not node.tool_type.startswith('Macro_'):
             continue
         cfg = node.config.get('normalized', node.config)
         path = resolve_macro_path(cfg.get('macro_path', ''), cfg.get('base_dir', '.'), embedded)
         if path is not None:
-            root = ET.fromstring(embedded[str(path)]) if str(path) in embedded else ET.parse(path).getroot()
+            try:
+                root = ET.fromstring(embedded[str(path)]) if str(path) in embedded else ET.parse(path).getroot()
+            except (OSError, ET.ParseError):
+                if tolerate_unreadable:
+                    continue
+                raise
             outputs = ordered_macro_outputs(root)
             if outputs:
                 node.metadata['ordered_macro_outputs'] = outputs
