@@ -14,6 +14,7 @@ def parse_dynamicinput_config(raw_config: dict[str, Any]) -> ToolParserResult:
             "mode": text(child(raw_config, "Mode"), ""),
             "read_list_field": text(child(raw_config, "ReadList_Field"), ""),
             "read_list_type": text(child(raw_config, "ReadList_Type"), ""),
+            "error_behaviour": text(child(raw_config, "ErrorBehaviour"), ""),
             "modifications": child(raw_config, "Modifications"),
         }
     )

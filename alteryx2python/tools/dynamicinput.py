@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 from pathlib import Path
+import warnings
+from zipfile import BadZipFile
 
 import pandas as pd
 
@@ -26,7 +28,10 @@ def read_list_options(config):
     field = config.get("read_list_field")
     if not field:
         raise ValueError("Dynamic Input requires a ReadList_Field")
-    return field, reference, {
+    behaviour = (config.get("error_behaviour") or "Error").strip().lower()
+    if behaviour not in {"error", "warning"}:
+        raise NotImplementedError(f"Unsupported Dynamic Input ErrorBehaviour: {behaviour!r}")
+    return field, reference, behaviour, {
         "header": 0 if _header_row(template) else None,
         "skiprows": max(_import_line(template) - 1, 0),
         "nrows": _record_limit(template),
@@ -34,16 +39,15 @@ def read_list_options(config):
     }
 
 
-def read_file_list(frame, field, template, read_options, input_dir):
+def read_file_list(frame, field, template, read_options, input_dir, behaviour="error", on_warning=None):
     template_path, _, template_sheet = template.partition("|||")
     suffix = Path(template_path).suffix.lower()
     if field not in frame:
         raise KeyError(f"Dynamic Input path field is missing: {field!r}")
     frames = []
-    paths = frame[field].tolist()
-    if any(not isinstance(reference, str) or not reference.strip() for reference in paths):
-        raise ValueError(f"Dynamic Input path in {field!r} must be nonempty text")
-    for reference in sorted(set(paths), key=lambda path: (path.casefold(), path)) or [template]:
+    def read_one(reference, options):
+        if not isinstance(reference, str) or not reference.strip():
+            raise ValueError(f"Dynamic Input path in {field!r} must be nonempty text")
         filename, _, sheet = reference.partition("|||")
         path = Path(input_dir) / filename
         if path.suffix.lower() != suffix:
@@ -51,18 +55,49 @@ def read_file_list(frame, field, template, read_options, input_dir):
         if suffix == ".csv":
             if sheet or template_sheet:
                 raise NotImplementedError("CSV Dynamic Input does not support sheet selectors")
-            data = pd.read_csv(path, **read_options)
+            data = pd.read_csv(path, **options)
         else:
             selector = _clean_selector(sheet or template_sheet)
             if selector and not selector.endswith("$"):
                 raise NotImplementedError("Excel Dynamic Input supports sheet selectors only")
-            data = pd.read_excel(path, sheet_name=selector[:-1] if selector else 0, **read_options)
-        if read_options["header"] is None:
+            data = pd.read_excel(path, sheet_name=selector[:-1] if selector else 0, **options)
+        if options["header"] is None:
             data.columns = [f"F{index}" for index in range(1, len(data.columns) + 1)]
-        if frames and list(data.columns) != list(frames[0].columns):
-            raise ValueError(f"Dynamic Input schema differs for {path.name!r}")
-        frames.append(data)
-    return pd.concat(frames, ignore_index=True) if paths else frames[0].iloc[:0]
+        return data
+
+    paths = frame[field].tolist()
+    valid_paths = {value for value in paths if isinstance(value, str) and value.strip()}
+    has_invalid_path = any(not isinstance(value, str) or not value.strip() for value in paths)
+    if has_invalid_path and behaviour != "warning":
+        raise ValueError(f"Dynamic Input path in {field!r} must be nonempty text")
+    references = sorted(valid_paths, key=lambda path: (path.casefold(), path))
+    if has_invalid_path:
+        references.append(None)
+    try:
+        expected_columns = list(read_one(template, {**read_options, "nrows": 0}).columns) if references else None
+    except (OSError, ValueError, BadZipFile, NotImplementedError):
+        # A portable workflow can still use a complete source path when its saved template is unavailable.
+        expected_columns = None
+    for reference in references:
+        try:
+            data = read_one(reference, read_options)
+            if expected_columns is not None and list(data.columns) != expected_columns:
+                raise ValueError("column names differ from the Dynamic Input schema")
+        except (OSError, ValueError, BadZipFile) as error:
+            if behaviour != "warning":
+                raise
+            message = f"Dynamic Input skipped {reference!r}: {error}"
+            if on_warning is None:
+                warnings.warn(message, RuntimeWarning, stacklevel=2)
+            else:
+                on_warning(message)
+        else:
+            if expected_columns is None:
+                expected_columns = list(data.columns)
+            frames.append(data)
+    if frames:
+        return pd.concat(frames, ignore_index=True)
+    return read_one(template, read_options).iloc[:0]
 
 
 def dynamicinput_tool(
@@ -70,12 +105,12 @@ def dynamicinput_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
-    field, template, options = read_list_options(config)
+    field, template, behaviour, options = read_list_options(config)
     input_frame = inputs.get("Input")
     if not isinstance(input_frame, pd.DataFrame):
         raise TypeError("Input anchor must contain a pandas DataFrame")
     base = (context.runtime_config or {}).get("input_dir") or config.get("base_dir") or "."
-    output = read_file_list(input_frame, field, template, options, base)
+    output = read_file_list(input_frame, field, template, options, base, behaviour, context.record_warning)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

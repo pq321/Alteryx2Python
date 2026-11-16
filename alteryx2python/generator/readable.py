@@ -463,11 +463,11 @@ class ReadablePythonGenerator:
             if self.profile == delivery.XLSX_PROFILE:
                 if kind == 'PortfolioComposerLayout':
                     try:
-                        groups, fields = delivery.xlsx_layout_options(config)
+                        groups, fields, section_field = delivery.xlsx_layout_options(config)
                     except NotImplementedError as exc:
                         raise UnsupportedLowering(str(exc)) from exc
                     function = self.linker.function(delivery.xlsx_report_layout)
-                    return [f'return {function}({frame}, {groups!r}, {fields!r})']
+                    return [f'return {function}({frame}, {groups!r}, {fields!r}, {section_field!r})']
                 if kind == 'PortfolioComposerTable':
                     if config.get('table_mode', 'Basic') != 'Basic' or config.get('show_bar_graph'):
                         raise UnsupportedLowering('XLSX profile requires a Basic reporting table')

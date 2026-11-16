@@ -45,8 +45,13 @@ def diagnostic_message_only(node, config, by_id, edges, *, exposed=False):
             not exposed and not feeds_control_log(node, by_id, edges))
 
 
-def audit_side_effect(tool_type, metadata):
+def audit_side_effect(tool_type, metadata, delivery_profile=None):
     from alteryx2python.parity.runner import SIDE_EFFECT_TOOLS
+    from alteryx2python.tools.delivery import XLSX_PROFILE
+
+    if tool_type == 'PortfolioComposerRender' and delivery_profile == XLSX_PROFILE:
+        # The XLSX adapter rebases all workbook names into the audit directory.
+        return False
 
     return (tool_type in SIDE_EFFECT_TOOLS - {'DynamicInput', 'BlobInput'} or metadata.execution_profile in {
         'local-local_runtimes', 'local-local_media', 'local-local_vision', 'local-indb',
@@ -215,6 +220,7 @@ def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter
             execution = {'status': 'stopped' if failure else 'completed', 'failure': failure,
                          'nodes': [outcomes.get(node.node_id, {'node_id': node.node_id, 'tool_type': node.tool_type,
                                                              'status': 'not_run'}) for node in prepared.nodes],
+                         'warnings': list(context.warnings),
                          'deferred_checks': [entry for entry in context.diagnostics if entry.get('kind') == 'audit_gap']}
     status = 'needs_review' if (any(item['active'] for item in issues) or compilation['status'] != 'compiled' or
                                 execution.get('failure') or execution.get('deferred_checks') or

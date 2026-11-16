@@ -123,6 +123,80 @@ def test_dynamic_input_grouped_workbook_delivery(tmp_path, modifier):
     assert not (tmp_path / "original").exists()
 
 
+def test_dynamic_input_warns_and_grouped_layout_creates_named_worksheets(tmp_path):
+    from alteryx2python.workflow_audit import audit_workflow
+
+    with pd.ExcelWriter(tmp_path / 'actual.xlsx', engine='openpyxl') as writer:
+        for source_sheet, label, values in [('A', 'Summary', [4]), ('B', 'Detail', [7, 9])]:
+            pd.DataFrame({'SheetName': label, 'Value': values}).to_excel(writer, sheet_name=source_sheet, index=False)
+
+    builder = WorkflowBuilder()
+    paths = builder.add_text_input(['Config_File_With_Sheet'], [
+        ['actual.xlsx|||`B$`'], ['missing.xlsx|||A$'], ['actual.xlsx|||`A$`'], ['actual.xlsx|||Missing$'],
+    ])
+    dynamic = builder._node('DynamicInput', '''
+        <InputConfiguration><Configuration><File FileFormat="25">portable-template.xlsx|||Template$</File></Configuration></InputConfiguration>
+        <Mode>ReadList</Mode><ReadList_Field>Config_File_With_Sheet</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+        <ErrorBehaviour>Warning</ErrorBehaviour>
+    ''', (200, 100))
+    table = builder._node('PortfolioComposerTable', '''
+        <TableMode>Basic</TableMode><GroupingFields><Field name="SheetName" /></GroupingFields>
+        <ShowHeader value="True" /><TableFields><Field name="Value" /></TableFields>
+    ''', (300, 100))
+    layout = builder._node('PortfolioComposerLayout', '''
+        <GroupingMode>PerGroup</GroupingMode><GroupingFields><Field name="SheetName" /></GroupingFields>
+        <Orientation>V</Orientation><Separator>Breaking</Separator><SectionNameForGroup>SheetName</SectionNameForGroup>
+        <LayoutFields><Field name="Table" selected="True" /></LayoutFields>
+    ''', (400, 100))
+    render = builder._node('PortfolioComposerRender', '<OutputFile>report.xlsx</OutputFile><DataField>Layout</DataField>', (500, 100))
+    for upstream, downstream in zip([paths, dynamic, table, layout], [dynamic, table, layout, render]):
+        builder.connect(upstream, downstream)
+    workflow = save_workflow(builder, tmp_path)
+
+    first_dir = tmp_path / 'phase-one'
+    context = WorkflowContext({'delivery_profile': 'xlsx-table-v1', 'output_dir': first_dir})
+    result = run_workflow_graph(workflow, context)
+    assert result.node_results[str(dynamic)].outputs['Output']['Value'].tolist() == [4, 7, 9]
+    assert len(context.warnings) == 2
+
+    second_dir = tmp_path / 'phase-two'
+    script = tmp_path / 'phase_two.py'
+    ReadablePythonGenerator().generate(workflow, delivery_profile='xlsx-table-v1').write(script)
+    completed = subprocess.run([sys.executable, '-I', str(script), '--input-dir', str(tmp_path),
+                                '--output-dir', str(second_dir)], capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    assert b'missing.xlsx' in completed.stderr and b'Missing$' in completed.stderr
+    first = workbook_snapshot(first_dir / 'report.xlsx')
+    second = workbook_snapshot(second_dir / 'report.xlsx')
+    assert first == second
+    assert list(second) == ['Summary', 'Detail']
+    assert second['Summary'] == [[('s', 'Value')], [('n', 4)]]
+    assert second['Detail'] == [[('s', 'Value')], [('n', 7)], [('n', 9)]]
+    audit = audit_workflow(workflow, run=True, delivery_profile='xlsx-table-v1')
+    assert audit['execution']['nodes'][-1]['status'] == 'success'
+    assert len(audit['execution']['warnings']) == 2
+    assert not (tmp_path / 'report.xlsx').exists()
+
+
+def test_dynamic_input_uses_template_schema_when_all_paths_are_skipped(tmp_path):
+    from alteryx2python.tools.dynamicinput import read_file_list
+
+    pd.DataFrame({'Value': [1]}).to_excel(tmp_path / 'template.xlsx', index=False)
+    paths = pd.DataFrame({'Path': ['missing.xlsx']})
+    warnings = []
+    frame = read_file_list(paths, 'Path', 'template.xlsx|||Sheet1$', {'header': 0}, tmp_path, 'warning', warnings.append)
+    assert frame.empty and list(frame) == ['Value']
+    assert len(warnings) == 1 and 'missing.xlsx' in warnings[0]
+    with pytest.raises(FileNotFoundError):
+        read_file_list(paths, 'Path', 'template.xlsx|||Sheet1$', {'header': 0}, tmp_path)
+
+    pd.DataFrame({'Other': [9]}).to_excel(tmp_path / 'a-wrong.xlsx', index=False)
+    paths = pd.DataFrame({'Path': ['a-wrong.xlsx', 'template.xlsx']})
+    data = read_file_list(paths, 'Path', 'template.xlsx|||Sheet1$', {'header': 0}, tmp_path, 'warning', warnings.append)
+    assert data['Value'].tolist() == [1]
+    assert 'a-wrong.xlsx' in warnings[-1]
+
+
 def test_native_dynamic_update_cell_binds_question_in_phase_one_and_two(tmp_path):
     root = ET.parse(Path("examples/cli/parameter-app.yxwz")).getroot()
     action = root.find(".//Actions//Action")

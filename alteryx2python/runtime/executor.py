@@ -284,7 +284,7 @@ def _run_workflow_graph(
             if audit:
                 from alteryx2python.workflow_audit import audit_side_effect, diagnostic_message_only, feeds_control_log, review_message
 
-                if audit_side_effect(node.tool_type, metadata):
+                if audit_side_effect(node.tool_type, metadata, runtime.get('delivery_profile')):
                     context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
                                         inputs=inputs, outputs={}, status='blocked', config={'reason': 'side_effect_not_run'})
                     blocked.add(node_id)

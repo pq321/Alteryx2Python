@@ -16,7 +16,6 @@ from email.policy import SMTP
 from pathlib import Path, PureWindowsPath
 
 import pandas as pd
-from alteryx2python.tools.dbfileoutput import write_xlsx
 
 
 PROFILE = 'html-draft-v1'
@@ -59,13 +58,21 @@ def xlsx_layout_options(config):
     mode = config.get("grouping_mode") or "PerRecord"
     groups = config.get("grouping_fields", [])
     fields = config.get("layout_fields") or ["Table"]
+    orientation = str(config.get("orientation", "")).lower()
+    separator = str(config.get("separator", "")).lower()
+    section_field = config.get("section_name_for_group") or None
+    named_sections = separator == "breaking" or orientation == "breaking"
     if (mode not in {"PerRecord", "PerGroup"} or (mode == "PerGroup" and not groups)
-            or str(config.get("orientation", "")).lower() not in {"", "v", "vertical"}
-            or config.get("separator", "") not in {"", "Continuous"}
+            or orientation not in {"", "v", "vertical", "breaking"}
+            or separator not in {"", "continuous", "breaking"}
             or any(field not in {"Table", "Layout"} for field in fields)
-            or config.get("section_name_for_group") or config.get("section_name_for_all_records")):
-        raise NotImplementedError("XLSX Layout supports continuous vertical Table fragments per record or group")
-    return groups if mode == "PerGroup" else [], fields
+            or config.get("section_name_for_all_records")):
+        raise NotImplementedError("XLSX Layout supports vertical Table fragments per record or group")
+    if named_sections and (mode != "PerGroup" or not section_field or section_field not in groups):
+        raise NotImplementedError("XLSX section breaks require a named section field among the grouping fields")
+    if section_field and not named_sections:
+        raise NotImplementedError("XLSX section names require the Breaking layout option")
+    return groups if mode == "PerGroup" else [], fields, section_field
 
 
 def _xlsx_fragments(cell):
@@ -73,7 +80,7 @@ def _xlsx_fragments(cell):
     return fragment["tables"] if "tables" in fragment else [fragment]
 
 
-def xlsx_report_layout(frame, groups, fields):
+def xlsx_report_layout(frame, groups, fields, section_field=None):
     if "Layout" in groups:
         raise ValueError("Layout cannot also be a group field")
     if not groups:
@@ -88,10 +95,43 @@ def xlsx_report_layout(frame, groups, fields):
             keys = keys if isinstance(keys, tuple) else (keys,)
             tables = [table for row in entries.to_dict("records")
                       for field in fields for table in _xlsx_fragments(row[field])]
-            records.append({**dict(zip(groups, keys)), "Layout": json.dumps({"tables": tables})})
+            record = dict(zip(groups, keys))
+            fragment = {"tables": tables}
+            if section_field is not None:
+                label = record[section_field]
+                if pd.isna(label):
+                    raise ValueError(f"XLSX Layout section field {section_field!r} contains a null value")
+                fragment["section_name"] = str(label)
+            records.append({**record, "Layout": json.dumps(fragment)})
         result = pd.DataFrame(records, columns=[*groups, "Layout"])
     result.attrs = frame.attrs.copy()
     return result
+
+
+def _xlsx_sheet_data(tables):
+    columns = tables[0]["columns"]
+    if any(table["columns"] != columns for table in tables):
+        raise ValueError("XLSX Render received tables with different columns in one worksheet")
+    return pd.DataFrame([row for table in tables for row in table["data"]], columns=columns)
+
+
+def _xlsx_workbook_sheets(cells):
+    fragments = [json.loads(cell) for cell in cells]
+    if not any("section_name" in fragment for fragment in fragments):
+        tables = [table for fragment in fragments for table in fragment.get("tables", [fragment])]
+        return {"sheet1": _xlsx_sheet_data(tables)} if tables else {}
+
+    sheets, used = {}, set()
+    for fragment in fragments:
+        name = fragment.get("section_name")
+        if (not isinstance(name, str) or not name.strip() or len(name) > 31
+                or any(char in name for char in ":\\/?*[]\r\n") or name.startswith("'") or name.endswith("'")):
+            raise ValueError(f"Invalid XLSX section worksheet name: {name!r}")
+        if name.casefold() in used:
+            raise ValueError(f"Duplicate XLSX section worksheet name: {name!r}")
+        used.add(name.casefold())
+        sheets[name] = _xlsx_sheet_data(fragment["tables"])
+    return sheets
 
 
 def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None):
@@ -113,17 +153,15 @@ def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None
             name = prefix + name
         if name.casefold() in outputs:
             raise ValueError(f"Duplicate XLSX Render target: {name}")
-        tables = [table for cell in rows[data_field] for table in _xlsx_fragments(cell)]
-        if not tables:
-            continue
-        columns = tables[0]["columns"]
-        if any(table["columns"] != columns for table in tables):
-            raise ValueError("XLSX Render received tables with different columns")
-        outputs[name.casefold()] = (destination.with_name(name), pd.DataFrame(
-            [row for table in tables for row in table["data"]], columns=columns
-        ))
-    for path, table in outputs.values():
-        write_xlsx(path, table, "sheet1", header=frame.attrs.get("xlsx_header", True))
+        sheets = _xlsx_workbook_sheets(rows[data_field])
+        if sheets:
+            outputs[name.casefold()] = (destination.with_name(name), sheets)
+    header = frame.attrs.get("xlsx_header", True)
+    for path, sheets in outputs.values():
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with pd.ExcelWriter(path, engine="openpyxl") as writer:
+            for name, table in sheets.items():
+                table.to_excel(writer, sheet_name=name, index=False, header=header)
 
 
 def report_table(frame, fields, show_header=True):
