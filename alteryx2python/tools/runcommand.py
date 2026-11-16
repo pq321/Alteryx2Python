@@ -21,13 +21,11 @@ def runcommand_tool(
     output = input_frame.copy() if isinstance(input_frame, pd.DataFrame) else pd.DataFrame()
     runtime = context.runtime_config or {}
     executed = False
-    if runtime.get('execute_commands'):
+    if runtime.get('execute_commands', bool(runtime.get('allowed_commands'))):
         from alteryx2python.tools.delivery import run_checked_command
         from pathlib import Path
         base = Path(runtime.get('input_dir') or config.get('base_dir', '.'))
-        directory = Path(config.get('working_dir') or base)
-        if not directory.is_absolute():
-            directory = base / directory
+        directory = base / (config.get('working_dir') or '')
         program = str(config.get('program_name', ''))
         if not Path(program).is_absolute() and (base / program).is_file():
             program = str((base / program).resolve())

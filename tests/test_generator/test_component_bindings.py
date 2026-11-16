@@ -6,6 +6,7 @@ import pandas as pd
 import pytest
 
 from alteryx2python.generator.readable import ReadablePythonGenerator
+from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
@@ -61,6 +62,86 @@ def test_dynamic_question_values_reach_command_events(tmp_path):
     run_workflow_graph(workflow, WorkflowContext(runtime_config={'input_dir': str(baseline_dir),
         'allowed_commands': [sys.executable], 'answers': {'answer': 7}}))
     assert (baseline_dir / 'event.txt').read_text() == '7'
+
+
+@pytest.mark.parametrize('cancel_on_error', [False, True])
+@pytest.mark.parametrize('exit_code', [0, 7, None])
+def test_command_action_controls_execution_and_failure_events(tmp_path, cancel_on_error, exit_code):
+    import os
+    import shlex
+    import subprocess
+    import sys
+    from xml.sax.saxutils import escape
+
+    def arguments(code):
+        args = ['-c', code]
+        return subprocess.list2cmdline(args) if os.name == 'nt' else shlex.join(args)
+
+    builder = WorkflowBuilder()
+    command = builder._node('RunCommand', f'<ProgramName>{escape(sys.executable)}</ProgramName><Arguments />'
+                            '<OutputConfiguration><Configuration><File>read.csv</File></Configuration></OutputConfiguration>', (100, 100))
+    command_output = builder.add_csv_output('command.csv')
+    builder.connect(command, command_output)
+    source = builder.add_text_input(['x'], [['2']])
+    independent_output = builder.add_csv_output('independent.csv')
+    builder.connect(source, independent_output)
+    workflow = app(builder, 'TextBox', arguments('pass'), f'{command}/Arguments', action_mode='UpdateValue')
+    root = ET.fromstring(workflow.source_xml)
+    properties = root.find('Properties')
+    ET.SubElement(properties, 'CancelOnError', value=str(cancel_on_error))
+    events = ET.SubElement(properties, 'Events')
+    for when, marker in [('AfterError', 'failed.txt'), ('AfterNoError', 'succeeded.txt')]:
+        event = ET.SubElement(events, 'Event')
+        ET.SubElement(event, 'When').text = when
+        ET.SubElement(event, 'cmd_Program').text = sys.executable
+        ET.SubElement(event, 'cmd_CommandArguments').text = arguments(f'open({marker!r}, "w").close()')
+    workflow = XmlWorkflowParser().parse_xml(ET.tostring(root, encoding='unicode'), tmp_path / 'command.yxwz')
+    artifact = ReadablePythonGenerator().generate(workflow)
+    baseline = {}
+    exec(PythonGenerator().generate(workflow, include_main=False), baseline)
+    namespace = {'__file__': str(tmp_path / 'delivery.py')}
+    exec(artifact.source, namespace)
+    code = 'from pathlib import Path; Path("ran.txt").touch()'
+    if exit_code is not None:
+        code += f'; Path("read.csv").write_text("answer\\n42\\n"); raise SystemExit({exit_code})'
+    answer = arguments(code)
+    succeeded = exit_code == 0
+
+    if not cancel_on_error and exit_code == 0:
+        with pytest.raises(PermissionError, match='not explicitly allowed'):
+            run_workflow_graph(workflow, WorkflowContext(runtime_config={'answers': {'answer': answer},
+                'input_dir': str(tmp_path)}))
+        assert not (tmp_path / 'ran.txt').exists()
+
+    for phase in ['phase-one', 'phase-two']:
+        directory = tmp_path / phase
+        directory.mkdir()
+
+        def run():
+            if phase == 'phase-one':
+                return baseline['run_workflow'](runtime_config={
+                    'input_dir': str(directory), 'output_dir': str(directory), 'redirect_sinks': True,
+                    'allowed_commands': [sys.executable], 'answers': {'answer': answer},
+                })
+            return namespace['run_workflow'](input_dir=directory, output_dir=directory,
+                                             allowed_commands=[sys.executable], answer=answer)
+
+        if exit_code is None:
+            with pytest.raises(FileNotFoundError, match='read.csv'):
+                run()
+        elif exit_code:
+            with pytest.raises(subprocess.CalledProcessError) as failure:
+                run()
+            assert failure.value.returncode == exit_code
+        else:
+            run()
+        assert (directory / 'ran.txt').exists()
+        assert (directory / 'independent.csv').exists() == (succeeded or not cancel_on_error)
+        assert (directory / 'failed.txt').exists() != succeeded
+        assert (directory / 'succeeded.txt').exists() == succeeded
+        assert (directory / 'command.csv').exists() == succeeded
+        if succeeded:
+            assert pd.read_csv(directory / 'command.csv')['answer'].tolist() == [42]
 
 
 @pytest.mark.parametrize('reference', ['[Question.answer]', '[%Question.answer%]', '%Question.answer%'])

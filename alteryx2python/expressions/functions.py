@@ -3,6 +3,7 @@ from __future__ import annotations
 import re
 import ntpath
 from datetime import datetime, timedelta
+from pathlib import Path
 from typing import Any
 
 import pandas as pd
@@ -137,6 +138,10 @@ def _file_directory(path):
     return None if pd.isna(path) else ntpath.dirname(str(path))
 
 
+def _file_exists(path):
+    return not pd.isna(path) and bool(str(path)) and Path(str(path)).exists()
+
+
 def _file_extension(path):
     return None if pd.isna(path) else ntpath.splitext(str(path))[1]
 
@@ -175,6 +180,7 @@ FUNCTION_REGISTRY = {
     "DATETIMENOW": _datetime_now,
     "DATETIMETODAY": _datetime_today,
     "FILEGETDIR": _file_directory,
+    "FILEEXISTS": _file_exists,
     "FILEGETEXT": _file_extension,
     "FILEGETFILENAME": _file_name,
     "FILEADDPATHS": _file_join,

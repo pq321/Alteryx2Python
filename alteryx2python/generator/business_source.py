@@ -176,7 +176,7 @@ def assemble(source, mapping, native_functions=()):
                 consumers[name].add(item['node_id'])
     pipeline = next(line for line in tree.body if isinstance(line, ast.FunctionDef) and line.name == 'run_workflow')
     runtime = {arg.arg for arg in pipeline.args.kwonlyargs}
-    runtime.add('deferred_messages')
+    runtime.update({'deferred_messages', 'workflow_errors'})
     reserved = variables | runtime | {line.name for line in tree.body if isinstance(line, (ast.FunctionDef, ast.ClassDef))}
     reserved.update(item.id for item in ast.walk(pipeline) if isinstance(item, ast.Name))
     stages = []

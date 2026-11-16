@@ -262,3 +262,48 @@ def test_deferred_message_error_runs_after_file_sink(tmp_path):
     assert result.returncode != 0
     assert b"deferred problem" in result.stderr
     assert (tmp_path / "result.csv").read_bytes() == (tmp_path / "delivery" / "result.csv").read_bytes()
+
+
+@pytest.mark.parametrize(('severity', 'cancel', 'missing', 'values'), [
+    ('ErrorStop', False, True, [1]),
+    ('ErrorStop', False, False, [1, 2, 3]),
+    ('ErrorStop', True, True, None),
+    ('Error', False, True, [1, 2, 3]),
+])
+def test_file_exists_message_controls_records_and_workflow(tmp_path, severity, cancel, missing, values):
+    from xml.sax.saxutils import escape
+
+    present = tmp_path / 'present.txt'
+    candidate = tmp_path / 'candidate.txt'
+    present.touch()
+    if not missing:
+        candidate.touch()
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(['value', 'path'], [[1, present], [2, candidate], [3, present]])
+    message = builder._node('Message', f'<When>Filter</When><Filter>{escape("!FileExists([path])")}</Filter>'
+                            f'<Type>{severity}</Type><MessageExpression>"missing file"</MessageExpression>', (300, 100))
+    sink = builder.add_csv_output('result.csv')
+    builder.connect(source, message)
+    builder.connect(message, sink)
+    root = ET.fromstring(builder.render())
+    ET.SubElement(root.find('Properties'), 'CancelOnError', value=str(cancel))
+    path = tmp_path / 'message.yxmd'
+    ET.ElementTree(root).write(path, encoding='utf-8')
+    workflow = XmlWorkflowParser().parse(path)
+    if missing:
+        with pytest.raises(ValueError, match='missing file'):
+            run_workflow_graph(workflow, WorkflowContext())
+    else:
+        run_workflow_graph(workflow, WorkflowContext())
+    script = tmp_path / 'phase_two.py'
+    ReadablePythonGenerator().generate(workflow).write(script)
+    delivered = tmp_path / 'delivery'
+    result = subprocess.run([sys.executable, '-I', str(script), '--output-dir', str(delivered)], capture_output=True)
+    assert (result.returncode != 0) == missing
+    if missing:
+        assert b'missing file' in result.stderr
+    for output in [tmp_path / 'result.csv', delivered / 'result.csv']:
+        if values is None:
+            assert not output.exists()
+        else:
+            assert pd.read_csv(output)['value'].tolist() == values

@@ -66,7 +66,7 @@ def control_log_frame(node_id: str, active: bool, messages=()) -> pd.DataFrame:
     if active:
         rows.append((int(node_id), "Info", "Control Container Activated."))
         rows.extend(
-            (int(entry["node_id"]), "Warning" if entry["severity"] == "warning" else "Info", entry["message"])
+            (int(entry["node_id"]), {"warning": "Warning", "error": "Error"}.get(entry["severity"], "Info"), entry["message"])
             for entry in messages
         )
         rows.append((int(node_id), "Info", "Control Container Completed."))
@@ -115,43 +115,50 @@ def message_tool(
     frame = inputs["Input"]
     when = (config.get("when") or "First").lower()
     if when == "first":
-        candidates = frame.head(1).to_dict("records") or [{}]
+        candidates = [(0, (frame.head(1).to_dict("records") or [{}])[0])]
     elif when == "last":
-        candidates = frame.tail(1).to_dict("records") or [{}]
+        candidates = [(len(frame), (frame.tail(1).to_dict("records") or [{}])[0])]
     elif when == "filter":
         predicate = parse_expression(config["filter"])
-        candidates = [
-            row for row in frame.to_dict("records") if evaluate_expression(predicate, row)
-        ]
+        candidates = (
+            (index, row) for index, row in enumerate(frame.to_dict("records")) if evaluate_expression(predicate, row)
+        )
     elif when == "all":
-        candidates = [{}]
+        candidates = [(len(frame), {})]
     else:
         raise NotImplementedError(f"Unsupported Message timing: {when}")
     severity = (config.get("type") or "Message").lower()
-    if severity not in {"message", "warning", "error"}:
+    if severity not in {"message", "warning", "error", "errorstop"}:
         raise NotImplementedError(f"Unsupported Message type: {severity}")
     expression = parse_expression(config["message_expression"])
 
     def emit():
-        for row in candidates:
+        for index, row in candidates:
             message = str(evaluate_expression(expression, row))
-            if severity == "error":
+            if severity in {"error", "errorstop"}:
                 context.record_error(message)
-                raise ValueError(message)
+                error = ValueError(message)
+                if (context.runtime_config or {}).get('_cancel_on_error', True):
+                    raise error
+                context.continuing_errors.append(error)
             if severity == "warning":
                 context.record_warning(message)
             context.record_diagnostic({
                 "kind": "message",
                 "node_id": str(config.get("node_id", "unknown")),
-                "severity": severity,
+                "severity": "error" if severity == "errorstop" else severity,
                 "message": message,
             })
+            if severity == "errorstop":
+                return index
+        return len(frame)
 
     if when == "all":
         context.deferred_messages.append((str(config.get("node_id", "unknown")), emit))
+        output = frame.copy()
     else:
-        emit()
-    outputs = {"Output": frame.copy()}
+        output = frame.iloc[:emit()].copy()
+    outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
         tool_type="Message",

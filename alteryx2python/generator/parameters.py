@@ -133,6 +133,10 @@ def prepare_parameters(workflow, answers, constants=None):
                     if str(base) != str(value) or str(changed) != str(alternate):
                         raise UnsupportedLowering('File parameters must replace the complete configured path')
                     bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'file'})
+                elif node.tool_type == 'RunCommand' and path in {('program_name',), ('arguments',), ('working_dir',)}:
+                    if question.kind not in TEXT_QUESTIONS or base != value or changed != alternate:
+                        raise UnsupportedLowering('Run Command parameters must replace a complete command setting')
+                    bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'command'})
                 elif node.tool_type == 'TextInput' and len(path) == 3 and path[0] == 'rows' and isinstance(path[1], int) and isinstance(path[2], int):
                     from alteryx2python.runtime.app_config import _serialize
                     if base != _serialize(value) or changed != _serialize(alternate):

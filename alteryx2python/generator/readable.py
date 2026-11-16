@@ -323,11 +323,12 @@ class ReadablePythonGenerator:
         if kind == 'Message':
             when = (config.get('when') or 'First').lower()
             severity = (config.get('type') or 'Message').lower()
-            if frame is None or when not in {'first', 'last', 'filter', 'all'} or severity not in {'message', 'warning', 'error'}:
+            if frame is None or when not in {'first', 'last', 'filter', 'all'} or severity not in {'message', 'warning', 'error', 'errorstop'}:
                 raise UnsupportedLowering(f'Unsupported Message configuration: {when}/{severity}')
             expression = self.expression(parse_expression(config['message_expression']))
-            if severity == 'error':
-                emit = f'raise ValueError(str({expression}))'
+            if severity in {'error', 'errorstop'}:
+                error = f'ValueError(str({expression}))'
+                emit = f'raise {error}' if config['_cancel_on_error'] else f'workflow_errors.append({error})'
             elif severity == 'warning':
                 self.linker.imports.add('import warnings')
                 emit = f'warnings.warn(str({expression}), RuntimeWarning)'
@@ -339,11 +340,13 @@ class ReadablePythonGenerator:
                         'deferred_messages.append(emit)', f'return {frame}.copy()']
             if when == 'filter':
                 predicate = self.expression(parse_expression(config['filter']))
-                rows = f'[row for row in {frame}.to_dict("records") if {predicate}]'
+                rows = f'((index, row) for index, row in enumerate({frame}.to_dict("records")) if {predicate})'
             else:
                 take = 'head' if when == 'first' else 'tail'
-                rows = f'{frame}.{take}(1).to_dict("records") or [{{}}]'
-            return [f'for row in {rows}:', f'    {emit}', f'return {frame}.copy()']
+                index = '0' if when == 'first' else f'len({frame})'
+                rows = f'[({index}, ({frame}.{take}(1).to_dict("records") or [{{}}])[0])]'
+            stop = [f'    return {frame}.iloc[:record_index].copy()'] if severity == 'errorstop' and not config['_cancel_on_error'] else []
+            return [f'for record_index, row in {rows}:', f'    {emit}', *stop, f'return {frame}.copy()']
         if kind == 'GenerateRows':
             from alteryx2python.tools.generaterows import _strip_comments
             field = config.get('update_field_name') if config.get('update_field') else config.get('create_field_name')
@@ -448,11 +451,12 @@ class ReadablePythonGenerator:
             return ['return None']
         if kind == 'RunCommand':
             function = self.linker.function(delivery.run_checked_command)
-            program = config.get('program_name', '')
-            return [f'program = {program!r}',
+            parameters = config.get('_command_parameters', {})
+            program, arguments, directory = [parameters.get(key, repr(config.get(key, ''))) for key in ('program_name', 'arguments', 'working_dir')]
+            return [f'program = {program}',
                     'if not Path(program).is_absolute() and (input_dir / program).is_file():',
                     '    program = str((input_dir / program).resolve())',
-                    f'return {function}(program, {config.get("arguments", "")!r}, command_working_dir or input_dir / {config.get("working_dir", "")!r}, '
+                    f'return {function}(program, {arguments}, command_working_dir or input_dir / ({directory}), '
                     f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands)']
         if kind.startswith('PortfolioComposer') or kind == 'Email':
             if self.profile == delivery.XLSX_PROFILE:
@@ -515,7 +519,7 @@ class ReadablePythonGenerator:
         self.__init__()
         self.profile = delivery_profile
         from alteryx2python.generator.parameters import prepare_parameters, ParameterExpression
-        from alteryx2python.runtime.executor import _topological_order, _next_input_anchor_name, _edge_connection_name
+        from alteryx2python.runtime.executor import _topological_order, _next_input_anchor_name, _edge_connection_name, cancels_on_error
         from alteryx2python.tools.registry import TOOL_REGISTRY
         original = deepcopy(workflow)
         if parameter_mode == 'dynamic':
@@ -538,7 +542,7 @@ class ReadablePythonGenerator:
         reserved_parameters = {'input_dir', 'output_dir', 'allowed_commands', 'event_working_dir', 'command_working_dir',
             'checkpoints', 'config', 'inputs', 'context', 'pd', 'math', 'warnings', 're', 'html', 'os', 'hashlib', 'mimetypes', 'shlex', 'shutil',
             'subprocess', 'argparse', 'logging', 'log_run', 'workflow_error', 'workflow_log', 'as_of', 'deferred_messages',
-            'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings'}
+            'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings', 'workflow_errors', 'command_error'}
         import builtins
         reserved_parameters.update(dir(builtins))
         for parameter in self.parameters:
@@ -558,6 +562,13 @@ class ReadablePythonGenerator:
                 node.config.get('normalized', node.config)['disabled'] = False
         by_id = {node.node_id: node for node in workflow.nodes}
         has_messages = any(node.tool_type == 'Message' for node in workflow.nodes)
+        stop_on_error = cancels_on_error(prepared.source_xml)
+        continue_after_command_error = not stop_on_error and any(node.tool_type == 'RunCommand' for node in workflow.nodes)
+        continue_after_message_error = not stop_on_error and any(
+            node.tool_type == 'Message' and (node.config.get('normalized', node.config).get('type') or '').lower() in {'error', 'errorstop'}
+            for node in workflow.nodes
+        )
+        possibly_missing_outputs = set()
         order = _topological_order(workflow.nodes, workflow.edges)
         variables = {}
         native_python_functions = set()
@@ -618,6 +629,9 @@ class ReadablePythonGenerator:
                     ['input_dir', 'command_working_dir', 'allowed_commands'] if node.tool_type == 'RunCommand' else
                     ['output_dir'] if node.tool_type in {'DbFileOutput', 'Email', 'PortfolioComposerRender'} else [])
                 if node.tool_type == 'Message':
+                    config['_cancel_on_error'] = stop_on_error
+                    if continue_after_message_error and (config.get('type') or '').lower() in {'error', 'errorstop'}:
+                        runtime_arguments.append('workflow_errors')
                     parent = node.config.get('container_id')
                     while parent:
                         container = by_id[parent]
@@ -665,6 +679,8 @@ class ReadablePythonGenerator:
                         config.setdefault('_cell_parameters', {})[':'.join(map(str, binding['path'][1:]))] = parameter_name
                     elif binding['kind'] == 'disabled':
                         config['_disabled_parameter'] = parameter_name
+                    elif binding['kind'] == 'command':
+                        config.setdefault('_command_parameters', {})[binding['path'][0]] = parameter_name
                 runtime_arguments.extend(sorted(parameter_names))
                 from alteryx2python.generator.native_io import lower_io
                 self.current_constants = node.metadata.get('workflow_constants', prepared.metadata.get('workflow_constants', {}))
@@ -742,12 +758,14 @@ class ReadablePythonGenerator:
                 from alteryx2python.runtime.scheduling import container_guards
                 guards = container_guards(node, by_id, workflow.edges)
                 conditions = ['False' if guard is None else f'len({variables[guard]}.index) > 0' for guard in guards]
+                missing_inputs = sorted((set(input_vars.values()) | {variables[guard] for guard in guards if guard is not None}) & possibly_missing_outputs)
                 parent = node.config.get('container_id')
                 while parent:
                     container = by_id[parent]
                     if container.metadata.get('disabled_parameter'):
                         conditions.append('not ' + self.parameter_names[container.metadata['disabled_parameter']])
                     parent = container.config.get('container_id')
+                start = len(calls)
                 if conditions:
                     condition = ' and '.join(conditions)
                     calls.append('    if ' + condition + ':')
@@ -764,7 +782,23 @@ class ReadablePythonGenerator:
                                 calls.extend('        ' + line for line in empty_frame(self, node.tool_type, config, empty, node.expected_output_schema, variable))
                 else:
                     calls.append('    ' + (', '.join(node_vars) + ' = ' if node_vars else '') + call)
+                if continue_after_command_error and node.tool_type == 'RunCommand':
+                    self.linker.imports.add('from subprocess import CalledProcessError, TimeoutExpired')
+                    calls[start:] = ['    try:', *['    ' + line for line in calls[start:]],
+                                     '    except (CalledProcessError, TimeoutExpired, FileNotFoundError) as command_error:',
+                                     '        workflow_errors.append(command_error)',
+                                     *[f'        {variable} = None' for variable in node_vars]]
+                    possibly_missing_outputs.update(node_vars)
+                if missing_inputs:
+                    test = ' and '.join(f'{variable} is not None' for variable in missing_inputs)
+                    calls[start:] = ['    if ' + test + ':', *['    ' + line for line in calls[start:]]]
+                    if node_vars:
+                        calls.extend(['    else:', *[f'        {variable} = None' for variable in node_vars]])
+                    possibly_missing_outputs.update(node_vars)
                 checkpoint = '{' + ', '.join(f'{anchor!r}: {variable}.copy()' for anchor, variable in zip(outputs, node_vars)) + '}'
+                if possibly_missing_outputs.intersection(node_vars):
+                    available = ' and '.join(f'{variable} is not None' for variable in node_vars)
+                    checkpoint = f'{checkpoint} if {available} else {{}}'
                 calls.extend(['    if checkpoints is not None:', f'        checkpoints[{node_id!r}] = {checkpoint}'])
                 self.mapping.append({'node_id': node_id, 'source_tool_id': node.source_tool_id,
                     'tool_type': node.tool_type, 'function': name, 'template_sha256': template_hash,
@@ -786,6 +820,9 @@ class ReadablePythonGenerator:
         if has_messages:
             pipeline += '    deferred_messages = []\n'
             calls.extend(['    for emit in deferred_messages:', '        emit()'])
+        if continue_after_command_error or continue_after_message_error:
+            pipeline += '    workflow_errors = []\n'
+            calls.extend(['    if workflow_errors:', '        raise workflow_errors[0]'])
         for item in self.parameters:
             name = item['python_name']
             from alteryx2python.generator.parameters import validation_lines

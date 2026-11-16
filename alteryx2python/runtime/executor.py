@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict, deque
+from subprocess import CalledProcessError, TimeoutExpired
 from typing import TYPE_CHECKING
 
 import pandas as pd
@@ -14,6 +15,14 @@ if TYPE_CHECKING:
     from alteryx2python.ir.models import EdgeIR, NodeIR, WorkflowIR
     from alteryx2python.runtime.context import WorkflowContext
     from alteryx2python.tools.registry import ToolMetadata
+
+
+def cancels_on_error(source_xml: str | None) -> bool:
+    """Read the saved Designer setting. Older IR without it stays fail-fast."""
+    from xml.etree import ElementTree as ET
+
+    setting = ET.fromstring(source_xml).find('./Properties/CancelOnError') if source_xml else None
+    return setting is None or setting.get('value', setting.text or '').strip().lower() not in {'false', '0'}
 
 
 def run_tool_node(
@@ -54,6 +63,7 @@ def run_workflow_graph(
     from alteryx2python.runtime.app_config import prepare_workflow
     from xml.etree import ElementTree as ET
     runtime = dict(context.runtime_config or {})
+    runtime.setdefault('execute_commands', True)
     input_bindings = runtime.pop("input_bindings", {})
     with variable_scope(workflow_variables(workflow, runtime.get('constants'))):
         if workflow.source_xml and not workflow.metadata.get('configuration_applied') and not runtime.get('skip_app_configuration'):
@@ -66,13 +76,16 @@ def run_workflow_graph(
 
             apply_input_bindings(workflow, input_bindings)
         original_runtime = context.runtime_config
-        context.runtime_config = {**runtime, 'workflow_constants': workflow.metadata['workflow_constants']}
+        context.runtime_config = {**runtime, 'workflow_constants': workflow.metadata['workflow_constants'],
+                                  '_cancel_on_error': cancels_on_error(workflow.source_xml)}
+        errors_start = len(context.continuing_errors)
         try:
             with variable_scope({**workflow.metadata['workflow_constants'], "__as_of__": runtime.get("as_of")}):
                 return _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids)
         finally:
             context.runtime_config = original_runtime
             context.deferred_messages.clear()
+            del context.continuing_errors[errors_start:]
 
 
 def _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids):
@@ -146,10 +159,21 @@ def _run_workflow_graph(
     from alteryx2python.runtime.scheduling import container_guards, container_members, detour_exclusions
     inactive_detours, detour_skips = detour_exclusions(executable_nodes, executable_edges)
     diagnostic_start = len(context.diagnostics)
+    stop_on_error = (context.runtime_config or {}).get('_cancel_on_error', True)
+    errors_start = len(context.continuing_errors)
+    blocked_by_command = set()
 
     for node_id in execution_order:
         node = nodes_by_id[node_id]
         guards = [] if target_node_ids and (context.runtime_config or {}).get('skip_app_configuration') else container_guards(node, nodes_by_id, workflow.edges)
+        if any(guard is not None and guard[0] in blocked_by_command for guard in guards) or any(
+            edge.source_node_id in blocked_by_command for edge in incoming_edges.get(node_id, [])
+            if (edge.source_node_id, edge.source_anchor) not in inactive_detours
+        ):
+            blocked_by_command.add(node_id)
+            context.record_node(node_id=node_id, tool_type=node.tool_type, source_tool_id=node.source_tool_id,
+                                inputs={}, outputs={}, status='skipped', config={'reason': 'upstream_command_failed'})
+            continue
         enabled = node_id not in detour_skips and all(
             guard is not None and len(node_results[guard[0]].outputs[guard[1]].index) > 0 for guard in guards
         )
@@ -240,9 +264,14 @@ def _run_workflow_graph(
             )
         except Exception as exc:
             _record_node_failure(workflow, context, node, inputs, config, exc)
-            raise
+            if stop_on_error or node.tool_type != 'RunCommand' or not isinstance(exc, (CalledProcessError, TimeoutExpired, FileNotFoundError)):
+                raise
+            context.continuing_errors.append(exc)
+            blocked_by_command.add(node_id)
 
     context.flush_deferred_messages()
+    if len(context.continuing_errors) > errors_start:
+        raise context.continuing_errors[errors_start]
     warnings = _record_frontier_warnings(workflow, context, executable_node_ids, outgoing_edges, nodes_by_id)
     skipped_node_ids = [node.node_id for node in workflow.nodes if node.node_id not in executable_node_ids]
     return WorkflowGraphResult(

@@ -16,6 +16,7 @@ class WorkflowContext:
     errors: list[str] = field(default_factory=list)
     diagnostics: list[dict[str, Any]] = field(default_factory=list)
     deferred_messages: list[tuple[str, Callable[[], None]]] = field(default_factory=list)
+    continuing_errors: list[Exception] = field(default_factory=list)
 
     def flush_deferred_messages(self, members: set[str] | None = None) -> None:
         callbacks, remaining = [], []

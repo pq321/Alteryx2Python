@@ -103,6 +103,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--as-of", help="ISO date/time override for Date Time Now tools")
     run_parser.add_argument("--input-dir", type=Path)
     run_parser.add_argument("--bind-input", action="append", default=[], metavar="NODE_ID=PATH")
+    run_parser.add_argument("--allow-command", action="append", default=[], metavar="EXECUTABLE")
     run_parser.add_argument("--delivery-profile", choices=["xlsx-table-v1"])
     run_parser.add_argument("--output-dir", type=Path)
     run_parser.set_defaults(func=_run_command)
@@ -352,6 +353,8 @@ def _generate_samples_command(args: argparse.Namespace) -> tuple[dict[str, Any],
 def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     workflow = XmlWorkflowParser().parse(Path(args.workflow))
     runtime = {"answers": _read_answers(args.answers)} if args.answers else {"skip_app_configuration": True} if args.data_slice else {}
+    if args.allow_command:
+        runtime["allowed_commands"] = args.allow_command
     if args.as_of is not None:
         runtime["as_of"] = args.as_of
     if args.input_dir is not None:
