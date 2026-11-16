@@ -480,7 +480,11 @@ class ReadablePythonGenerator:
                     except NotImplementedError as exc:
                         raise UnsupportedLowering(str(exc)) from exc
                     function = self.linker.function(delivery.render_xlsx_tables)
-                    return [f'{function}({frame}, output_dir / {filename!r}, {field!r}, {group!r}, {modifier!r})', 'return None']
+                    resolve_output = self.linker.function(delivery.delivery_output_path)
+                    configured = config.get('output_file') or filename
+                    return [f'destination = {resolve_output}({configured!r}, output_dir, input_dir, use_workflow_output_paths)',
+                            f'{function}({frame}, destination, {field!r}, {group!r}, {modifier!r}, '
+                            f'workflow_base=input_dir if use_workflow_output_paths else None)', 'return None']
                 raise UnsupportedLowering(f'XLSX table profile does not support {kind}')
             if self.profile not in {delivery.PROFILE, delivery.SMTP_PROFILE}:
                 raise UnsupportedLowering(f'{kind} requires explicit html-draft-v1 profile; metadata output is not a report')
@@ -544,7 +548,8 @@ class ReadablePythonGenerator:
         reserved_parameters = {'input_dir', 'output_dir', 'allowed_commands', 'event_working_dir', 'command_working_dir',
             'checkpoints', 'config', 'inputs', 'context', 'pd', 'math', 'warnings', 're', 'html', 'os', 'hashlib', 'mimetypes', 'shlex', 'shutil',
             'subprocess', 'argparse', 'logging', 'log_run', 'workflow_error', 'workflow_log', 'as_of', 'deferred_messages',
-            'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings', 'workflow_errors', 'command_error'}
+            'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings', 'workflow_errors', 'command_error',
+            'use_workflow_output_paths'}
         import builtins
         reserved_parameters.update(dir(builtins))
         for parameter in self.parameters:
@@ -630,6 +635,8 @@ class ReadablePythonGenerator:
                     ['input_dir'] if node.tool_type in {'DbFileInput', 'DynamicInput'} else
                     ['input_dir', 'command_working_dir', 'allowed_commands'] if node.tool_type == 'RunCommand' else
                     ['output_dir'] if node.tool_type in {'DbFileOutput', 'Email', 'PortfolioComposerRender'} else [])
+                if node.tool_type == 'DbFileOutput' or (node.tool_type == 'PortfolioComposerRender' and self.profile == 'xlsx-table-v1'):
+                    runtime_arguments.extend(['input_dir', 'use_workflow_output_paths'])
                 if node.tool_type == 'Message':
                     config['_cancel_on_error'] = stop_on_error
                     if continue_after_message_error and (config.get('type') or '').lower() in {'error', 'errorstop'}:
@@ -817,10 +824,13 @@ class ReadablePythonGenerator:
         self.linker.imports.add('from pathlib import Path')
         header = '"""Editable Python generated with deterministic templates. See the sidecar manifest."""\n'
         parameter_signature = ''.join(f', {item["python_name"]}={item["default"]!r}' for item in self.parameters)
-        pipeline = '\n\ndef run_workflow(*, input_dir=None, output_dir=None, allowed_commands=(), event_working_dir=None, command_working_dir=None, checkpoints=None, as_of=None' + parameter_signature + '):\n'
+        pipeline = '\n\ndef run_workflow(*, input_dir=None, output_dir=None, allowed_commands=(), event_working_dir=None, command_working_dir=None, checkpoints=None, as_of=None, use_workflow_output_paths=False' + parameter_signature + '):\n'
+        pipeline += '    if use_workflow_output_paths and output_dir is not None:\n'
+        pipeline += '        raise ValueError("Choose workflow output paths or an isolated output directory")\n'
         pipeline += '    input_dir = Path(input_dir or Path(__file__).resolve().parent).resolve()\n'
         pipeline += '    output_dir = Path(output_dir or Path(__file__).resolve().parent / "output").resolve()\n'
-        pipeline += '    output_dir.mkdir(parents=True, exist_ok=True)\n'
+        pipeline += '    if not use_workflow_output_paths:\n'
+        pipeline += '        output_dir.mkdir(parents=True, exist_ok=True)\n'
         if has_messages:
             pipeline += '    deferred_messages = []\n'
             calls.extend(['    for emit in deferred_messages:', '        emit()'])
@@ -932,6 +942,7 @@ class ReadablePythonGenerator:
             '    parser = argparse.ArgumentParser(description="Run the migrated Python workflow")\n'
             '    parser.add_argument("--input-dir", type=Path)\n'
             '    parser.add_argument("--output-dir", type=Path)\n'
+            '    parser.add_argument("--use-workflow-output-paths", action="store_true")\n'
             '    parser.add_argument("--event-working-dir", type=Path)\n'
             '    parser.add_argument("--command-working-dir", type=Path)\n'
             '    parser.add_argument("--allow-command", action="append", default=[])\n'
@@ -942,7 +953,7 @@ class ReadablePythonGenerator:
             + '    args = parser.parse_args()\n'
             + ('    import logging\n    logging.basicConfig(level=logging.INFO)\n' if has_messages else '')
             + (f'    {log_config}(args.workflow_log, args.workflow_log_columns)\n' if has_log else '')
-            + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of'
+            + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of, use_workflow_output_paths=args.use_workflow_output_paths'
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
         source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + pipeline + main
         from alteryx2python.generator.business_source import assemble

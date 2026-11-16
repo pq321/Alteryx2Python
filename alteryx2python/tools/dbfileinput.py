@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+import re
 from typing import Any
 
 import pandas as pd
@@ -8,6 +9,7 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
+from alteryx2python.tools.csv_input import read_delimited_file
 
 
 def _node_text(node: Any, default: str = "") -> str:
@@ -48,7 +50,7 @@ def _clean_selector(selector: str | None) -> str | None:
     if selector is None:
         return None
     stripped = selector.strip()
-    if stripped.startswith("`") and stripped.endswith("`"):
+    if len(stripped) >= 2 and (stripped[0], stripped[-1]) in {('`', '`'), ("'", "'"), ('"', '"'), ('[', ']')}:
         return stripped[1:-1]
     return stripped
 
@@ -87,15 +89,17 @@ def _delimiter(config: dict[str, Any]) -> str:
 
 
 def _encoding(config: dict[str, Any]) -> str | None:
-    code_page = _option(config, "CodePage", "")
-    if code_page == "28591":
-        return "iso-8859-1"
-    return None
+    code_page = _option(config, "CodePage", "").strip().lower()
+    if code_page in {"", "0", "auto", "automatic"}:
+        return None
+    return {"28591": "iso-8859-1", "65001": "utf-8-sig", "1200": "utf-16",
+            "1201": "utf-16-be", "shift-jis": "cp932", "shift_jis": "cp932"}.get(
+                code_page, f"cp{code_page}" if code_page.isdecimal() else code_page)
 
 
 def _read_csv(path: Path, config: dict[str, Any]) -> pd.DataFrame:
     if not _header_row(config):
-        frame = pd.read_csv(
+        frame = read_delimited_file(
             path,
             delimiter=_delimiter(config),
             skiprows=max(_import_line(config) - 1, 0),
@@ -105,7 +109,7 @@ def _read_csv(path: Path, config: dict[str, Any]) -> pd.DataFrame:
         )
         frame.columns = [f"F{index}" for index in range(1, len(frame.columns) + 1)]
         return frame
-    return pd.read_csv(
+    return read_delimited_file(
         path,
         delimiter=_delimiter(config),
         skiprows=max(_import_line(config) - 1, 0),
@@ -114,26 +118,45 @@ def _read_csv(path: Path, config: dict[str, Any]) -> pd.DataFrame:
     )
 
 
-def _read_excel(path: Path, selector: str | None, config: dict[str, Any]) -> pd.DataFrame:
-    selector = _clean_selector(selector)
+def excel_selection_options(selector, options, *, allow_bare=False):
+    selector = _clean_selector(selector) or ""
     if selector == "<List of Sheet Names>":
         raise NotImplementedError("Excel sheet-name list input is not supported yet")
-    if selector and not selector.endswith("$"):
-        raise NotImplementedError("Named ranges are not supported by DbFileInput yet")
-    sheet_name = selector[:-1] if selector and selector.endswith("$") else 0
+    bounds = re.fullmatch(r"(.+?)\$\$?([A-Za-z]+)\$?([1-9]\d*):\$?([A-Za-z]+)\$?([1-9]\d*)", selector)
+    if bounds is None:
+        if selector and not selector.endswith("$") and not allow_bare:
+            raise NotImplementedError("Named ranges are not supported by DbFileInput yet")
+        name = selector.removesuffix("$")
+        if not name and selector:
+            raise ValueError(f"Excel selector requires a worksheet name: {selector!r}")
+        return {**options, "sheet_name": name or 0}
+
+    sheet, start_col, start, end_col, end = bounds.groups()
+    from openpyxl.utils.cell import column_index_from_string
+
+    if int(start) > int(end) or column_index_from_string(start_col) > column_index_from_string(end_col):
+        raise ValueError(f"Excel selector has a reversed cell range: {selector!r}")
+    offset = options.get("skiprows", 0)
+    rows = max(0, int(end) - int(start) + 1 - offset - int(options.get("header") is not None))
+    limit = options.get("nrows")
+    return {**options, "sheet_name": _clean_selector(sheet), "usecols": f"{start_col.upper()}:{end_col.upper()}",
+            "skiprows": int(start) - 1 + offset, "nrows": rows if limit is None else min(rows, limit)}
+
+
+def read_excel_selection(path, selector, *, allow_bare=False, **options):
     try:
-        frame = pd.read_excel(
-            path,
-            sheet_name=sheet_name,
-            skiprows=max(_import_line(config) - 1, 0),
-            nrows=_record_limit(config),
-            header=0 if _header_row(config) else None,
-        )
-        if not _header_row(config):
-            frame.columns = [f"F{index}" for index in range(1, len(frame.columns) + 1)]
-        return frame
+        return pd.read_excel(path, **excel_selection_options(selector, options, allow_bare=allow_bare))
     except ImportError as exc:
         raise NotImplementedError("Excel input requires pandas optional Excel engine support") from exc
+
+
+def _read_excel(path: Path, selector: str | None, config: dict[str, Any]) -> pd.DataFrame:
+    header = _header_row(config)
+    frame = read_excel_selection(path, selector, skiprows=max(_import_line(config) - 1, 0),
+                                 nrows=_record_limit(config), header=0 if header else None)
+    if not header:
+        frame.columns = [f"F{index}" for index in range(1, len(frame.columns) + 1)]
+    return frame
 
 
 def dbfileinput_tool(

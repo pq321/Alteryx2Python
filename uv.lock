@@ -21,6 +21,7 @@ name = "alteryx-migration-python"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "charset-normalizer" },
     { name = "numpy" },
     { name = "openpyxl" },
     { name = "pandas", version = "2.3.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.14'" },
@@ -60,6 +61,7 @@ test = [
 
 [package.metadata]
 requires-dist = [
+    { name = "charset-normalizer", specifier = ">=3.4,<4" },
     { name = "duckdb", marker = "extra == 'local'", specifier = ">=1.1" },
     { name = "ipykernel", marker = "extra == 'notebooks'", specifier = ">=6.29" },
     { name = "jsonschema", marker = "extra == 'local'", specifier = ">=4" },

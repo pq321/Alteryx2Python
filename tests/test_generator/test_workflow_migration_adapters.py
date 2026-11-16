@@ -197,6 +197,85 @@ def test_dynamic_input_uses_template_schema_when_all_paths_are_skipped(tmp_path)
     assert 'a-wrong.xlsx' in warnings[-1]
 
 
+def test_japanese_csv_and_excel_selectors_in_both_phases(tmp_path):
+    from xml.sax.saxutils import escape
+
+    (tmp_path / 'data.csv').write_text('部店コード,取引番号\n0010,T001\n0050,T002\n', encoding='cp932')
+    with pd.ExcelWriter(tmp_path / 'data.xlsx', engine='openpyxl') as writer:
+        pd.DataFrame({'項目': ['検証']}).to_excel(writer, sheet_name='設定', index=False, startrow=1, startcol=1)
+    builder = WorkflowBuilder()
+    paths = builder.add_text_input(['File'], [['data.csv']])
+    inputs = []
+    for page in ('932', '65001'):
+        dynamic = builder._node('DynamicInput', f'''
+            <InputConfiguration><Configuration><File FileFormat="0">saved-template.csv</File>
+            <FormatSpecificOptions><CodePage>{page}</CodePage></FormatSpecificOptions></Configuration></InputConfiguration>
+            <Mode>ReadList</Mode><ReadList_Field>File</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+        ''', (200, 100))
+        inputs.append(dynamic)
+        builder.connect(paths, dynamic)
+    direct = builder._node('DbFileInput', '<File FileFormat="0">data.csv</File>', (100, 180))
+    for selector in ('`設定`', "'設定$B2:B3'"):
+        references = builder.add_text_input(['File'], [[f'data.xlsx|||{selector}']])
+        dynamic = builder._node('DynamicInput', f'''
+            <InputConfiguration><Configuration><File FileFormat="25">{escape('saved-template.xlsx|||OldSheet$')}</File></Configuration></InputConfiguration>
+            <Mode>ReadList</Mode><ReadList_Field>File</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+        ''', (200, 200))
+        inputs.append(dynamic)
+        builder.connect(references, dynamic)
+    workflow = save_workflow(builder, tmp_path)
+    baseline = run_workflow_graph(workflow, WorkflowContext())
+    artifact = ReadablePythonGenerator().generate(workflow)
+    namespace = {'__file__': str(tmp_path / 'phase_two.py')}
+    exec(artifact.verification_source, namespace)
+    checkpoints = {}
+    namespace['run_workflow'](input_dir=tmp_path, checkpoints=checkpoints)
+    for node in [*inputs, direct]:
+        pd.testing.assert_frame_equal(baseline.node_results[str(node)].outputs['Output'], checkpoints[str(node)]['Output'])
+    for node in [*inputs[:2], direct]:
+        assert checkpoints[str(node)]['Output']['部店コード'].tolist() == ['0010', '0050']
+    assert checkpoints[str(inputs[-1])]['Output']['項目'].tolist() == ['検証']
+
+
+def test_configured_report_path_creates_default_date_folder(tmp_path):
+    from datetime import date
+
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(['Value'], [[42]])
+    table = builder._node('PortfolioComposerTable', '<TableMode>Basic</TableMode>', (200, 100))
+    path = builder.add_formula([('Path', 'V_WString', '256', '"reports/" + DateTimeToday() + "/result.xlsx"')])
+    render = builder._node('PortfolioComposerRender', '''
+        <OutputFile>report.xlsx</OutputFile><BatchMode value="True" />
+        <GroupField>Path</GroupField><FilenameModifier>ReplacePath</FilenameModifier><DataField>Table</DataField>
+    ''', (300, 100))
+    builder.connect(source, table)
+    builder.connect(table, path)
+    builder.connect(path, render)
+    workflow = save_workflow(builder, tmp_path)
+    first, second = tmp_path / 'phase-one', tmp_path / 'phase-two'
+    today = date.today().isoformat()
+    run_workflow_graph(workflow, WorkflowContext({'delivery_profile': 'xlsx-table-v1', 'input_dir': first,
+                                                  'use_workflow_output_paths': True}))
+    script = tmp_path / 'phase_two.py'
+    ReadablePythonGenerator().generate(workflow, delivery_profile='xlsx-table-v1').write(script)
+    completed = subprocess.run([sys.executable, '-I', str(script), '--input-dir', str(second),
+                                '--use-workflow-output-paths'], capture_output=True)
+    assert completed.returncode == 0, completed.stderr
+    name = Path('reports') / today / 'result.xlsx'
+    assert workbook_snapshot(first / name) == workbook_snapshot(second / name)
+
+
+def test_output_directory_creation_reports_permission_failure(tmp_path, monkeypatch):
+    from alteryx2python.tools.dbfileoutput import ensure_output_directory
+
+    def denied(*args, **kwargs):
+        raise PermissionError('access denied')
+
+    monkeypatch.setattr(Path, 'mkdir', denied)
+    with pytest.raises(PermissionError, match='Current account cannot create output directory'):
+        ensure_output_directory(tmp_path / 'reports')
+
+
 def test_native_dynamic_update_cell_binds_question_in_phase_one_and_two(tmp_path):
     root = ET.parse(Path("examples/cli/parameter-app.yxwz")).getroot()
     action = root.find(".//Actions//Action")

@@ -247,10 +247,15 @@ def portfoliocomposerrender_tool(
 ) -> dict[str, pd.DataFrame]:
     if (context.runtime_config or {}).get("delivery_profile") == "xlsx-table-v1":
         from pathlib import Path
+        from alteryx2python.tools.dbfileoutput import delivery_output_path
         from alteryx2python.tools.delivery import render_xlsx_tables, xlsx_render_options
 
         filename, field, group, modifier = xlsx_render_options(config)
-        render_xlsx_tables(_first_input(inputs), Path(context.runtime_config["output_dir"]) / filename, field, group, modifier)
+        runtime = context.runtime_config
+        configured = bool(runtime.get('use_workflow_output_paths')) and not runtime.get('redirect_sinks') and not runtime.get('_workflow_audit')
+        base = runtime.get('input_dir') or config.get('base_dir') or Path.cwd()
+        destination = delivery_output_path(config.get('output_file') or filename, runtime.get('output_dir'), base, configured)
+        render_xlsx_tables(_first_input(inputs), destination, field, group, modifier, workflow_base=base if configured else None)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from pathlib import Path
         from alteryx2python.tools.delivery import render_html

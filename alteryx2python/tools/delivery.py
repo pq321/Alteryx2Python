@@ -16,6 +16,7 @@ from email.policy import SMTP
 from pathlib import Path, PureWindowsPath
 
 import pandas as pd
+from alteryx2python.tools.dbfileoutput import delivery_output_path, ensure_output_directory
 
 
 PROFILE = 'html-draft-v1'
@@ -134,31 +135,34 @@ def _xlsx_workbook_sheets(cells):
     return sheets
 
 
-def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None):
+def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None, *, workflow_base=None):
     groups = frame.groupby(group, sort=False, dropna=False) if group else [(None, frame)]
     outputs = {}
     for label, rows in groups:
         name = destination.name
+        path = destination
         if modifier == "ReplacePath":
             if not isinstance(label, str) or not label.strip() or label.endswith(("/", "\\")):
                 raise ValueError(f"Invalid XLSX Render replacement path: {label!r}")
-            # Rebase each native replacement path into the declared delivery directory.
             name = PureWindowsPath(label).name
             if Path(name).suffix.lower() != ".xlsx" or any(char in name for char in ':*?"<>|\r\n'):
                 raise ValueError(f"XLSX Render replacement requires an .xlsx filename: {label!r}")
+            path = delivery_output_path(label, destination.parent, workflow_base, workflow_base is not None)
         elif group:
             prefix = str(label).strip()
             if pd.isna(label) or not prefix or any(char in prefix for char in '/\\:*?"<>|\r\n') or prefix in {".", ".."}:
                 raise ValueError(f"Invalid XLSX Render filename group: {label!r}")
             name = prefix + name
-        if name.casefold() in outputs:
-            raise ValueError(f"Duplicate XLSX Render target: {name}")
+            path = destination.with_name(name)
+        identity = str(path).casefold()
+        if identity in outputs:
+            raise ValueError(f"Duplicate XLSX Render target: {path}")
         sheets = _xlsx_workbook_sheets(rows[data_field])
         if sheets:
-            outputs[name.casefold()] = (destination.with_name(name), sheets)
+            outputs[identity] = (path, sheets)
     header = frame.attrs.get("xlsx_header", True)
     for path, sheets in outputs.values():
-        path.parent.mkdir(parents=True, exist_ok=True)
+        ensure_output_directory(path.parent)
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
             for name, table in sheets.items():
                 table.to_excel(writer, sheet_name=name, index=False, header=header)

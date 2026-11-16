@@ -7,8 +7,8 @@ from pathlib import PurePosixPath, PureWindowsPath
 import pandas as pd
 
 from alteryx2python.generator.source_linker import UnsupportedLowering
+from alteryx2python.tools.csv_input import read_delimited_file
 from alteryx2python.tools.dbfileinput import (
-    _clean_selector,
     _delimiter,
     _encoding,
     _file_attribute,
@@ -16,8 +16,9 @@ from alteryx2python.tools.dbfileinput import (
     _import_line,
     _record_limit,
     _split_alteryx_file_reference,
+    excel_selection_options,
 )
-from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records, write_xlsx, xlsx_output_options
+from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records, delivery_output_path, ensure_output_directory, write_xlsx, xlsx_output_options
 from alteryx2python.tools.textinput import _infer_types, _normalize_row
 
 
@@ -79,7 +80,7 @@ def _text_input(config: dict, compiler=None) -> list[str]:
     return lines + ["return output"]
 
 
-def _input(config: dict, raw: str, selector: str | None) -> list[str]:
+def _input(config: dict, raw: str, selector: str | None, compiler) -> list[str]:
     suffix = _path(raw).suffix.lower()
     file_format = _file_attribute(config, "FileFormat")
     if suffix == ".yxdb" or file_format == "19":
@@ -98,20 +99,17 @@ def _input(config: dict, raw: str, selector: str | None) -> list[str]:
         lines = [f'path = Path({parameter})', f'if path.suffix.lower() != {suffix!r}:', '    raise ValueError("File input parameter changes configured format")', 'path = input_dir / path']
     options = f"skiprows={skiprows!r}, nrows={limit!r}, header={0 if header else None!r}"
     if csv:
+        read_csv = compiler.linker.function(read_delimited_file) if compiler is not None else 'read_delimited_file'
         lines.append(
-            f"output = pd.read_csv(path, delimiter={_delimiter(config)!r}, "
+            f"output = {read_csv}(path, delimiter={_delimiter(config)!r}, "
             f"{options}, encoding={_encoding(config)!r})"
         )
     else:
-        selector = _clean_selector(selector)
-        if selector == "<List of Sheet Names>":
-            raise UnsupportedLowering("Excel sheet-name list input is not supported yet")
-        if selector and not selector.endswith("$"):
-            raise UnsupportedLowering("Named ranges are not supported by DbFileInput yet")
-        sheet = selector[:-1] if selector else 0
+        selection = excel_selection_options(selector, dict(skiprows=skiprows, nrows=limit, header=0 if header else None))
+        excel_options = ', '.join(f'{key}={value!r}' for key, value in selection.items())
         lines += [
             "try:",
-            f"    output = pd.read_excel(path, sheet_name={sheet!r}, {options})",
+            f"    output = pd.read_excel(path, {excel_options})",
             "except ImportError as exc:",
             '    raise NotImplementedError("Excel input requires pandas optional Excel engine support") from exc',
         ]
@@ -122,6 +120,8 @@ def _input(config: dict, raw: str, selector: str | None) -> list[str]:
 
 def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) -> list[str]:
     path = _path(raw)
+    resolve_output = compiler.linker.function(delivery_output_path) if compiler is not None else 'delivery_output_path'
+    destination = f"{resolve_output}({raw!r}, output_dir, input_dir, use_workflow_output_paths)"
     file_format = _file_attribute(config, "FileFormat")
     if path.suffix.lower() == ".xlsx" and file_format != "0":
         if config.get('_file_parameter'):
@@ -130,7 +130,7 @@ def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) 
         function = compiler.linker.function(write_xlsx)
         limit = _max_records(config)
         output = f"{frame}.head({limit!r})" if limit is not None else frame
-        return [f"{function}(output_dir / {path.name!r}, {output}, {sheet!r}, header={header!r})", "return None"]
+        return [f"{function}({destination}, {output}, {sheet!r}, header={header!r})", "return None"]
     if not (file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}):
         if file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
             raise UnsupportedLowering("Excel output is not supported by DbFileOutput yet")
@@ -145,15 +145,16 @@ def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) 
     limit = _max_records(config)
     format_cell = compiler.linker.function(_format_cell)
     date_columns = compiler.linker.function(_date_columns)
+    ensure_directory = compiler.linker.function(ensure_output_directory)
     lines = [
         f"output = {frame}.head({limit!r})" if limit is not None else f"output = {frame}",
-        f"path = output_dir / {path.name!r}",
-        "path.parent.mkdir(parents=True, exist_ok=True)",
+        f"path = {destination}",
+        f"{ensure_directory}(path.parent)",
         f"date_columns = {date_columns}(output)",
     ]
     if config.get('_file_parameter'):
         parameter = config['_file_parameter']
-        lines[1:2] = [f'if Path({parameter}).suffix.lower() != {path.suffix.lower()!r}:', '    raise ValueError("File output parameter changes configured format")', f'path = output_dir / Path({parameter}).name']
+        lines[1:2] = [f'if Path({parameter}).suffix.lower() != {path.suffix.lower()!r}:', '    raise ValueError("File output parameter changes configured format")', f'path = {resolve_output}({parameter}, output_dir, input_dir, use_workflow_output_paths)']
     write_csv = [
         "rendered = output.astype(object)",
         "for index, column in enumerate(rendered.columns):",
@@ -205,7 +206,7 @@ def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[
         if not file_value:
             raise UnsupportedLowering(f"{kind} config requires file")
         raw, selector = _split_alteryx_file_reference(file_value)
-        return _input(config, raw, selector) if kind == "DbFileInput" else _output(config, raw, selector, frame, compiler)
+        return _input(config, raw, selector, compiler) if kind == "DbFileInput" else _output(config, raw, selector, frame, compiler)
     except (ValueError, TypeError, OverflowError, NotImplementedError) as exc:
         if isinstance(exc, UnsupportedLowering):
             raise

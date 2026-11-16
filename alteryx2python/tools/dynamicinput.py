@@ -10,7 +10,8 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
-from alteryx2python.tools.dbfileinput import _clean_selector, _delimiter, _encoding, _header_row, _import_line, _record_limit
+from alteryx2python.tools.csv_input import read_delimited_file
+from alteryx2python.tools.dbfileinput import _delimiter, _encoding, _header_row, _import_line, _record_limit, read_excel_selection
 
 
 def read_list_options(config):
@@ -55,12 +56,9 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
         if suffix == ".csv":
             if sheet or template_sheet:
                 raise NotImplementedError("CSV Dynamic Input does not support sheet selectors")
-            data = pd.read_csv(path, **options)
+            data = read_delimited_file(path, **options)
         else:
-            selector = _clean_selector(sheet or template_sheet)
-            if selector and not selector.endswith("$"):
-                raise NotImplementedError("Excel Dynamic Input supports sheet selectors only")
-            data = pd.read_excel(path, sheet_name=selector[:-1] if selector else 0, **options)
+            data = read_excel_selection(path, sheet or template_sheet, allow_bare=True, **options)
         if options["header"] is None:
             data.columns = [f"F{index}" for index in range(1, len(data.columns) + 1)]
         return data
@@ -78,6 +76,7 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
     except (OSError, ValueError, BadZipFile, NotImplementedError):
         # A portable workflow can still use a complete source path when its saved template is unavailable.
         expected_columns = None
+    first_failure = None
     for reference in references:
         try:
             data = read_one(reference, read_options)
@@ -87,6 +86,8 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
             if behaviour != "warning":
                 raise
             message = f"Dynamic Input skipped {reference!r}: {error}"
+            if first_failure is None:
+                first_failure = (message, error)
             if on_warning is None:
                 warnings.warn(message, RuntimeWarning, stacklevel=2)
             else:
@@ -97,7 +98,13 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
             frames.append(data)
     if frames:
         return pd.concat(frames, ignore_index=True)
-    return read_one(template, read_options).iloc[:0]
+    try:
+        return read_one(template, read_options).iloc[:0]
+    except (OSError, ValueError, BadZipFile, NotImplementedError):
+        if first_failure is not None:
+            message, error = first_failure
+            raise ValueError(f"No Dynamic Input source could be read and the template schema is unavailable. {message}") from error
+        raise
 
 
 def dynamicinput_tool(

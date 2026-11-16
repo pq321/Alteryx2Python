@@ -98,6 +98,21 @@ directory. Verification uses explicit event_working_dir and command_working_dir
 overrides to isolate side effects. Generated file sinks use the chosen output
 directory. External absolute inputs require explicit portable bindings.
 
+Run the generated script with `--use-workflow-output-paths` to honor the
+workflow's Output Data filenames and XLSX Render replacement paths. Relative
+paths resolve from `--input-dir` or the script directory. This mode creates
+missing output parents, including date folders, using the current account.
+Omit the flag for isolated delivery with `--output-dir`. Audit runs always
+isolate their outputs. An absent input file still requires the real input data.
+
+CSV readers accept multilingual UTF-8 and recognize UTF-16/UTF-32 byte-order
+marks. On UTF-8 decoding failure, they can detect common legacy encodings such
+as CP932, GB18030, Big5, CP949, Windows-1251 and Windows-1252 on the same file.
+Legacy auto-detection uses `charset-normalizer` and keeps values as text to
+preserve zero-padded identifiers. Set CodePage explicitly if legacy encodings
+are ambiguous. Dynamic Input accepts worksheet names, the Alteryx `$` suffix,
+and bounded selectors such as `Config$A2:D20`.
+
 The opt-in html-draft-v1 profile produces basic HTML tables, text, vertical
 layouts, HTML files, and deterministic MIME .eml drafts with attachments. It
 does not send mail. Grouped/rich reporting and other render formats require

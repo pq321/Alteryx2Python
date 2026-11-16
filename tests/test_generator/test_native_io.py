@@ -24,7 +24,7 @@ def _compile(kind, config, frame=None):
     assert lines is not None
     assert lower_io(kind, config, frame, compiler) == lines
     assert config == original
-    source = "def run(source_frame=None, *, input_dir, output_dir):\n" + textwrap.indent("\n".join(lines), "    ")
+    source = "def run(source_frame=None, *, input_dir, output_dir, use_workflow_output_paths=False):\n" + textwrap.indent("\n".join(lines), "    ")
     tree = ast.parse(source)
     assert not any(isinstance(node, ast.Name) and node.id == "config" for node in ast.walk(tree))
     body = tree.body[0].body
@@ -279,12 +279,33 @@ def test_unbound_absolute_input_is_blocked(tmp_path):
         lower_io("DbFileInput", {"file": str(tmp_path / "outside.csv"), "base_dir": str(tmp_path / "base")}, None)
 
 
-def test_windows_paths_are_portable():
+@pytest.mark.parametrize(("encoding", "csv_text"), [
+    ("utf-8", "Record,担当者,姓名,이름\nA,検証,北京,서울\n"),
+    ("utf-16", "Record,担当者,姓名,이름\nA,検証,北京,서울\n"),
+    ("cp932", "部店コード,取引番号\n0010,T001\n0050,T002\n"),
+    ("gb18030", "客户编号,交易金额\n0010,中国上海\n0050,跨境结算\n"),
+    ("big5", "客戶編號,交易金額\n0010,臺北台灣\n0050,跨境結算\n"),
+    ("cp949", "거래번호,계좌번호\n0010,대한민국 서울\n0050,계좌 이체\n"),
+    ("cp1252", "Référence,Prénom\n0010,François\n0050,Élodie\n"),
+    ("cp1251", "Название,Количество\n0010,Москва\n0050,Санкт-Петербург\n"),
+])
+def test_csv_auto_encoding_preserves_multilingual_headers(tmp_path, encoding, csv_text):
+    (tmp_path / "input.csv").write_text(csv_text, encoding=encoding)
+    config = {"file": "input.csv", "base_dir": str(tmp_path), "file_attributes": {"FileFormat": "0"}}
+    expected = [line.split(',') for line in csv_text.splitlines()]
+    first = dbfileinput_tool({}, config, WorkflowContext())["Output"]
+    second = _compile("DbFileInput", config)(input_dir=tmp_path, output_dir=tmp_path)
+    pd.testing.assert_frame_equal(first, second)
+    assert list(second.columns) == expected[0]
+    assert second.values.tolist() == expected[1:]
+
+
+def test_windows_paths_are_portable(tmp_path):
     lines = lower_io("DbFileInput", {"file": "C:\\workflow\\data\\input.csv", "base_dir": "C:\\workflow"}, None)
     assert lines[0] == "path = input_dir / 'data/input.csv'"
-    compiler = SimpleNamespace(linker=SourceLinker())
-    lines = lower_io("DbFileOutput", {"file": "C:\\workflow\\results\\output.csv"}, "source_frame", compiler)
-    assert "path = output_dir / 'output.csv'" in lines
+    write_output = _compile("DbFileOutput", {"file": "C:\\workflow\\results\\output.csv"}, "source_frame")
+    write_output(pd.DataFrame({"value": [1]}), input_dir=tmp_path, output_dir=tmp_path)
+    assert (tmp_path / "output.csv").is_file()
 
 
 def test_other_tools_are_not_claimed():

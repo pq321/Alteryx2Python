@@ -118,6 +118,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--allow-command", action="append", default=[], metavar="EXECUTABLE")
     run_parser.add_argument("--delivery-profile", choices=["xlsx-table-v1"])
     run_parser.add_argument("--output-dir", type=Path)
+    run_parser.add_argument("--use-workflow-output-paths", action="store_true")
     run_parser.set_defaults(func=_run_command)
 
     compare_parser = subparsers.add_parser("compare", help="Compare actual and expected outputs")
@@ -388,7 +389,11 @@ def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         from alteryx2python.input_bindings import parse_input_bindings
 
         runtime["input_bindings"] = parse_input_bindings(args.bind_input)
-    if args.delivery_profile or args.output_dir:
+    if args.use_workflow_output_paths:
+        if args.output_dir is not None:
+            raise ValueError("Choose workflow output paths or an isolated output directory")
+        runtime.update(use_workflow_output_paths=True, delivery_profile=args.delivery_profile)
+    elif args.delivery_profile or args.output_dir:
         if not args.delivery_profile or args.output_dir is None:
             raise ValueError("--delivery-profile and --output-dir must be used together")
         runtime.update(delivery_profile=args.delivery_profile, output_dir=args.output_dir.resolve(), redirect_sinks=True)

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import os
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import pandas as pd
@@ -52,6 +52,19 @@ def _expand_alteryx_path_tokens(path_value: str) -> str:
     return path_value
 
 
+def delivery_output_path(workflow_path, output_dir, input_dir, use_workflow_output_paths=False):
+    if use_workflow_output_paths:
+        return _resolve_path(str(workflow_path), input_dir)
+    return Path(output_dir) / PureWindowsPath(workflow_path).name
+
+
+def ensure_output_directory(directory):
+    try:
+        directory.mkdir(parents=True, exist_ok=True)
+    except PermissionError as error:
+        raise PermissionError(f"Current account cannot create output directory: {directory}") from error
+
+
 def _max_records(config: dict[str, Any]) -> int | None:
     raw = _file_attribute(config, "MaxRecords")
     if not raw:
@@ -96,7 +109,7 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
     encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
 
     date_columns = _date_columns(output_frame)
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_output_directory(path.parent)
     if not header and len(output_frame.columns) == 1:
         date_only = output_frame.columns[0] in date_columns
         values = [_format_cell(value, date_only) for value in output_frame.iloc[:, 0]]
@@ -110,7 +123,7 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
 
 
 def write_xlsx(path, frame, sheet="Sheet1", *, header=True):
-    path.parent.mkdir(parents=True, exist_ok=True)
+    ensure_output_directory(path.parent)
     frame.to_excel(path, sheet_name=sheet, index=False, header=header, engine="openpyxl")
 
 
@@ -138,7 +151,9 @@ def dbfileoutput_tool(
         raise ValueError("DbFileOutput config requires file")
 
     raw_path, selector = _split_alteryx_file_reference(file_value)
-    path = _resolve_path(raw_path, config.get("base_dir"))
+    runtime = context.runtime_config or {}
+    base = runtime.get('input_dir') if runtime.get('use_workflow_output_paths') else None
+    path = _resolve_path(raw_path, base or config.get("base_dir"))
     file_format = _file_attribute(config, "FileFormat")
     max_records = _max_records(config)
     output_frame = input_frame.head(max_records) if max_records is not None else input_frame
