@@ -20,10 +20,12 @@ $sample = 'D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Reco
 pwsh -NoProfile -File scripts/designer_click_run.ps1 -Plan "$root/plan.json" -Report "$root/designer-run.json"
 ```
 
-If multiple Designer processes are open, give the runner the PID of an
-available Designer window with `-DesignerProcessId`. Reuse that PID for the
-next invocation. The runner saves a Designer Results screenshot and closes
-the workflow tab it opened.
+The runner starts Designer 2025.1 directly if no matching window is open.
+For a custom installation, pass `-DesignerLauncher` with the full path to
+the 2025.1 `AlteryxGui.exe`. If multiple Designer 2025.1 processes are open,
+give the runner the PID of a blank Designer window with `-DesignerProcessId`.
+Reuse that PID for the next invocation. The runner saves a Designer Results
+screenshot and closes the workflow tab it opened.
 
 When Results identifies an AMP run, convert its probes in Designer before
 attesting. Review both Results screenshots for successful completion and

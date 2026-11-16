@@ -6,7 +6,7 @@ param(
     [Parameter(Mandatory)][string]$Report,
     [ValidateRange(5, 3600)][int]$TimeoutSeconds = 45,
     [int]$DesignerProcessId,
-    [string]$DesignerLauncher = "$env:LOCALAPPDATA\Alteryx\AlteryxOne\AlteryxOne.exe"
+    [string]$DesignerLauncher
 )
 
 $ErrorActionPreference = 'Stop'
@@ -359,11 +359,36 @@ public static class DesignerMouse {
 '@
 [void][DesignerMouse]::SetProcessDPIAware()
 
-function Find-DesignerWindow([string]$Filename) {
-    @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object {
-        $_.MainWindowHandle -ne 0 -and
-        $_.MainWindowTitle -match ('^Alteryx Designer.* - \*?' + [regex]::Escape($Filename) + '$')
-    })
+function Test-Designer2025_1([string]$Path) {
+    if (-not $Path -or [IO.Path]::GetFileName($Path) -ne 'AlteryxGui.exe') { return $false }
+    $file = Get-Item -LiteralPath $Path -ErrorAction SilentlyContinue
+    return $null -ne $file -and $file.VersionInfo.ProductVersion -match '^(?:20)?25\.1(?:\.|$)'
+}
+
+function Resolve-DesignerExecutable {
+    if ($DesignerLauncher) {
+        if (-not (Test-Designer2025_1 $DesignerLauncher)) {
+            throw "DesignerLauncher must point to the Designer 2025.1 AlteryxGui.exe: $DesignerLauncher"
+        }
+        return (Resolve-Path -LiteralPath $DesignerLauncher).Path
+    }
+    $candidates = @(
+        foreach ($root in @($env:APPDATA, $env:ProgramData)) {
+            $installInfo = Join-Path $root 'Alteryx/Engine/2025.1/InstallInfo.xml'
+            if (Test-Path -LiteralPath $installInfo -PathType Leaf) {
+                [xml]$install = Get-Content -LiteralPath $installInfo -Raw
+                if ($install.Settings.InstallDir64) {
+                    Join-Path ([string]$install.Settings.InstallDir64) 'AlteryxGui.exe'
+                }
+            }
+        }
+        Join-Path $env:ProgramFiles 'Alteryx/bin/AlteryxGui.exe'
+        Join-Path $env:LOCALAPPDATA 'Alteryx/bin/AlteryxGui.exe'
+    )
+    foreach ($path in $candidates) {
+        if (Test-Designer2025_1 $path) { return (Resolve-Path -LiteralPath $path).Path }
+    }
+    throw 'Designer 2025.1 was not found. Pass -DesignerLauncher with the full path to its AlteryxGui.exe.'
 }
 
 function Get-PreparedCase($Entry) {
@@ -508,20 +533,24 @@ function Close-ManagedWorkflow([string]$Filename) {
     if (-not $closed) { throw "Timed out closing the run tab: $Filename" }
 }
 
+function Start-DesignerSession {
+    $executable = Resolve-DesignerExecutable
+    $started = Start-Process -FilePath $executable -WindowStyle Normal -PassThru
+    $target = Wait-For {
+        $process = Get-Process -Id $started.Id -ErrorAction SilentlyContinue
+        if ($process -and $process.MainWindowHandle -ne 0 -and
+            $process.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$') {
+            $process
+        }
+    } $TimeoutSeconds
+    if (-not $target) { throw "Timed out waiting for the new Designer 2025.1 window (PID $($started.Id))." }
+    $script:sessionId = $target.Id
+    $script:sessionHandle = $target.MainWindowHandle
+}
+
 function Open-WorkflowInSession([string]$Path) {
     $name = [IO.Path]::GetFileName($Path)
-    if (-not $script:sessionId) {
-        $priorHandles = @(Find-DesignerWindow $name | ForEach-Object MainWindowHandle)
-        [void](Start-Process -FilePath $DesignerLauncher -ArgumentList ('/Edit "' + $Path + '"') -WindowStyle Normal -PassThru)
-        $target = Wait-For {
-            $new = @(Find-DesignerWindow $name | Where-Object { $_.MainWindowHandle -notin $priorHandles })
-            if ($new.Count -eq 1) { $new[0] }
-        } $TimeoutSeconds
-        if (-not $target) { throw "Timed out opening the initial Designer workflow: $name" }
-        $script:sessionId = $target.Id
-        $script:sessionHandle = $target.MainWindowHandle
-        return
-    }
+    if (-not $script:sessionId) { Start-DesignerSession }
     [void](Get-SessionWindow)
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
         [DesignerMouse]::Restore($script:sessionHandle, $script:sessionId)
@@ -593,7 +622,7 @@ function Wait-ForNamedDialog([string]$Name, [int]$Seconds = [Math]::Min(45, $Tim
 }
 
 function Run-NumericApp($Case) {
-    if (-not $script:sessionId) { throw 'Select an existing Designer session to run an analytic app.' }
+    if (-not $script:sessionId) { throw 'Select an existing Designer 2025.1 session to run an analytic app.' }
     [void](Get-SessionWindow)
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
         [DesignerMouse]::Restore($script:sessionHandle, $script:sessionId)
@@ -740,7 +769,9 @@ function Invoke-DesignerBatch {
     $script:sessionId = 0
     $script:sessionHandle = [IntPtr]::Zero
     if (-not $DesignerProcessId) {
-        $existing = @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object MainWindowHandle -ne 0)
+        $existing = @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object {
+            $_.MainWindowHandle -ne 0 -and (Test-Designer2025_1 $_.Path)
+        })
         $blank = @($existing | Where-Object MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$')
         if ($blank.Count -eq 1) { $DesignerProcessId = $blank[0].Id }
         elseif ($existing.Count) { throw 'Use -DesignerProcessId to select a single Designer window with a blank workflow tab.' }
@@ -748,8 +779,9 @@ function Invoke-DesignerBatch {
     if ($DesignerProcessId) {
         $initial = Get-Process -Id $DesignerProcessId
         if ($initial.ProcessName -ne 'AlteryxGui' -or $initial.MainWindowHandle -eq 0 -or
-            $initial.MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$') {
-            throw 'Choose an existing Designer window with a blank workflow tab.'
+            $initial.MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
+            -not (Test-Designer2025_1 $initial.Path)) {
+            throw 'Choose an existing Designer 2025.1 window with a blank workflow tab.'
         }
         $script:sessionId = $initial.Id
         $script:sessionHandle = $initial.MainWindowHandle

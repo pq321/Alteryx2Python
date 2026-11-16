@@ -55,8 +55,12 @@ For standard workflows on Windows, the desktop runner opens a batch plan in
 one Designer session. It clicks Run, records the results, closes its test tab,
 and opens the next file through the same window's file picker. Pass
 `-DesignerProcessId` to select an existing blank Designer window when there is
-more than one candidate. If no Designer window is open, the installed launcher
-starts the first case. The report records the PID for each run. The runner
+more than one candidate. If no Designer 2025.1 window is open, the runner starts
+the first case directly with the installed Designer 2025.1 `AlteryxGui.exe`.
+It checks the per-user or system install information and standard install
+locations. For a custom installation, pass
+`-DesignerLauncher 'C:/path/to/AlteryxGui.exe'` using the executable from the
+Designer 2025.1 shortcut. The report records the PID for each run. The runner
 stops if the PID changes, the tab cannot be closed, or an unexpected dialog appears.
 One batch at a time can control the Windows session.
 It requires PowerShell 7, a Windows desktop session, and the light theme
