@@ -36,6 +36,9 @@ public static class DesignerMouse {
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint message, IntPtr wParam,
         string text, uint flags, uint milliseconds, out IntPtr result);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint message, IntPtr wParam,
+        StringBuilder text, uint flags, uint milliseconds, out IntPtr result);
     [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hwnd);
@@ -196,13 +199,33 @@ public static class DesignerMouse {
         Click(control, expectedProcess, (bounds.Left + bounds.Right) / 2, (bounds.Top + bounds.Bottom) / 2);
     }
 
-    public static void SetNumericEdit(IntPtr control, uint expectedProcess, string value) {
+    private static bool IsNumericEdit(IntPtr control, uint expectedProcess) {
         uint pid;
         GetWindowThreadProcessId(control, out pid);
+        if (pid != expectedProcess || !IsWindowVisible(control) || !IsWindowEnabled(control)) return false;
         var name = new StringBuilder(100);
         GetClassName(control, name, name.Capacity);
-        if (pid != expectedProcess || !IsWindowEnabled(control) ||
-            !name.ToString().StartsWith("WindowsForms10.EDIT."))
+        return name.ToString().StartsWith("WindowsForms10.EDIT.");
+    }
+
+    public static string ReadNumericEdit(IntPtr control, uint expectedProcess) {
+        if (!IsNumericEdit(control, expectedProcess))
+            throw new InvalidOperationException("Expected a Designer numeric edit control.");
+        var text = new StringBuilder(64);
+        IntPtr length;
+        // WM_GETTEXT reads the edit value across processes. UI Automation Name is a label.
+        if (SendMessageTimeout(control, 0x000D, new IntPtr(text.Capacity), text, 2, 3000, out length) == IntPtr.Zero)
+            throw new InvalidOperationException("Designer did not return the numeric edit value.");
+        return text.ToString();
+    }
+
+    public static bool NumericEditMatches(IntPtr control, uint expectedProcess, decimal expected) {
+        decimal actual;
+        return decimal.TryParse(ReadNumericEdit(control, expectedProcess), out actual) && actual == expected;
+    }
+
+    public static void SetNumericEdit(IntPtr control, uint expectedProcess, string value) {
+        if (!IsNumericEdit(control, expectedProcess))
             throw new InvalidOperationException("Expected a Designer numeric edit control.");
         if (!PostMessage(control, 0x00B1, IntPtr.Zero, new IntPtr(-1)))
             throw new InvalidOperationException("Designer rejected the numeric app answer.");
@@ -214,12 +237,7 @@ public static class DesignerMouse {
     public static IntPtr FindNumericEdit(IntPtr app, uint expectedProcess) {
         IntPtr found = IntPtr.Zero;
         EnumChildWindows(app, (child, state) => {
-            uint pid;
-            GetWindowThreadProcessId(child, out pid);
-            if (pid != expectedProcess || !IsWindowVisible(child) || !IsWindowEnabled(child)) return true;
-            var name = new StringBuilder(100);
-            GetClassName(child, name, name.Capacity);
-            if (!name.ToString().StartsWith("WindowsForms10.EDIT.")) return true;
+            if (!IsNumericEdit(child, expectedProcess)) return true;
             if (found != IntPtr.Zero) {
                 found = IntPtr.Zero;
                 return false;
@@ -444,7 +462,7 @@ function Get-PreparedCase($Entry) {
             $min = $question.SelectSingleNode('Minimum').GetAttribute('value')
             $max = $question.SelectSingleNode('Maximum').GetAttribute('value')
             if ($value -match '^-?[0-9]+$' -and [decimal]$value -ge [decimal]$min -and [decimal]$value -le [decimal]$max) {
-                $numeric = @{ value = [string]$value; default = [string]$default }
+                $numeric = @{ value = [string]$value }
             }
         }
     }
@@ -660,14 +678,17 @@ function Run-NumericApp($Case) {
         if ($candidate -ne [IntPtr]::Zero) { $candidate }
     } ([Math]::Min(30, $TimeoutSeconds))
     if (-not $editHandle) { throw 'Expected exactly one editable numeric answer.' }
-    if ($Case.numeric.value -ne $Case.numeric.default) {
+    $expected = [decimal]$Case.numeric.value
+    if (-not [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected)) {
         [DesignerMouse]::SetNumericEdit($editHandle, $script:sessionId, $Case.numeric.value)
     }
-    $edit = [System.Windows.Automation.AutomationElement]::FromHandle($editHandle)
-    if (-not (Wait-For { $edit.Current.Name -eq $Case.numeric.value } 8)) {
-        throw 'Designer numeric answer differs from the prepared value.'
-    }
+    $verified = Wait-For { [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected) } 8
     [DesignerMouse]::Save([IntPtr]$app.Current.NativeWindowHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
+    if (-not $verified) {
+        $observed = [DesignerMouse]::ReadNumericEdit($editHandle, $script:sessionId)
+        [DesignerMouse]::CloseModal($appHandle, $script:sessionId)
+        throw "Designer numeric answer differs from the prepared value (expected $expected, observed '$observed')."
+    }
     Invoke-DialogButton $app @('Finish')
     $result = Wait-For {
         foreach ($name in @('App Results', 'Analytic App Error(s)')) {

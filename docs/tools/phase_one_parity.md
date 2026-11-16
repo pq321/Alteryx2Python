@@ -74,7 +74,10 @@ The report lists new outputs and the Designer results screenshot for each run.
 Check Designer's reported outcome before attesting. On Designer 2025.1 the
 batch can run a prepared app with one integer Numeric Up Down question through
 **Options > Run Analytic Apps**, using its default or the value recorded by
-`prepare --answers`. Use a timeout that allows for Designer's app startup.
+`prepare --answers`. The runner reads the numeric edit value and confirms it
+before clicking Finish. If the value differs, it enters the prepared answer
+and reads it back. The run directory includes `designer-app-answer.png`.
+Use a timeout that allows for Designer's app startup.
 Other interfaces and out-of-range values are listed as pending input. Use a
 fresh directory to run a case again.
 The runner checks the hashes and document version of macro dependencies before
