@@ -173,6 +173,24 @@ def report_table(frame, fields, show_header=True):
     return pd.DataFrame({'Report': [selected.to_html(index=False, border=0, header=show_header, escape=True)]})
 
 
+def html_report_field(frame, field):
+    # Native Table snippets are named Table. The HTML profile historically
+    # exposes that snippet as Report on its Python checkpoints.
+    if field == 'Table' and list(frame.columns) == ['Report']:
+        return 'Report'
+    return field
+
+
+def html_render_filename(config):
+    output_file = PureWindowsPath(config.get('output_file') or '')
+    # Designer uses TempFileType for temporary output and the file extension
+    # when the workflow specifies a destination.
+    file_type = (config.get('temp_file_type') or output_file.suffix.lstrip('.')).lower()
+    if file_type not in {'html', 'htm'} or config.get('batch_mode'):
+        raise NotImplementedError('Only non-batched HTML rendering is supported')
+    return output_file.name or 'report.html'
+
+
 def report_text(message, output_field='Report'):
     return pd.DataFrame({output_field: [f'<p>{html.escape(message)}</p>']})
 
@@ -184,6 +202,7 @@ def report_layout(frame, fields):
 
 
 def render_html(frame, data_field, destination):
+    data_field = html_report_field(frame, data_field)
     body = '\n'.join(str(value) for value in frame[data_field])
     document = '<!doctype html>\n<html><head><meta charset="utf-8"></head><body>\n' + body + '\n</body></html>\n'
     destination = Path(destination)
@@ -201,7 +220,7 @@ def email_message(frame, sender, recipient, subject, body_field, attachments, dr
     if draft:
         message['X-Unsent'] = '1'
     message.set_content('This message contains an HTML report.')
-    message.add_alternative(str(frame.iloc[0][body_field]), subtype='html')
+    message.add_alternative(str(frame.iloc[0][html_report_field(frame, body_field)]), subtype='html')
     for attachment in attachments:
         path = Path(attachment)
         media = mimetypes.guess_type(path.name)[0] or 'application/octet-stream'

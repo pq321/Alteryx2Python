@@ -112,7 +112,9 @@ def summarize_tool(
         ]
     else:
         rows = [_summarize_group(input_frame, fields, [])]
-    output = pd.DataFrame(rows)
+    # An empty grouped result still has the configured output columns.
+    columns = list(dict.fromkeys(str(field.get('rename') or field['field']) for field in [*group_fields, *fields]))
+    output = pd.DataFrame(rows, columns=columns)
 
     outputs = {"Output": output}
     context.record_node(

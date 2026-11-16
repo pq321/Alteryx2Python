@@ -58,7 +58,10 @@ def lower_tabular(compiler, kind, config, frame):
         fields = config.get('sort_fields', [])
         if not fields:
             raise UnsupportedLowering('Sort requires fields')
-        return [f'return {frame}.sort_values(by={[field["field"] for field in fields]!r}, ascending={[_is_ascending(field.get("order", "Ascending")) for field in fields]!r}, kind="mergesort").reset_index(drop=True)']
+        keys = config.get('_shared_group_keys') or repr([field['field'] for field in fields])
+        directions = [_is_ascending(field.get('order', 'Ascending')) for field in fields]
+        ascending = directions[0] if all(value == directions[0] for value in directions) else directions
+        return [f'return {frame}.sort_values(by={keys}, ascending={ascending!r}, kind="mergesort").reset_index(drop=True)']
     if kind == 'Unique':
         fields = config.get('unique_fields')
         subset = repr(fields) if fields else f'list({frame}.columns)'
@@ -134,9 +137,13 @@ def lower_tabular(compiler, kind, config, frame):
         fields = config.get('summarize_fields', [])
         if not fields:
             raise UnsupportedLowering('Summarize requires fields')
-        groups = [field['field'] for field in fields if field['action'] == 'GroupBy']
+        group_fields = [field for field in fields if field['action'] == 'GroupBy']
+        measures = [field for field in fields if field['action'] != 'GroupBy']
+        groups = [field['field'] for field in group_fields]
+        columns = [field.get('rename') or field['field'] for field in [*group_fields, *measures]]
+        ordinary_keys = groups and columns[:len(groups)] == groups and len(set(columns)) == len(columns)
         entries = []
-        for field in [field for field in fields if field['action'] == 'GroupBy'] + [field for field in fields if field['action'] != 'GroupBy']:
+        for field in (measures if ordinary_keys else [*group_fields, *measures]):
             column, action = field['field'], field['action']
             values = f'group[{column!r}]'
             numeric = f'pd.to_numeric({values}, errors="coerce")'
@@ -158,8 +165,38 @@ def lower_tabular(compiler, kind, config, frame):
                 raise UnsupportedLowering(f'Unsupported Summarize action: {action}')
             entries.append(f'{field.get("rename") or column!r}: {expression}')
         row = '{' + ', '.join(entries) + '}'
+        if ordinary_keys:
+            keys = config.get('_shared_group_keys') or repr(groups)
+            lines = [f'group_keys = {keys}', f'grouped = {frame}.groupby(group_keys, sort=False, dropna=False)']
+            reserved = {'self', 'func', 'engine', 'engine_kwargs'}
+            if (measures and reserved.isdisjoint(columns[len(groups):])
+                    and all(field['action'] in {'Sum', 'Count'} for field in measures)):
+                aggregations = {field.get('rename') or field['field']:
+                                (field['field'], {'Sum': 'sum', 'Count': 'size'}[field['action']])
+                                for field in measures}
+                sums = [field['field'] for field in measures if field['action'] == 'Sum']
+                # Restrict pandas reductions to types that preserve the Phase 1 values and dtypes.
+                compatible = (f'all(str({frame}[key].dtype) in ("str", "string", "int64") for key in group_keys)'
+                              f' and {frame}[group_keys].notna().all().all()')
+                if sums:
+                    compatible += f' and all(str({frame}[column].dtype) in ("int64", "Int64") for column in {sums!r})'
+                columns = f'[*group_keys, *aggregations]'
+                lines += [
+                    f'aggregations = {aggregations!r}',
+                    f'if {compatible}:',
+                    '    summary = grouped.agg(**aggregations).reset_index()',
+                    f'    return pd.DataFrame(summary.to_dict("records"), columns={columns})',
+                ]
+            else:
+                columns = f'[*group_keys, *{columns[len(groups):]!r}]'
+            unpacked = ', ' + ', '.join(entries) if entries else ''
+            return lines + [
+                f'rows = [{{**dict(zip(group_keys, group.iloc[0][group_keys])){unpacked}}} for _, group in grouped]',
+                f'return pd.DataFrame(rows, columns={columns})',
+            ]
         if groups:
-            return [f'return pd.DataFrame([{row} for _, group in {frame}.groupby({groups!r}, sort=False, dropna=False)])']
+            names = list(dict.fromkeys(columns))
+            return [f'return pd.DataFrame([{row} for _, group in {frame}.groupby({groups!r}, sort=False, dropna=False)], columns={names!r})']
         return [f'group = {frame}', f'return pd.DataFrame([{row}])']
     if kind == 'TextToColumns':
         from alteryx2python.tools.texttocolumns import _delimiter_pattern

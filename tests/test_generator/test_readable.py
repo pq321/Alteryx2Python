@@ -6,6 +6,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from xml.etree import ElementTree as ET
 
 import pandas as pd
 import pytest
@@ -74,6 +75,53 @@ def test_phase_one_manual_changes_are_rejected_without_execution(tmp_path, chang
     path.write_text(PythonGenerator().generate(workflow) + '\n' + change, encoding='utf-8')
     with pytest.raises(UnsupportedLowering, match='manual behavioral edits'):
         read_phase_one(path)
+
+
+@pytest.mark.parametrize(('tool', 'plugin', 'dll', 'entry'), [
+    ('Summarize', 'AlteryxSpatialPluginsGui.Summarize.Summarize',
+     'AlteryxSpatialPluginsEngine.dll', 'AlteryxSummarize'),
+    ('PortfolioComposerTable', 'PortfolioPluginsGui.ComposerTable.PortfolioComposerTable',
+     'PortfolioPluginsEngine.dll', 'AlteryxPortfolioComposerTablePlugin'),
+    ('PortfolioComposerRender', 'PortfolioPluginsGui.ComposerRender.PortfolioComposerRender',
+     'PortfolioPluginsEngine.dll', 'AlteryxPortfolioComposerRenderPlugin'),
+    ('Email', 'PortfolioPluginsGui.Email.Email',
+     'PortfolioPluginsEngine.dll', 'AlteryxComposerEmail'),
+])
+def test_builder_exports_designer_gui_and_engine_binding(tool, plugin, dll, entry):
+    builder = WorkflowBuilder()
+    builder._node(tool, '', (100, 100))
+    node = ET.fromstring(builder.render()).find('Nodes/Node')
+    assert node.find('GuiSettings').get('Plugin') == plugin
+    assert node.find('EngineSettings').attrib == {'EngineDll': dll, 'EngineDllEntryPoint': entry}
+
+
+@pytest.mark.parametrize(('minimum', 'sum_field'), [(100, 'total'), (500, 'total'), (100, 'func')])
+def test_pipeline_preserves_filtered_empty_schema_and_shares_sort_keys(tmp_path, minimum, sum_field):
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(['desk', 'amount'], [['APAC', '100'], ['EMEA', '50'], ['APAC', '']])
+    typed = builder.add_select(
+        [('desk', 'True'), ('amount', 'True')],
+        field_types={'desk': ('V_WString', 16), 'amount': ('Int64', 8)},
+    )
+    filtered = builder.add_filter(f'!IsNull([amount]) AND [amount] >= {minimum}')
+    summary = builder.add_summarize([('desk', 'GroupBy', ''), ('amount', 'Sum', sum_field),
+                                     ('amount', 'Count', 'records')])
+    sorted_rows = builder.add_sort([('desk', 'Ascending')])
+    builder.connect(source, typed)
+    builder.connect(typed, filtered)
+    builder.connect(filtered, summary, 'True')
+    builder.connect(summary, sorted_rows)
+    workflow = parse(builder, tmp_path)
+    phase_one = run_workflow_graph(workflow, WorkflowContext())
+    artifact, checkpoints = run_readable(workflow, tmp_path)
+
+    assert f"SUMMARY_GROUP_KEYS_{summary} = ['desk']" in artifact.source
+    assert ('.agg(**aggregations)' in artifact.source) == (sum_field == 'total')
+    assert ".ge(" in artifact.source
+    for node_id in (filtered, summary, sorted_rows):
+        for anchor, expected in phase_one.node_results[str(node_id)].outputs.items():
+            pd.testing.assert_frame_equal(checkpoints[str(node_id)][anchor], expected, check_exact=True)
+    assert list(checkpoints[str(sorted_rows)]['Output'].columns) == ['desk', sum_field, 'records']
 
 
 def test_unknown_node_blocks_compilation(tmp_path):

@@ -31,6 +31,7 @@ def filter_tool(
     mask = pd.Series(
         [bool(evaluate_expression(parsed_expression, row)) for row in input_frame.to_dict("records")],
         index=input_frame.index,
+        dtype=bool,
     )
     true_frame = input_frame.loc[mask].copy()
     false_frame = input_frame.loc[~mask].copy()

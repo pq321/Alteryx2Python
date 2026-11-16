@@ -258,10 +258,8 @@ def portfoliocomposerrender_tool(
         render_xlsx_tables(_first_input(inputs), destination, field, group, modifier, workflow_base=base if configured else None)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from pathlib import Path
-        from alteryx2python.tools.delivery import render_html
-        if config.get('temp_file_type', '').lower() not in {'html', 'htm'} or config.get('batch_mode'):
-            raise NotImplementedError('HTML profile supports non-batched HTML output only')
-        destination = Path(context.runtime_config['output_dir']) / Path(config.get('output_file') or 'report.html').name
+        from alteryx2python.tools.delivery import html_render_filename, render_html
+        destination = Path(context.runtime_config['output_dir']) / html_render_filename(config)
         render_html(_first_input(inputs), config.get('data_field') or 'Report', destination)
     return _record_report_node(
         tool_type="PortfolioComposerRender",

@@ -23,26 +23,6 @@ def render_workflow_spec(spec: object) -> str:
     return spec.to_xml()
 
 
-BASE_GUI = "AlteryxBasePluginsGui"
-ENGINE_DLL = "AlteryxBasePluginsEngine.dll"
-
-_GUI_TAIL = {"Select": "AlteryxSelect", "RegEx": "RegEx", "CrossTab": "CrossTab"}
-
-
-def _plugin_id(kind: str) -> str:
-    tail = _GUI_TAIL.get(kind, kind)
-    return f"{BASE_GUI}.{tail}.{tail}"
-
-
-def _entry(kind: str) -> str:
-    from alteryx2python.parser.tool_catalog import CATALOG
-
-    entry = next((item for item in CATALOG if item.tool_type == kind), None)
-    if entry is None or not entry.engine_entry:
-        raise ValueError(f"No verified engine entry for {kind}; use a node template")
-    return entry.engine_entry
-
-
 @dataclass
 class WorkflowBuilder:
     """Compose a runnable Alteryx workflow as .yxmd XML."""
@@ -64,25 +44,24 @@ class WorkflowBuilder:
         position: tuple[int, int],
         gui_plugin: str | None = None,
     ) -> int:
-        tool_id = self._tool_id()
-        plugin = gui_plugin or _plugin_id(kind)
-        entry = _entry(kind)
-        from alteryx2python.parser.tool_catalog import CATALOG
+        from alteryx2python.parser.tool_catalog import CATALOG, catalog_entry_for_plugin
 
-        binding = next(item for item in CATALOG if item.tool_type == kind)
-        dll = binding.engine_dll
-        if not dll:
-            raise ValueError(f"{kind} requires a macro/template binding")
+        binding = (catalog_entry_for_plugin(gui_plugin) if gui_plugin else
+                   next((item for item in CATALOG if item.tool_type == kind and item.engine_entry), None))
+        if binding is None or binding.tool_type != kind or not binding.engine_dll or not binding.engine_entry:
+            raise ValueError(f"No verified GUI/engine binding for {gui_plugin or kind}; use a node template")
+        tool_id = self._tool_id()
         self.nodes_xml.append(
             f'<Node ToolID="{tool_id}">'
-            f'<GuiSettings Plugin="{plugin}">'
+            f'<GuiSettings Plugin="{escape(binding.plugin_id)}">'
             f'<Position x="{position[0]}" y="{position[1]}" />'
             f"</GuiSettings>"
             f"<Properties>"
             f"<Configuration>{configuration_xml}</Configuration>"
             f'<Annotation DisplayMode="0"><Name /><DefaultAnnotationText /><Left value="False" /></Annotation>'
             f"</Properties>"
-            f'<EngineSettings EngineDll="{dll}" EngineDllEntryPoint="{entry}" />'
+            f'<EngineSettings EngineDll="{escape(binding.engine_dll)}"'
+            f' EngineDllEntryPoint="{escape(binding.engine_entry)}" />'
             f"</Node>"
         )
         return tool_id
@@ -224,7 +203,7 @@ class WorkflowBuilder:
     ) -> int:
         entries = []
         for name, action, rename in actions:
-            rename_attr = f' rename="{escape(rename)}"' if rename else ""
+            rename_attr = f' rename="{escape(rename or name)}"'
             entries.append(
                 f'<SummarizeField field="{escape(name)}" action="{action}"{rename_attr} />'
             )

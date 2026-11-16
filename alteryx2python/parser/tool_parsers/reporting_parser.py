@@ -48,6 +48,7 @@ def parse_report_text_config(raw_config: dict[str, Any]) -> ToolParserResult:
 
 
 def parse_report_table_config(raw_config: dict[str, Any]) -> ToolParserResult:
+    selected = _field_names(child(raw_config, "TableFields"), selected_only=True)
     return ToolParserResult(
         normalized_config={
             "table_mode": text(child(raw_config, "TableMode"), "Basic"),
@@ -55,7 +56,7 @@ def parse_report_table_config(raw_config: dict[str, Any]) -> ToolParserResult:
             "show_header": _bool_attr(child(raw_config, "ShowHeader")),
             "show_bar_graph": _bool_attr(child(raw_config, "ShowBarGraph")),
             "bar_graph_field": text(child(raw_config, "BarGraphField"), ""),
-            "table_fields": _field_names(child(raw_config, "TableFields"), selected_only=True),
+            "table_fields": [] if selected == ["*Unknown"] else selected,
             "pivot_table_fields": _field_names(child(raw_config, "PivotTableFields"), selected_only=True),
             "grouping_fields": _field_names(child(raw_config, "GroupingFields")),
             "pivot_mode": text(child(raw_config, "PivotMode"), ""),

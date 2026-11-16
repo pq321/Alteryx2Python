@@ -1,0 +1,11 @@
+trade_id,trade_date,desk_region,product_code,booking_status,amount_minor
+T004,2026-10-14,EMEA,FX,posted,180
+T001,2026-10-13,APAC,FX,posted,120
+T002,2026-10-13,APAC,Rates,posted,210
+T002,2026-10-13,APAC,Rates,posted,900
+T003,2026-10-13,APAC,FX,posted,150
+T005,2026-10-13,EMEA,FX,posted,100
+T006,2026-10-13,,FX,posted,400
+T007,2026-10-13,APAC,FX,posted,
+T008,2026-10-13,EMEA,FX,declined,200
+T009,2026-10-13,EMEA,Rates,posted,99

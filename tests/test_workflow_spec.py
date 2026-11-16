@@ -173,15 +173,15 @@ def test_legacy_builder_quotes_formula_attributes_and_correct_engine_bindings():
 
     builder = WorkflowBuilder()
     builder.add_formula([('field"quote', "V_WString", "40", '"hello"')])
+    regex = builder.add_regex("field", "(.*)")
+    crosstab = builder.add_crosstab("desk", "product", "value", "Sum")
     root = ET.fromstring(builder.render())
     formula = root.find(".//FormulaField")
     assert (
         formula.get("field") == 'field"quote' and formula.get("expression") == '"hello"'
     )
-    from alteryx2python.workflow_generator import _entry
-
-    assert _entry("RegEx") == "AlteryxRegEx"
-    assert _entry("CrossTab") == "AlteryxCrossTab"
+    assert root.find(f'.//Node[@ToolID="{regex}"]/EngineSettings').get("EngineDllEntryPoint") == "AlteryxRegEx"
+    assert root.find(f'.//Node[@ToolID="{crosstab}"]/EngineSettings').get("EngineDllEntryPoint") == "AlteryxCrossTab"
 
 
 def test_relocation_keeps_relative_input_resource_bound_to_original_directory(tmp_path):

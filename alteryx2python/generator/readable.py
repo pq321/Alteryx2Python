@@ -44,6 +44,53 @@ def _literal(value):
     return ast.parse(repr(value), mode='eval').body
 
 
+def _series_predicate(expression, frame):
+    """Lower scalar predicates with equivalent Series behavior for known dtypes."""
+    from alteryx2python.expressions.ast import BinaryExpression, FieldReference, FunctionExpression, LiteralExpression, UnaryExpression
+
+    fields = {}
+
+    def field_series(field, dtypes):
+        fields[field.name] = fields.get(field.name, dtypes) & dtypes
+        return f'{frame}[{field.name!r}]'
+
+    def lower(value):
+        if isinstance(value, UnaryExpression) and value.operator == '!':
+            operand = lower(value.operand)
+            return f'~{operand}' if operand is not None else None
+        if (isinstance(value, FunctionExpression) and value.name.upper() == 'ISNULL'
+                and len(value.args) == 1 and isinstance(value.args[0], FieldReference)):
+            series = field_series(value.args[0], {'str', 'string', 'int64', 'Int64', 'float64', 'Float64'})
+            return f'{series}.isna()'
+        if not isinstance(value, BinaryExpression):
+            return None
+        if value.operator in {'AND', 'OR'}:
+            left, right = lower(value.left), lower(value.right)
+            operator = '&' if value.operator == 'AND' else '|'
+            return f'({left} {operator} {right})' if left is not None and right is not None else None
+        methods = {'=': 'eq', '==': 'eq', '!=': 'ne', '<': 'lt', '<=': 'le', '>': 'gt', '>=': 'ge'}
+        if (value.operator not in methods or not isinstance(value.left, FieldReference)
+                or not isinstance(value.right, LiteralExpression)):
+            return None
+        literal = value.right.value
+        if isinstance(literal, str) and value.operator in {'=', '==', '!='}:
+            dtypes = {'str', 'string'}
+        elif type(literal) is int and -(2**63) <= literal < 2**63:
+            dtypes = {'int64', 'Int64'}
+        else:
+            return None
+        series = field_series(value.left, dtypes)
+        return f'{series}.{methods[value.operator]}({literal!r}).fillna({value.operator == "!="!r})'
+
+    predicate = lower(expression)
+    if predicate is None or any(not dtypes for dtypes in fields.values()):
+        return None
+    guards = [f'{frame}.columns.is_unique']
+    for name, dtypes in fields.items():
+        guards.extend([f'{name!r} in {frame}', f'str({frame}[{name!r}].dtype) in {tuple(sorted(dtypes))!r}'])
+    return ' and '.join(guards), predicate
+
+
 def workflow_from_dict(value):
     value = deepcopy(value)
     nodes = value.pop('nodes')
@@ -429,9 +476,16 @@ class ReadablePythonGenerator:
         if kind == 'Filter':
             if config.get('unsupported_operator'):
                 raise UnsupportedLowering(f"Simple Filter operator requires a template: {config['unsupported_operator']}")
-            expression = self.expression(self.parameter_expressions.get((node.node_id,('expression',)), parse_expression(config['expression'])))
-            return [f'mask = pd.Series([bool({expression}) for row in {frame}.to_dict("records")], index={frame}.index)',
-                    f'return {frame}.loc[mask].copy(), {frame}.loc[~mask].copy()']
+            parsed = self.parameter_expressions.get((node.node_id, ('expression',)), parse_expression(config['expression']))
+            expression = self.expression(parsed)
+            scalar = f'mask = pd.Series([bool({expression}) for row in {frame}.to_dict("records")], index={frame}.index, dtype=bool)'
+            vector = _series_predicate(parsed, frame)
+            if vector:
+                guard, predicate = vector
+                lines = [f'if {guard}:', f'    mask = {predicate}', 'else:', f'    {scalar}']
+            else:
+                lines = [scalar]
+            return [*lines, f'return {frame}.loc[mask].copy(), {frame}.loc[~mask].copy()']
         if kind == 'BlockUntilDone':
             return [f'return {frame}.copy(), {frame}.copy(), {frame}.copy()']
         if kind in {'MacroBoundaryInput', 'MacroOutput'}:
@@ -504,10 +558,11 @@ class ReadablePythonGenerator:
                 function = self.linker.function(delivery.report_layout)
                 return [f'return {function}({frame}, {config.get("layout_fields", [])!r})']
             if kind == 'PortfolioComposerRender':
-                if config.get('temp_file_type', '').lower() not in {'html', 'htm'} or config.get('batch_mode'):
-                    raise UnsupportedLowering('Only non-batched HTML rendering is supported')
+                try:
+                    filename = delivery.html_render_filename(config)
+                except NotImplementedError as exc:
+                    raise UnsupportedLowering(str(exc)) from exc
                 function = self.linker.function(delivery.render_html)
-                filename = Path(config.get('output_file') or 'report.html').name
                 return [f'{function}({frame}, {config.get("data_field") or "Report"!r}, output_dir / {filename!r})', 'return None']
             if kind == 'Email':
                 if config.get('unsupported_options'):
@@ -577,6 +632,22 @@ class ReadablePythonGenerator:
         )
         possibly_missing_outputs = set()
         order = _topological_order(workflow.nodes, workflow.edges)
+        shared_group_keys = {}
+        for edge in workflow.edges:
+            source, sink = by_id[edge.source_node_id], by_id[edge.target_node_id]
+            if source.tool_type != 'Summarize' or sink.tool_type != 'Sort':
+                continue
+            source_config = source.config.get('normalized', source.config)
+            sink_config = sink.config.get('normalized', sink.config)
+            group_fields = [field for field in source_config.get('summarize_fields', []) if field['action'] == 'GroupBy']
+            groups = [field['field'] for field in group_fields]
+            columns = [field.get('rename') or field['field'] for field in source_config.get('summarize_fields', [])]
+            if (groups and len(columns) == len(set(columns))
+                    and all(not field.get('rename') or field['rename'] == field['field'] for field in group_fields)
+                    and groups == [field['field'] for field in sink_config.get('sort_fields', [])]):
+                key_name = identifier('summary_group_keys_' + source.node_id).upper()
+                self.linker.definitions[key_name] = f'{key_name} = {groups!r}'
+                shared_group_keys.update({source.node_id: key_name, sink.node_id: key_name})
         variables = {}
         native_python_functions = set()
         used_names = {'run_workflow'}
@@ -587,6 +658,8 @@ class ReadablePythonGenerator:
             config = deepcopy(node.config.get('normalized', node.config))
             config.update(node_id=node_id, source_tool_id=node.source_tool_id,
                           expected_output_schema=node.expected_output_schema)
+            if node_id in shared_group_keys:
+                config['_shared_group_keys'] = shared_group_keys[node_id]
             arguments, input_vars, connection_names = {}, {}, {}
             for edge in workflow.edges:
                 if edge.target_node_id != node_id:
