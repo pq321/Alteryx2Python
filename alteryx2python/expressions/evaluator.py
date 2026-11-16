@@ -45,6 +45,12 @@ def evaluate_expression(node, row: dict[str, Any], constants: dict[str, Any] | N
     if isinstance(node, BinaryExpression):
         return _evaluate_binary(node, row, constants)
     if isinstance(node, FunctionExpression):
+        if node.name.upper() in {"DATETIMENOW", "DATETIMETODAY"}:
+            from alteryx2python.runtime.variables import ACTIVE_VARIABLES
+
+            if node.args:
+                raise UnsupportedExpressionError(f"{node.name} takes no arguments")
+            return call_function(node.name, [ACTIVE_VARIABLES.get().get("__as_of__")])
         return call_function(node.name, [evaluate_expression(arg, row, constants) for arg in node.args])
     raise UnsupportedExpressionError("Expression evaluator does not support this node yet")
 

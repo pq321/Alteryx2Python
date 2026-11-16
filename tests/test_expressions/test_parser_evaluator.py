@@ -55,4 +55,4 @@ def test_expression_evaluates_dynamicselect_name_helpers():
 
 def test_expression_rejects_unsupported_functions_explicitly():
     with pytest.raises(UnsupportedExpressionError, match="Unsupported expression function"):
-        eval_expr("DateTimeToday()", {})
+        eval_expr("UnsupportedDemoFunction()", {})

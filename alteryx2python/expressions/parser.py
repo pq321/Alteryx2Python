@@ -12,27 +12,9 @@ from alteryx2python.expressions.errors import UnsupportedExpressionError
 from alteryx2python.expressions.lexer import tokenize
 
 
-SUPPORTED_FUNCTIONS = {
-    "DATETIMEADD",
-    "DATETIMEDIFF",
-    "AVERAGE",
-    "ISNULL",
-    "ISEMPTY",
-    "LEFT",
-    "PADLEFT",
-    "REPLACE",
-    "REGEX_MATCH",
-    "REGEX_REPLACE",
-    "ROUND",
-    "RIGHT",
-    "STARTSWITH",
-    "CONTAINS",
-    "TITLECASE",
-    "TRIM",
-    "TOSTRING",
-    "NULL",
-    "UPPERCASE",
-}
+from alteryx2python.expressions.functions import FUNCTION_REGISTRY
+
+SUPPORTED_FUNCTIONS = frozenset(FUNCTION_REGISTRY)
 
 
 class _ExpressionParser:

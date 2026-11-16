@@ -46,13 +46,52 @@ def xlsx_render_options(config):
     filename = PureWindowsPath(config.get("output_file") or "report.xlsx").name
     field = config.get("data_field") or "Table"
     if (Path(filename).suffix.lower() != ".xlsx" or config.get("temp_file_type", "").lower() not in {"", "xlsx"}
-            or field != "Table" or config.get("show_header") or config.get("show_footer")):
+            or field not in {"Table", "Layout"} or config.get("show_header") or config.get("show_footer")):
         raise NotImplementedError("XLSX Render supports basic table workbooks without a page header or footer")
     group = config.get("group_field") if config.get("batch_mode") else None
     modifier = config.get("filename_modifier") if group else None
     if config.get("batch_mode") and (not group or modifier not in {"Prepend", "ReplacePath"}):
         raise NotImplementedError("Batched XLSX Render requires a group field and Prepend or ReplacePath filename mode")
     return filename, field, group, modifier
+
+
+def xlsx_layout_options(config):
+    mode = config.get("grouping_mode") or "PerRecord"
+    groups = config.get("grouping_fields", [])
+    fields = config.get("layout_fields") or ["Table"]
+    if (mode not in {"PerRecord", "PerGroup"} or (mode == "PerGroup" and not groups)
+            or str(config.get("orientation", "")).lower() not in {"", "v", "vertical"}
+            or config.get("separator", "") not in {"", "Continuous"}
+            or any(field not in {"Table", "Layout"} for field in fields)
+            or config.get("section_name_for_group") or config.get("section_name_for_all_records")):
+        raise NotImplementedError("XLSX Layout supports continuous vertical Table fragments per record or group")
+    return groups if mode == "PerGroup" else [], fields
+
+
+def _xlsx_fragments(cell):
+    fragment = json.loads(cell)
+    return fragment["tables"] if "tables" in fragment else [fragment]
+
+
+def xlsx_report_layout(frame, groups, fields):
+    if "Layout" in groups:
+        raise ValueError("Layout cannot also be a group field")
+    if not groups:
+        result = frame.drop(columns=[field for field in fields if field in frame]).copy()
+        result["Layout"] = [
+            json.dumps({"tables": [table for field in fields for table in _xlsx_fragments(row[field])]})
+            for row in frame.to_dict("records")
+        ]
+    else:
+        records = []
+        for keys, entries in frame.groupby(groups, sort=False, dropna=False):
+            keys = keys if isinstance(keys, tuple) else (keys,)
+            tables = [table for row in entries.to_dict("records")
+                      for field in fields for table in _xlsx_fragments(row[field])]
+            records.append({**dict(zip(groups, keys)), "Layout": json.dumps({"tables": tables})})
+        result = pd.DataFrame(records, columns=[*groups, "Layout"])
+    result.attrs = frame.attrs.copy()
+    return result
 
 
 def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None):
@@ -74,7 +113,7 @@ def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None
             name = prefix + name
         if name.casefold() in outputs:
             raise ValueError(f"Duplicate XLSX Render target: {name}")
-        tables = [json.loads(cell) for cell in rows[data_field]]
+        tables = [table for cell in rows[data_field] for table in _xlsx_fragments(cell)]
         if not tables:
             continue
         columns = tables[0]["columns"]

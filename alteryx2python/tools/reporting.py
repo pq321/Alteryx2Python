@@ -97,12 +97,15 @@ def _report_fragment_tool(
     output_anchor: str = "Output",
 ) -> dict[str, pd.DataFrame]:
     if (context.runtime_config or {}).get("delivery_profile") == "xlsx-table-v1":
-        from alteryx2python.tools.delivery import xlsx_report_table
+        from alteryx2python.tools.delivery import xlsx_layout_options, xlsx_report_layout, xlsx_report_table
 
-        if tool_type != "PortfolioComposerTable" or config.get("table_mode", "Basic") != "Basic" or config.get("show_bar_graph"):
+        if tool_type == "PortfolioComposerLayout":
+            output = xlsx_report_layout(_first_input(inputs), *xlsx_layout_options(config))
+        elif tool_type == "PortfolioComposerTable" and config.get("table_mode", "Basic") == "Basic" and not config.get("show_bar_graph"):
+            output = xlsx_report_table(_first_input(inputs), config.get("table_fields", []),
+                                       config.get("grouping_fields", []), config.get("show_header") is not False)
+        else:
             raise NotImplementedError("XLSX profile requires a Basic reporting table")
-        output = xlsx_report_table(_first_input(inputs), config.get("table_fields", []),
-                                   config.get("grouping_fields", []), config.get("show_header") is not False)
         return _record_report_node(tool_type=tool_type, inputs=inputs, outputs={output_anchor: output},
                                    config=config, context=context)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:

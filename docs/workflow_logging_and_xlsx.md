@@ -52,10 +52,15 @@ canonical runner or a standalone script generated with `--log-event`.
   the template selector or a `|||SheetName$` selector on the input path.
   SQL modification, other path actions and unsupported formats fail with
   their configured mode or file format.
-- To replay a **Date Time Now** tool, supply the same ISO date to both
-  phases with `--as-of 2026-10-13`. If a formula or macro owns date
-  generation, bind its date explicitly in the test copy and use the
-  same date in Designer. The flag applies to Date Time Now nodes.
+- To replay the **Date Time Now** tool or the `DateTimeNow()` and
+  `DateTimeToday()` expressions, supply the same ISO date or datetime to both
+  phases with `--as-of 2026-10-13`. A date alone sets the replay time to midnight.
+  Use the same fixed date in a Designer test copy for native comparison.
+- To relocate an Input Data file, use `--bind-input NODE_ID=PATH` with
+  `run` or `readable`. The binding must keep the configured file format.
+  An existing worksheet selector is retained unless the replacement supplies
+  one. For portable delivery, use a relative path and pass `--input-dir`
+  to the generated script. A bound path takes precedence over file questions.
 - To render Basic reporting tables to XLSX, use `--delivery-profile
   xlsx-table-v1` on `run` and `readable`. Phase One requires
   `--output-dir` alongside the profile. Phase Two takes its output
@@ -63,6 +68,7 @@ canonical runner or a standalone script generated with `--log-event`.
   `Prepend` or `ReplacePath` filenames. With `ReplacePath`, the group
   value supplies an XLSX path and the filename is written under the
   chosen output directory. Duplicate filenames fail before writing.
+  Continuous vertical Layout supports Table fragments per record or per group.
   Chart fragments, page headers and footers, and
   other filename modes require separate templates.
 - For a fixed Output Data sink use `--override-output NODE_ID=PATH`.

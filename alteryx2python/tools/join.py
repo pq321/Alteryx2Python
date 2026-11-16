@@ -9,11 +9,9 @@ from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
 
 
-def _join_field(config: dict[str, Any], connection: str) -> str:
-    for join in config.get("joins", []):
-        if isinstance(join, dict) and str(join.get("connection")) == connection:
-            return str(join.get("field", ""))
-    return ""
+def join_keys(config, connection):
+    return [str(join["field"]) for join in config.get("joins", [])
+            if isinstance(join, dict) and join.get("connection") == connection and join.get("field")]
 
 
 def _prefix_frame(frame: pd.DataFrame, prefix: str) -> pd.DataFrame:
@@ -44,22 +42,11 @@ def _selected_output(joined, select_fields, left_columns, right_columns, order_c
     return result
 
 
-def join_tool(
-    inputs: dict[str, pd.DataFrame],
-    config: dict[str, Any],
-    context: WorkflowContext,
-) -> dict[str, pd.DataFrame]:
-    if "Left" not in inputs or "Right" not in inputs:
-        raise KeyError("Join tool requires Left and Right anchors")
-    left = inputs["Left"]
-    right = inputs["Right"]
-    left_field = _join_field(config, "Left")
-    right_field = _join_field(config, "Right")
-    if not left_field or not right_field:
-        raise ValueError("Join config requires Left and Right join fields")
-    ensure_fields_exist(left, [left_field])
-    ensure_fields_exist(right, [right_field])
-
+def join_frames(left, right, left_keys, right_keys, fields, order_changed, by_position):
+    if not by_position and (not left_keys or len(left_keys) != len(right_keys)):
+        raise ValueError("Join requires equally many Left and Right fields")
+    ensure_fields_exist(left, left_keys)
+    ensure_fields_exist(right, right_keys)
     left_indexed = _prefix_frame(left.reset_index(drop=True), "Left")
     right_indexed = _prefix_frame(right.reset_index(drop=True), "Right")
     left_indexed["__left_index"] = range(len(left))
@@ -67,8 +54,8 @@ def join_tool(
     merged = left_indexed.merge(
         right_indexed,
         how="inner",
-        left_on=f"Left_{left_field}",
-        right_on=f"Right_{right_field}",
+        left_on=["__left_index"] if by_position else [f"Left_{key}" for key in left_keys],
+        right_on=["__right_index"] if by_position else [f"Right_{key}" for key in right_keys],
         sort=True,  # Original engine emits key-sorted groups (native SortInfo).
     )
     left_matched = set(merged["__left_index"].tolist())
@@ -77,16 +64,30 @@ def join_tool(
     left_prefixed = merged[[f"Left_{column}" for column in left.columns]]
     right_prefixed = merged[[f"Right_{column}" for column in right.columns]]
     joined = pd.concat([left_prefixed, right_prefixed], axis=1)
-    select_fields = [field for field in config.get("select_fields", []) if isinstance(field, dict)]
-    if select_fields:
-        output = _selected_output(joined, select_fields, left.columns, right.columns, config.get("order_changed", True))
+    if fields:
+        output = _selected_output(joined, fields, left.columns, right.columns, order_changed)
     else:
         output = joined
-    outputs = {
-        "Join": output.reset_index(drop=True),
-        "Left": left.iloc[[idx for idx in range(len(left)) if idx not in left_matched]].reset_index(drop=True),
-        "Right": right.iloc[[idx for idx in range(len(right)) if idx not in right_matched]].reset_index(drop=True),
-    }
+    return (output.reset_index(drop=True),
+            left.iloc[[idx for idx in range(len(left)) if idx not in left_matched]].reset_index(drop=True),
+            right.iloc[[idx for idx in range(len(right)) if idx not in right_matched]].reset_index(drop=True))
+
+
+def join_tool(
+    inputs: dict[str, pd.DataFrame],
+    config: dict[str, Any],
+    context: WorkflowContext,
+) -> dict[str, pd.DataFrame]:
+    if "Left" not in inputs or "Right" not in inputs:
+        raise KeyError("Join tool requires Left and Right anchors")
+    left, right = inputs["Left"], inputs["Right"]
+    by_position = config.get("join_by_record_pos", False)
+    left_keys = [] if by_position else join_keys(config, "Left")
+    right_keys = [] if by_position else join_keys(config, "Right")
+    fields = [field for field in config.get("select_fields", []) if isinstance(field, dict)]
+    outputs = dict(zip(("Join", "Left", "Right"), join_frames(
+        left, right, left_keys, right_keys, fields, config.get("order_changed", True), by_position
+    )))
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
         tool_type="Join",
@@ -95,8 +96,8 @@ def join_tool(
         outputs=outputs,
         status="success",
         config={
-            "left_field": left_field,
-            "right_field": right_field,
+            "left_field": left_keys[0] if left_keys else "",
+            "right_field": right_keys[0] if right_keys else "",
             "input_schema": {"Left": snapshot_schema(left), "Right": snapshot_schema(right)},
             "output_schema": {anchor: snapshot_schema(frame) for anchor, frame in outputs.items()},
         },

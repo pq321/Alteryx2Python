@@ -47,6 +47,7 @@ def _build_parser() -> argparse.ArgumentParser:
                           help='Keep named parameters, or freeze current answers before native compilation')
     readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
     readable.add_argument('--log-event', action='append', default=[], metavar='ID')
+    readable.add_argument('--bind-input', action='append', default=[], metavar='NODE_ID=PATH')
     readable.set_defaults(func=_readable_command)
     benchmark = subparsers.add_parser('benchmark', help='Build or verify the deterministic two-phase benchmark')
     benchmark.add_argument('action', choices=['build', 'run', 'inventory'])
@@ -100,6 +101,8 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--workflow-log", type=Path)
     run_parser.add_argument("--workflow-log-columns", type=Path)
     run_parser.add_argument("--as-of", help="ISO date/time override for Date Time Now tools")
+    run_parser.add_argument("--input-dir", type=Path)
+    run_parser.add_argument("--bind-input", action="append", default=[], metavar="NODE_ID=PATH")
     run_parser.add_argument("--delivery-profile", choices=["xlsx-table-v1"])
     run_parser.add_argument("--output-dir", type=Path)
     run_parser.set_defaults(func=_run_command)
@@ -351,6 +354,12 @@ def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     runtime = {"answers": _read_answers(args.answers)} if args.answers else {"skip_app_configuration": True} if args.data_slice else {}
     if args.as_of is not None:
         runtime["as_of"] = args.as_of
+    if args.input_dir is not None:
+        runtime["input_dir"] = args.input_dir.resolve()
+    if args.bind_input:
+        from alteryx2python.input_bindings import parse_input_bindings
+
+        runtime["input_bindings"] = parse_input_bindings(args.bind_input)
     if args.delivery_profile or args.output_dir:
         if not args.delivery_profile or args.output_dir is None:
             raise ValueError("--delivery-profile and --output-dir must be used together")
@@ -901,6 +910,7 @@ def _command_error_report(
 
 def _readable_command(args):
     from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one, workflow_from_dict
+    from alteryx2python.input_bindings import parse_input_bindings
     source = Path(args.source)
     if source.suffix.lower() == '.py':
         workflow = read_phase_one(source)
@@ -911,7 +921,8 @@ def _readable_command(args):
     answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
     constants = json.loads(Path(args.constants).read_text(encoding='utf-8-sig')) if args.constants else None
     artifact = ReadablePythonGenerator().generate(workflow, answers=answers, constants=constants,
-        parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile, log_event_ids=args.log_event)
+        parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile, log_event_ids=args.log_event,
+        input_bindings=parse_input_bindings(args.bind_input))
     paths = artifact.write(args.output)
     return {'status': 'generated', 'phase': 2, 'files': [str(path.resolve()) for path in paths],
             'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0

@@ -29,7 +29,7 @@ SOURCE_TEMPLATES = frozenset({
 })
 SPECIAL_TEMPLATES = frozenset({'Formula', 'Filter', 'BlockUntilDone', 'ToolContainer',
     'GenerateRows', 'MultiFieldFormula', 'MultiRowFormula',
-    'TextBox', 'HtmlBox', 'BrowseV2', 'RunCommand', 'Email', 'PortfolioComposerText',
+    'TextBox', 'HtmlBox', 'BrowseV2', 'Message', 'RunCommand', 'Email', 'PortfolioComposerText',
     'PortfolioComposerTable', 'PortfolioComposerLayout', 'PortfolioComposerRender',
     'MacroBoundaryInput', 'MacroOutput', 'MacroResult', 'ControlContainer', 'JupyterCode', 'WaitASecond', 'WaitSeconds'})
 
@@ -207,6 +207,10 @@ class ReadablePythonGenerator:
             if function is None:
                 raise UnsupportedLowering(f'Unknown expression function: {expression.name}')
             name = self.linker.function(function)
+            if expression.name.upper() in {'DATETIMENOW', 'DATETIMETODAY'}:
+                if expression.args:
+                    raise UnsupportedLowering(f'{expression.name} takes no arguments')
+                return f'{name}(as_of)'
             return f'{name}(' + ', '.join(self.expression(arg) for arg in expression.args) + ')'
         if isinstance(expression, BinaryExpression):
             left, right = self.expression(expression.left), self.expression(expression.right)
@@ -316,6 +320,30 @@ class ReadablePythonGenerator:
             self.linker.imports.add('import time')
             return [f'time.sleep({seconds!r})', f'return {next(iter(arguments.values()))}.copy()']
         frame = next(iter(arguments.values()), None)
+        if kind == 'Message':
+            when = (config.get('when') or 'First').lower()
+            severity = (config.get('type') or 'Message').lower()
+            if frame is None or when not in {'first', 'last', 'filter', 'all'} or severity not in {'message', 'warning', 'error'}:
+                raise UnsupportedLowering(f'Unsupported Message configuration: {when}/{severity}')
+            expression = self.expression(parse_expression(config['message_expression']))
+            if severity == 'error':
+                emit = f'raise ValueError(str({expression}))'
+            elif severity == 'warning':
+                self.linker.imports.add('import warnings')
+                emit = f'warnings.warn(str({expression}), RuntimeWarning)'
+            else:
+                self.linker.imports.add('import logging')
+                emit = f'logging.getLogger("alteryx.message").info(str({expression}))'
+            if when == 'all':
+                return ['def emit():', '    row = {}', f'    {emit}',
+                        'deferred_messages.append(emit)', f'return {frame}.copy()']
+            if when == 'filter':
+                predicate = self.expression(parse_expression(config['filter']))
+                rows = f'[row for row in {frame}.to_dict("records") if {predicate}]'
+            else:
+                take = 'head' if when == 'first' else 'tail'
+                rows = f'{frame}.{take}(1).to_dict("records") or [{{}}]'
+            return [f'for row in {rows}:', f'    {emit}', f'return {frame}.copy()']
         if kind == 'GenerateRows':
             from alteryx2python.tools.generaterows import _strip_comments
             field = config.get('update_field_name') if config.get('update_field') else config.get('create_field_name')
@@ -428,6 +456,13 @@ class ReadablePythonGenerator:
                     f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands)']
         if kind.startswith('PortfolioComposer') or kind == 'Email':
             if self.profile == delivery.XLSX_PROFILE:
+                if kind == 'PortfolioComposerLayout':
+                    try:
+                        groups, fields = delivery.xlsx_layout_options(config)
+                    except NotImplementedError as exc:
+                        raise UnsupportedLowering(str(exc)) from exc
+                    function = self.linker.function(delivery.xlsx_report_layout)
+                    return [f'return {function}({frame}, {groups!r}, {fields!r})']
                 if kind == 'PortfolioComposerTable':
                     if config.get('table_mode', 'Basic') != 'Basic' or config.get('show_bar_graph'):
                         raise UnsupportedLowering('XLSX profile requires a Basic reporting table')
@@ -475,7 +510,7 @@ class ReadablePythonGenerator:
                         f'{config.get("body") or "Report"!r}, {attachments}{destination})', 'return None']
         raise UnsupportedLowering(f'No deterministic template for {kind}')
 
-    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None, log_event_ids=()):
+    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None, log_event_ids=(), input_bindings=None):
         # Generator instances are reusable without leaking previous helpers/configuration.
         self.__init__()
         self.profile = delivery_profile
@@ -492,9 +527,17 @@ class ReadablePythonGenerator:
             raise ValueError(f'Unknown parameter mode: {parameter_mode}')
         from alteryx2python.runtime.variables import bind_workflow_variables
         prepared = bind_workflow_variables(prepared, constants)
+        if input_bindings:
+            from alteryx2python.input_bindings import apply_input_bindings
+
+            apply_input_bindings(prepared, input_bindings)
+            prepared.metadata['parameter_bindings'] = [
+                item for item in prepared.metadata.get('parameter_bindings', [])
+                if item['kind'] != 'file' or item['node_id'] not in input_bindings
+            ]
         reserved_parameters = {'input_dir', 'output_dir', 'allowed_commands', 'event_working_dir', 'command_working_dir',
             'checkpoints', 'config', 'inputs', 'context', 'pd', 'math', 'warnings', 're', 'html', 'os', 'hashlib', 'mimetypes', 'shlex', 'shutil',
-            'subprocess', 'argparse', 'logging', 'log_run', 'workflow_error', 'workflow_log', 'as_of',
+            'subprocess', 'argparse', 'logging', 'log_run', 'workflow_error', 'workflow_log', 'as_of', 'deferred_messages',
             'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings'}
         import builtins
         reserved_parameters.update(dir(builtins))
@@ -514,6 +557,7 @@ class ReadablePythonGenerator:
             if node.metadata.get('disabled_parameter'):
                 node.config.get('normalized', node.config)['disabled'] = False
         by_id = {node.node_id: node for node in workflow.nodes}
+        has_messages = any(node.tool_type == 'Message' for node in workflow.nodes)
         order = _topological_order(workflow.nodes, workflow.edges)
         variables = {}
         native_python_functions = set()
@@ -569,10 +613,20 @@ class ReadablePythonGenerator:
                 metadata = TOOL_REGISTRY.get(node.tool_type) if node.tool_type not in {'MacroResult', 'MacroBoundaryInput'} else None
                 outputs = tuple(anchor.name for anchor in node.output_anchors) if node.tool_type in {'MacroResult', 'ControlContainer', 'DateTimeNow'} else (
                     ('Output',) if node.tool_type == 'MacroBoundaryInput' else metadata.output_anchors)
-                runtime_arguments = (['as_of'] if node.tool_type == 'DateTimeNow' else
+                runtime_arguments = (['as_of'] if node.tool_type in {'DateTimeNow', 'Formula', 'Filter', 'GenerateRows', 'MultiFieldFormula', 'MultiRowFormula', 'Message'} else
                     ['input_dir'] if node.tool_type in {'DbFileInput', 'DynamicInput'} else
                     ['input_dir', 'command_working_dir', 'allowed_commands'] if node.tool_type == 'RunCommand' else
                     ['output_dir'] if node.tool_type in {'DbFileOutput', 'Email', 'PortfolioComposerRender'} else [])
+                if node.tool_type == 'Message':
+                    parent = node.config.get('container_id')
+                    while parent:
+                        container = by_id[parent]
+                        if container.tool_type == 'ControlContainer' and any(
+                            edge.source_node_id == parent and edge.source_anchor == 'Log' for edge in workflow.edges
+                        ):
+                            raise UnsupportedLowering('Message in a connected Control Container log requires a dedicated template')
+                        parent = container.config.get('container_id')
+                    runtime_arguments.append('deferred_messages')
                 parameter_names = set()
                 def collect_parameters(value):
                     from dataclasses import fields, is_dataclass
@@ -729,6 +783,9 @@ class ReadablePythonGenerator:
         pipeline += '    input_dir = Path(input_dir or Path(__file__).resolve().parent).resolve()\n'
         pipeline += '    output_dir = Path(output_dir or Path(__file__).resolve().parent / "output").resolve()\n'
         pipeline += '    output_dir.mkdir(parents=True, exist_ok=True)\n'
+        if has_messages:
+            pipeline += '    deferred_messages = []\n'
+            calls.extend(['    for emit in deferred_messages:', '        emit()'])
         for item in self.parameters:
             name = item['python_name']
             from alteryx2python.generator.parameters import validation_lines
@@ -842,6 +899,7 @@ class ReadablePythonGenerator:
                '    parser.add_argument("--workflow-log-columns", type=Path)\n' if has_log else '')
             + ''.join(f'    parser.add_argument("--{item["python_name"].replace("_","-")}", type={"float" if item["kind"] == "NumericUpDown" else "str"}, default={item["default"]!r})\n' for item in self.parameters)
             + '    args = parser.parse_args()\n'
+            + ('    import logging\n    logging.basicConfig(level=logging.INFO)\n' if has_messages else '')
             + (f'    {log_config}(args.workflow_log, args.workflow_log_columns)\n' if has_log else '')
             + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of'
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
@@ -869,6 +927,8 @@ class ReadablePythonGenerator:
             'native_equivalence': 'unverified', 'python_differential': 'unverified',
             'helper_sha256': self.linker.digests, 'nodes': self.mapping}
         manifest['events'] = events
+        if input_bindings:
+            manifest['input_bindings'] = input_bindings
         manifest['workflow_constants'] = prepared.metadata.get('workflow_constants', {})
         manifest['parameters'] = self.parameters
         manifest['verification_sha256'] = hashlib.sha256(verification_source.encode()).hexdigest()

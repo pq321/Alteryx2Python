@@ -10,9 +10,10 @@ def parse_join_config(raw_config: dict[str, Any]) -> ToolParserResult:
     joins = [
         {
             "connection": attributes(join_info).get("connection", ""),
-            "field": attributes(child(join_info, "Field")).get("field", ""),
+            "field": attributes(field).get("field", ""),
         }
         for join_info in join_info_nodes
+        for field in as_list(child(join_info, "Field"))
     ]
     select_config_node = child(raw_config, "SelectConfiguration")
     select_config = child(select_config_node, "Configuration")

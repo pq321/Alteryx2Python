@@ -48,7 +48,7 @@ def test_formula_rejects_unsupported_expression(workflow_context):
     with pytest.raises(UnsupportedExpressionError, match="Unsupported expression function"):
         formula_tool(
             {"Input": pd.DataFrame({"x": [1]})},
-            {"formula_fields": [{"field": "today", "expression": "DateTimeToday()"}]},
+            {"formula_fields": [{"field": "today", "expression": "UnsupportedDemoFunction()"}]},
             workflow_context,
         )
 

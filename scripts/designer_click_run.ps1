@@ -746,7 +746,10 @@ function Run-Case($Case) {
     foreach ($path in $Case.artifacts) {
         if (Test-Path -LiteralPath $path) { throw "Output already exists. Use a fresh run: $path" }
     }
-    if ($Case.app) { return Run-NumericApp $Case }
+    if ($Case.app) {
+        if (-not $script:sessionId) { Start-DesignerSession }
+        return Run-NumericApp $Case
+    }
     $name = [IO.Path]::GetFileName($Case.path)
     Open-WorkflowInSession $Case.path
     $handle = $script:sessionHandle
@@ -793,16 +796,20 @@ function Invoke-DesignerBatch {
         $existing = @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object {
             $_.MainWindowHandle -ne 0 -and (Test-Designer2025_1 $_.Path)
         })
-        $blank = @($existing | Where-Object MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$')
+        $blank = @($existing | Where-Object {
+            $_.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$' -and
+                [DesignerMouse]::IsWindowEnabled($_.MainWindowHandle)
+        })
         if ($blank.Count -eq 1) { $DesignerProcessId = $blank[0].Id }
-        elseif ($existing.Count) { throw 'Use -DesignerProcessId to select a single Designer window with a blank workflow tab.' }
+        elseif ($blank.Count -gt 1) { throw 'Use -DesignerProcessId to select a single Designer window with a blank workflow tab.' }
     }
     if ($DesignerProcessId) {
         $initial = Get-Process -Id $DesignerProcessId
         if ($initial.ProcessName -ne 'AlteryxGui' -or $initial.MainWindowHandle -eq 0 -or
             $initial.MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
+            -not [DesignerMouse]::IsWindowEnabled($initial.MainWindowHandle) -or
             -not (Test-Designer2025_1 $initial.Path)) {
-            throw 'Choose an existing Designer 2025.1 window with a blank workflow tab.'
+            throw 'Choose an existing Designer 2025.1 window with a blank workflow tab and no open dialog.'
         }
         $script:sessionId = $initial.Id
         $script:sessionHandle = $initial.MainWindowHandle

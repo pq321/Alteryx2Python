@@ -24,24 +24,16 @@ def lower_relational(compiler, kind, config, arguments):
             raise UnsupportedLowering(f'Unsupported Union mode: {mode}')
         return lines + ['combined = pd.concat(aligned, ignore_index=True)', 'return combined.astype(object).where(pd.notna(combined), None)']
     if kind == 'Join':
-        from alteryx2python.tools.join import _join_field
+        from alteryx2python.tools.join import join_frames, join_keys
         left, right = arguments['Left'], arguments['Right']
-        left_key, right_key = _join_field(config, 'Left'), _join_field(config, 'Right')
-        if not left_key or not right_key:
-            raise UnsupportedLowering('Join requires both join keys')
-        lines = [f'left = {left}.reset_index(drop=True).add_prefix("Left_")',
-                 f'right = {right}.reset_index(drop=True).add_prefix("Right_")',
-                 f'left["__left_index"] = range(len({left}))', f'right["__right_index"] = range(len({right}))',
-                 f'merged = left.merge(right, how="inner", left_on={"Left_" + left_key!r}, right_on={"Right_" + right_key!r}, sort=True)',
-                 f'joined = pd.concat([merged[["Left_" + column for column in {left}.columns]], merged[["Right_" + column for column in {right}.columns]]], axis=1)']
-        fields = config.get('select_fields', [])
-        if fields:
-            selected = {str(field.get('rename', field.get('source', ''))): str(field.get('source', '')) for field in fields if field.get('selected', True) and field.get('source') != '*Unknown'}
-            mapping = '{' + ', '.join(f'{name!r}: joined[{source!r}]' for name, source in selected.items()) + '}'
-            lines += [f'joined = pd.DataFrame({mapping}, index=joined.index)']
-        return lines + [f'unmatched_left = {left}.iloc[[index for index in range(len({left})) if index not in set(merged["__left_index"])]].reset_index(drop=True)',
-                        f'unmatched_right = {right}.iloc[[index for index in range(len({right})) if index not in set(merged["__right_index"])]].reset_index(drop=True)',
-                        'return joined.reset_index(drop=True), unmatched_left, unmatched_right']
+        by_position = config.get('join_by_record_pos', False)
+        left_keys = [] if by_position else join_keys(config, 'Left')
+        right_keys = [] if by_position else join_keys(config, 'Right')
+        if not by_position and (not left_keys or len(left_keys) != len(right_keys)):
+            raise UnsupportedLowering('Join requires equally many Left and Right fields')
+        function = compiler.linker.function(join_frames)
+        return [f'return {function}({left}, {right}, {left_keys!r}, {right_keys!r}, '
+                f'{config.get("select_fields", [])!r}, {config.get("order_changed", True)!r}, {by_position!r})']
     if kind == 'AppendFields':
         targets, source = arguments['Targets'], arguments['Source']
         lines = []

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import ntpath
 from datetime import datetime, timedelta
 from typing import Any
 
@@ -119,6 +120,35 @@ def _datetime_diff(end_value: Any, start_value: Any, unit: Any) -> int | None:
     raise UnsupportedExpressionError(f"Unsupported DateTimeDiff unit: {unit}")
 
 
+def _datetime_format(value, pattern):
+    return None if pd.isna(value) else pd.Timestamp(value).strftime(str(pattern))
+
+
+def _datetime_now(as_of=None):
+    moment = datetime.fromisoformat(as_of) if isinstance(as_of, str) else as_of or datetime.now()
+    return moment.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _datetime_today(as_of=None):
+    return _datetime_now(as_of)[:10]
+
+
+def _file_directory(path):
+    return None if pd.isna(path) else ntpath.dirname(str(path))
+
+
+def _file_extension(path):
+    return None if pd.isna(path) else ntpath.splitext(str(path))[1]
+
+
+def _file_name(path):
+    return None if pd.isna(path) else ntpath.splitext(ntpath.basename(str(path)))[0]
+
+
+def _file_join(directory, name):
+    return None if pd.isna(directory) or pd.isna(name) else ntpath.join(str(directory), str(name))
+
+
 def _average(*values: Any) -> float | None:
     numeric_values = [float(value) for value in values if value is not None and not bool(pd.isna(value))]
     if not numeric_values:
@@ -141,6 +171,13 @@ FUNCTION_REGISTRY = {
     "CONTAINS": _contains,
     "DATETIMEADD": _datetime_add,
     "DATETIMEDIFF": _datetime_diff,
+    "DATETIMEFORMAT": _datetime_format,
+    "DATETIMENOW": _datetime_now,
+    "DATETIMETODAY": _datetime_today,
+    "FILEGETDIR": _file_directory,
+    "FILEGETEXT": _file_extension,
+    "FILEGETFILENAME": _file_name,
+    "FILEADDPATHS": _file_join,
     "AVERAGE": _average,
     "ISEMPTY": _is_empty,
     "ISNULL": _is_null,

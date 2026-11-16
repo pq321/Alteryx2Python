@@ -53,17 +53,22 @@ def run_workflow_graph(
     from alteryx2python.runtime.variables import workflow_variables, variable_scope, bind_workflow_variables
     from alteryx2python.runtime.app_config import prepare_workflow
     from xml.etree import ElementTree as ET
-    runtime = context.runtime_config or {}
+    runtime = dict(context.runtime_config or {})
+    input_bindings = runtime.pop("input_bindings", {})
     with variable_scope(workflow_variables(workflow, runtime.get('constants'))):
         if workflow.source_xml and not workflow.metadata.get('configuration_applied') and not runtime.get('skip_app_configuration'):
             root = ET.fromstring(workflow.source_xml)
             if root.find('./Properties/RuntimeProperties/Questions') is not None or root.find('./Properties/RuntimeProperties/Actions') is not None:
                 workflow = prepare_workflow(workflow, runtime.get('answers'))
         workflow = bind_workflow_variables(workflow, runtime.get('constants'))
+        if input_bindings:
+            from alteryx2python.input_bindings import apply_input_bindings
+
+            apply_input_bindings(workflow, input_bindings)
         original_runtime = context.runtime_config
         context.runtime_config = {**runtime, 'workflow_constants': workflow.metadata['workflow_constants']}
         try:
-            with variable_scope(workflow.metadata['workflow_constants']):
+            with variable_scope({**workflow.metadata['workflow_constants'], "__as_of__": runtime.get("as_of")}):
                 return _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids)
         finally:
             context.runtime_config = original_runtime

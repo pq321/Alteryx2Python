@@ -89,7 +89,7 @@ def _input(config: dict, raw: str, selector: str | None) -> list[str]:
         raise UnsupportedLowering(f"Unsupported DbFileInput FileFormat: {file_format or suffix}")
     header = _header_row(config)
     skiprows, limit = max(_import_line(config) - 1, 0), _record_limit(config)
-    path = _portable_input(raw, config.get("base_dir"))
+    path = _path(raw).as_posix() if config.get("explicit_input_binding") else _portable_input(raw, config.get("base_dir"))
     lines = [f"path = input_dir / {path!r}"]
     if config.get('_file_parameter'):
         parameter = config['_file_parameter']

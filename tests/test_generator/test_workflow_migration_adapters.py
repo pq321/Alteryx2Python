@@ -90,13 +90,19 @@ def test_dynamic_input_grouped_workbook_delivery(tmp_path, modifier):
         <TableMode>Basic</TableMode><GroupingFields><Field name="Region" /></GroupingFields>
         <TableFields><Field name="Value" /></TableFields>
     """, (400, 100))
+    layout = builder._node("PortfolioComposerLayout", """
+        <GroupingMode>PerGroup</GroupingMode><GroupingFields><Field name="Region" /></GroupingFields>
+        <Orientation>V</Orientation><Separator>Continuous</Separator>
+        <LayoutFields><Field name="Table" /></LayoutFields>
+    """, (500, 100))
     render = builder._node("PortfolioComposerRender", f"""
         <OutputFile>nested/report.xlsx</OutputFile><BatchMode value="True" />
-        <GroupField>Region</GroupField><FilenameModifier>{modifier}</FilenameModifier><DataField>Table</DataField>
+        <GroupField>Region</GroupField><FilenameModifier>{modifier}</FilenameModifier><DataField>Layout</DataField>
     """, (600, 100))
     builder.connect(paths, dynamic)
     builder.connect(dynamic, table)
-    builder.connect(table, render)
+    builder.connect(table, layout)
+    builder.connect(layout, render)
     workflow = save_workflow(builder, tmp_path)
     phase_one = tmp_path / "phase-one"
     run_workflow_graph(workflow, WorkflowContext({"delivery_profile": "xlsx-table-v1", "output_dir": phase_one}))
@@ -177,3 +183,82 @@ def test_as_of_replays_date_time_now(tmp_path):
                     "--output-dir", str(tmp_path / "delivery")], check=True)
     assert (tmp_path / "dated.csv").read_bytes() == (tmp_path / "delivery" / "dated.csv").read_bytes()
     assert (tmp_path / "dated.csv").read_text().splitlines() == ["DateTimeNow", "2026-10-13"]
+
+
+def test_formula_date_and_message_use_replay_clock(tmp_path):
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["path"], [[r"C:\Inbox\Report.xlsx"]])
+    formula = builder.add_formula([
+        ("DayKey", "V_WString", "32", 'DateTimeFormat(DateTimeToday(), "%Y%m%d")'),
+        ("Name", "V_WString", "32", "FileGetFileName([path])"),
+    ])
+    message = builder._node("Message", """
+        <When>Filter</When><Filter>[DayKey]='20261013'</Filter><Type>Warning</Type>
+        <MessageExpression>[Name]</MessageExpression>
+    """, (500, 100))
+    sink = builder.add_csv_output("dated.csv")
+    for left, right in [(source, formula), (formula, message), (message, sink)]:
+        builder.connect(left, right)
+    workflow = save_workflow(builder, tmp_path)
+    context = WorkflowContext({"as_of": "2026-10-13"})
+    run_workflow_graph(workflow, context)
+    assert context.warnings == ["Report"]
+    script = tmp_path / "phase_two.py"
+    ReadablePythonGenerator().generate(workflow).write(script)
+    process = subprocess.run([sys.executable, "-I", str(script), "--as-of", "2026-10-13",
+                              "--output-dir", str(tmp_path / "delivery")], capture_output=True, check=True)
+    assert b"RuntimeWarning: Report" in process.stderr
+    assert (tmp_path / "dated.csv").read_bytes() == (tmp_path / "delivery" / "dated.csv").read_bytes()
+
+
+def test_bound_excel_input_and_composite_join_in_both_phases(tmp_path):
+    pd.DataFrame({"Key": [1, 1, 2], "Account": ["a", "b", "a"]}).to_excel(
+        tmp_path / "local.xlsx", index=False, sheet_name="Data"
+    )
+    builder = WorkflowBuilder()
+    left = builder._node("DbFileInput", '<File FileFormat="25">C:/legacy/original.xlsx|||Data$</File>', (50, 100))
+    right = builder.add_text_input(["ID", "Code", "Score"], [[1, "b", 9], [2, "q", 7]])
+    join = builder._node("Join", """
+        <JoinInfo connection="Left"><Field field="Key" /><Field field="Account" /></JoinInfo>
+        <JoinInfo connection="Right"><Field field="ID" /><Field field="Code" /></JoinInfo>
+        <SelectConfiguration><Configuration>
+        <OrderChanged value="True"/><SelectFields><SelectField field="Right_Score" rename="Score"/>
+        <SelectField field="Left_Key" selected="False"/><SelectField field="*Unknown" selected="True"/>
+        </SelectFields></Configuration></SelectConfiguration>
+    """, (400, 100))
+    builder.connect(left, join, target_anchor="Left")
+    builder.connect(right, join, target_anchor="Right")
+    workflow = save_workflow(builder, tmp_path)
+    bindings = {str(left): "local.xlsx"}
+    first = run_workflow_graph(workflow, WorkflowContext({"input_bindings": bindings, "input_dir": tmp_path}))
+    second = {}
+    artifact = ReadablePythonGenerator().generate(workflow, input_bindings=bindings)
+    scope = {}
+    exec(artifact.verification_source, scope)
+    scope["run_workflow"](input_dir=tmp_path, output_dir=tmp_path / "delivery", checkpoints=second)
+    for name, frame in first.node_results[str(join)].outputs.items():
+        pd.testing.assert_frame_equal(frame, second[str(join)][name])
+    assert first.node_results[str(join)].outputs["Join"]["Score"].tolist() == [9]
+    with pytest.raises(ValueError, match="changes the configured file format"):
+        ReadablePythonGenerator().generate(workflow, input_bindings={str(left): "local.csv"})
+
+
+def test_deferred_message_error_runs_after_file_sink(tmp_path):
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["value"], [[1]])
+    message = builder._node("Message", """
+        <When>All</When><Type>Error</Type><MessageExpression>"deferred problem"</MessageExpression>
+    """, (300, 100))
+    sink = builder.add_csv_output("result.csv")
+    builder.connect(source, message)
+    builder.connect(message, sink)
+    workflow = save_workflow(builder, tmp_path)
+    with pytest.raises(ValueError, match="deferred problem"):
+        run_workflow_graph(workflow, WorkflowContext())
+    script = tmp_path / "phase_two.py"
+    ReadablePythonGenerator().generate(workflow).write(script)
+    result = subprocess.run([sys.executable, "-I", str(script), "--output-dir", str(tmp_path / "delivery")],
+                            capture_output=True)
+    assert result.returncode != 0
+    assert b"deferred problem" in result.stderr
+    assert (tmp_path / "result.csv").read_bytes() == (tmp_path / "delivery" / "result.csv").read_bytes()
