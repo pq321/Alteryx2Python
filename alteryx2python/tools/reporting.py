@@ -246,8 +246,8 @@ def portfoliocomposerrender_tool(
         from pathlib import Path
         from alteryx2python.tools.delivery import render_xlsx_tables, xlsx_render_options
 
-        filename, field, group = xlsx_render_options(config)
-        render_xlsx_tables(_first_input(inputs), Path(context.runtime_config["output_dir"]) / filename, field, group)
+        filename, field, group, modifier = xlsx_render_options(config)
+        render_xlsx_tables(_first_input(inputs), Path(context.runtime_config["output_dir"]) / filename, field, group, modifier)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from pathlib import Path
         from alteryx2python.tools.delivery import render_html

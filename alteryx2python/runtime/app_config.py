@@ -231,6 +231,63 @@ def _destination(root, path):
     return targets, attribute
 
 
+def _apply_dynamic_action(root, action, values):
+    import re
+
+    action_id = _value(action, "ToolId")
+    mapping = _value(action, "Mapping")
+    path = _value(action, "Destination")
+    destinations = {
+        "Update Cell": (r"Data/r\[\d+\]/c\[\d+\]", "TextInput"),
+        "Update Detour Direction from Question": (r"DetourRight/@value", "Detour"),
+        "Enable/Disable Container": (r"Disabled/@value", "ToolContainer"),
+        "Enable/Disable Container from Question": (r"Disabled/@value", "ToolContainer"),
+        "Enable/Disable Control Container": (r"Disabled/@value", "ControlContainer"),
+        "Enable/Disable Control Container from Question": (r"Disabled/@value", "ControlContainer"),
+        "Update Sort Order": (r"SortInfo/Field(?:\[\d+\])?/@order", "Sort"),
+        "Update Directory with Folder Browse": (r"Directory", "Directory"),
+    }
+    if mapping not in destinations or _value(action, "Mode") != "Expression":
+        raise ToolUnavailableError(f"Unsupported Dynamic Action #{action_id}: {mapping!r} ({_value(action, 'Mode')!r})")
+    target_id, _, location = path.partition("/")
+    pattern, tool = destinations[mapping]
+    gui = root.find(f".//Node[@ToolID='{target_id}']/GuiSettings") if target_id.isdigit() else None
+    if gui is None or gui.get("Plugin", "").split(".")[-1] != tool or not re.fullmatch(pattern, location):
+        raise ToolUnavailableError(f"Dynamic Action #{action_id} {mapping!r} has unsupported destination: {path}")
+
+    expression = _value(action, "Expression").strip()
+    if "{{INPUT}}" in expression:
+        question_names = {item.node_id: item.name for item in question_manifest(root)}
+        linked = []
+        for connection in root.findall("./Connections/Connection"):
+            source, destination = connection.find("Origin"), connection.find("Destination")
+            if (source is not None and destination is not None and destination.get("ToolID") == action_id
+                    and destination.get("Connection") == "Question" and source.get("Connection") == "Question"):
+                linked.append(question_names.get(source.get("ToolID")))
+        if len(linked) != 1 or linked[0] not in values:
+            raise ToolUnavailableError(f"Dynamic Action #{action_id} requires one bound Question connection")
+        incoming = values[linked[0]]
+        value = incoming if expression == "{{INPUT}}" else _expression(
+            expression.replace("{{INPUT}}", "[__action_input__]"), {**values, "__action_input__": incoming}
+        )
+    else:
+        value = _expression(expression, values)
+    replacement = _serialize(value)
+    if location in {"Disabled/@value", "DetourRight/@value"}:
+        if replacement.lower() not in {"true", "false", "1", "0"}:
+            raise ValueError(f"Dynamic Action #{action_id} requires a boolean result")
+        replacement = _serialize(replacement.lower() in {"true", "1"})
+    if mapping == "Update Sort Order" and replacement not in {"Ascending", "Descending"}:
+        raise ValueError(f"Dynamic Action #{action_id} requires Ascending or Descending")
+    targets, attribute = _destination(root, path)
+    if len(targets) != 1:
+        raise ToolUnavailableError(f"Dynamic Action #{action_id} must target one configuration value: {path}")
+    if attribute:
+        targets[0].set(attribute, replacement)
+    else:
+        targets[0].text = replacement
+
+
 def apply_actions(root, values):
     out = deepcopy(root)
     actions = out.find("./Properties/RuntimeProperties/Actions")
@@ -239,6 +296,9 @@ def apply_actions(root, values):
 
     def apply(action):
         mode = _value(action, "Type")
+        if mode == "Dynamic":
+            _apply_dynamic_action(out, action, values)
+            return
         if mode == "Error":
             if bool(_expression(_value(action, "Expression"), values)):
                 raise ValueError(_value(action, "Description", "App validation failed"))

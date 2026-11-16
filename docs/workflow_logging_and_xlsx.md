@@ -28,9 +28,22 @@ stderr. Existing command events retain their command behavior and allowlist.
 Set the optional `ALTERYX_LOG_SERVER` environment variable to label a server
 or deployment region in the record.
 
-The new record format is intended for Python consumers. A downstream system
-that reads the old shared CSV needs an integration test against its actual
-schema and writing rules.
+## Append to a CSV log
+
+Pass `--workflow-log-columns columns.json` alongside `--workflow-log`
+to append CSV rows in an explicit column order. The file contains a JSON
+array of record field names. For example:
+
+```json
+["server", "workflow", "user", "computer_name", "working_dir",
+ "error_count", "conversion_error_count", "warning_count"]
+```
+
+This is the wrapper's visible field order. Verify the actual shared CSV
+header, field order, encoding and append contract with a local copy. The
+Python logger leaves existing headers intact and appends data rows. Counts
+that are unavailable are empty in CSV. The same options work for the
+canonical runner or a standalone script generated with `--log-event`.
 
 ## Reproduce file-backed cases
 
@@ -47,7 +60,10 @@ schema and writing rules.
   xlsx-table-v1` on `run` and `readable`. Phase One requires
   `--output-dir` alongside the profile. Phase Two takes its output
   directory at execution. Batched Render supports one group field and
-  `Prepend` filenames. Chart fragments, page headers and footers, and
+  `Prepend` or `ReplacePath` filenames. With `ReplacePath`, the group
+  value supplies an XLSX path and the filename is written under the
+  chosen output directory. Duplicate filenames fail before writing.
+  Chart fragments, page headers and footers, and
   other filename modes require separate templates.
 - For a fixed Output Data sink use `--override-output NODE_ID=PATH`.
   An existing workbook sheet selector is retained unless the override

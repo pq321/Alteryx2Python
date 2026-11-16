@@ -98,6 +98,7 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--log")
     run_parser.add_argument("--log-event", action="append", default=[], metavar="ID")
     run_parser.add_argument("--workflow-log", type=Path)
+    run_parser.add_argument("--workflow-log-columns", type=Path)
     run_parser.add_argument("--as-of", help="ISO date/time override for Date Time Now tools")
     run_parser.add_argument("--delivery-profile", choices=["xlsx-table-v1"])
     run_parser.add_argument("--output-dir", type=Path)
@@ -354,14 +355,14 @@ def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         if not args.delivery_profile or args.output_dir is None:
             raise ValueError("--delivery-profile and --output-dir must be used together")
         runtime.update(delivery_profile=args.delivery_profile, output_dir=args.output_dir.resolve(), redirect_sinks=True)
-    if args.workflow_log and not args.log_event:
-        raise ValueError("--workflow-log requires --log-event")
+    if (args.workflow_log or args.workflow_log_columns) and not args.log_event:
+        raise ValueError("Workflow log options require --log-event")
     if args.workflow_log and args.log and args.workflow_log.resolve() == Path(args.log).resolve():
         raise ValueError("--workflow-log and --log require different files")
     if args.log_event:
-        import logging
+        from alteryx2python.workflow_logging import configure_workflow_logging
 
-        logging.basicConfig(filename=args.workflow_log, encoding="utf-8", level=logging.INFO, format="%(message)s")
+        configure_workflow_logging(args.workflow_log, args.workflow_log_columns)
         runtime["log_event_ids"] = args.log_event
     context = WorkflowContext(runtime_config=runtime or None)
     try:

@@ -436,11 +436,11 @@ class ReadablePythonGenerator:
                             f'{config.get("grouping_fields", [])!r}, {config.get("show_header") is not False!r})']
                 if kind == 'PortfolioComposerRender':
                     try:
-                        filename, field, group = delivery.xlsx_render_options(config)
+                        filename, field, group, modifier = delivery.xlsx_render_options(config)
                     except NotImplementedError as exc:
                         raise UnsupportedLowering(str(exc)) from exc
                     function = self.linker.function(delivery.render_xlsx_tables)
-                    return [f'{function}({frame}, output_dir / {filename!r}, {field!r}, {group!r})', 'return None']
+                    return [f'{function}({frame}, output_dir / {filename!r}, {field!r}, {group!r}, {modifier!r})', 'return None']
                 raise UnsupportedLowering(f'XLSX table profile does not support {kind}')
             if self.profile not in {delivery.PROFILE, delivery.SMTP_PROFILE}:
                 raise UnsupportedLowering(f'{kind} requires explicit html-draft-v1 profile; metadata output is not a report')
@@ -738,7 +738,7 @@ class ReadablePythonGenerator:
                 self.linker.imports.add('from datetime import date')
             pipeline += textwrap.indent('\n'.join(validation_lines(item, name)), '    ') + '\n'
         from alteryx2python.workflow_events import workflow_events, attachment_bindings, attachment_output, bind_logging_events
-        from alteryx2python.workflow_logging import start_workflow_log, emit_workflow_log
+        from alteryx2python.workflow_logging import configure_workflow_logging, start_workflow_log, emit_workflow_log
         from alteryx2python.tools.delivery import run_checked_command, deliver_event_email, PROFILE, SMTP_PROFILE
         from alteryx2python.runtime.variables import resolve_variable_tokens, TOKEN
         raw_events = bind_logging_events(workflow_events(original.source_xml), log_event_ids)
@@ -829,6 +829,7 @@ class ReadablePythonGenerator:
         else:
             pipeline += '\n'.join(calls) + '\n'
         pipeline += '    return output_dir\n'
+        log_config = self.linker.function(configure_workflow_logging) if has_log else None
         main = ('\n\nif __name__ == "__main__":\n    import argparse\n'
             '    parser = argparse.ArgumentParser(description="Run the migrated Python workflow")\n'
             '    parser.add_argument("--input-dir", type=Path)\n'
@@ -837,10 +838,11 @@ class ReadablePythonGenerator:
             '    parser.add_argument("--command-working-dir", type=Path)\n'
             '    parser.add_argument("--allow-command", action="append", default=[])\n'
             '    parser.add_argument("--as-of")\n'
-            + ('    parser.add_argument("--workflow-log", type=Path)\n' if has_log else '')
+            + ('    parser.add_argument("--workflow-log", type=Path)\n'
+               '    parser.add_argument("--workflow-log-columns", type=Path)\n' if has_log else '')
             + ''.join(f'    parser.add_argument("--{item["python_name"].replace("_","-")}", type={"float" if item["kind"] == "NumericUpDown" else "str"}, default={item["default"]!r})\n' for item in self.parameters)
             + '    args = parser.parse_args()\n'
-            + ('    logging.basicConfig(filename=args.workflow_log, encoding="utf-8", level=logging.INFO, format="%(message)s")\n' if has_log else '')
+            + (f'    {log_config}(args.workflow_log, args.workflow_log_columns)\n' if has_log else '')
             + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of'
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
         source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + pipeline + main

@@ -18,6 +18,12 @@ Use the node ID to locate its `GuiSettings`, `EngineSettings`, configuration
 and named anchors. Check whether the failure happens in parsing, during
 canonical execution, while collecting Designer evidence, or during standalone
 compilation. A recognized plugin can still have an unsupported mode.
+For a `Dynamic` app Action, capture its `Mapping`, `Mode`, `Expression`,
+`Destination` and incoming Question connection. Those fields identify the
+adapter and its bound answer.
+When building a Designer fixture for `{{INPUT}}`, keep the named Question
+connection and its `Properties/Constants` entry in the `Question` namespace.
+Designer uses the declaration when evaluating the Action expression.
 
 ## Implement the observed behavior
 

@@ -90,7 +90,14 @@ def prepare_parameters(workflow, answers, constants=None):
         maximum = float(question.maximum) if question.maximum else None
         alternate = _alternate(question, value)
         actions = ET.fromstring(workflow.source_xml).find('Properties/RuntimeProperties/Actions')
-        if actions is not None and any(item.tag == 'Condition' or item.tag == 'Action' and item.findtext('Type') not in {'UpdateValue', 'UpdateValueReplace', 'UpdateInput', 'UpdateOutput'} for item in actions.iter()):
+        if actions is not None and any(
+            item.tag == 'Condition' or item.tag == 'Action' and (
+                item.findtext('Type') not in {'UpdateValue', 'UpdateValueReplace', 'UpdateInput', 'UpdateOutput', 'Dynamic'}
+                or item.findtext('Type') == 'Dynamic' and '{{INPUT}}' in (item.findtext('Expression') or '')
+                and item.findtext('Expression', '').strip() != '{{INPUT}}'
+            )
+            for item in actions.iter()
+        ):
             raise UnsupportedLowering('Conditional/formula/raw-XML Actions require a structural parameter template')
         variant = bind_workflow_variables(prepare_workflow(workflow, {**actual,question.name:alternate}), constants)
         before,after = {n.node_id:n for n in bound.nodes},{n.node_id:n for n in variant.nodes}

@@ -49,17 +49,25 @@ def xlsx_render_options(config):
             or field != "Table" or config.get("show_header") or config.get("show_footer")):
         raise NotImplementedError("XLSX Render supports basic table workbooks without a page header or footer")
     group = config.get("group_field") if config.get("batch_mode") else None
-    if config.get("batch_mode") and (not group or config.get("filename_modifier") != "Prepend"):
-        raise NotImplementedError("Batched XLSX Render requires a group field and Prepend filename mode")
-    return filename, field, group
+    modifier = config.get("filename_modifier") if group else None
+    if config.get("batch_mode") and (not group or modifier not in {"Prepend", "ReplacePath"}):
+        raise NotImplementedError("Batched XLSX Render requires a group field and Prepend or ReplacePath filename mode")
+    return filename, field, group, modifier
 
 
-def render_xlsx_tables(frame, destination, data_field, group=None):
+def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None):
     groups = frame.groupby(group, sort=False, dropna=False) if group else [(None, frame)]
     outputs = {}
     for label, rows in groups:
         name = destination.name
-        if group:
+        if modifier == "ReplacePath":
+            if not isinstance(label, str) or not label.strip() or label.endswith(("/", "\\")):
+                raise ValueError(f"Invalid XLSX Render replacement path: {label!r}")
+            # Rebase each native replacement path into the declared delivery directory.
+            name = PureWindowsPath(label).name
+            if Path(name).suffix.lower() != ".xlsx" or any(char in name for char in ':*?"<>|\r\n'):
+                raise ValueError(f"XLSX Render replacement requires an .xlsx filename: {label!r}")
+        elif group:
             prefix = str(label).strip()
             if pd.isna(label) or not prefix or any(char in prefix for char in '/\\:*?"<>|\r\n') or prefix in {".", ".."}:
                 raise ValueError(f"Invalid XLSX Render filename group: {label!r}")
