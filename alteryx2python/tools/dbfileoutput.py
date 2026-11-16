@@ -109,6 +109,22 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
     rendered.to_csv(path, index=False, header=header, sep=delimiter, lineterminator=line_ending, encoding=encoding)
 
 
+def write_xlsx(path, frame, sheet="Sheet1", *, header=True):
+    path.parent.mkdir(parents=True, exist_ok=True)
+    frame.to_excel(path, sheet_name=sheet, index=False, header=header, engine="openpyxl")
+
+
+def xlsx_output_options(config, selector):
+    sheet = (selector or "Sheet1").strip("'`").removesuffix("$")
+    if not sheet or any(character in sheet for character in ":\\/?*[]") or len(sheet) > 31:
+        raise NotImplementedError("Excel output requires a single worksheet name")
+    options = config.get("format_specific_options") or {}
+    mode = _format_option(config, "OutputOption", "")
+    if mode not in {"", "OverwriteFile"} or options.keys() - {"OutputOption", "HeaderRow"}:
+        raise NotImplementedError("Excel output supports writing a full workbook only")
+    return sheet, _format_option(config, "HeaderRow", "True").lower() == "true"
+
+
 def dbfileoutput_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -129,8 +145,9 @@ def dbfileoutput_tool(
 
     if file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}:
         _write_delimited_text(path, output_frame, config)
-    elif file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
-        raise NotImplementedError("Excel output is not supported by DbFileOutput yet")
+    elif path.suffix.lower() == ".xlsx":
+        sheet, header = xlsx_output_options(config, selector)
+        write_xlsx(path, output_frame, sheet, header=header)
     else:
         raise NotImplementedError(f"Unsupported DbFileOutput FileFormat: {file_format or path.suffix}")
 

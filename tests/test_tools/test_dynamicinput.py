@@ -1,20 +1,19 @@
 import pandas as pd
+import pytest
 
 from alteryx2python.tools.dynamicinput import DynamicInputTool, dynamicinput_tool
 
 
-def test_dynamicinput_passes_input_without_external_read(workflow_context):
-    frame = pd.DataFrame({"Latitude": [1.0], "Longitude": [2.0]})
-
-    output = dynamicinput_tool({"Input": frame}, {"mode": "ModifySQL"}, workflow_context)["Output"]
-
-    pd.testing.assert_frame_equal(output, frame)
-    trace = workflow_context.traces[-1].to_dict()
-    assert trace["tool_type"] == "DynamicInput"
-    assert trace["config"]["external_input_read_performed"] is False
+def test_dynamicinput_rejects_modify_sql(workflow_context):
+    with pytest.raises(NotImplementedError, match="ModifySQL"):
+        dynamicinput_tool({"Input": pd.DataFrame({"Latitude": [1.0]})}, {"mode": "ModifySQL"}, workflow_context)
 
 
-def test_dynamicinput_tool_class_executes_same_contract(workflow_context):
-    result = DynamicInputTool().execute({}, {}, workflow_context)
-
-    assert result["Output"].empty
+def test_dynamicinput_reads_unique_workbook_paths_in_path_order(workflow_context, tmp_path):
+    for name, value in [("a.xlsx", 3), ("b.xlsx", 7)]:
+        pd.DataFrame({"Value": [value]}).to_excel(tmp_path / name, sheet_name="Data", index=False)
+    paths = pd.DataFrame({"Path": ["b.xlsx", "a.xlsx", "b.xlsx"]})
+    config = {"mode": "ReadList", "read_list_type": "Path", "read_list_field": "Path",
+              "input_configuration": {"file": "a.xlsx|||Data$"}, "base_dir": str(tmp_path)}
+    result = DynamicInputTool().execute({"Input": paths}, config, workflow_context)
+    assert result["Output"]["Value"].tolist() == [3, 7]

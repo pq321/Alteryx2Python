@@ -19,3 +19,5 @@ If you're using Codex or another agent-capable tool, additional project-scoped h
 Managed by Trellis. Edits outside this block are preserved; edits inside may be overwritten by a future `trellis update`.
 
 <!-- TRELLIS:END -->
+
+For an unsupported tool or configuration, follow [Adding Alteryx tool support](docs/adding_tool_support.md).

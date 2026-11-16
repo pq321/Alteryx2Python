@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import html
+import json
 import mimetypes
 import os
 import shlex
@@ -12,13 +13,70 @@ import smtplib
 import ssl
 from email.message import EmailMessage
 from email.policy import SMTP
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 import pandas as pd
+from alteryx2python.tools.dbfileoutput import write_xlsx
 
 
 PROFILE = 'html-draft-v1'
 SMTP_PROFILE = 'html-smtp-v1'
+XLSX_PROFILE = 'xlsx-table-v1'
+
+
+def xlsx_report_table(frame, fields, group_fields, show_header):
+    if 'Table' in group_fields:
+        raise ValueError("Table cannot also be a group field")
+    groups = frame.groupby(group_fields, sort=False, dropna=False) if group_fields else [((), frame)]
+    records = []
+    for keys, group in groups:
+        if group_fields and not isinstance(keys, tuple):
+            keys = (keys,)
+        selected = group.loc[:, fields] if fields else group
+        records.append({
+            **dict(zip(group_fields, keys)),
+            "Table": selected.to_json(orient="split", index=False, date_format="iso", double_precision=15),
+        })
+    result = pd.DataFrame(records, columns=[*group_fields, "Table"])
+    result.attrs["xlsx_header"] = show_header
+    return result
+
+
+def xlsx_render_options(config):
+    filename = PureWindowsPath(config.get("output_file") or "report.xlsx").name
+    field = config.get("data_field") or "Table"
+    if (Path(filename).suffix.lower() != ".xlsx" or config.get("temp_file_type", "").lower() not in {"", "xlsx"}
+            or field != "Table" or config.get("show_header") or config.get("show_footer")):
+        raise NotImplementedError("XLSX Render supports basic table workbooks without a page header or footer")
+    group = config.get("group_field") if config.get("batch_mode") else None
+    if config.get("batch_mode") and (not group or config.get("filename_modifier") != "Prepend"):
+        raise NotImplementedError("Batched XLSX Render requires a group field and Prepend filename mode")
+    return filename, field, group
+
+
+def render_xlsx_tables(frame, destination, data_field, group=None):
+    groups = frame.groupby(group, sort=False, dropna=False) if group else [(None, frame)]
+    outputs = {}
+    for label, rows in groups:
+        name = destination.name
+        if group:
+            prefix = str(label).strip()
+            if pd.isna(label) or not prefix or any(char in prefix for char in '/\\:*?"<>|\r\n') or prefix in {".", ".."}:
+                raise ValueError(f"Invalid XLSX Render filename group: {label!r}")
+            name = prefix + name
+        if name.casefold() in outputs:
+            raise ValueError(f"Duplicate XLSX Render target: {name}")
+        tables = [json.loads(cell) for cell in rows[data_field]]
+        if not tables:
+            continue
+        columns = tables[0]["columns"]
+        if any(table["columns"] != columns for table in tables):
+            raise ValueError("XLSX Render received tables with different columns")
+        outputs[name.casefold()] = (destination.with_name(name), pd.DataFrame(
+            [row for table in tables for row in table["data"]], columns=columns
+        ))
+    for path, table in outputs.values():
+        write_xlsx(path, table, "sheet1", header=frame.attrs.get("xlsx_header", True))
 
 
 def report_table(frame, fields, show_header=True):

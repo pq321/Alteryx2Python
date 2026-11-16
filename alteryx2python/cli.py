@@ -45,7 +45,8 @@ def _build_parser() -> argparse.ArgumentParser:
     readable.add_argument('--constants', help='JSON file containing workflow constant overrides')
     readable.add_argument('--parameter-mode', choices=['dynamic', 'specialized'], default='dynamic',
                           help='Keep named parameters, or freeze current answers before native compilation')
-    readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1'])
+    readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
+    readable.add_argument('--log-event', action='append', default=[], metavar='ID')
     readable.set_defaults(func=_readable_command)
     benchmark = subparsers.add_parser('benchmark', help='Build or verify the deterministic two-phase benchmark')
     benchmark.add_argument('action', choices=['build', 'run', 'inventory'])
@@ -95,12 +96,17 @@ def _build_parser() -> argparse.ArgumentParser:
     run_parser.add_argument("--data-slice", action="store_true", help="Explicitly skip app configuration for an isolated migration slice")
     run_parser.add_argument("--override-output", action="append", default=[])
     run_parser.add_argument("--log")
+    run_parser.add_argument("--log-event", action="append", default=[], metavar="ID")
+    run_parser.add_argument("--workflow-log", type=Path)
+    run_parser.add_argument("--as-of", help="ISO date/time override for Date Time Now tools")
+    run_parser.add_argument("--delivery-profile", choices=["xlsx-table-v1"])
+    run_parser.add_argument("--output-dir", type=Path)
     run_parser.set_defaults(func=_run_command)
 
     compare_parser = subparsers.add_parser("compare", help="Compare actual and expected outputs")
     compare_parser.add_argument("--actual", required=True)
     compare_parser.add_argument("--expected", required=True)
-    compare_parser.add_argument("--mode", choices=["bytes", "csv"], default="bytes")
+    compare_parser.add_argument("--mode", choices=["bytes", "csv", "xlsx"], default="bytes")
     compare_parser.add_argument("--log")
     compare_parser.set_defaults(func=_compare_command)
 
@@ -108,7 +114,7 @@ def _build_parser() -> argparse.ArgumentParser:
     certify_parser.add_argument("workflow")
     certify_parser.add_argument("--target-node", required=True)
     certify_parser.add_argument("--expect", required=True)
-    certify_parser.add_argument("--compare", choices=["bytes", "csv"], default="bytes")
+    certify_parser.add_argument("--compare", choices=["bytes", "csv", "xlsx"], default="bytes")
     certify_parser.add_argument("--override-output", action="append", default=[])
     certify_parser.add_argument("--actual")
     certify_parser.add_argument("--log")
@@ -341,7 +347,23 @@ def _generate_samples_command(args: argparse.Namespace) -> tuple[dict[str, Any],
 
 def _run_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
     workflow = XmlWorkflowParser().parse(Path(args.workflow))
-    context = WorkflowContext(runtime_config={"answers": _read_answers(args.answers)} if args.answers else {"skip_app_configuration": True} if args.data_slice else None)
+    runtime = {"answers": _read_answers(args.answers)} if args.answers else {"skip_app_configuration": True} if args.data_slice else {}
+    if args.as_of is not None:
+        runtime["as_of"] = args.as_of
+    if args.delivery_profile or args.output_dir:
+        if not args.delivery_profile or args.output_dir is None:
+            raise ValueError("--delivery-profile and --output-dir must be used together")
+        runtime.update(delivery_profile=args.delivery_profile, output_dir=args.output_dir.resolve(), redirect_sinks=True)
+    if args.workflow_log and not args.log_event:
+        raise ValueError("--workflow-log requires --log-event")
+    if args.workflow_log and args.log and args.workflow_log.resolve() == Path(args.log).resolve():
+        raise ValueError("--workflow-log and --log require different files")
+    if args.log_event:
+        import logging
+
+        logging.basicConfig(filename=args.workflow_log, encoding="utf-8", level=logging.INFO, format="%(message)s")
+        runtime["log_event_ids"] = args.log_event
+    context = WorkflowContext(runtime_config=runtime or None)
     try:
         overrides = _apply_output_overrides(workflow, args.override_output)
         result = run_workflow_graph(workflow, context, target_node_ids={str(args.target_node)})
@@ -431,10 +453,18 @@ def _apply_output_overrides(workflow: Any, raw_overrides: list[str]) -> dict[str
         node = nodes_by_id.get(node_id)
         if node is None:
             raise ValueError(f"Override references unknown node: {node_id}")
+        if node.tool_type not in {"DbFileOutput", "PortfolioComposerRender"}:
+            raise ValueError(f"Override references a node that cannot write an output: {node_id}")
+        config_key = "output_file" if node.tool_type == "PortfolioComposerRender" else "file"
         normalized = node.config.get("normalized", {})
         if not isinstance(normalized, dict):
             normalized = {}
-        node.config["normalized"] = {**normalized, "file": path}
+        if config_key == "file" and "|||" not in path:
+            _, separator, selector = str(normalized.get("file", "")).partition("|||")
+            normalized_path = path + separator + selector
+        else:
+            normalized_path = path
+        node.config["normalized"] = {**normalized, config_key: normalized_path}
         overrides[node_id] = path
     return overrides
 
@@ -453,10 +483,21 @@ def _parse_raw_overrides(raw_overrides: list[str]) -> dict[str, str]:
 def _single_output_path(overrides: dict[str, str]) -> Path:
     if len(overrides) != 1:
         raise ValueError("--actual is required when there is not exactly one --override-output")
-    return Path(next(iter(overrides.values())))
+    return Path(next(iter(overrides.values())).partition("|||")[0])
 
 
 def _compare_paths(actual_path: Path, expected_path: Path, mode: str) -> dict[str, Any]:
+    if mode == "xlsx":
+        from alteryx2python.comparison.workbook import workbook_snapshot
+
+        actual, expected = workbook_snapshot(actual_path), workbook_snapshot(expected_path)
+        differences = [name for name in dict.fromkeys([*expected, *actual]) if actual.get(name) != expected.get(name)]
+        matches = not differences and list(actual) == list(expected)
+        return {
+            "mode": mode, "status": "match" if matches else "mismatch", "matches": matches,
+            "actual": str(actual_path), "expected": str(expected_path),
+            "actual_sheets": list(actual), "expected_sheets": list(expected), "different_sheets": differences,
+        }
     if mode == "bytes":
         actual_bytes = actual_path.read_bytes()
         expected_bytes = expected_path.read_bytes()
@@ -869,7 +910,7 @@ def _readable_command(args):
     answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
     constants = json.loads(Path(args.constants).read_text(encoding='utf-8-sig')) if args.constants else None
     artifact = ReadablePythonGenerator().generate(workflow, answers=answers, constants=constants,
-        parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile)
+        parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile, log_event_ids=args.log_event)
     paths = artifact.write(args.output)
     return {'status': 'generated', 'phase': 2, 'files': [str(path.resolve()) for path in paths],
             'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0

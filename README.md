@@ -34,6 +34,7 @@ Current implemented slices:
 - Support diagnostics for failed runtime nodes, including schema drift, missing anchors/files, unsupported tools, graph context, likely cause, and suggested fix
 - Deterministic Phase Two compilation into standalone editable Python, with explicit functions, numeric user parameters, before/after events, field-size contracts and a public-data benchmark. See [Readable Python](docs/readable_python.md).
 - [End-to-end Designer demo](docs/designer_delivery_demo.md) runs one installed workflow in Designer and verifies both generated Python scripts and the delivered CSV.
+- [Workflow logging and XLSX migration](docs/workflow_logging_and_xlsx.md) and [adding tool support](docs/adding_tool_support.md) describe local reproduction and verification.
 
 Current architectural scaffolding introduced:
 

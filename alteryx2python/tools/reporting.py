@@ -76,7 +76,7 @@ def _record_report_node(
             "input_schemas": _input_schemas(inputs),
             **(
                 {"baseline_semantics": "report_metadata_only"}
-                if (context.runtime_config or {}).get("delivery_profile") not in {"html-draft-v1", "html-smtp-v1"}
+                if (context.runtime_config or {}).get("delivery_profile") not in {"html-draft-v1", "html-smtp-v1", "xlsx-table-v1"}
                 else {}
             ),
             "report_config": {
@@ -96,6 +96,15 @@ def _report_fragment_tool(
     context: WorkflowContext,
     output_anchor: str = "Output",
 ) -> dict[str, pd.DataFrame]:
+    if (context.runtime_config or {}).get("delivery_profile") == "xlsx-table-v1":
+        from alteryx2python.tools.delivery import xlsx_report_table
+
+        if tool_type != "PortfolioComposerTable" or config.get("table_mode", "Basic") != "Basic" or config.get("show_bar_graph"):
+            raise NotImplementedError("XLSX profile requires a Basic reporting table")
+        output = xlsx_report_table(_first_input(inputs), config.get("table_fields", []),
+                                   config.get("grouping_fields", []), config.get("show_header") is not False)
+        return _record_report_node(tool_type=tool_type, inputs=inputs, outputs={output_anchor: output},
+                                   config=config, context=context)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from alteryx2python.tools.delivery import report_table, report_text, report_layout
         frame = _first_input(inputs)
@@ -233,6 +242,12 @@ def portfoliocomposerrender_tool(
     config: dict[str, Any],
     context: WorkflowContext,
 ) -> dict[str, pd.DataFrame]:
+    if (context.runtime_config or {}).get("delivery_profile") == "xlsx-table-v1":
+        from pathlib import Path
+        from alteryx2python.tools.delivery import render_xlsx_tables, xlsx_render_options
+
+        filename, field, group = xlsx_render_options(config)
+        render_xlsx_tables(_first_input(inputs), Path(context.runtime_config["output_dir"]) / filename, field, group)
     if (context.runtime_config or {}).get('delivery_profile') in {'html-draft-v1', 'html-smtp-v1'}:
         from pathlib import Path
         from alteryx2python.tools.delivery import render_html

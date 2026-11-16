@@ -17,7 +17,7 @@ from alteryx2python.tools.dbfileinput import (
     _record_limit,
     _split_alteryx_file_reference,
 )
-from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records
+from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records, write_xlsx, xlsx_output_options
 from alteryx2python.tools.textinput import _infer_types, _normalize_row
 
 
@@ -120,9 +120,17 @@ def _input(config: dict, raw: str, selector: str | None) -> list[str]:
     return lines + ["return output"]
 
 
-def _output(config: dict, raw: str, frame: str, compiler) -> list[str]:
+def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) -> list[str]:
     path = _path(raw)
     file_format = _file_attribute(config, "FileFormat")
+    if path.suffix.lower() == ".xlsx" and file_format != "0":
+        if config.get('_file_parameter'):
+            raise UnsupportedLowering("Parameterized Excel output needs a verified binding")
+        sheet, header = xlsx_output_options(config, selector)
+        function = compiler.linker.function(write_xlsx)
+        limit = _max_records(config)
+        output = f"{frame}.head({limit!r})" if limit is not None else frame
+        return [f"{function}(output_dir / {path.name!r}, {output}, {sheet!r}, header={header!r})", "return None"]
     if not (file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}):
         if file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
             raise UnsupportedLowering("Excel output is not supported by DbFileOutput yet")
@@ -168,9 +176,25 @@ def _output(config: dict, raw: str, frame: str, compiler) -> list[str]:
 
 def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[str] | None:
     """Return standalone function-body statements, or None for another tool."""
-    if kind not in {"TextInput", "DbFileInput", "DbFileOutput"}:
+    if kind not in {"TextInput", "DbFileInput", "DbFileOutput", "DynamicInput", "DateTimeNow"}:
         return None
     try:
+        if kind == "DateTimeNow":
+            from alteryx2python.tools.datetimenow import FORMAT_MAP, date_time_frame
+
+            output_format = config.get("output_format", "yyyy-MM-dd")
+            if output_format not in FORMAT_MAP:
+                raise UnsupportedLowering(f"DateTimeNow output format is not supported: {output_format}")
+            function = compiler.linker.function(date_time_frame)
+            return [f"return {function}(as_of or {config.get('now')!r}, {output_format!r})"]
+        if kind == "DynamicInput":
+            from alteryx2python.tools.dynamicinput import read_file_list, read_list_options
+
+            if frame is None:
+                raise UnsupportedLowering("Dynamic Input requires an Input frame")
+            field, template, options = read_list_options(config)
+            function = compiler.linker.function(read_file_list)
+            return [f"return {function}({frame}, {field!r}, {template!r}, {options!r}, input_dir)"]
         if kind == "DbFileOutput" and frame is None:
             raise UnsupportedLowering("DbFileOutput requires an Input frame")
         if kind != "DbFileOutput" and frame is not None:
@@ -181,8 +205,8 @@ def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[
         if not file_value:
             raise UnsupportedLowering(f"{kind} config requires file")
         raw, selector = _split_alteryx_file_reference(file_value)
-        return _input(config, raw, selector) if kind == "DbFileInput" else _output(config, raw, frame, compiler)
-    except (ValueError, TypeError, OverflowError) as exc:
+        return _input(config, raw, selector) if kind == "DbFileInput" else _output(config, raw, selector, frame, compiler)
+    except (ValueError, TypeError, OverflowError, NotImplementedError) as exc:
         if isinstance(exc, UnsupportedLowering):
             raise
         raise UnsupportedLowering(f"Unsupported {kind} configuration: {exc}") from exc

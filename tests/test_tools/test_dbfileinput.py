@@ -73,11 +73,15 @@ def test_dbfileinput_resolves_alteryx_suffix_and_base_dir(workflow_context, tmp_
     assert result["Output"].to_dict("records") == [{"name": "alpha", "amount": 10}]
 
 
-def test_dbfileinput_reads_excel_sheet_with_header_row(workflow_context):
+def test_dbfileinput_reads_excel_sheet_with_header_row(workflow_context, tmp_path):
+    workbook = tmp_path / "customers.xlsx"
+    pd.DataFrame({"CustomerID": [2], "First Name": ["JEAN"], "Last Name": ["SMITH"]}).to_excel(
+        workbook, sheet_name="Customers", index=False
+    )
     result = dbfileinput_tool(
         {},
         {
-            "file": "D:/Alteryx/Samples/data/StartHereData/Excel.CustomerLocationData.xlsx|||`Customers$`",
+            "file": f"{workbook}|||`Customers$`",
             "file_attributes": {"FileFormat": "25"},
             "format_specific_options": {"FirstRowData": {"text": "False"}, "ImportLine": {"text": "1"}},
         },
@@ -93,11 +97,13 @@ def test_dbfileinput_reads_excel_sheet_with_header_row(workflow_context):
     }
 
 
-def test_dbfileinput_reads_excel_sheet_without_header_row_as_f_fields(workflow_context):
+def test_dbfileinput_reads_excel_sheet_without_header_row_as_f_fields(workflow_context, tmp_path):
+    workbook = tmp_path / "responders.xlsx"
+    pd.DataFrame([[2, 100, "Corporate", "No"]]).to_excel(workbook, index=False, header=False)
     result = dbfileinput_tool(
         {},
         {
-            "file": "D:/Alteryx/Samples/data/StartHereData/Excel.CustomerResponderData.xlsx|||`Sheet1$`",
+            "file": f"{workbook}|||`Sheet1$`",
             "file_attributes": {"FileFormat": "25"},
             "format_specific_options": {"FirstRowData": {"text": "True"}, "ImportLine": {"text": "1"}},
         },

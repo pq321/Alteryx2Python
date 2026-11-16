@@ -1718,7 +1718,7 @@ def test_dynamicinput_parser_preserves_input_config_and_mode():
         }
     )
 
-    assert result.normalized_config["input_configuration"]["File"]["text"] == "data.csv"
+    assert result.normalized_config["input_configuration"]["file"] == "data.csv"
     assert result.normalized_config["mode"] == "ModifySQL"
     assert result.normalized_config["modifications"]["Modify"]["attributes"]["Action"] == "Spatial"
 

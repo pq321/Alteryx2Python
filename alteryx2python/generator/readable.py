@@ -427,6 +427,21 @@ class ReadablePythonGenerator:
                     f'return {function}(program, {config.get("arguments", "")!r}, command_working_dir or input_dir / {config.get("working_dir", "")!r}, '
                     f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands)']
         if kind.startswith('PortfolioComposer') or kind == 'Email':
+            if self.profile == delivery.XLSX_PROFILE:
+                if kind == 'PortfolioComposerTable':
+                    if config.get('table_mode', 'Basic') != 'Basic' or config.get('show_bar_graph'):
+                        raise UnsupportedLowering('XLSX profile requires a Basic reporting table')
+                    function = self.linker.function(delivery.xlsx_report_table)
+                    return [f'return {function}({frame}, {config.get("table_fields", [])!r}, '
+                            f'{config.get("grouping_fields", [])!r}, {config.get("show_header") is not False!r})']
+                if kind == 'PortfolioComposerRender':
+                    try:
+                        filename, field, group = delivery.xlsx_render_options(config)
+                    except NotImplementedError as exc:
+                        raise UnsupportedLowering(str(exc)) from exc
+                    function = self.linker.function(delivery.render_xlsx_tables)
+                    return [f'{function}({frame}, output_dir / {filename!r}, {field!r}, {group!r})', 'return None']
+                raise UnsupportedLowering(f'XLSX table profile does not support {kind}')
             if self.profile not in {delivery.PROFILE, delivery.SMTP_PROFILE}:
                 raise UnsupportedLowering(f'{kind} requires explicit html-draft-v1 profile; metadata output is not a report')
             if kind == 'PortfolioComposerTable':
@@ -460,7 +475,7 @@ class ReadablePythonGenerator:
                         f'{config.get("body") or "Report"!r}, {attachments}{destination})', 'return None']
         raise UnsupportedLowering(f'No deterministic template for {kind}')
 
-    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None):
+    def generate(self, workflow, *, answers=None, constants=None, parameter_mode='dynamic', delivery_profile=None, log_event_ids=()):
         # Generator instances are reusable without leaking previous helpers/configuration.
         self.__init__()
         self.profile = delivery_profile
@@ -479,7 +494,8 @@ class ReadablePythonGenerator:
         prepared = bind_workflow_variables(prepared, constants)
         reserved_parameters = {'input_dir', 'output_dir', 'allowed_commands', 'event_working_dir', 'command_working_dir',
             'checkpoints', 'config', 'inputs', 'context', 'pd', 'math', 'warnings', 're', 'html', 'os', 'hashlib', 'mimetypes', 'shlex', 'shutil',
-            'subprocess', 'argparse', 'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings'}
+            'subprocess', 'argparse', 'logging', 'log_run', 'workflow_error', 'workflow_log', 'as_of',
+            'bounded_text', 'nullable_integer', 'declare_field', 'workflow_warnings'}
         import builtins
         reserved_parameters.update(dir(builtins))
         for parameter in self.parameters:
@@ -551,9 +567,10 @@ class ReadablePythonGenerator:
                 native_python_functions.add(name)
             try:
                 metadata = TOOL_REGISTRY.get(node.tool_type) if node.tool_type not in {'MacroResult', 'MacroBoundaryInput'} else None
-                outputs = tuple(anchor.name for anchor in node.output_anchors) if node.tool_type in {'MacroResult', 'ControlContainer'} else (
+                outputs = tuple(anchor.name for anchor in node.output_anchors) if node.tool_type in {'MacroResult', 'ControlContainer', 'DateTimeNow'} else (
                     ('Output',) if node.tool_type == 'MacroBoundaryInput' else metadata.output_anchors)
-                runtime_arguments = (['input_dir'] if node.tool_type == 'DbFileInput' else
+                runtime_arguments = (['as_of'] if node.tool_type == 'DateTimeNow' else
+                    ['input_dir'] if node.tool_type in {'DbFileInput', 'DynamicInput'} else
                     ['input_dir', 'command_working_dir', 'allowed_commands'] if node.tool_type == 'RunCommand' else
                     ['output_dir'] if node.tool_type in {'DbFileOutput', 'Email', 'PortfolioComposerRender'} else [])
                 parameter_names = set()
@@ -708,7 +725,7 @@ class ReadablePythonGenerator:
         self.linker.imports.add('from pathlib import Path')
         header = '"""Editable Python generated with deterministic templates. See the sidecar manifest."""\n'
         parameter_signature = ''.join(f', {item["python_name"]}={item["default"]!r}' for item in self.parameters)
-        pipeline = '\n\ndef run_workflow(*, input_dir=None, output_dir=None, allowed_commands=(), event_working_dir=None, command_working_dir=None, checkpoints=None' + parameter_signature + '):\n'
+        pipeline = '\n\ndef run_workflow(*, input_dir=None, output_dir=None, allowed_commands=(), event_working_dir=None, command_working_dir=None, checkpoints=None, as_of=None' + parameter_signature + '):\n'
         pipeline += '    input_dir = Path(input_dir or Path(__file__).resolve().parent).resolve()\n'
         pipeline += '    output_dir = Path(output_dir or Path(__file__).resolve().parent / "output").resolve()\n'
         pipeline += '    output_dir.mkdir(parents=True, exist_ok=True)\n'
@@ -720,10 +737,12 @@ class ReadablePythonGenerator:
             elif item['kind'] == 'Date':
                 self.linker.imports.add('from datetime import date')
             pipeline += textwrap.indent('\n'.join(validation_lines(item, name)), '    ') + '\n'
-        from alteryx2python.workflow_events import workflow_events, attachment_bindings, attachment_output
+        from alteryx2python.workflow_events import workflow_events, attachment_bindings, attachment_output, bind_logging_events
+        from alteryx2python.workflow_logging import start_workflow_log, emit_workflow_log
         from alteryx2python.tools.delivery import run_checked_command, deliver_event_email, PROFILE, SMTP_PROFILE
         from alteryx2python.runtime.variables import resolve_variable_tokens, TOKEN
-        raw_events = workflow_events(original.source_xml)
+        raw_events = bind_logging_events(workflow_events(original.source_xml), log_event_ids)
+        has_log = any(event.get('kind') == 'logging' for event in raw_events)
         event_constants = prepared.metadata.get('workflow_constants', {})
         events = resolve_variable_tokens(raw_events, event_constants)
         event_outputs = attachment_bindings(workflow, redirect_sinks=True)
@@ -747,7 +766,12 @@ class ReadablePythonGenerator:
                                  'not workflow_warnings' if timing == 'clean_success' else None)
                     if timing not in timings and not (success and condition):
                         continue
-                    if event.get('kind') == 'email':
+                    if event.get('kind') == 'logging':
+                        function = self.linker.function(emit_workflow_log)
+                        error = 'None' if success else 'workflow_error'
+                        call = (f'{function}(log_run, {Path(original.source_file).stem!r}, {event["id"]!r}, '
+                                f'input_dir, len(workflow_warnings), {int(not success)}, {error})')
+                    elif event.get('kind') == 'email':
                         if delivery_profile not in {PROFILE, SMTP_PROFILE}:
                             raise UnsupportedLowering('Email events require an explicit html-draft-v1 or html-smtp-v1 profile')
                         if event['dcm'] and delivery_profile == SMTP_PROFILE:
@@ -790,12 +814,15 @@ class ReadablePythonGenerator:
                     result.append(('if ' + condition + ':\n    ' if condition and timing not in timings else '') + call)
                 return result
             self.linker.imports.add('import warnings')
+            if has_log:
+                start = self.linker.function(start_workflow_log)
+                pipeline += f'    log_run = {start}()\n'
             pipeline += '    try:\n'
             pipeline += '        with warnings.catch_warnings(record=True) as workflow_warnings:\n'
             pipeline += '            warnings.simplefilter("always", RuntimeWarning)\n'
             pipeline += textwrap.indent('\n'.join(event_calls({'before'})), '            ') + '\n'
             pipeline += textwrap.indent('\n'.join(calls), '        ') + '\n'
-            pipeline += '    except Exception:\n'
+            pipeline += '    except Exception as workflow_error:\n' if has_log else '    except Exception:\n'
             pipeline += textwrap.indent('\n'.join(event_calls({'failure', 'after', 'failure_or_warnings'}) + ['raise']), '        ') + '\n'
             pipeline += '    else:\n'
             pipeline += textwrap.indent('\n'.join(event_calls({'success', 'after'}, success=True) + ['pass']), '        ') + '\n'
@@ -809,9 +836,12 @@ class ReadablePythonGenerator:
             '    parser.add_argument("--event-working-dir", type=Path)\n'
             '    parser.add_argument("--command-working-dir", type=Path)\n'
             '    parser.add_argument("--allow-command", action="append", default=[])\n'
+            '    parser.add_argument("--as-of")\n'
+            + ('    parser.add_argument("--workflow-log", type=Path)\n' if has_log else '')
             + ''.join(f'    parser.add_argument("--{item["python_name"].replace("_","-")}", type={"float" if item["kind"] == "NumericUpDown" else "str"}, default={item["default"]!r})\n' for item in self.parameters)
             + '    args = parser.parse_args()\n'
-            + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command'
+            + ('    logging.basicConfig(filename=args.workflow_log, encoding="utf-8", level=logging.INFO, format="%(message)s")\n' if has_log else '')
+            + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of'
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
         source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + pipeline + main
         from alteryx2python.generator.business_source import assemble

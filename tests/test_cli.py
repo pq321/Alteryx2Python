@@ -184,7 +184,7 @@ def test_cli_compare_returns_nonzero_for_byte_mismatch(tmp_path):
     assert report["first_difference"]["index"] is not None
 
 
-def test_cli_run_records_dynamicinput_baseline_success(tmp_path):
+def test_cli_run_records_dynamicinput_failure(tmp_path):
     log_path = tmp_path / "dynamicinput.json"
 
     result = _run_cli(
@@ -196,19 +196,13 @@ def test_cli_run_records_dynamicinput_baseline_success(tmp_path):
         str(log_path),
     )
 
-    assert result.returncode == 0
+    assert result.returncode == 2
     report = _json(result.stdout)
-    assert report["status"] == "ok"
+    assert report["status"] == "error"
     assert report["workflow"]["source_file"].endswith("Dynamic_Input.yxmd")
     assert report["target_node"] == "52"
     assert report["output_overrides"] == {}
-    assert report["context_errors"] == []
-    assert report["runtime_result"]["node_results"]["52"]["tool_type"] == "DynamicInput"
-    assert (
-        report["runtime_result"]["node_results"]["52"]["trace"]["config"]["external_input_read_performed"]
-        is False
-    )
-    assert report["runtime_result"]["node_results"]["52"]["outputs"]["Output"]["row_count"] == 1
+    assert "Dynamic Input" in json.dumps(report)
     assert json.loads(log_path.read_text(encoding="utf-8")) == report
 
 

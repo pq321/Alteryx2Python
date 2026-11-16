@@ -261,7 +261,8 @@ class SourceLinker:
     def function(self, function, bindings=None):
         module = function.__module__
         if not module.startswith(('alteryx2python.tools.', 'alteryx2python.expressions.functions',
-                                  'alteryx2python.expressions.errors', 'alteryx2python.comparison.schema_diff')):
+                                  'alteryx2python.expressions.errors', 'alteryx2python.comparison.schema_diff',
+                                  'alteryx2python.workflow_logging')):
             raise UnsupportedLowering(f'Helper outside audited source boundary: {module}.{function.__name__}')
         identity = (module, function.__qualname__, repr(sorted((bindings or {}).items())))
         if identity not in self._names:

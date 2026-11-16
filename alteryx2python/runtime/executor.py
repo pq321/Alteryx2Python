@@ -71,30 +71,36 @@ def run_workflow_graph(
 
 
 def _run_workflow_lifecycle(workflow, context, initial_inputs, target_node_ids):
-    from alteryx2python.workflow_events import workflow_events, run_events, attachment_bindings
+    from alteryx2python.workflow_events import workflow_events, run_events, attachment_bindings, bind_logging_events
+    from alteryx2python.workflow_logging import start_workflow_log
     from alteryx2python.runtime.variables import resolve_variable_tokens
     from pathlib import Path
-    events = resolve_variable_tokens(workflow_events(workflow.source_xml), workflow.metadata['workflow_constants'])
-    attachments = attachment_bindings(workflow, redirect_sinks=bool((context.runtime_config or {}).get('redirect_sinks')))
+    runtime = dict(context.runtime_config or {})
+    events = bind_logging_events(workflow_events(workflow.source_xml), runtime.pop('log_event_ids', ()))
+    events = resolve_variable_tokens(events, workflow.metadata['workflow_constants'])
+    attachments = attachment_bindings(workflow, redirect_sinks=bool(runtime.get('redirect_sinks')))
     if events:
         context.runtime_config = {'workflow_dir': str(Path(workflow.source_file).resolve().parent),
-                                  **(context.runtime_config or {})}
+                                  **runtime}
     if not events:
         return _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
     import warnings
+    log_run = start_workflow_log() if any(event.get('kind') == 'logging' for event in events) else None
     with warnings.catch_warnings(record=True) as emitted:
         warnings.simplefilter('always', RuntimeWarning)
         try:
             run_events(events, 'before', context, attachments)
             result = _run_workflow_graph(workflow, context, initial_inputs, target_node_ids)
-        except Exception:
+        except Exception as exc:
             for warning in emitted:
                 context.record_warning(str(warning.message))
-            run_events(events, 'failure', context, attachments)
+            run_events(events, 'failure', context, attachments, log_run=log_run,
+                       workflow_name=Path(workflow.source_file).stem, error=exc)
             raise
         for warning in emitted:
             context.record_warning(str(warning.message))
-    run_events(events, 'success', context, attachments)
+    run_events(events, 'success', context, attachments, log_run=log_run,
+               workflow_name=Path(workflow.source_file).stem)
     return result
 
 

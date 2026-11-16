@@ -1,8 +1,10 @@
 # DynamicInput
 
-Baseline implementation for Sample Workflow coverage.
+`ReadList / Path` reads CSV or XLSX files named by a field on `Input`.
+It reads each distinct path in path order, using the template's format and
+read options. The `Output` contains file records. Empty lists use the
+template schema, and mismatched columns fail explicitly.
 
-- Inputs: `Input` optional.
-- Outputs: `Output`.
-- Semantics: passes the incoming frame through when present; otherwise emits an empty frame.
-- Safety: does not read external databases or files. The parsed input configuration and modification mode are recorded in the node trace.
+Phase One and standalone Phase Two share this operation. SQL modifications,
+other path actions, filename metadata fields and formats outside CSV/XLSX
+are blocked. Use a local Designer fixture for native verification.

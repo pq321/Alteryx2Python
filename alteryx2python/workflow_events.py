@@ -93,7 +93,20 @@ def workflow_events(source_xml):
     return result
 
 
-def run_events(events, phase, context, attachment_paths=None):
+def bind_logging_events(events, ids):
+    """Replace selected After Run commands, using their original XML indices."""
+    selected = set(map(str, ids))
+    eligible = {event["id"] for event in events if "program" in event and event["when"] == "after"}
+    if selected - eligible:
+        raise ValueError(f"Logging event IDs must identify enabled After Run command events: {', '.join(sorted(selected - eligible))}")
+    return [
+        {"id": event["id"], "when": event["when"], "kind": "logging"}
+        if event["id"] in selected else event
+        for event in events
+    ]
+
+
+def run_events(events, phase, context, attachment_paths=None, *, log_run=None, workflow_name=None, error=None):
     from pathlib import Path
     from alteryx2python.tools.delivery import run_checked_command
     runtime = context.runtime_config or {}
@@ -108,6 +121,12 @@ def run_events(events, phase, context, attachment_paths=None):
         if event['when'] not in selected:
             continue
         base = Path(runtime.get('input_dir') or runtime.get('workflow_dir') or Path.cwd())
+        if event.get("kind") == "logging":
+            from alteryx2python.workflow_logging import emit_workflow_log
+
+            emit_workflow_log(log_run, workflow_name, event["id"], base, len(context.warnings),
+                              max(len(context.errors), int(error is not None)), error)
+            continue
         if event.get('kind') == 'email':
             from alteryx2python.tools.delivery import deliver_event_email, PROFILE, SMTP_PROFILE
             profile = runtime.get('delivery_profile')

@@ -44,13 +44,11 @@ def test_dbfileoutput_writes_single_column_text_without_header(workflow_context,
     assert output_path.read_bytes() == b"MIME-Version: 1.0\r\n<tr><td>x</td></tr>\r\n"
 
 
-def test_dbfileoutput_defers_excel_output(workflow_context, tmp_path):
-    with pytest.raises(NotImplementedError, match="Excel output"):
-        dbfileoutput_tool(
-            {"Input": pd.DataFrame({"a": [1]})},
-            {"file": str(tmp_path / "out.xlsx"), "file_attributes": {"FileFormat": "25"}},
-            workflow_context,
-        )
+def test_dbfileoutput_writes_basic_workbook(workflow_context, tmp_path):
+    path = tmp_path / "out.xlsx"
+    dbfileoutput_tool({"Input": pd.DataFrame({"a": [1]})},
+                      {"file": f"{path}|||Data", "file_attributes": {"FileFormat": "25"}}, workflow_context)
+    assert pd.read_excel(path, sheet_name="Data")["a"].tolist() == [1]
 
 
 def test_dbfileoutput_expands_alteryx_temp_token(workflow_context, tmp_path, monkeypatch):
