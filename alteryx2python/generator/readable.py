@@ -49,10 +49,23 @@ def _series_predicate(expression, frame):
     from alteryx2python.expressions.ast import BinaryExpression, FieldReference, FunctionExpression, LiteralExpression, UnaryExpression
 
     fields = {}
+    string_types = {'str', 'string'}
 
     def field_series(field, dtypes):
         fields[field.name] = fields.get(field.name, dtypes) & dtypes
         return f'{frame}[{field.name!r}]'
+
+    def text_series(value):
+        if isinstance(value, FieldReference):
+            return field_series(value, string_types)
+        if not isinstance(value, FunctionExpression) or len(value.args) != 1:
+            return None
+        method = {'TRIM': '.fillna("").str.strip()', 'UPPERCASE': '.str.upper()'}.get(value.name.upper())
+        base = text_series(value.args[0]) if method else None
+        if base is not None and isinstance(value.args[0], FieldReference):
+            # Match Python Unicode case conversion even with Arrow-backed strings.
+            base += '.astype("string[python]")'
+        return base + method if base is not None else None
 
     def lower(value):
         if isinstance(value, UnaryExpression) and value.operator == '!':
@@ -69,18 +82,18 @@ def _series_predicate(expression, frame):
             operator = '&' if value.operator == 'AND' else '|'
             return f'({left} {operator} {right})' if left is not None and right is not None else None
         methods = {'=': 'eq', '==': 'eq', '!=': 'ne', '<': 'lt', '<=': 'le', '>': 'gt', '>=': 'ge'}
-        if (value.operator not in methods or not isinstance(value.left, FieldReference)
-                or not isinstance(value.right, LiteralExpression)):
+        if value.operator not in methods or not isinstance(value.right, LiteralExpression):
             return None
         literal = value.right.value
         if isinstance(literal, str) and value.operator in {'=', '==', '!='}:
-            dtypes = {'str', 'string'}
-        elif type(literal) is int and -(2**63) <= literal < 2**63:
-            dtypes = {'int64', 'Int64'}
+            series = text_series(value.left)
+        elif (isinstance(value.left, FieldReference) and type(literal) is int
+              and -(2**63) <= literal < 2**63):
+            series = field_series(value.left, {'int64', 'Int64'})
         else:
             return None
-        series = field_series(value.left, dtypes)
-        return f'{series}.{methods[value.operator]}({literal!r}).fillna({value.operator == "!="!r})'
+        if series is not None:
+            return f'{series}.{methods[value.operator]}({literal!r}).fillna({value.operator == "!="!r})'
 
     predicate = lower(expression)
     if predicate is None or any(not dtypes for dtypes in fields.values()):
@@ -230,6 +243,7 @@ class ReadablePythonGenerator:
         from alteryx2python.expressions.ast import (LiteralExpression, FieldReference, BinaryExpression,
             ConditionalExpression, UnaryExpression, FunctionExpression)
         from alteryx2python.expressions.functions import FUNCTION_REGISTRY
+        from alteryx2python.expressions.numeric import add_nullable, arithmetic_operand, as_formula_value
         if isinstance(expression, ParameterExpression):
             return self.parameter_names[expression.name]
         if isinstance(expression, LiteralExpression):
@@ -266,20 +280,38 @@ class ReadablePythonGenerator:
             if operator in {'AND', 'OR'}:
                 return f'(bool({left}) {operator.lower()} bool({right}))'
             if operator == '+':
-                self.linker.definitions['_add_nullable'] = ('def _add_nullable(left, right):\n'
-                    '    if left is None and isinstance(right, (int, float)):\n        left = 0\n'
-                    '    if right is None and isinstance(left, (int, float)):\n        right = 0\n'
-                    '    return left + right')
-                return f'_add_nullable({left}, {right})'
+                return f'{self.linker.function(add_nullable)}({left}, {right})'
+            if operator in {'-', '*', '/'}:
+                def operand(value, code):
+                    if isinstance(value, LiteralExpression) and value.value is not None:
+                        return code
+                    if isinstance(value, BinaryExpression) and value.operator in {'+', '-', '*', '/'}:
+                        return code
+                    return f'{self.linker.function(arithmetic_operand)}({code})'
+
+                return f'({operand(expression.left, left)} {operator} {operand(expression.right, right)})'
+            if operator in {'=', '==', '!='} and any(
+                isinstance(value, LiteralExpression) and isinstance(value.value, str)
+                for value in (expression.left, expression.right)
+            ):
+                return f'({left} {"==" if operator == "=" else operator} {right})'
+
+            def promote(value, code):
+                if isinstance(value, LiteralExpression):
+                    return code
+                return f'{self.linker.function(as_formula_value)}({code})'
+
+            pairs = [(expression.left, left), (expression.right, right)]
+            values = [promote(value, code) for value, code in pairs]
             if operator in {'>', '>=', '<', '<='}:
                 if ((isinstance(expression.left, LiteralExpression) and expression.left.value is None) or
                     (isinstance(expression.right, LiteralExpression) and expression.right.value is None)):
                     return 'False'
-                checks = [f'{code} is not None' for part, code in [(expression.left,left),(expression.right,right)]
+                checks = [f'{code} is not None' for part, code in pairs
                           if not isinstance(part, LiteralExpression)]
-                return '(' + ' and '.join([*checks, f'{left} {operator} {right}']) + ')'
-            if operator in {'=', '==', '!=', '-', '*', '/'}:
-                return f'({left} {"==" if operator == "=" else operator} {right})'
+                return '(' + ' and '.join([*checks, f'{values[0]} {operator} {values[1]}']) + ')'
+            if operator in {'=', '==', '!='}:
+                return f'({values[0]} {"==" if operator == "=" else operator} {values[1]})'
         raise UnsupportedLowering(f'Unsupported expression AST: {type(expression).__name__}')
 
     def _expand_macros(self, workflow, stack=()):
@@ -466,9 +498,11 @@ class ReadablePythonGenerator:
                     from alteryx2python.expressions.ast import LiteralExpression
                     from alteryx2python.generator.parameters import ParameterExpression
                     values = f'[{expression}] * len(output)' if isinstance(parsed, (LiteralExpression, ParameterExpression)) else f'[{expression} for row in output.to_dict("records")]'
-                    lines.append(f'output[{field["field"]!r}] = {values}')
                     if field.get('type'):
                         from alteryx2python.generator.native_fields import coerce, declaration
+                        values = f'pd.Series({values}, index=output.index, dtype=object)'
+                    lines.append(f'output[{field["field"]!r}] = {values}')
+                    if field.get('type'):
                         series = f'output[{field["field"]!r}]'
                         lines.append(f'{series} = {coerce(self, series, field["type"], field.get("size"))}')
                         lines.append(declaration(self, 'output', field['field'], field['type'], field.get('size')))

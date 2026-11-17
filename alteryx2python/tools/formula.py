@@ -43,12 +43,17 @@ def formula_tool(
         if not field_name or not expression:
             raise ValueError("Formula fields require field and expression")
         parsed_expression = parse_expression(str(expression))
-        output[str(field_name)] = [
+        values = [
             evaluate_expression(parsed_expression, row)
             for row in output.to_dict("records")
         ]
         if field_config.get('type'):
+            # Retain scalar types until the declared conversion. Pandas can
+            # round an Int64 value if a list containing nulls is inferred as float.
+            output[str(field_name)] = pd.Series(values, index=output.index, dtype=object)
             set_field_contract(output, str(field_name), field_config['type'], field_config.get('size'))
+        else:
+            output[str(field_name)] = values
         applied_fields.append({"field": field_name, "expression": expression})
 
     outputs = {"Output": output}

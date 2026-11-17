@@ -124,6 +124,46 @@ def test_pipeline_preserves_filtered_empty_schema_and_shares_sort_keys(tmp_path,
     assert list(checkpoints[str(sorted_rows)]['Output'].columns) == ['desk', sum_field, 'records']
 
 
+def test_formula_promotes_mixed_numbers_and_preserves_declared_int64_before_filter(tmp_path):
+    builder = WorkflowBuilder()
+    fields = ['GiveIn/Floor', 'lots', 'price', 'Multiplier', 'reference']
+    source = builder.add_text_input(fields, [
+        ['  floor ', '2', '0.625', '2', 'yes'],
+        ['electronic', '1', '', '1', 'no'],
+    ])
+    typed = builder.add_select(
+        [(field, 'True') for field in fields],
+        field_types={
+            'GiveIn/Floor': ('V_WString', 16), 'lots': ('Double', 8),
+            'price': ('FixedDecimal', '19.3'), 'Multiplier': ('Int64', 8),
+        },
+    )
+    formula = builder.add_formula([
+        ('Amount', 'Double', '8', '[lots] * [price] * [Multiplier]'),
+        ('reference', 'Int64', '8', "IF [reference] = 'yes' THEN 9007199254740993 ELSE Null() ENDIF"),
+    ])
+    filtered = builder.add_filter("UpperCase(Trim([GiveIn/Floor])) = 'FLOOR' OR UpperCase(Trim([GiveIn/Floor])) = 'GIVEIN'")
+    builder.connect(source, typed)
+    builder.connect(typed, formula)
+    builder.connect(formula, filtered)
+    workflow = parse(builder, tmp_path)
+    phase_one = run_workflow_graph(workflow, WorkflowContext())
+    artifact, checkpoints = run_readable(workflow, tmp_path)
+
+    assert '.str.strip().str.upper()' in artifact.source
+    for node in (formula, filtered):
+        for anchor, expected in phase_one.node_results[str(node)].outputs.items():
+            actual = checkpoints[str(node)][anchor]
+            pd.testing.assert_frame_equal(actual, expected, check_exact=True)
+            assert actual.attrs == expected.attrs
+    true_frame = checkpoints[str(filtered)]['True']
+    false_frame = checkpoints[str(filtered)]['False']
+    assert true_frame['Amount'].tolist() == [2.5]
+    assert true_frame['reference'].tolist() == [9007199254740993]
+    assert str(true_frame['reference'].dtype) == 'Int64'
+    assert false_frame[['Amount', 'reference']].isna().all().all()
+
+
 def test_unknown_node_blocks_compilation(tmp_path):
     builder = WorkflowBuilder()
     builder.add_text_input(['value'], [['1']])

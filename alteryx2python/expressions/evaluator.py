@@ -12,6 +12,7 @@ from alteryx2python.expressions.ast import (
 )
 from alteryx2python.expressions.errors import UnsupportedExpressionError
 from alteryx2python.expressions.functions import call_function
+from alteryx2python.expressions.numeric import add_nullable, arithmetic_operand, as_formula_value
 
 
 def evaluate_expression(node, row: dict[str, Any], constants: dict[str, Any] | None = None) -> Any:
@@ -64,17 +65,16 @@ def _evaluate_binary(node: BinaryExpression, row: dict[str, Any], constants: dic
     left = evaluate_expression(node.left, row, constants)
     right = evaluate_expression(node.right, row, constants)
     if node.operator == "+":
-        if left is None and isinstance(right, (int, float)):
-            left = 0
-        if right is None and isinstance(left, (int, float)):
-            right = 0
-        return left + right
+        return add_nullable(left, right)
+    if node.operator in {"-", "*", "/"}:
+        left, right = arithmetic_operand(left), arithmetic_operand(right)
     if node.operator == "-":
         return left - right
     if node.operator == "*":
         return left * right
     if node.operator == "/":
         return left / right
+    left, right = as_formula_value(left), as_formula_value(right)
     if node.operator == ">":
         if left is None or right is None:
             return False

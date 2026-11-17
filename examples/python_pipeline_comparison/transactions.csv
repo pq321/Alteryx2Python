@@ -1,11 +1,13 @@
-trade_id,trade_date,desk_region,product_code,booking_status,amount_minor
-T004,2026-10-14,EMEA,FX,posted,180
-T001,2026-10-13,APAC,FX,posted,120
-T002,2026-10-13,APAC,Rates,posted,210
-T002,2026-10-13,APAC,Rates,posted,900
-T003,2026-10-13,APAC,FX,posted,150
-T005,2026-10-13,EMEA,FX,posted,100
-T006,2026-10-13,,FX,posted,400
-T007,2026-10-13,APAC,FX,posted,
-T008,2026-10-13,EMEA,FX,declined,200
-T009,2026-10-13,EMEA,Rates,posted,99
+trade_id,trade_date,desk_region,product_code,booking_status,quantity,unit_price,contract_multiplier,GiveIn/Floor,Config_File_Path
+T004,2026-10-14,EMEA,FX,posted,4,0.625,1," Floor ",config.xlsx
+T001,2026-10-13,APAC,FX,posted,2,0.625,1,"  floor  ",config.xlsx
+T002,2026-10-13,APAC,Rates,posted,2,0.375,2," GiveIn",config.xlsx
+T002,2026-10-13,APAC,Rates,posted,1,9,1,FLOOR,config.xlsx
+T003,2026-10-13,APAC,FX,posted,1,1.5,1," gIvEiN ",config.xlsx
+T005,2026-10-13,EMEA,FX,posted,2,0.25,2,FLOOR,config.xlsx
+T006,2026-10-13,,FX,posted,1,4,1,FLOOR,config.xlsx
+T007,2026-10-13,APAC,FX,posted,1,,1,FLOOR,config.xlsx
+T008,2026-10-13,EMEA,FX,declined,1,2,1,GIVEIN,config.xlsx
+T009,2026-10-13,EMEA,Rates,posted,1,0.75,1,FLOOR,config.xlsx
+T010,2026-10-13,EMEA,Rates,posted,1,3,1,Electronic,config.xlsx
+T011,2026-10-13,APAC,Rates,posted,1,3,1,,config.xlsx
