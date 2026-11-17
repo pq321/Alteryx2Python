@@ -1,5 +1,5 @@
 import {t, tr, getLanguage, setLanguage, localizeStatic, type Language} from './i18n.js';
-import {type Graph, type Tool, type WorkflowNode, type Point, type CompileResult, type RunResult, type ImportedData, type Preview, NODE_W, NODE_H, labels, symbols, toolLabel, categoryLabel, decodeGraph, exampleGraph, connectError} from './model.js';
+import {type Graph, type Tool, type ToolCatalogue, type WorkflowNode, type Point, type CompileResult, type RunResult, type ImportedData, type Preview, NODE_W, NODE_H, labels, symbols, toolLabel, categoryLabel, decodeGraph, exampleGraph, connectError} from './model.js';
 import {el, byId, button, request, download, confirmReplace} from './ui.js';
 import {Canvas} from './canvas.js';
 import {ConfigPanel} from './config.js';
@@ -8,6 +8,7 @@ import {WorkflowSettings} from './settings.js';
 import {hasPendingEdits} from './advanced.js';
 const STORAGE = 'alteryx2python.editor.v2';
 let graph: Graph = {name: tr('未命名工作流'), nodes: [], edges: []}, tools: Tool[] = [], selected: string | null = null;
+let catalogue: ToolCatalogue | undefined;
 let history: string[] = [], cursor = -1, compiled: CompileResult | null = null, result: RunResult | null = null;
 let compiledGraph = '', runGraph = '', activeTab = 'result', busy = false, importTarget: string | null = null;
 let lastRunSeconds: string | null = null;
@@ -25,8 +26,10 @@ const panel = new ConfigPanel(() => graph, () => tools, changed, pickFile, (node
   const imported = await request<ImportedData>('/api/import', {sourceFile: node.config.sourceFile, name: node.config.name, sheet});
   if (graph !== owner || !graph.nodes.includes(node)) return;
   node.config = {...imported}; changed(); panel.render(node); status(tr('已切换工作表'));
-}));
-const settings = new WorkflowSettings(() => graph, changed);
+}), () => catalogue?.expressionFunctions ?? [], () => catalogue?.fieldSizes ?? {}, (node, anchor) => (
+  runGraph === fingerprint() ? result?.previews.find(item => item.node === node && item.anchor === anchor)?.columns : undefined
+));
+const settings = new WorkflowSettings(() => graph, changed, () => catalogue?.workflowConfig.deliveryProfiles ?? []);
 let macroFiles: File[] = [];
 function registerGraphTools(): void {
   if (!Array.isArray(graph.toolDefinitions)) return;
@@ -128,16 +131,31 @@ function deleteNode(): void {
 }
 function palette(): void {
   const container = byId('palette'), query = byId<HTMLInputElement>('toolSearch').value.toLowerCase(); container.replaceChildren();
-  const visible = tools.filter(t => [t.type, t.label, labels[t.type] ?? '', categoryLabel(t.category)].join(' ').toLowerCase().includes(query));
+  const picker = byId<HTMLSelectElement>('toolCategory'), selectedCategory = picker.value;
+  picker.setAttribute('aria-label', tr('工具分类'));
+  picker.replaceChildren();
+  const categories = [...new Set(tools.map(tool => tool.category))];
+  for (const category of ['', ...categories]) {
+    const option = el('option', '', category ? categoryLabel(category) : tr('全部工具'));
+    option.value = category; picker.append(option);
+  }
+  picker.value = categories.includes(selectedCategory) ? selectedCategory : '';
+  const visible = tools.filter(t => (!query || [t.type, t.label, labels[t.type] ?? '', categoryLabel(t.category)].join(' ').toLowerCase().includes(query))
+    && (!picker.value || t.category === picker.value));
   for (const category of [...new Set(visible.map(t => t.category))]) {
     const group = el('section', 'palette-group'); group.append(el('h3', '', categoryLabel(category)));
     visible.filter(t => t.category === category).forEach(tool => {
-      const item = button('', () => addNode(tool.type), 'palette-item', tool.label); item.dataset.category = category; item.draggable = true; item.dataset.tool = tool.type;
+      const item = button('', () => addNode(tool.type), 'palette-item', [tool.label, tool.configurationNote].filter(Boolean).join(' · ')); item.dataset.category = category; item.draggable = true; item.dataset.tool = tool.type;
       item.append(el('span', 'tool-icon', symbols[tool.type] ?? '◇'), el('span', '', toolLabel(tool)));
       item.addEventListener('dragstart', event => { event.dataTransfer?.setData('application/x-workflow-tool', tool.type); if (event.dataTransfer) event.dataTransfer.effectAllowed = 'copy'; }); group.append(item);
     }); container.append(group);
   }
-  if (!visible.length) container.append(el('p', 'muted', tr('没有匹配的工具')));
+  const unavailable = catalogue?.unavailable.filter(tool => (tool.type + ' ' + tool.label + ' ' + toolLabel(tool)).toLowerCase().includes(query)) ?? [];
+  if (query && unavailable.length) {
+    const group = el('section', 'palette-group'); group.append(el('h3', '', tr('当前不可用')));
+    unavailable.forEach(tool => { const row = el('div', 'palette-item unavailable-tool'); row.append(el('span', '', toolLabel(tool)), el('small', '', tool.reason)); group.append(row); });
+    container.append(group);
+  } else if (!visible.length) container.append(el('p', 'muted', tr('没有匹配的工具')));
 }
 function pickFile(target: string | null = null): void { importTarget = target; dataInput.value = ''; dataInput.click(); }
 async function fileData(file: File): Promise<string> {
@@ -201,12 +219,15 @@ async function execute(run: boolean): Promise<void> {
       const final = [...result.previews].reverse().find(p => graph.nodes.find(n => n.id === p.node)?.type === 'DbFileOutput') ?? result.previews.find(p => p.node === last?.node);
       if (final) previewSelect.value = previewKey(final);
       lastRunSeconds = ((performance.now() - started) / 1000).toFixed(2); byId('runTime').textContent = t('运行耗时 {seconds}s', {seconds: lastRunSeconds}); showPreview(); tab('result');
+      panel.render(currentNode());
     } else tab('python');
     if ('previews' in response) showExecution();
     updateNotice(); status(run ? tr('运行完成') : response.unsupported.length ? t('独立 Python 导出存在限制：{details}', {details: response.unsupported.join('; ')}) : tr('代码已生成'), !run && !!response.unsupported.length);
   } catch (error) {
     if (run) { runGraph = ''; byId('tabResult').replaceChildren(el('div', 'inline-error', error instanceof Error ? error.message : String(error))); tab('result'); }
-    if (error && typeof error === 'object' && 'details' in error && error.details && typeof error.details === 'object' && 'stdout' in error.details) showExecution(String(error.details.stdout));
+    if (error && typeof error === 'object' && 'details' in error && error.details && typeof error.details === 'object' && 'stdout' in error.details) {
+      showExecution([error.details.stdout, 'workflowLog' in error.details ? error.details.workflowLog : ''].filter(Boolean).join('\n'));
+    }
     status(error instanceof Error ? error.message : String(error), true); updateNotice(); updateDownload();
   } finally { busy = false; byId<HTMLButtonElement>('btnRun').disabled = false; byId<HTMLButtonElement>('btnCompile').disabled = false; }
 }
@@ -249,7 +270,7 @@ bind('btnPalette', () => { byId('palettePanel').hidden = true; byId('btnExpandPa
 bind('btnExpandPalette', () => { byId('palettePanel').hidden = false; byId('btnExpandPalette').hidden = true; });
 bind('btnCollapseResult', () => { const collapsed = byId('bottomPanel').classList.toggle('collapsed'); byId('btnCollapseResult').textContent = collapsed ? '⌃' : '⌄'; });
 nameInput.addEventListener('input', () => { graph.name = nameInput.value; changed(); });
-byId('toolSearch').addEventListener('input', palette); previewSelect.addEventListener('change', showPreview);
+byId('toolSearch').addEventListener('input', palette); byId('toolCategory').addEventListener('change', palette); previewSelect.addEventListener('change', showPreview);
 dataInput.addEventListener('change', () => { const target = importTarget; importTarget = null; guard(() => importFiles(Array.from(dataInput.files ?? []), target)); });
 byId<HTMLInputElement>('workflowFile').addEventListener('change', event => guard(async () => {
   const file = (event.target as HTMLInputElement).files?.[0]; if (file) await importWorkflow(file);
@@ -298,7 +319,8 @@ resize('configResize', true); resize('resultResize', false);
 window.addEventListener('beforeunload', persist);
 async function init(): Promise<void> {
   try {
-    tools = (await request<{tools: Tool[]}>('/api/tools')).tools;
+    catalogue = await request<ToolCatalogue>('/api/tools');
+    tools = catalogue.tools;
     if (!Array.isArray(tools) || !tools.length) throw new Error(tr('工具列表为空'));
     let saved: string | null = null;
     try { saved = localStorage.getItem(STORAGE); } catch { status(tr('本地存储不可用'), true); }

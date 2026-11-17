@@ -36,9 +36,10 @@ or separate frontend server is required.
 - Drop CSV, TSV, TXT, or XLSX files onto the canvas to create real Input File
   nodes. The file picker supports multiple files. Dropping onto a file node's
   upload area replaces its file. Files are limited to 20 MiB each.
-- CSV import handles quoted cells, BOMs, UTF-8, UTF-16 with a BOM, GB18030, and
-  common delimiters. Blank/duplicate headings and ragged records are rejected.
-  XLSX inputs expose a worksheet selector. Legacy XLS is not offered.
+- CSV import handles quoted cells, Unicode BOMs, common delimiters and
+  automatic detection of legacy encodings, including Japanese CP932.
+  CSV still rejects blank/duplicate headings and ragged records. XLSX has
+  a worksheet selector and names each blank heading `F<N>` by position.
 - Uploads and selected worksheets are normalized to UTF-8 CSV under
   `webapp/.uploads/` (gitignored). Node previews show the first 100 rows;
   execution reads the entire normalized file. Original uploads are retained
@@ -85,6 +86,22 @@ the server cannot infer an original directory from a browser upload filename.
 
 ## Execution And Export
 
+- The tool palette supports category selection and search. Search also shows
+  known unavailable tools. Formula and Custom Filter can insert upstream
+  fields and functions from the shared compiler registry.
+- Dynamic Input supports CSV/XLSX file lists with Change Entire File Path.
+  Append Fields exposes source/target qualified field selections and renames.
+  Fuzzy Match supports exact-key pairing in the runtime.
+- Choose `xlsx-table-v1` in Workflow Settings for grouped Table → Layout →
+  Render workbook output. Group-based file naming supports Prepend and
+  ReplacePath in the XLSX profile.
+- Set Replay date or date-time to supply an ISO date to the editor run. Pass
+  `--as-of` when running the generated Python with the same date.
+- To migrate an enabled After Run command to Python logging, enter its
+  zero-based XML event index as a string in Python logging event indices,
+  such as `["0"]`. The run returns a JSONL log artifact and the generated
+  script supports `--workflow-log`. Events keep their original XML for
+  Alteryx export.
 - Run executes every node through the canonical Python runtime, including
   workflows without an Output Data sink. Each node/anchor has a result preview.
 - Result previews show at most 500 rows; CSV downloads contain all output rows.
@@ -126,8 +143,10 @@ or completed user acceptance.
   `previews` with columns, first 500 rows, rowCount and complete CSV data.
 
 Runtime options include answers, constants, delivery_profile, allowed_commands,
-input_dir, command_working_dir, event_working_dir, command_timeout and
-allow_external_runtimes. SMTP defaults to draft mode; credentials belong in the
+input_dir, command_working_dir, event_working_dir, command_timeout,
+allow_external_runtimes, as_of, input_bindings and log_event_ids.
+Input bindings map Input Data tool IDs to replacement file paths.
+Email defaults to draft mode; SMTP credentials belong in the
 server environment. Unknown runtime options fail validation.
 
 ## Verification

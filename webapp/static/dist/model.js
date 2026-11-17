@@ -11,8 +11,9 @@ export const symbols = {
     Unique: '≠', MultiRowFormula: 'ƒ', DateTime: '◷', Summarize: 'Σ', CrossTab: '⊞', Transpose: '⇄',
     RecordID: '#', Sample: '⅟', RunningTotal: '∑', Rank: '≡', TextToColumns: '⋮', Join: '⋈', Union: '∪', RegEx: '.*',
 };
-export const categories = { 'In/Out': '输入 / 输出', Preparation: '数据准备', Transform: '数据转换', Join: '数据连接', Parse: '解析' };
-export const toolLabel = (tool) => tool ? tr(labels[tool.type] ?? ('label' in tool && typeof tool.label === 'string' ? tool.label : tool.type)) : '';
+export const categories = { 'In/Out': '输入 / 输出', Preparation: '数据准备', Transform: '数据转换', Join: '数据连接', Parse: '解析',
+    Reporting: '报告', Interface: '界面', Developer: '开发人员', Documentation: '文档', Macros: '宏' };
+export const toolLabel = (tool) => tool ? tr(labels[tool.type] ?? (typeof tool.label === 'string' ? tool.label : tool.type)) : '';
 export const categoryLabel = (category) => tr(categories[category] ?? category);
 export function ports(node, tools, input) { return (input ? node.inputs : node.outputs) ?? (input ? tools.find(t => t.type === node.type)?.inputs : tools.find(t => t.type === node.type)?.outputs) ?? []; }
 export const text = (config, key, fallback = '') => String(config[key] ?? fallback);
@@ -108,11 +109,12 @@ export function upstreamFields(graph, id, seen = new Set(), anchor = 'Output') {
     if (!node)
         return [];
     const c = node.config;
+    const xml = typeof c.configurationXml === 'string' && typeof DOMParser !== 'undefined'
+        ? new DOMParser().parseFromString(c.configurationXml, 'application/xml') : undefined;
     if (node.type === 'TextInput' || node.type === 'DbFileInput') {
-        if (strings(c, 'fields').length || typeof c.configurationXml !== 'string' || typeof DOMParser === 'undefined')
+        if (strings(c, 'fields').length || !xml)
             return strings(c, 'fields');
-        const document = new DOMParser().parseFromString(c.configurationXml, 'application/xml');
-        return Array.from(document.querySelectorAll('Fields > Field, RecordInfo > Field')).map(field => field.getAttribute('name') ?? '').filter(Boolean);
+        return Array.from(xml.querySelectorAll('Fields > Field, RecordInfo > Field')).map(field => field.getAttribute('name') ?? '').filter(Boolean);
     }
     const incoming = graph.edges.filter(e => e.to === id);
     if (node.type === 'Join')
@@ -128,7 +130,9 @@ export function upstreamFields(graph, id, seen = new Set(), anchor = 'Output') {
         result = result.filter(f => picks.find(p => p.field === f)?.selected !== 'False' && (Boolean(c.includeUnknown) || picks.some(p => p.field === f))).map(f => picks.find(p => p.field === f)?.rename || f);
     }
     if (node.type === 'Formula')
-        result.push(...entries(c, 'expressions').map(e => e.field ?? ''));
+        result.push(...(xml
+            ? Array.from(xml.querySelectorAll('FormulaFields > FormulaField'), field => field.getAttribute('field') ?? '')
+            : entries(c, 'expressions').map(e => e.field ?? '')));
     if (node.type === 'Summarize')
         result = entries(c, 'actions').map(e => e.rename || e.field || '');
     if (node.type === 'RecordID')

@@ -4,9 +4,11 @@ import { codeEditor, parseObject, parseXml, workflowXmlValue, applyWorkflowXml }
 export class WorkflowSettings {
     graph;
     changed;
-    constructor(graph, changed) {
+    deliveryProfiles;
+    constructor(graph, changed, deliveryProfiles) {
         this.graph = graph;
         this.changed = changed;
+        this.deliveryProfiles = deliveryProfiles;
     }
     render() {
         const graph = this.graph(), body = byId('workflowSettingsBody');
@@ -22,18 +24,36 @@ export class WorkflowSettings {
             body.append(wrap);
         };
         select('参数导出方式', [['dynamic', '动态参数'], ['specialized', '固定当前回答']], graph.parameterMode ?? 'dynamic', value => { graph.parameterMode = value; });
-        select('交付模式', [['html-draft-v1', 'html-draft-v1'], ['html-smtp-v1', 'html-smtp-v1']], String(runtime().delivery_profile ?? 'html-draft-v1'), value => { graph.runtime = { ...runtime(), delivery_profile: value }; });
+        select('交付模式', this.deliveryProfiles().map(profile => [profile, profile]), String(runtime().delivery_profile ?? 'html-draft-v1'), value => { graph.runtime = { ...runtime(), delivery_profile: value }; });
+        const replay = el('label', 'config-field', tr('重放日期时间')), date = el('input');
+        date.placeholder = '2026-10-13T09:00:00';
+        date.value = String(runtime().as_of ?? '');
+        date.addEventListener('change', () => {
+            const next = { ...runtime() }, value = date.value.trim();
+            if (value)
+                next.as_of = value;
+            else
+                delete next.as_of;
+            graph.runtime = next;
+            this.changed();
+            this.render();
+        });
+        replay.append(date);
+        body.append(replay);
         codeEditor(body, graph, 'runtimeJson', '完整运行参数 JSON', JSON.stringify(runtime(), null, 2), value => { parseObject(value); }, value => { graph.runtime = parseObject(value); this.changed(); this.render(); }, () => JSON.stringify(runtime(), null, 2));
-        for (const [key, label] of [['answers', '用户回答 JSON'], ['constants', '变量覆盖 JSON'], ['allowed_commands', '允许的命令 JSON']]) {
-            codeEditor(body, graph, 'runtime.' + key, label, JSON.stringify(runtime()[key] ?? (key === 'allowed_commands' ? [] : {}), null, 2), value => {
-                if (key !== 'allowed_commands')
+        for (const [key, label] of [['answers', '用户回答 JSON'], ['constants', '变量覆盖 JSON'], ['input_bindings', '输入文件绑定 JSON'],
+            ['allowed_commands', '允许的命令 JSON'], ['log_event_ids', 'Python 日志事件索引 JSON']]) {
+            const array = key === 'allowed_commands' || key === 'log_event_ids';
+            const current = () => JSON.stringify(runtime()[key] ?? (array ? [] : {}), null, 2);
+            codeEditor(body, graph, 'runtime.' + key, label, current(), value => {
+                if (!array)
                     parseObject(value);
                 else {
                     const items = JSON.parse(value);
                     if (!Array.isArray(items) || !items.every(item => typeof item === 'string'))
                         throw new Error(t('JSON 字符串数组'));
                 }
-            }, value => { graph.runtime = { ...runtime(), [key]: JSON.parse(value) }; this.changed(); this.render(); }, () => JSON.stringify(runtime()[key] ?? (key === 'allowed_commands' ? [] : {}), null, 2));
+            }, value => { graph.runtime = { ...runtime(), [key]: JSON.parse(value) }; this.changed(); this.render(); }, current);
         }
         const sections = [
             ['propertiesXml', 'Properties', '工作流属性 XML'],
@@ -46,6 +66,37 @@ export class WorkflowSettings {
             details.append(el('summary', '', t(label)));
             const current = () => workflowXmlValue(graph, key);
             const input = codeEditor(details, graph, key, label, current(), value => { parseXml(value, root); }, value => { applyWorkflowXml(graph, key, value); this.changed(); this.render(); }, current);
+            if (root === 'Properties') {
+                const row = el('label', 'check-label'), cancel = el('input');
+                cancel.type = 'checkbox';
+                const refresh = () => {
+                    try {
+                        const source = parseXml(input.value, root);
+                        const option = source.documentElement.querySelector(':scope > CancelOnError');
+                        cancel.disabled = false;
+                        cancel.checked = ['true', '1'].includes((option?.getAttribute('value') ?? option?.textContent ?? '').toLowerCase());
+                    }
+                    catch {
+                        cancel.disabled = true;
+                    }
+                };
+                cancel.addEventListener('change', () => {
+                    const source = parseXml(input.value, root);
+                    let option = source.documentElement.querySelector(':scope > CancelOnError');
+                    if (!option) {
+                        option = source.createElement('CancelOnError');
+                        source.documentElement.append(option);
+                    }
+                    option.setAttribute('value', cancel.checked ? 'True' : 'False');
+                    input.value = new XMLSerializer().serializeToString(source);
+                    input.dispatchEvent(new Event('input'));
+                });
+                input.addEventListener('input', refresh);
+                input.addEventListener('editor-reset', refresh);
+                row.append(cancel, document.createTextNode(tr('出错时取消运行')));
+                details.insertBefore(row, details.children[1] ?? null);
+                refresh();
+            }
             if (root === 'Events') {
                 const form = el('div');
                 details.append(form);
@@ -67,7 +118,7 @@ export class WorkflowSettings {
                     } };
                     for (const [index, event] of Array.from(document.documentElement.querySelectorAll(':scope > Event')).entries()) {
                         const section = el('details', 'select-field');
-                        section.append(el('summary', '', t('事件') + ' ' + (index + 1)));
+                        section.append(el('summary', '', t('事件') + ' #' + index));
                         const aliases = { cmd_CommandArguments: ['cmd_CommandArguments', 'cmd_CommandLine'], email_SMTPServer: ['email_SMTPServer', 'email_SMTP'] };
                         const spelling = (name) => (aliases[name] ?? [name]).find(key => event.querySelector(':scope > ' + key) || event.hasAttribute(key)) ?? name;
                         const get = (name) => { const key = spelling(name), child = event.querySelector(':scope > ' + key); return child?.getAttribute('value') ?? child?.textContent ?? event.getAttribute(key) ?? ''; };

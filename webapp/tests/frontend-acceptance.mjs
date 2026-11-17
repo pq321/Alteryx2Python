@@ -18,8 +18,9 @@ async function apply(key, value) {
   await openEditor(key); await editor(key).fill(value); await section(key).getByRole('button', {name: 'Apply', exact: true}).click();
 }
 async function loadGraph(graph) {
+  const replacing = await page.locator('.node').count() > 0;
   await page.locator('#workflowFile').setInputFiles({name: 'workflow.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(graph))});
-  if (await page.locator('#confirmDialog').isVisible()) await page.locator('#confirmDialog button[value="confirm"]').click();
+  if (replacing) await page.locator('#confirmDialog button[value="confirm"]').click();
   await status('Workflow loaded');
 }
 try {
@@ -31,6 +32,13 @@ try {
   assert.match(await page.locator('#tabResult').innerText(), /No results yet/);
   const toolsResponse = await page.request.get(base + '/api/tools'), catalogue = await toolsResponse.json();
   assert.equal(await page.locator('[data-tool]').count(), catalogue.tools.length);
+  await page.locator('#toolCategory').selectOption('Join');
+  assert.equal(await page.locator('[data-tool="AppendFields"]').count(), 1);
+  assert.equal(await page.locator('[data-tool="DynamicInput"]').count(), 0);
+  await page.locator('#toolCategory').selectOption('');
+  await page.locator('#toolSearch').fill('APIOutput');
+  assert.match(await page.locator('#palette').innerText(), /Currently unavailable/);
+  await page.locator('#toolSearch').clear();
   const graph = {name: '业务数据保持原文', nodes: [
     {id: '1', type: 'TextInput', x: 50, y: 100, config: {fields: ['amount', 'label'], rows: [['2', '筛选'], ['5', 'English']]}},
     {id: '2', type: 'DbFileOutput', x: 350, y: 100, config: {file: 'result.csv'}},
@@ -148,6 +156,53 @@ try {
     assert.equal(await page.locator('#workflowSettingsDialog').evaluate(dialog => { const rect = dialog.getBoundingClientRect(); return rect.left >= 0 && rect.right <= innerWidth && rect.top >= 0 && rect.bottom <= innerHeight; }), true);
     await page.locator('#btnCloseSettings').click();
   }
+  await page.setViewportSize({width: 1440, height: 960});
+  await loadGraph({name: 'Filter and Formula', nodes: [
+    {id: '1', type: 'TextInput', x: 50, y: 100, config: {fields: ['amount'], rows: [['2'], ['5']]}},
+    {id: '2', type: 'Formula', x: 320, y: 100, config: {configurationXml: '<Configuration><FormulaFields><FormulaField field="rounded" type="Int32" size="4" expression="[amount]" custom="keep"/></FormulaFields></Configuration>'}},
+    {id: '3', type: 'Filter', x: 590, y: 100, config: {expression: '[rounded] > 2'}},
+  ], edges: [{from: '1', fromAnchor: 'Output', to: '2', toAnchor: 'Input'}, {from: '2', fromAnchor: 'Output', to: '3', toAnchor: 'Input'}]});
+  await page.locator('.node[data-node="2"]').click();
+  const config = page.locator('#configBody');
+  await config.getByRole('combobox', {name: 'Type', exact: true}).selectOption('Double');
+  const expression = config.getByRole('textbox', {name: 'Expression', exact: true});
+  await expression.clear();
+  await config.getByRole('combobox', {name: 'Insert function', exact: true}).selectOption('ROUND');
+  assert.equal(await expression.inputValue(), 'ROUND()');
+  await config.getByRole('combobox', {name: 'Insert field', exact: true}).selectOption('amount');
+  assert.equal(await expression.inputValue(), 'ROUND([amount])');
+  await expression.fill('ROUND([amount], 2)');
+  await page.locator('.node[data-node="3"]').click();
+  await config.getByRole('radio', {name: 'Basic filter', exact: true}).check();
+  await config.getByLabel('Input field', {exact: true}).fill('rounded');
+  await config.getByRole('combobox', {name: 'Operator', exact: true}).selectOption('>');
+  await config.getByRole('combobox', {name: 'Comparison value type', exact: true}).selectOption('Number');
+  await config.getByRole('textbox', {name: 'Comparison value', exact: true}).fill('3');
+  await page.locator('#btnRun').click(); await status('Run completed');
+  await page.locator('#previewSelect').selectOption(JSON.stringify(['3', 'True']));
+  assert.equal(await page.locator('#tabResult tbody tr').count(), 1);
+  assert.match(await page.locator('#tabResult tbody tr').innerText(), /5\s+6/);
+  assert.match(await page.locator('#tabYxmd').textContent(), /custom="keep"/);
+  await page.locator('#btnWorkflowSettings').click();
+  await page.getByRole('combobox', {name: 'Delivery profile', exact: true}).selectOption('xlsx-table-v1');
+  const replay = page.getByRole('textbox', {name: 'Replay date or date-time', exact: true});
+  await replay.fill('2026-10-13'); await replay.press('Tab');
+  assert.equal(await replay.inputValue(), '2026-10-13');
+  const runtime = JSON.parse(await editor('runtimeJson').inputValue());
+  assert.deepEqual(runtime, {delivery_profile: 'xlsx-table-v1', as_of: '2026-10-13'});
+  await page.locator('#btnCloseSettings').click();
+  await loadGraph({name: 'Append Fields', nodes: [
+    {id: '1', type: 'TextInput', x: 50, y: 70, config: {fields: ['desk'], rows: [['APAC'], ['EMEA']]}},
+    {id: '2', type: 'TextInput', x: 50, y: 190, config: {fields: ['desk'], rows: [['Shared']]}},
+    {id: '3', type: 'AppendFields', x: 330, y: 110, config: {configurationXml: '<Configuration><CartesianMode>Error</CartesianMode></Configuration>'}},
+  ], edges: [{from: '1', fromAnchor: 'Output', to: '3', toAnchor: 'Targets'}, {from: '2', fromAnchor: 'Output', to: '3', toAnchor: 'Source'}]});
+  await page.locator('.node[data-node="3"]').click();
+  const source = config.locator('.select-field').filter({hasText: 'Source_desk'});
+  await source.locator('summary').click();
+  await source.getByLabel('Rename', {exact: true}).fill('source_desk_label');
+  await page.locator('#btnRun').click(); await status('Run completed');
+  assert.deepEqual(await page.locator('#tabResult thead th').allTextContents(), ['#', 'desk', 'source_desk_label']);
+  assert.equal(await page.locator('#tabResult tbody tr').count(), 2);
   assert.deepEqual(errors, []);
-  console.log('Frontend acceptance passed: full palette, persistent bilingual UI, graph/code/data preservation, export modes, complete runtime, synchronized XML, conflict rejection, event/mail forms, imported table editing, artifacts, Python stdout, connected macros/reload and desktop/mobile layout.');
+  console.log('Frontend acceptance passed: category filters, bilingual UI, lossless XML, runtime settings, output artifacts, macros, Formula/Filter, Append Fields and desktop/mobile layout.');
 } finally { await browser.close(); }

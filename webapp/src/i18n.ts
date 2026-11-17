@@ -1,6 +1,17 @@
 export type Language = 'zh' | 'en';
 const STORAGE = 'alteryx2python.language';
 export const dictionary = {
+  '当前不可用': 'Currently unavailable', '插入字段': 'Insert field', '插入函数': 'Insert function',
+  '工具分类': 'Tool category', '全部工具': 'All tools',
+  '报告': 'Reporting', '界面': 'Interface', '开发人员': 'Developer', '文档': 'Documentation', '宏': 'Macros',
+  '基本筛选': 'Basic filter', '自定义筛选': 'Custom filter', '运算符': 'Operator', '比较值': 'Comparison value',
+  '比较值类型': 'Comparison value type',
+  '动态输入模式': 'Dynamic Input mode', '路径字段': 'Path field', '路径操作': 'Path action', '跳过文件时': 'On skipped file',
+  '数据源模板': 'Data source template', '布局方式': 'Layout mode', '布局方向': 'Orientation', '分隔方式': 'Separator',
+  '分区名称字段': 'Section name field', '报表字段': 'Report field', '表格模式': 'Table mode', '输出文件': 'Output file',
+  '按字段生成文件': 'Generate files by field', '文件名操作': 'File name action', '多对多追加': 'Many-to-many append',
+  '匹配字段': 'Match field', '上移': 'Move up', '重放日期时间': 'Replay date or date-time', '出错时取消运行': 'Cancel running workflow on error',
+  '输入文件绑定 JSON': 'Input file bindings JSON', 'Python 日志事件索引 JSON': 'Python logging event indices JSON',
   '工作流': 'Workflow', '未命名工作流': 'Untitled workflow', '工作流名称': 'Workflow name', '工作流编辑器': 'Workflow editor',
   '打开': 'Open', '保存': 'Save', '生成代码': 'Generate Python', '▶ 运行': 'Run', '新建': 'New', '示例': 'Example',
   '工具库': 'Tools', '展开工具库': 'Expand tools', '折叠工具库': 'Collapse tools', '搜索工具…': 'Search tools…', '搜索工具': 'Search tools',
@@ -61,6 +72,11 @@ export const dictionary = {
 } as const;
 export type TranslationKey = keyof typeof dictionary;
 const catalogue: Record<string, string> = {
+  'CSV and XLSX file lists using Change Entire File Path.': '读取 CSV 和 XLSX 文件列表，使用「更改完整文件路径」。',
+  'Exact-key matching in Phase 1. Fuzzy algorithms and standalone export require additional support.': 'Phase 1 支持精确键匹配。模糊算法和独立脚本导出仍需适配。',
+  ReadList: '读取数据源列表', Path: '更改完整文件路径', PerGroup: '每组记录',
+  Breaking: '分节', V: '垂直', H: '水平', Prepend: '添加前缀', ReplacePath: '替换完整路径',
+  Number: '数字',
   'AB Testing': 'AB 测试', 'Computer Vision': '计算机视觉', Connect: '连接器', 'Data Investigation': '数据探索', Developer: '开发', Documentation: '文档', Interface: '界面控件', Laboratory: '实验室', 'Machine Learning': '机器学习', Macro: '宏', Macros: '宏', Predictive: '预测分析', 'Predictive Grouping': '预测分组', Prescriptive: '决策优化', Reporting: '报表', Spatial: '空间分析', 'Text Mining': '文本挖掘', 'Time Series': '时间序列',
   'AB Analysis': 'AB 分析', 'AB Controls': 'AB 对照组', 'AB Treatments': 'AB 处理组', 'AB Trend': 'AB 趋势', 'Image Output': '图像输出', Download: '下载',
   'Association Analysis': '关联分析', 'Basic Data Profile': '基础数据概况', 'Contingency Table': '列联表', 'Distribution Analysis': '分布分析', 'Frequency Table': '频率表', 'Heat Plot': '热力图', Histogram: '直方图', 'Importance Weights': '重要性权重', 'Pearson Correlation': '皮尔逊相关系数', 'Plot of Means': '均值图', Scatterplot: '散点图', 'Violin Plot': '小提琴图',

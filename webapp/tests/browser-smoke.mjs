@@ -11,7 +11,11 @@ const errors = [];
 page.on('pageerror', error => errors.push(error.message));
 page.on('console', message => { if (message.type() === 'error') errors.push(message.text()); });
 const base = process.env.EDITOR_URL || 'http://127.0.0.1:18081';
-const waitStatus = text => page.getByRole('status').filter({hasText: text}).waitFor();
+const waitStatus = async expected => {
+  const status = page.locator('#status');
+  try { await status.filter({hasText: expected}).waitFor(); }
+  catch (error) { throw new Error(`Expected "${expected}", received "${await status.innerText()}"`, {cause: error}); }
+};
 try {
   await page.goto(base);
   await waitStatus('就绪');

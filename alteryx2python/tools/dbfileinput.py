@@ -162,7 +162,12 @@ def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, *
 
         start = column_index_from_string(usecols.split(':', 1)[0]) - 1
     labels = header_row.iloc[0].tolist() if not header_row.empty else []
-    names = list(frame.columns)
+    frame.columns = fill_excel_blank_headers(frame.columns, labels, start)
+    return frame
+
+
+def fill_excel_blank_headers(columns, labels, start=0):
+    names = list(columns)
     named_columns = {name for index, name in enumerate(names, start)
                      if index < len(labels) and labels[index] not in (None, '')}
     for index in range(len(names)):
@@ -175,8 +180,7 @@ def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, *
             suffix += 1
         named_columns.add(replacement)
         names[index] = replacement
-    frame.columns = names
-    return frame
+    return names
 
 
 def read_excel_selection(path, selector, *, allow_bare=False, **options):

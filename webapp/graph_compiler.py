@@ -7,6 +7,7 @@ canvas is a real, Designer-loadable workflow.
 """
 from __future__ import annotations
 
+import re
 from typing import Any
 from xml.etree import ElementTree as ET
 
@@ -82,6 +83,23 @@ def _add_node(builder: WorkflowBuilder, node: dict[str, Any]) -> int:
         ]
         return builder.add_formula(expressions, position)
     if kind == "Filter":
+        if config.get("mode") == "Simple":
+            operator = config.get("operator") or "="
+            field = str(config.get("field", ""))
+            raw_operand = str(config.get("operand", ""))
+            operand = (f'<Operand>{escape(raw_operand)}</Operand>'
+                       if operator not in {"IsNull", "IsNotNull", "IsEmpty", "IsNotEmpty"} else "")
+            expression = ""
+            if config.get("operandType") == "Number" and operator in {"=", "!=", ">", ">=", "<", "<="}:
+                if not field or "]" in field or not re.fullmatch(r"-?[0-9]+(?:\.[0-9]+)?", raw_operand.strip()):
+                    raise ValueError("Basic Filter requires a valid field and a numeric comparison value")
+                number = raw_operand.strip()
+                literal = f"(0 - {number[1:]})" if number.startswith("-") else number
+                expression = f"[{field}] {operator} {literal}"
+            return builder._node("Filter", '<Mode>Simple</Mode><Simple>'
+                                 f'<Field>{escape(field)}</Field>'
+                                 f'<Operator>{escape(operator)}</Operator><Operands>{operand}</Operands>'
+                                 f'</Simple><Expression>{escape(expression)}</Expression>', position)
         return builder.add_filter(str(config.get("expression", "")), position)
     if kind == "Select":
         fields = [(str(item.get("field", "")), str(item.get("selected", "True"))) for item in config.get("fields", [])]

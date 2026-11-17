@@ -6,6 +6,7 @@ from email import policy
 from email.parser import BytesParser
 from http.server import ThreadingHTTPServer
 import json
+from io import BytesIO
 from pathlib import Path
 import sys
 from threading import Thread
@@ -15,6 +16,7 @@ from xml.etree import ElementTree as ET
 
 import pandas as pd
 import pytest
+from openpyxl import load_workbook
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "webapp"))
 import server
@@ -46,11 +48,14 @@ def test_palette_is_registry_derived_and_excludes_fake_adapters():
     implemented = {kind for kind in TOOL_REGISTRY.list_tool_types() if not blocked_reason(TOOL_REGISTRY.get(kind))}
     assert types == implemented | {"Macro"}
     assert {"Action", "JupyterCode", "Email", "RunCommand", "WaitSeconds", "MacroOutput"} <= types
-    assert not {"APIOutput", "BlobOutput", "DynamicInput", "FuzzyMatch", "PDFInput", "UNKNOWN"} & types
+    assert {"DynamicInput", "FuzzyMatch", "AppendFields"} <= types
+    assert not {"APIOutput", "BlobOutput", "PDFInput", "UNKNOWN"} & types
     for tool in palette["tools"]:
         assert tool["advancedConfig"]
         assert isinstance(tool["inputs"], list) and isinstance(tool["outputs"], list)
     assert palette["workflowConfig"]["runtime"]["allowed_commands"] == []
+    assert "xlsx-table-v1" in palette["workflowConfig"]["deliveryProfiles"]
+    assert {"ROUND", "GETWORD", "FINANCEPMT", "REGEX_COUNTMATCHES"} <= set(palette["expressionFunctions"])
 
 
 @pytest.mark.parametrize("suffix", [".yxmd", ".yxwz", ".yxmc"])
@@ -132,6 +137,47 @@ def test_constants_overrides_reach_both_runtime_and_canonical_compiler(tmp_path)
     result = server._run(graph)
     assert result["rows"] == [[2, 8.0]]
     assert result["manifest"]["workflow_constants"]["User.rate"] == 4
+
+
+def test_dynamic_input_grouped_xlsx_replay_and_migrated_event_in_editor(tmp_path):
+    (tmp_path / "source.csv").write_text("label,amount\n東京,8\n", encoding="cp932")
+    builder = WorkflowBuilder()
+    paths = builder.add_text_input(["path"], [["source.csv"]])
+    dynamic = builder._node("DynamicInput", """
+        <InputConfiguration><Configuration><File FileFormat="0">template.csv</File>
+        <FormatSpecificOptions><CodePage>932</CodePage></FormatSpecificOptions></Configuration></InputConfiguration>
+        <Mode>ReadList</Mode><ReadList_Field>path</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+    """, (200, 100))
+    formula = builder.add_formula([("sheet", "V_WString", "", 'DateTimeFormat(DateTimeNow(), "%Y%m%d")')])
+    table = builder._node("PortfolioComposerTable", """
+        <TableMode>Basic</TableMode><GroupingFields><Field name="sheet"/></GroupingFields>
+        <ShowHeader value="True"/><TableFields><Field name="label"/><Field name="amount"/></TableFields>
+    """, (400, 100))
+    layout = builder._node("PortfolioComposerLayout", """
+        <GroupingMode>PerGroup</GroupingMode><GroupingFields><Field name="sheet"/></GroupingFields>
+        <Orientation>V</Orientation><Separator>Breaking</Separator><SectionNameForGroup>sheet</SectionNameForGroup>
+        <LayoutFields><Field name="Table" selected="True"/></LayoutFields>
+    """, (500, 100))
+    render = builder._node("PortfolioComposerRender", "<OutputFile>report.xlsx</OutputFile><DataField>Layout</DataField>", (600, 100))
+    chain = [paths, dynamic, formula, table, layout, render]
+    for source, target in zip(chain, chain[1:]):
+        builder.connect(source, target)
+    graph = graph_from_xml(builder.render(), tmp_path, "report.yxmd")
+    graph["eventsXml"] = "<Events><Event><When>AfterRun</When><cmd_Program>unavailable.cmd</cmd_Program></Event></Events>"
+    graph["runtime"] = {"delivery_profile": "xlsx-table-v1", "as_of": "2026-10-13", "log_event_ids": ["0"]}
+    result = server._run(graph)
+    assert result["phase2Status"] == "compiled", result["blockers"]
+    namespace = {"__file__": str(tmp_path / "delivery.py")}
+    exec(result["python"], namespace)
+    out = tmp_path / "standalone"
+    namespace["run_workflow"](input_dir=tmp_path, output_dir=out, as_of="2026-10-13")
+    artifacts = {item["name"]: base64.b64decode(item["content"]) for item in result["artifacts"]}
+    runtime_book = load_workbook(BytesIO(artifacts["report.xlsx"]))
+    standalone_book = load_workbook(out / "report.xlsx")
+    assert runtime_book.sheetnames == standalone_book.sheetnames == ["20261013"]
+    assert list(runtime_book.active.values) == list(standalone_book.active.values) == [("label", "amount"), ("東京", "8")]
+    record = json.loads(artifacts["workflow-log.jsonl"])
+    assert record["event_id"] == "0" and record["status"] == "success"
 
 
 def app_xml():

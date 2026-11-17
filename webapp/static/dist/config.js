@@ -3,9 +3,24 @@ import { toolLabel, categoryLabel, strings, entries, rows, text, upstreamFields 
 import { el, button, byId, editGrid, readTable } from './ui.js';
 import { nodeAdvanced, parseXml } from './advanced.js';
 const order = ['Ascending', 'Descending'];
+const filterOperators = ['=', '!=', '>', '>=', '<', '<=', 'Contains', 'DoesNotContain', 'IsNull', 'IsNotNull', 'IsEmpty', 'IsNotEmpty'];
+const unaryFilters = new Set(['IsNull', 'IsNotNull', 'IsEmpty', 'IsNotEmpty']);
+function xmlElement(root, path, create = false) {
+    let parent = root;
+    for (const tag of path.split('/')) {
+        let child = parent.querySelector(':scope > ' + tag);
+        if (!child) {
+            if (!create)
+                return;
+            child = root.ownerDocument.createElement(tag);
+            parent.append(child);
+        }
+        parent = child;
+    }
+    return parent;
+}
 const specs = {
     DbFileOutput: [{ key: 'file', label: '输出文件名 (.csv)' }],
-    Filter: [{ key: 'expression', label: '筛选条件', expression: true }],
     Unique: [{ key: 'field', label: '去重字段', field: true }],
     Join: [{ key: 'leftField', label: '左侧关联字段', field: true }, { key: 'rightField', label: '右侧关联字段', field: true }],
     RegEx: [{ key: 'field', label: '输入字段', field: true }, { key: 'pattern', label: '正则表达式', expression: true }, { key: 'outputField', label: '输出字段名' }],
@@ -24,6 +39,9 @@ export class ConfigPanel {
     changed;
     importFile;
     changeSheet;
+    functions;
+    fieldSizes;
+    previewFields;
     body = byId('configBody');
     serial = 0;
     refreshAdvanced() {
@@ -36,12 +54,15 @@ export class ConfigPanel {
             input.dispatchEvent(new CustomEvent('refresh-source', { detail: value }));
         });
     }
-    constructor(graph, tools, changed, importFile, changeSheet) {
+    constructor(graph, tools, changed, importFile, changeSheet, functions, fieldSizes, previewFields) {
         this.graph = graph;
         this.tools = tools;
         this.changed = changed;
         this.importFile = importFile;
         this.changeSheet = changeSheet;
+        this.functions = functions;
+        this.fieldSizes = fieldSizes;
+        this.previewFields = previewFields;
     }
     render(node) {
         this.body.replaceChildren();
@@ -57,6 +78,8 @@ export class ConfigPanel {
             this.body.append(empty);
             return;
         }
+        if (typeof tool?.configurationNote === 'string')
+            this.body.append(el('p', 'muted', tr(tool.configurationNote)));
         if (typeof node.config.configurationXml === 'string') {
             this.nativeFields(node);
             nodeAdvanced(this.body, node.config, () => { this.changed(); this.render(node); });
@@ -71,7 +94,10 @@ export class ConfigPanel {
                 this.fileInput(node);
                 break;
             case 'Formula':
-                this.list(node, 'expressions', [{ key: 'field', label: '输出字段' }, { key: 'type', label: '类型', options: ['Double', 'Int64', 'String', 'Bool', 'Date', 'DateTime'] }, { key: 'size', label: '长度（可选）' }, { key: 'expression', label: '表达式', expression: true }], () => ({ field: 'NewField', type: 'Double', size: '', expression: '[' + (this.fields(node)[0] ?? 'Col1') + ']' }));
+                this.list(node, 'expressions', [{ key: 'field', label: '输出字段', field: true }, { key: 'type', label: '类型', options: Object.keys(this.fieldSizes()) }, { key: 'size', label: '长度（可选）' }, { key: 'expression', label: '表达式', expression: true }], () => ({ field: 'NewField', type: 'Double', size: '', expression: '[' + (this.fields(node)[0] ?? 'Col1') + ']' }));
+                break;
+            case 'Filter':
+                this.filter(node);
                 break;
             case 'Sort':
                 this.list(node, 'order', [{ key: 'field', label: '排序字段', field: true }, { key: 'order', label: '方向', options: order }], () => ({ field: this.fields(node)[0] ?? 'Col1', order: 'Ascending' }));
@@ -94,11 +120,12 @@ export class ConfigPanel {
         nodeAdvanced(this.body, node.config, () => { this.changed(); this.render(node); });
         this.connections(node);
     }
-    fields(node, key) {
-        const incoming = this.graph().edges.filter(e => e.to === node.id && (node.type !== 'Join' || !key || !['leftField', 'rightField'].includes(key) || e.toAnchor === (key === 'leftField' ? 'Left' : 'Right')));
-        return [...new Set(incoming.flatMap(e => upstreamFields(this.graph(), e.from, new Set(), e.fromAnchor)))];
+    fields(node, key, anchor) {
+        const port = anchor ?? (node.type === 'Join' ? { leftField: 'Left', rightField: 'Right' }[key ?? ''] : undefined);
+        const incoming = this.graph().edges.filter(e => e.to === node.id && (!port || e.toAnchor === port));
+        return [...new Set(incoming.flatMap(e => this.previewFields(e.from, e.fromAnchor) ?? upstreamFields(this.graph(), e.from, new Set(), e.fromAnchor)))];
     }
-    field(parent, config, spec, fields) {
+    field(parent, config, spec, fields, apply = value => { config[spec.key] = value; this.changed(); }) {
         const label = el('label', 'config-field', tr(spec.label));
         let input;
         if (spec.options) {
@@ -106,7 +133,7 @@ export class ConfigPanel {
             const values = [...spec.options];
             if (config[spec.key] && !values.includes(String(config[spec.key])))
                 values.unshift(String(config[spec.key]));
-            values.forEach(value => { const option = el('option', '', value); option.value = value; input.append(option); });
+            values.forEach(value => { const option = el('option', '', tr(value)); option.value = value; input.append(option); });
         }
         else if (spec.expression)
             input = el('textarea');
@@ -127,23 +154,77 @@ export class ConfigPanel {
             input.setAttribute('list', list.id);
             label.append(list);
         }
-        input.addEventListener(input instanceof HTMLSelectElement ? 'change' : 'input', () => { config[spec.key] = input.value; this.changed(); });
+        input.addEventListener(input instanceof HTMLSelectElement ? 'change' : 'input', () => apply(input.value));
         label.append(input);
         parent.append(label);
-        if (spec.expression && fields.length) {
-            const chips = el('div', 'field-list');
-            fields.forEach(value => chips.append(button('[' + value + ']', () => {
-                if (input instanceof HTMLTextAreaElement) {
-                    const start = input.selectionStart, end = input.selectionEnd;
-                    input.setRangeText('[' + value + ']', start, end, 'end');
-                    config[spec.key] = input.value;
-                    this.changed();
-                    input.focus();
+        if (input instanceof HTMLTextAreaElement && spec.key !== 'pattern') {
+            const insert = (value, cursorOffset = 0) => {
+                input.setRangeText(value, input.selectionStart, input.selectionEnd, 'end');
+                const cursor = input.selectionStart - cursorOffset;
+                input.setSelectionRange(cursor, cursor);
+                apply(input.value);
+                input.focus();
+            };
+            const palette = el('div', 'expression-palette');
+            for (const [label, choices, token, offset] of [
+                ['插入字段', fields, (name) => '[' + name + ']', 0],
+                ['插入函数', this.functions(), (name) => name + '()', 1],
+            ]) {
+                if (!choices.length)
+                    continue;
+                const select = el('select');
+                const title = tr(label);
+                select.setAttribute('aria-label', title);
+                select.append(el('option', '', title));
+                for (const value of choices) {
+                    const option = el('option', '', value);
+                    option.value = value;
+                    select.append(option);
                 }
-            }, '', t('插入字段 {name}', { name: value }))));
-            parent.append(chips);
+                select.addEventListener('change', () => { if (select.selectedIndex)
+                    insert(token(select.value), offset); select.selectedIndex = 0; });
+                palette.append(select);
+            }
+            if (palette.childNodes.length)
+                parent.append(palette);
         }
         return input;
+    }
+    filter(node, native) {
+        const config = native ? { mode: native.mode, field: native.field, operator: native.operator, operand: native.operand, expression: native.expression } : node.config;
+        const fields = this.fields(node);
+        const update = (key, value) => {
+            if (native)
+                native.update(key, value);
+            else {
+                config[key] = value;
+                this.changed();
+            }
+            if (key === 'mode' || key === 'operator')
+                this.render(node);
+        };
+        const modes = [['Simple', '基本筛选'], ['Custom', '自定义筛选']];
+        const group = el('div', 'filter-modes');
+        for (const [mode, label] of modes) {
+            const wrap = el('label', 'check-label'), input = el('input');
+            input.type = 'radio';
+            input.name = 'filter-mode';
+            input.checked = (config.mode ?? 'Custom') === mode;
+            input.addEventListener('change', () => update('mode', mode));
+            wrap.append(input, document.createTextNode(tr(label)));
+            group.append(wrap);
+        }
+        this.body.append(group);
+        const settings = config.mode === 'Simple' ? [
+            { key: 'field', label: '输入字段', field: true }, { key: 'operator', label: '运算符', options: filterOperators },
+            ...(!unaryFilters.has(String(config.operator)) ? [
+                ...(!native && !['Contains', 'DoesNotContain'].includes(String(config.operator)) ?
+                    [{ key: 'operandType', label: '比较值类型', options: ['Text', 'Number'] }] : []),
+                { key: 'operand', label: '比较值' },
+            ] : []),
+        ] : [{ key: 'expression', label: '筛选条件', expression: true }];
+        for (const spec of settings)
+            this.field(this.body, { operator: '=', operandType: 'Text', ...config }, spec, fields, value => update(spec.key, value));
     }
     list(node, key, fields, make) {
         const values = entries(node.config, key);
@@ -152,7 +233,17 @@ export class ConfigPanel {
             const group = el('div', 'config-entry'), head = el('div', 'entry-heading');
             head.append(el('span', '', '#' + (index + 1)), button('×', () => { values.splice(index, 1); this.changed(); this.render(node); }, 'danger', t('移除配置 {n}', { n: index + 1 })));
             group.append(head);
-            fields.forEach(spec => this.field(group, value, spec, this.fields(node)));
+            const upstream = this.fields(node);
+            if (node.type === 'Formula')
+                upstream.push(...values.slice(0, index).map(item => item.field).filter(Boolean));
+            fields.forEach(spec => this.field(group, value, spec, [...new Set(upstream)], next => {
+                value[spec.key] = next;
+                if (node.type === 'Formula' && spec.key === 'type')
+                    value.size = String(this.fieldSizes()[next] ?? '');
+                this.changed();
+                if (node.type === 'Formula' && spec.key === 'type')
+                    this.render(node);
+            }));
             this.body.append(group);
         });
         this.body.append(button(tr('+ 添加'), () => { values.push(make()); this.changed(); this.render(node); }, 'secondary'));
@@ -271,6 +362,142 @@ export class ConfigPanel {
             section.append(el('p', 'muted', tr('暂无连接')));
         this.body.append(section);
     }
+    nativeFormula(root, node, save) {
+        const formulas = Array.from(xmlElement(root, 'FormulaFields')?.querySelectorAll(':scope > FormulaField') ?? []);
+        const commit = () => { save(); this.render(node); };
+        const fields = this.fields(node);
+        for (const [index, element] of formulas.entries()) {
+            const group = el('div', 'config-entry'), head = el('div', 'entry-heading');
+            head.append(el('span', '', '#' + (index + 1)), button('×', () => { element.remove(); commit(); }, 'danger', t('移除配置 {n}', { n: index + 1 })));
+            group.append(head);
+            const previous = formulas[index - 1];
+            if (previous)
+                head.append(button('↑', () => { previous.before(element); commit(); }, 'secondary', tr('上移')));
+            const available = [...new Set([...fields, ...formulas.slice(0, index).map(row => row.getAttribute('field') ?? '').filter(Boolean)])];
+            const specs = [
+                { key: 'field', label: '输出字段', field: true }, { key: 'type', label: '类型', options: ['', ...Object.keys(this.fieldSizes())] },
+                { key: 'size', label: '长度（可选）' }, { key: 'scale', label: '小数位' }, { key: 'expression', label: '表达式', expression: true },
+            ];
+            for (const spec of specs)
+                this.field(group, { [spec.key]: element.getAttribute(spec.key) }, spec, available, next => {
+                    if (next || spec.key === 'expression')
+                        element.setAttribute(spec.key, next);
+                    else
+                        element.removeAttribute(spec.key);
+                    if (spec.key === 'type') {
+                        const width = this.fieldSizes()[next];
+                        if (width !== undefined)
+                            element.setAttribute('size', String(width));
+                        else
+                            element.removeAttribute('size');
+                        commit();
+                    }
+                    else
+                        save();
+                });
+            this.body.append(group);
+        }
+        this.body.append(button(tr('+ 添加'), () => {
+            const field = root.ownerDocument.createElement('FormulaField');
+            field.setAttribute('field', 'NewField');
+            field.setAttribute('type', 'Double');
+            field.setAttribute('size', String(this.fieldSizes().Double ?? '8'));
+            field.setAttribute('expression', fields.length ? '[' + fields[0] + ']' : '0');
+            xmlElement(root, 'FormulaFields', true).append(field);
+            commit();
+        }, 'secondary'));
+    }
+    reportFields(root, path, node, label, save) {
+        const group = el('div', 'config-entry');
+        group.append(el('div', 'section-label', tr(label)));
+        const fields = this.fields(node);
+        for (const item of Array.from(xmlElement(root, path)?.querySelectorAll(':scope > Field') ?? [])) {
+            const attr = item.hasAttribute('field') && !item.hasAttribute('name') ? 'field' : 'name';
+            this.field(group, { field: item.getAttribute(attr) }, { key: 'field', label, field: true }, fields, next => { item.setAttribute(attr, next); save(); });
+            if (path !== 'GroupingFields')
+                this.check(group, tr('启用'), item.getAttribute('selected')?.toLowerCase() !== 'false', checked => { item.setAttribute('selected', checked ? 'True' : 'False'); save(); });
+            group.append(button('×', () => { item.remove(); save(); this.render(node); }, 'danger', tr('删除')));
+        }
+        group.append(button(tr('+ 添加字段'), () => {
+            const item = root.ownerDocument.createElement('Field');
+            item.setAttribute('name', '');
+            xmlElement(root, path, true).append(item);
+            save();
+            this.render(node);
+        }, 'secondary'));
+        this.body.append(group);
+    }
+    appendFields(root, node, save) {
+        const path = 'SelectConfiguration/Configuration';
+        const select = xmlElement(root, path);
+        const existing = Array.from(select?.querySelectorAll('SelectFields > SelectField') ?? []);
+        const references = [
+            ...this.fields(node, undefined, 'Targets').map(name => 'Target_' + name),
+            ...this.fields(node, undefined, 'Source').map(name => 'Source_' + name),
+        ];
+        const recorded = existing.map(field => field.getAttribute('field') ?? '');
+        const names = [...new Set([...recorded.filter(Boolean), ...references, '*Unknown'])];
+        const includeUnknown = !existing.length || existing.some(field => field.getAttribute('field') === '*Unknown' && field.getAttribute('selected')?.toLowerCase() !== 'false');
+        const fieldNode = (name, selected) => {
+            const field = root.ownerDocument.createElement('SelectField');
+            field.setAttribute('field', name);
+            field.setAttribute('selected', selected ? 'True' : 'False');
+            return field;
+        };
+        for (const name of names) {
+            const original = existing.find(field => field.getAttribute('field') === name);
+            const details = el('details', 'select-field');
+            const enabled = original ? original.getAttribute('selected')?.toLowerCase() !== 'false' : includeUnknown;
+            const edit = () => {
+                if (original)
+                    return original;
+                const list = xmlElement(root, path + '/SelectFields', true);
+                const current = Array.from(list.children).find(field => field.getAttribute('field') === name);
+                if (current)
+                    return current;
+                if (!existing.length && name !== '*Unknown' && !list.querySelector('[field="*Unknown"]'))
+                    list.append(fieldNode('*Unknown', true));
+                const entry = fieldNode(name, enabled);
+                list.append(entry);
+                return entry;
+            };
+            details.append(el('summary', '', name === '*Unknown' ? tr('保留未列出的字段') : name));
+            this.check(details, tr('启用'), enabled, next => { edit().setAttribute('selected', next ? 'True' : 'False'); save(); if (name === '*Unknown')
+                this.render(node); });
+            const previous = original?.previousElementSibling;
+            if (previous?.tagName === 'SelectField')
+                details.append(button('↑', () => {
+                    previous.before(original);
+                    xmlElement(root, path + '/OrderChanged', true).setAttribute('value', 'True');
+                    save();
+                    this.render(node);
+                }, 'secondary', tr('上移')));
+            if (name !== '*Unknown') {
+                for (const spec of [{ key: 'rename', label: '重命名' },
+                    { key: 'type', label: '类型', options: ['', ...Object.keys(this.fieldSizes())] }, { key: 'size', label: '长度（可选）' }]) {
+                    this.field(details, { [spec.key]: original?.getAttribute(spec.key) ?? '' }, spec, [], next => {
+                        const field = edit();
+                        if (next)
+                            field.setAttribute(spec.key, next);
+                        else
+                            field.removeAttribute(spec.key);
+                        if (spec.key === 'type') {
+                            const width = this.fieldSizes()[next];
+                            if (width !== undefined)
+                                field.setAttribute('size', String(width));
+                            else
+                                field.removeAttribute('size');
+                        }
+                        save();
+                        if (spec.key === 'type') {
+                            this.render(node);
+                        }
+                    });
+                }
+            }
+            this.body.append(details);
+        }
+    }
     nativeFields(node) {
         const config = node.config;
         let document;
@@ -281,6 +508,86 @@ export class ConfigPanel {
             return;
         }
         const save = () => { config.configurationXml = new XMLSerializer().serializeToString(document); this.changed(); };
+        const root = document.documentElement;
+        const value = (path, fallback = '') => {
+            const element = xmlElement(root, path);
+            return element?.getAttribute('value') ?? element?.textContent ?? fallback;
+        };
+        const set = (path, value) => {
+            const element = xmlElement(root, path, true);
+            if (element.hasAttribute('value'))
+                element.setAttribute('value', value);
+            else
+                element.textContent = value;
+        };
+        const setting = (path, label, spec = {}, fallback = '') => {
+            this.field(this.body, { value: value(path, fallback) }, { key: 'value', label, ...spec }, this.fields(node), next => { set(path, next); save(); });
+        };
+        if (node.type === 'Filter') {
+            const paths = { mode: 'Mode', field: 'Simple/Field', operator: 'Simple/Operator', operand: 'Simple/Operands/Operand', expression: 'Expression' };
+            this.filter(node, { mode: value(paths.mode, 'Custom'), field: value(paths.field), operator: value(paths.operator, '='), operand: value(paths.operand), expression: value(paths.expression),
+                update: (key, next) => { set(paths[key], next); if ((key === 'mode' ? next : value('Mode')) === 'Simple')
+                    set('Expression', ''); save(); } });
+        }
+        if (node.type === 'DynamicInput') {
+            setting('Mode', '动态输入模式', { options: ['ReadList'] }, 'ReadList');
+            setting('ReadList_Field', '路径字段', { field: true });
+            setting('ReadList_Type', '路径操作', { options: ['Path'] }, 'Path');
+            setting('ErrorBehaviour', '跳过文件时', { options: ['Warning', 'Error'] }, 'Error');
+            const filePath = 'InputConfiguration/Configuration/File';
+            this.field(this.body, { file: value(filePath) }, { key: 'file', label: '数据源模板' }, [], next => {
+                const file = xmlElement(root, filePath, true);
+                file.setAttribute('FileFormat', /\.xlsx(?:\|\|\||$)/i.test(next) ? '25' : '0');
+                file.textContent = next;
+                save();
+            });
+        }
+        if (node.type === 'PortfolioComposerLayout') {
+            setting('GroupingMode', '布局方式', { options: ['', 'PerGroup'] });
+            setting('Orientation', '布局方向', { options: ['', 'V', 'H'] });
+            setting('Separator', '分隔方式', { options: ['', 'Breaking'] });
+            setting('SectionNameForGroup', '分区名称字段', { field: true });
+            this.reportFields(root, 'GroupingFields', node, '分组字段', save);
+            this.reportFields(root, 'LayoutFields', node, '报表字段', save);
+        }
+        if (node.type === 'PortfolioComposerTable') {
+            setting('TableMode', '表格模式', { options: ['Basic'] }, 'Basic');
+            this.reportFields(root, 'GroupingFields', node, '分组字段', save);
+            this.reportFields(root, 'TableFields', node, '报表字段', save);
+        }
+        if (node.type === 'PortfolioComposerRender') {
+            setting('OutputFile', '输出文件');
+            setting('DataField', '报表字段', { field: true });
+            this.check(this.body, tr('按字段生成文件'), value('BatchMode').toLowerCase() === 'true', checked => {
+                xmlElement(root, 'BatchMode', true).setAttribute('value', checked ? 'True' : 'False');
+                save();
+            });
+            setting('GroupField', '分组字段', { field: true });
+            setting('FilenameModifier', '文件名操作', { options: ['', 'Prepend', 'ReplacePath'] });
+        }
+        if (node.type === 'AppendFields') {
+            setting('CartesianMode', '多对多追加', { options: ['Error', 'Warn', 'Allow'] }, 'Error');
+            this.appendFields(root, node, save);
+        }
+        if (node.type === 'FuzzyMatch') {
+            setting('RecordIdField', '记录 ID 字段名', { field: true });
+            const list = el('div', 'config-entry'), fields = this.fields(node);
+            for (const item of root.querySelectorAll('MatchFields > MatchField')) {
+                const name = xmlElement(item, 'FieldName');
+                this.field(list, { field: name?.textContent ?? '' }, { key: 'field', label: '匹配字段', field: true }, fields, next => { xmlElement(item, 'FieldName', true).textContent = next; save(); });
+                list.append(button('×', () => { item.remove(); save(); this.render(node); }, 'danger', tr('删除')));
+            }
+            list.append(button(tr('+ 添加字段'), () => {
+                const entry = root.ownerDocument.createElement('MatchField');
+                xmlElement(entry, 'FieldName', true).textContent = fields[0] ?? '';
+                xmlElement(entry, 'Style/KeyGeneration/KeyFunction', true).textContent = 'WholeField';
+                xmlElement(entry, 'Style/Match/MatchFunction', true).textContent = 'None';
+                xmlElement(root, 'MatchFields', true).append(entry);
+                save();
+                this.render(node);
+            }, 'secondary'));
+            this.body.append(list);
+        }
         const common = node.type === 'JupyterCode' ? [['productionModeScript', 'Python 代码', true]] : node.type === 'RunCommand' ? [['ProgramName', '程序', false], ['Arguments', '命令参数', false], ['WorkingDir', '工作目录', false]] : node.type === 'Email' ? [['From', '发件人', false], ['To', '收件人', false], ['Subject', '主题', false], ['Body', '正文', true], ['SMTPServer', 'SMTP 服务器', false]] : [];
         for (const [tag, label, multiline] of common) {
             const wrap = el('label', 'config-field', tr(label)), input = multiline ? el('textarea', 'code-editor') : el('input');
@@ -311,7 +618,10 @@ export class ConfigPanel {
                 });
             }
         }
-        if (node.type === 'Select' || node.type === 'Formula') {
+        if (node.type === 'Formula') {
+            this.nativeFormula(root, node, save);
+        }
+        if (node.type === 'Select') {
             for (const element of Array.from(document.querySelectorAll(node.type === 'Select' ? 'SelectField' : 'FormulaField'))) {
                 const details = el('details', 'select-field'), name = element.getAttribute('field') ?? '';
                 details.append(el('summary', '', name));

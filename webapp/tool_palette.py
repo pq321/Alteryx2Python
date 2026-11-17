@@ -4,12 +4,27 @@ from __future__ import annotations
 from copy import deepcopy
 from xml.etree import ElementTree as ET
 
+from alteryx2python.expressions.functions import FUNCTION_REGISTRY
 from alteryx2python.parser.tool_catalog import CATALOG
+from alteryx2python.tools.delivery import PROFILE, SMTP_PROFILE, XLSX_PROFILE
+from alteryx2python.tools.field_contracts import GENERATED_SIZES
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
 
 HTML_TOOLS = {"PortfolioComposerText", "PortfolioComposerTable", "PortfolioComposerLayout", "PortfolioComposerRender"}
-METADATA_ONLY_TOOLS = {"APIOutput", "BlobOutput", "DynamicInput", "FuzzyMatch", "PDFInput", "PDFToText"}
+METADATA_ONLY_TOOLS = {"APIOutput", "BlobOutput", "PDFInput", "PDFToText"}
+DELIVERY_PROFILES = (PROFILE, SMTP_PROFILE, XLSX_PROFILE)
+CONFIGURATION_NOTES = {
+    "DynamicInput": "CSV and XLSX file lists using Change Entire File Path.",
+    "FuzzyMatch": "Exact-key matching in Phase 1. Fuzzy algorithms and standalone export require additional support.",
+}
+# Designer groups these differently from the engine catalog's dispatch categories.
+DESIGNER_CATEGORIES = {"AppendFields": "Join", "FuzzyMatch": "Join", "DynamicInput": "Developer"}
+CONFIGURATION_DEFAULTS = {
+    "DynamicInput": '<Configuration><Mode>ReadList</Mode><ReadList_Type>Path</ReadList_Type><ErrorBehaviour>Warning</ErrorBehaviour></Configuration>',
+    "PortfolioComposerLayout": '<Configuration><Orientation>V</Orientation><GroupingMode>PerGroup</GroupingMode><Separator>Breaking</Separator><LayoutFields><Field name="Table" selected="True" /></LayoutFields></Configuration>',
+    "PortfolioComposerRender": '<Configuration><OutputFile>report.xlsx</OutputFile><DataField>Layout</DataField></Configuration>',
+}
 
 
 def tool_ports(kind):
@@ -51,11 +66,14 @@ def build_palette(simple_tools):
         tool.update(advancedConfig=True, executionProfile=metadata.execution_profile,
                     maturity=metadata.maturity, semanticsDoc=metadata.semantics_doc,
                     nativeEquivalence="unverified", configurationMode="simple" if kind in simple else "xml")
+        tool["category"] = DESIGNER_CATEGORIES.get(kind, tool["category"])
+        if kind in CONFIGURATION_NOTES:
+            tool["configurationNote"] = CONFIGURATION_NOTES[kind]
         from alteryx2python.runtime.app_config import INTERFACE, LAYOUT
         if kind in INTERFACE - LAYOUT - {"Error"}:
             tool["configurationScope"] = "workflow"
         if kind not in simple:
-            tool["defaults"] = {"configurationXml": "<Configuration />",
+            tool["defaults"] = {"configurationXml": CONFIGURATION_DEFAULTS.get(kind, "<Configuration />"),
                                 "engineSettingsXml": ET.tostring(ET.Element("EngineSettings", settings), encoding="unicode")}
         if kind == "JupyterCode":
             tool["inputs"], tool["outputs"] = tool_ports(kind)
@@ -64,12 +82,15 @@ def build_palette(simple_tools):
     tools.append({"type": "Macro", "label": "Custom Macro", "category": "Macros", "inputs": ["Input"], "outputs": ["Output"],
                   "multiInput": True, "advancedConfig": True, "configurationMode": "xml", "executionProfile": "local-static-macro",
                   "defaults": {"configurationXml": "<Configuration />", "engineSettingsXml": '<EngineSettings Macro="" />'}})
-    return {"tools": tools, "unavailable": unavailable, "workflowConfig": {
+    return {"tools": tools, "unavailable": unavailable, "expressionFunctions": sorted(FUNCTION_REGISTRY),
+            "fieldSizes": GENERATED_SIZES, "workflowConfig": {
         "xmlFields": {"workflowXml": "AlteryxDocument", "propertiesXml": "Properties", "runtimePropertiesXml": "RuntimeProperties",
                       "eventsXml": "Events", "constantsXml": "Constants"},
         "nodeXmlFields": {"configurationXml": "Configuration", "engineSettingsXml": "EngineSettings"},
         "parameterModes": ["dynamic", "specialized"],
-        "runtime": {"answers": {}, "constants": {}, "delivery_profile": "html-draft-v1", "allowed_commands": []},
+        "deliveryProfiles": list(DELIVERY_PROFILES),
+        "runtime": {"answers": {}, "constants": {}, "delivery_profile": PROFILE, "allowed_commands": [],
+                    "input_bindings": {}, "log_event_ids": [], "as_of": None},
         "eventTimings": ["BeforeRun", "AfterRun", "AfterRunWithoutErrors", "AfterRunWithErrors", "AfterRunWithWarnings",
                          "AfterRunWithErrorsOrWarnings", "AfterRunWithoutErrorsOrWarnings"],
         "notes": ["Full XML preserves options beyond simplified editor controls.",

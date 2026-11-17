@@ -55,6 +55,7 @@ def test_csv_import_preserves_quoted_newline_comma_bom_and_chinese(uploads):
     ("data.tsv", b"A\tB\n1\t2\n", [["1", "2"]]),
     ("data.csv", "名称,数量\n测试,2\n".encode("gb18030"), [["测试", "2"]]),
     ("data.csv", "A,B\n1,2\n".encode("utf-16"), [["1", "2"]]),
+    ("data.csv", "取引番号,部店コード,区分\n東京,0010,新規\n".encode("cp932"), [["東京", "0010", "新規"]]),
     ("header.csv", b"A,B\n", []),
 ])
 def test_import_formats_and_empty_data(uploads, name, content, expected):
@@ -98,6 +99,19 @@ def test_excel_sheet_selection_and_execution(uploads):
     assert first["file"] != second["file"]
     with pytest.raises(ValueError, match="unavailable"):
         server._import_data({"sourceFile": str(uploads / "outside.csv")})
+
+
+def test_excel_import_names_blank_headers_by_position(uploads):
+    from openpyxl import Workbook
+
+    buffer = io.BytesIO()
+    book = Workbook()
+    book.active.append(["名称", "Unnamed: 1", None, None])
+    book.active.append(["東京", "A", "B", "C"])
+    book.save(buffer)
+    result = imported("blank-header.xlsx", buffer.getvalue())
+    assert result["fields"] == ["名称", "Unnamed: 1", "F3", "F4"]
+    assert result["rows"] == [["東京", "A", "B", "C"]]
 
 
 def test_record_id_config_and_utf8_sink_match_generated_python(tmp_path):

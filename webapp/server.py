@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import base64
+import codecs
 import csv
 import io
 import json
@@ -33,6 +34,8 @@ from graph_compiler import compile_graph_to_yxmd  # noqa: E402
 from backend import compile_workflow, run_workflow, error_payload  # noqa: E402
 from tool_palette import build_palette  # noqa: E402
 from workflow_documents import import_workflow, import_macro, parse_element  # noqa: E402
+from alteryx2python.tools.csv_input import detect_legacy_encoding  # noqa: E402
+from alteryx2python.tools.dbfileinput import fill_excel_blank_headers  # noqa: E402
 
 EDITOR_TOOLS = [
     {"type": "TextInput", "label": "Text Input", "category": "In/Out", "inputs": [], "outputs": ["Output"],
@@ -274,18 +277,24 @@ def _import_data(payload):
             frame = pd.read_excel(book, sheet_name=sheet, header=None, dtype=str, keep_default_na=False)
             if frame.empty:
                 raise ValueError("Worksheet is empty")
-            fields = [str(column) for column in frame.iloc[0]]
+            labels = [str(column) for column in frame.iloc[0]]
+            fields = fill_excel_blank_headers(labels, labels)
             data = frame.iloc[1:].values.tolist()
     else:
-        encodings = ("utf-16",) if content.startswith((b"\xff\xfe", b"\xfe\xff")) else ("utf-8-sig", "gb18030")
-        for encoding in encodings:
-            try:
-                decoded = content.decode(encoding)
-                break
-            except UnicodeError:
-                continue
+        if content.startswith((codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)):
+            decoded = content.decode("utf-32")
+        elif content.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
+            decoded = content.decode("utf-16")
         else:
-            raise ValueError("Unsupported text encoding; save as UTF-8")
+            try:
+                decoded = content.decode("utf-8-sig")
+            except UnicodeDecodeError as error:
+                try:
+                    encoding = detect_legacy_encoding(content[:65536], error, name)
+                except ValueError:
+                    # Retain the editor's legacy fallback for existing GB18030 imports.
+                    encoding = "gb18030"
+                decoded = content.decode(encoding)
         if not decoded.strip():
             raise ValueError("File is empty")
         if suffix == ".tsv":

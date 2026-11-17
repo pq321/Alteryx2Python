@@ -5,11 +5,9 @@ import codecs
 import pandas as pd
 
 
-def _detect_legacy_encoding(path, decode_error):
+def detect_legacy_encoding(sample, decode_error, source):
     from charset_normalizer import from_bytes
 
-    with open(path, 'rb') as source:
-        sample = source.read(65536)
     if len(sample) == 65536 and b'\n' in sample:
         sample = sample.rsplit(b'\n', 1)[0]
     if sample.isascii():
@@ -21,7 +19,7 @@ def _detect_legacy_encoding(path, decode_error):
                         and best.coherence - match.coherence < 0.10 for match in matches[1:])
         if not ambiguous:
             return best.encoding
-    raise ValueError(f"Cannot determine the CSV encoding for {path}. Set the Input Data CodePage explicitly.") from decode_error
+    raise ValueError(f"Cannot determine the CSV encoding for {source}. Set the Input Data CodePage explicitly.") from decode_error
 
 
 def read_delimited_file(path, *, encoding=None, **options):
@@ -39,5 +37,6 @@ def read_delimited_file(path, *, encoding=None, **options):
     try:
         return pd.read_csv(path, encoding='utf-8-sig', **options)
     except UnicodeDecodeError as error:
-        detected = _detect_legacy_encoding(path, error)
+        with open(path, 'rb') as source:
+            detected = detect_legacy_encoding(source.read(65536), error, path)
     return pd.read_csv(path, encoding=detected, dtype=str, keep_default_na=False, na_values=[""], **options)

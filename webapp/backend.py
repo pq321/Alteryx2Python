@@ -2,9 +2,11 @@
 from __future__ import annotations
 
 import base64
-from contextlib import redirect_stdout
+from contextlib import contextmanager, redirect_stdout
+from datetime import datetime
 import io
 import json
+import logging
 from pathlib import Path
 import shutil
 import tempfile
@@ -17,15 +19,16 @@ from alteryx2python.expressions.errors import UnsupportedExpressionError
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.executor import run_workflow_graph
+from alteryx2python.tools.delivery import PROFILE
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
 try:
     from .graph_compiler import compile_graph_to_yxmd
-    from .tool_palette import blocked_reason
+    from .tool_palette import DELIVERY_PROFILES, blocked_reason
     from .workflow_documents import source_path
 except ImportError:
     from graph_compiler import compile_graph_to_yxmd
-    from tool_palette import blocked_reason
+    from tool_palette import DELIVERY_PROFILES, blocked_reason
     from workflow_documents import source_path
 
 
@@ -57,19 +60,38 @@ def runtime_settings(graph):
     if not isinstance(supplied, dict):
         raise ValueError("runtime must be an object")
     supported = {"answers", "constants", "delivery_profile", "allowed_commands", "input_dir", "command_working_dir",
-                 "event_working_dir", "command_timeout", "allow_external_runtimes"}
+                 "event_working_dir", "command_timeout", "allow_external_runtimes", "as_of",
+                 "input_bindings", "log_event_ids"}
     unknown = set(supplied) - supported
     if unknown:
         raise ValueError(f"Unknown runtime settings: {sorted(unknown)}")
-    settings = {"answers": {}, "constants": {}, "delivery_profile": "html-draft-v1", "allowed_commands": [], **supplied}
+    settings = {"answers": {}, "constants": {}, "delivery_profile": PROFILE, "allowed_commands": [],
+                "input_bindings": {}, "log_event_ids": [], **supplied}
     for key in ("answers", "constants"):
         if not isinstance(settings[key], dict):
             raise ValueError(f"runtime.{key} must be an object")
     allowed = settings["allowed_commands"]
     if not isinstance(allowed, list) or any(not isinstance(item, str) or not item.strip() for item in allowed):
         raise ValueError("runtime.allowed_commands must be an explicit array of executable paths or names")
-    if settings["delivery_profile"] not in {"html-draft-v1", "html-smtp-v1"}:
+    if settings["delivery_profile"] not in DELIVERY_PROFILES:
         raise ValueError("Unsupported delivery profile")
+    as_of = settings.get("as_of")
+    if as_of is not None:
+        if not isinstance(as_of, str):
+            raise ValueError("runtime.as_of must be an ISO date or date-time")
+        try:
+            datetime.fromisoformat(as_of)
+        except ValueError as exc:
+            raise ValueError("runtime.as_of must be an ISO date or date-time") from exc
+    bindings = settings["input_bindings"]
+    if not isinstance(bindings, dict) or any(not isinstance(key, str) or not key.isascii() or not key.isdigit() or
+                                             not isinstance(value, str) or not value.strip()
+                                             for key, value in bindings.items()):
+        raise ValueError("runtime.input_bindings must map Input Data tool IDs to file paths")
+    log_ids = settings["log_event_ids"]
+    if not isinstance(log_ids, list) or any(not isinstance(value, str) or not value.isascii() or
+                                           not value.isdigit() for value in log_ids):
+        raise ValueError("runtime.log_event_ids must be a list of event indices as strings")
     if "allow_external_runtimes" in supplied and not isinstance(supplied["allow_external_runtimes"], bool):
         raise ValueError("runtime.allow_external_runtimes must be Boolean")
     if "command_timeout" in supplied:
@@ -111,7 +133,8 @@ def compile_workflow(graph, base_dir):
             raise UnsupportedLowering("; ".join(gaps))
         options = {"answers": settings["answers"], "constants": settings["constants"],
                    "parameter_mode": graph.get("parameterMode", "dynamic"),
-                   "delivery_profile": settings["delivery_profile"]}
+                   "delivery_profile": settings["delivery_profile"],
+                   "input_bindings": settings["input_bindings"], "log_event_ids": settings["log_event_ids"]}
         artifact = ReadablePythonGenerator().generate(workflow, **options)
         result.update(python=artifact.source, manifest=artifact.manifest, phase2Status="compiled")
     except (UnsupportedLowering, NotImplementedError, ImportError, UnsupportedExpressionError) as exc:
@@ -189,6 +212,24 @@ def preview(node_id, anchor, frame):
             "rowCount": len(frame), "csv": frame.to_csv(index=False)}
 
 
+@contextmanager
+def capture_workflow_log():
+    stream = io.StringIO()
+    logger = logging.getLogger("alteryx.workflow")
+    handler = logging.StreamHandler(stream)
+    level, propagate = logger.level, logger.propagate
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    logger.addHandler(handler)
+    try:
+        yield stream
+    finally:
+        logger.removeHandler(handler)
+        logger.setLevel(level)
+        logger.propagate = propagate
+        handler.close()
+
+
 def run_workflow(graph, base_dir):
     settings = runtime_settings(graph)
     compiled = compile_workflow(graph, base_dir)
@@ -199,22 +240,24 @@ def run_workflow(graph, base_dir):
         context = WorkflowContext(runtime_config={"input_dir": str(Path(workflow.source_file).parent), **settings,
                                                   "execute_commands": True, "redirect_sinks": True, "output_dir": str(output)})
         stdout = io.StringIO()
-        try:
-            # Python Tool programs may print. Serialize capture so concurrent runs
-            # cannot redirect each other's process-level stdout.
-            with EXECUTION_LOCK, redirect_stdout(stdout):
+        # Both stdout and Python logging use process-wide state.
+        with EXECUTION_LOCK, redirect_stdout(stdout), capture_workflow_log() as workflow_log:
+            try:
                 result = run_workflow_graph(workflow, context)
-        except Exception as exc:
-            payload, status = error_payload(exc)
-            raise ApiError(payload["code"], str(exc), status=status,
-                           details={"causeType": type(exc).__name__, "warnings": context.warnings,
-                                    "errors": context.errors, "diagnostics": context.diagnostics, "stdout": stdout.getvalue()}) from exc
+            except Exception as exc:
+                payload, status = error_payload(exc)
+                raise ApiError(payload["code"], str(exc), status=status,
+                               details={"causeType": type(exc).__name__, "warnings": context.warnings,
+                                        "errors": context.errors, "diagnostics": context.diagnostics,
+                                        "workflowLog": workflow_log.getvalue(), "stdout": stdout.getvalue()}) from exc
+        if workflow_log.getvalue():
+            (output / "workflow-log.jsonl").write_text(workflow_log.getvalue(), encoding="utf-8")
         previews = [preview(node_id, anchor, frame) for node_id, item in result.node_results.items() for anchor, frame in item.outputs.items()]
         for node in workflow.nodes:
             if node.tool_type == "DbFileOutput" and node.node_id in result.node_results:
                 trace = result.node_results[node.node_id].trace
                 path = trace.config.get("resolved_path") if trace else None
-                if path and Path(path).is_file():
+                if path and Path(path).suffix.lower() == ".csv" and Path(path).is_file():
                     import pandas as pd
                     from alteryx2python.tools.dbfileoutput import _format_option
                     config = node.config.get("normalized", {})

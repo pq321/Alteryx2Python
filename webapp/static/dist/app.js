@@ -8,6 +8,7 @@ import { WorkflowSettings } from './settings.js';
 import { hasPendingEdits } from './advanced.js';
 const STORAGE = 'alteryx2python.editor.v2';
 let graph = { name: tr('未命名工作流'), nodes: [], edges: [] }, tools = [], selected = null;
+let catalogue;
 let history = [], cursor = -1, compiled = null, result = null;
 let compiledGraph = '', runGraph = '', activeTab = 'result', busy = false, importTarget = null;
 let lastRunSeconds = null;
@@ -29,8 +30,8 @@ const panel = new ConfigPanel(() => graph, () => tools, changed, pickFile, (node
     changed();
     panel.render(node);
     status(tr('已切换工作表'));
-}));
-const settings = new WorkflowSettings(() => graph, changed);
+}), () => catalogue?.expressionFunctions ?? [], () => catalogue?.fieldSizes ?? {}, (node, anchor) => (runGraph === fingerprint() ? result?.previews.find(item => item.node === node && item.anchor === anchor)?.columns : undefined));
+const settings = new WorkflowSettings(() => graph, changed, () => catalogue?.workflowConfig.deliveryProfiles ?? []);
 let macroFiles = [];
 function registerGraphTools() {
     if (!Array.isArray(graph.toolDefinitions))
@@ -218,12 +219,23 @@ function deleteNode() {
 function palette() {
     const container = byId('palette'), query = byId('toolSearch').value.toLowerCase();
     container.replaceChildren();
-    const visible = tools.filter(t => [t.type, t.label, labels[t.type] ?? '', categoryLabel(t.category)].join(' ').toLowerCase().includes(query));
+    const picker = byId('toolCategory'), selectedCategory = picker.value;
+    picker.setAttribute('aria-label', tr('工具分类'));
+    picker.replaceChildren();
+    const categories = [...new Set(tools.map(tool => tool.category))];
+    for (const category of ['', ...categories]) {
+        const option = el('option', '', category ? categoryLabel(category) : tr('全部工具'));
+        option.value = category;
+        picker.append(option);
+    }
+    picker.value = categories.includes(selectedCategory) ? selectedCategory : '';
+    const visible = tools.filter(t => (!query || [t.type, t.label, labels[t.type] ?? '', categoryLabel(t.category)].join(' ').toLowerCase().includes(query))
+        && (!picker.value || t.category === picker.value));
     for (const category of [...new Set(visible.map(t => t.category))]) {
         const group = el('section', 'palette-group');
         group.append(el('h3', '', categoryLabel(category)));
         visible.filter(t => t.category === category).forEach(tool => {
-            const item = button('', () => addNode(tool.type), 'palette-item', tool.label);
+            const item = button('', () => addNode(tool.type), 'palette-item', [tool.label, tool.configurationNote].filter(Boolean).join(' · '));
             item.dataset.category = category;
             item.draggable = true;
             item.dataset.tool = tool.type;
@@ -234,7 +246,14 @@ function palette() {
         });
         container.append(group);
     }
-    if (!visible.length)
+    const unavailable = catalogue?.unavailable.filter(tool => (tool.type + ' ' + tool.label + ' ' + toolLabel(tool)).toLowerCase().includes(query)) ?? [];
+    if (query && unavailable.length) {
+        const group = el('section', 'palette-group');
+        group.append(el('h3', '', tr('当前不可用')));
+        unavailable.forEach(tool => { const row = el('div', 'palette-item unavailable-tool'); row.append(el('span', '', toolLabel(tool)), el('small', '', tool.reason)); group.append(row); });
+        container.append(group);
+    }
+    else if (!visible.length)
         container.append(el('p', 'muted', tr('没有匹配的工具')));
 }
 function pickFile(target = null) { importTarget = target; dataInput.value = ''; dataInput.click(); }
@@ -346,6 +365,7 @@ async function execute(run) {
             byId('runTime').textContent = t('运行耗时 {seconds}s', { seconds: lastRunSeconds });
             showPreview();
             tab('result');
+            panel.render(currentNode());
         }
         else
             tab('python');
@@ -360,8 +380,9 @@ async function execute(run) {
             byId('tabResult').replaceChildren(el('div', 'inline-error', error instanceof Error ? error.message : String(error)));
             tab('result');
         }
-        if (error && typeof error === 'object' && 'details' in error && error.details && typeof error.details === 'object' && 'stdout' in error.details)
-            showExecution(String(error.details.stdout));
+        if (error && typeof error === 'object' && 'details' in error && error.details && typeof error.details === 'object' && 'stdout' in error.details) {
+            showExecution([error.details.stdout, 'workflowLog' in error.details ? error.details.workflowLog : ''].filter(Boolean).join('\n'));
+        }
         status(error instanceof Error ? error.message : String(error), true);
         updateNotice();
         updateDownload();
@@ -446,6 +467,7 @@ bind('btnExpandPalette', () => { byId('palettePanel').hidden = false; byId('btnE
 bind('btnCollapseResult', () => { const collapsed = byId('bottomPanel').classList.toggle('collapsed'); byId('btnCollapseResult').textContent = collapsed ? '⌃' : '⌄'; });
 nameInput.addEventListener('input', () => { graph.name = nameInput.value; changed(); });
 byId('toolSearch').addEventListener('input', palette);
+byId('toolCategory').addEventListener('change', palette);
 previewSelect.addEventListener('change', showPreview);
 dataInput.addEventListener('change', () => { const target = importTarget; importTarget = null; guard(() => importFiles(Array.from(dataInput.files ?? []), target)); });
 byId('workflowFile').addEventListener('change', event => guard(async () => {
@@ -528,7 +550,8 @@ resize('resultResize', false);
 window.addEventListener('beforeunload', persist);
 async function init() {
     try {
-        tools = (await request('/api/tools')).tools;
+        catalogue = await request('/api/tools');
+        tools = catalogue.tools;
         if (!Array.isArray(tools) || !tools.length)
             throw new Error(tr('工具列表为空'));
         let saved = null;
