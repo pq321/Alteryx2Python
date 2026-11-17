@@ -262,6 +262,7 @@ class SourceLinker:
         module = function.__module__
         if not module.startswith(('alteryx2python.tools.', 'alteryx2python.expressions.functions',
                                   'alteryx2python.expressions.numeric',
+                                  'alteryx2python.expressions.verified_functions',
                                   'alteryx2python.expressions.errors', 'alteryx2python.comparison.schema_diff',
                                   'alteryx2python.workflow_logging')):
             raise UnsupportedLowering(f'Helper outside audited source boundary: {module}.{function.__name__}')

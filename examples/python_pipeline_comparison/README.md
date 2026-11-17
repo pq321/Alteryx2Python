@@ -33,3 +33,26 @@ The change request adds product as a group key and changes the subject. The runn
 The runner exits with `1` if the empty-result case differs or a requested native run cannot establish a match. Read the report before interpreting the exit code.
 
 Phase 2 shares the group key list for compatible Summarize → Sort pairs. It uses named pandas aggregation for the supported Count and integer Sum cases and Series predicates for supported string and integer comparisons. It retains scalar fallbacks for other schemas to preserve Phase 1 behavior.
+
+## Nested Formula and Filter expressions
+
+Run the expression fixture to compare the Formula output, both Filter branches
+and the standalone Phase 2 CSVs with independent Python expectations.
+
+```powershell
+.venv/Scripts/python.exe -m examples.python_pipeline_comparison.expression_comparison reports/catalog-expressions
+```
+
+For Designer value and field-type evidence, prepare the generated workflow and
+run the resulting `instrumented.yxmd` in Designer.
+
+```powershell
+.venv/Scripts/python.exe -m alteryx2python.parity prepare reports/catalog-expressions/catalog-formula-native.yxmd --output-dir reports/catalog-expressions-native
+.venv/Scripts/python.exe -m examples.python_pipeline_comparison.expression_comparison reports/catalog-expressions-checked --designer-probes reports/catalog-expressions-native
+```
+
+This fixture covers zero-based word and substring positions, nested case and
+regex predicates, month boundaries, multiples and rounding ties, hashing,
+nulls, and FinancePMT and FinanceMIRR. Alteryx ROUND takes a multiple. For
+example, ROUND(amount, 0.01) rounds to cents. Designer 2025.1 requires all five
+FinancePMT arguments.

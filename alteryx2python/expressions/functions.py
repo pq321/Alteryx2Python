@@ -9,6 +9,7 @@ from typing import Any
 import pandas as pd
 
 from alteryx2python.expressions.errors import UnsupportedExpressionError
+from alteryx2python.expressions.verified_functions import VERIFIED_FUNCTIONS
 
 
 def _is_null(value: Any) -> bool:
@@ -38,10 +39,6 @@ def _regex_replace(value: Any, pattern: str, replacement: str) -> str:
 
 def _regex_match(value: Any, pattern: str) -> bool:
     return re.match(pattern, "" if value is None else str(value)) is not None
-
-
-def _round(value: Any, digits: Any = 0) -> float:
-    return round(float(value), int(digits))
 
 
 def _starts_with(value: Any, prefix: Any) -> bool:
@@ -173,6 +170,7 @@ def _null() -> None:
 
 
 FUNCTION_REGISTRY = {
+    **VERIFIED_FUNCTIONS,
     "CONTAINS": _contains,
     "DATETIMEADD": _datetime_add,
     "DATETIMEDIFF": _datetime_diff,
@@ -192,7 +190,6 @@ FUNCTION_REGISTRY = {
     "REPLACE": _replace,
     "REGEX_MATCH": _regex_match,
     "REGEX_REPLACE": _regex_replace,
-    "ROUND": _round,
     "RIGHT": _right,
     "STARTSWITH": _starts_with,
     "TITLECASE": _titlecase,

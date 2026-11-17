@@ -164,6 +164,13 @@ def test_formula_promotes_mixed_numbers_and_preserves_declared_int64_before_filt
     assert false_frame[['Amount', 'reference']].isna().all().all()
 
 
+def test_complex_expression_fixture_matches_reference_and_delivered_python(tmp_path):
+    from examples.python_pipeline_comparison.expression_comparison import run
+
+    result = run(tmp_path / 'expression-comparison')
+    assert result['rows'] == {'Output': 3, 'True': 1, 'False': 2}
+
+
 def test_unknown_node_blocks_compilation(tmp_path):
     builder = WorkflowBuilder()
     builder.add_text_input(['value'], [['1']])

@@ -27,7 +27,7 @@ def test_formula_adds_and_updates_columns_sequentially(workflow_context):
                     "enabled": True,
                 },
                 {"field": "City", "expression": "Titlecase([City])", "enabled": True},
-                {"field": "AverageSpendPerVisit", "expression": "ROUND([Spend]/[Visits], 1)", "enabled": True},
+                {"field": "AverageSpendPerVisit", "expression": "ROUND([Spend]/[Visits], 0.1)", "enabled": True},
             ],
         },
         workflow_context,
