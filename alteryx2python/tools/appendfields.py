@@ -31,11 +31,12 @@ def append_projection(target_columns, source_columns, select_fields, order_chang
     selected_fields = {}
     for field in select_fields:
         reference = field["source"]
-        if reference != "*Unknown" and reference not in incoming:
+        if reference != "*Unknown" and not reference.startswith(("Target_", "Source_")):
             reference = unqualified.get(reference, reference)
         selected_fields[reference] = field
 
-    include_unknown = not select_fields or selected_fields.get("*Unknown", {}).get("selected", False)
+    wildcard = selected_fields.get("*Unknown")
+    include_unknown = not select_fields or (wildcard is not None and wildcard.get("selected", True))
     unknown = [reference for reference in incoming if reference not in selected_fields] if include_unknown else []
     ordered = []
     if order_changed and selected_fields:

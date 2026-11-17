@@ -66,3 +66,14 @@ def test_appendfields_distinguishes_references_from_output_names(workflow_contex
     )["Output"]
     assert list(output.columns) == list(expected)
     assert output.to_dict("records") == [expected]
+
+
+def test_missing_source_reference_cannot_rename_literal_target_column(workflow_context):
+    result = appendfields_tool(
+        {"Targets": pd.DataFrame({"Source_Root": ["target"]}),
+         "Source": pd.DataFrame({"Other": ["source"]})},
+        {"select_fields": [{"source": "Source_Root", "rename": "Root"},
+                           {"source": "*Unknown"}]},
+        workflow_context,
+    )
+    assert result["Output"].to_dict("records") == [{"Source_Root": "target", "Other": "source"}]
