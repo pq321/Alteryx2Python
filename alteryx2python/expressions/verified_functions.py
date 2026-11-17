@@ -27,7 +27,7 @@ def substring(value, start, length=None):
 
 def find_string(value, target):
     if pd.isna(value) or pd.isna(target):
-        return None
+        return -1
     return str(value).find(str(target))
 
 
@@ -39,7 +39,9 @@ def ends_with(value, target, ignore_case=True):
 
 
 def regex_count_matches(value, pattern, ignore_case=True):
-    if pd.isna(value) or pd.isna(pattern):
+    if pd.isna(value):
+        return 0
+    if pd.isna(pattern):
         return None
     flags = re.IGNORECASE if ignore_case else 0
     return sum(1 for _ in re.finditer(str(pattern), str(value), flags))
@@ -69,7 +71,8 @@ def floor(value, multiple=1):
 
 
 def round_multiple(value, multiple):
-    return _round_multiple(value, multiple, ROUND_FLOOR, Decimal('0.5'))
+    step = None if pd.isna(multiple) else abs(Decimal(str(multiple)))
+    return _round_multiple(value, step, ROUND_FLOOR, Decimal('0.5'))
 
 
 def datetime_parse(value, mask):

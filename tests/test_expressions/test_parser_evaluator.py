@@ -17,6 +17,20 @@ def test_expression_evaluates_literals_fields_and_arithmetic():
     assert eval_expr("ROUND([Spend]/[Visits], 1)", row) == pytest.approx(5.0)
 
 
+@pytest.mark.parametrize(('expression', 'expected'), [
+    ('FindString(Null(), "x")', -1),
+    ('EndsWith(Null(), "x")', False),
+    ('REGEX_CountMatches(Null(), "x")', 0),
+    ('Round(12.26, 0 - 0.1)', 12.3),
+    ('Substring("abc", 1)', 'bc'),
+    ('Substring("abc", 0, 0 - 1)', ''),
+    ('MD5_ASCII("é")', '3406877694691ddd1dfb0aca54681407'),
+    ('MD5_ASCII("日本")', 'ea03fcb8c47822bce772cf6c07d0ebbb'),
+])
+def test_expression_edges_observed_in_designer_2025_1(expression, expected):
+    assert eval_expr(expression, {}) == expected
+
+
 def test_expression_evaluates_if_then_else_and_titlecase():
     assert eval_expr('IF [Latitude] > 39.7 THEN "North" ELSE "South" ENDIF', {"Latitude": 40.1}) == "North"
     assert eval_expr('IF [Latitude] > 39.7 THEN "North" ELSE "South" ENDIF', {"Latitude": 38.5}) == "South"
