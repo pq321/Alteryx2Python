@@ -5,7 +5,7 @@ from typing import Any
 from alteryx2python.parser.tool_parsers.common import ToolParserResult, as_list, attributes, child
 
 
-def parse_select_config(raw_config: dict[str, Any]) -> ToolParserResult:
+def parse_select_config(raw_config: dict[str, Any], *, default_rename: bool = True) -> ToolParserResult:
     select_fields_node = child(raw_config, "SelectFields")
     select_fields = as_list(select_fields_node.get("SelectField", []))
     parsed_fields: list[dict[str, Any]] = []
@@ -14,7 +14,7 @@ def parse_select_config(raw_config: dict[str, Any]) -> ToolParserResult:
     for field in select_fields:
         field_attrs = attributes(field)
         source = field_attrs.get("field", "")
-        rename = field_attrs.get("rename", source)
+        rename = field_attrs.get("rename", source if default_rename else None)
         parsed_fields.append(
             {
                 "source": source,

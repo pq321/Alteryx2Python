@@ -35,36 +35,22 @@ def lower_relational(compiler, kind, config, arguments):
         return [f'return {function}({left}, {right}, {left_keys!r}, {right_keys!r}, '
                 f'{config.get("select_fields", [])!r}, {config.get("order_changed", True)!r}, {by_position!r})']
     if kind == 'AppendFields':
+        from alteryx2python.tools.appendfields import append_rows
+
         targets, source = arguments['Targets'], arguments['Source']
         lines = []
         if config.get('cartesian_mode', 'Error') == 'Error':
             lines += [f'if len({targets}) * len({source}) > max(len({targets}), len({source})):',
                       '    raise ValueError("AppendFields CartesianMode=Error rejects many-to-many append")']
-        lines += [f'columns = list({targets}.columns) + [column if column not in {targets}.columns else "Source_" + column for column in {source}.columns]',
-                  'rows = []', f'for target in {targets}.to_dict("records"):', f'    for record in {source}.to_dict("records"):',
-                  '        row = dict(target)', '        for column, value in record.items():',
-                  '            row[column if column not in row else "Source_" + column] = value', '        rows.append(row)',
-                  'output = pd.DataFrame(rows, columns=columns)']
         fields = config.get('select_fields', [])
-        if fields:
-            lines += ['selected = {}', 'explicit = set()']
-            for field in fields:
-                name = str(field['source'])
-                if name == '*Unknown':
-                    continue
-                if name.startswith('Target_'):
-                    name = name[len('Target_'):]
-                    expression = repr(name)
-                elif name.startswith('Source_'):
-                    expression = f'({name[len("Source_"):]!r} if {name[len("Source_"):]!r} not in {targets}.columns else {name!r})'
-                else:
-                    expression = repr(name)
-                lines += [f'name = {expression}', 'explicit.add(name)']
-                if field.get('selected', True):
-                    rename = repr(field['rename']) if field.get('rename') else 'name'
-                    lines += [f'selected[{rename}] = {coerce(compiler, "output[name]", field.get("dtype"), field.get("size"))}']
-            if any(field['source'] == '*Unknown' and field.get('selected', True) for field in fields):
-                lines += ['selected.update({column: output[column] for column in output.columns if column not in explicit and column not in selected})']
-            lines += ['output = pd.DataFrame(selected, index=output.index)']
+        selection = [{key: field[key] for key in ('source', 'selected', 'rename') if key in field} for field in fields]
+        append = compiler.linker.function(append_rows)
+        lines.append(f'output, names = {append}({targets}, {source}, {selection!r}, {bool(config.get("order_changed"))!r})')
+        for field in fields:
+            reference, dtype = field['source'], field.get('dtype')
+            if dtype and field.get('selected', True) and reference != '*Unknown':
+                conversion = coerce(compiler, 'output[name]', dtype, field.get('size'))
+                lines += [f'if {reference!r} in names:', f'    name = names[{reference!r}]',
+                          f'    output[name] = {conversion}']
         return lines + ['return output']
     return None

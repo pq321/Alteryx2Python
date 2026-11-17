@@ -368,12 +368,26 @@ def _metadata_for_node(node: "NodeIR", context: "WorkflowContext") -> "ToolMetad
         raise NotImplementedError(message) from exc
 
 
-def _execution_config(node: "NodeIR") -> dict[str, object]:
+def _normalized_config(node: "NodeIR") -> dict[str, object]:
     normalized = node.config.get("normalized", node.config)
     if not isinstance(normalized, dict):
-        normalized = {}
+        return {}
+    if node.tool_type == "AppendFields" and "order_changed" not in normalized:
+        raw = node.config.get("raw", {})
+        if isinstance(raw, dict) and raw.get("SelectConfiguration"):
+            from alteryx2python.parser.tool_parsers.appendfields_parser import parse_appendfields_config
+
+            # Earlier exports inserted the qualified input reference as the rename.
+            # The saved configuration still distinguishes an explicit rename.
+            selection = parse_appendfields_config(raw).normalized_config
+            return {**normalized, "select_fields": selection["select_fields"],
+                    "order_changed": selection["order_changed"]}
+    return normalized
+
+
+def _execution_config(node: "NodeIR") -> dict[str, object]:
     return {
-        **normalized,
+        **_normalized_config(node),
         "node_id": node.node_id,
         "source_tool_id": node.source_tool_id,
         "node_input_anchors": [anchor.name for anchor in node.input_anchors],

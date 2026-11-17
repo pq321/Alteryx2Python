@@ -19,6 +19,62 @@ def _frame(inputs: dict[str, pd.DataFrame], anchor: str) -> pd.DataFrame:
     return frame
 
 
+def append_projection(target_columns, source_columns, select_fields, order_changed):
+    """Resolve qualified field identities before assigning output names."""
+    incoming = {}
+    unqualified = {}
+    for origin, columns in (("Target", target_columns), ("Source", source_columns)):
+        for column in columns:
+            reference = f"{origin}_{column}"
+            incoming[reference] = origin, column
+            unqualified.setdefault(column, reference)
+    selected_fields = {}
+    for field in select_fields:
+        reference = field["source"]
+        if reference != "*Unknown" and reference not in incoming:
+            reference = unqualified.get(reference, reference)
+        selected_fields[reference] = field
+
+    include_unknown = not select_fields or selected_fields.get("*Unknown", {}).get("selected", False)
+    unknown = [reference for reference in incoming if reference not in selected_fields] if include_unknown else []
+    ordered = []
+    if order_changed and selected_fields:
+        for reference in selected_fields:
+            ordered.extend(unknown if reference == "*Unknown" else [reference])
+    else:
+        ordered = [reference for reference in incoming if include_unknown or reference in selected_fields]
+
+    projection, used_names = [], set()
+    for reference in ordered:
+        field = selected_fields.get(reference, {})
+        if reference not in incoming or not field.get("selected", True):
+            continue
+        origin, column = incoming[reference]
+        name = field.get("rename") or column
+        if name.casefold() in used_names:
+            name = f"{origin}_{name}"
+            stem, suffix = name, 2
+            while name.casefold() in used_names:
+                name = f"{stem}{suffix}"
+                suffix += 1
+        used_names.add(name.casefold())
+        projection.append((field.get("source", reference), origin, column, name))
+    return projection
+
+
+def append_rows(targets, source, select_fields, order_changed):
+    projection = append_projection(targets.columns, source.columns, select_fields, order_changed)
+    source_records = source.to_dict("records")
+    rows = [
+        [target[column] if origin == "Target" else record[column] for _, origin, column, _ in projection]
+        for target in targets.to_dict("records")
+        for record in source_records
+    ]
+    return pd.DataFrame(rows, columns=[name for _, _, _, name in projection]), {
+        reference: name for reference, _, _, name in projection
+    }
+
+
 def appendfields_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -30,35 +86,13 @@ def appendfields_tool(
     if mode == "Error" and len(targets.index) * len(source.index) > max(len(targets.index), len(source.index)):
         raise ValueError("AppendFields CartesianMode=Error rejects many-to-many append")
 
-    target_rows = targets.to_dict("records")
-    source_rows = source.to_dict("records")
-    rows = []
-    for target in target_rows:
-        for source_row in source_rows:
-            row = dict(target)
-            for column, value in source_row.items():
-                output_column = column if column not in row else f"Source_{column}"
-                row[output_column] = value
-            rows.append(row)
-    columns = [*targets.columns, *(column if column not in targets.columns else f'Source_{column}' for column in source.columns)]
-    output = pd.DataFrame(rows, columns=columns)
-    fields = config.get('select_fields', [])
-    if fields:
-        selected, explicit = {}, set()
-        for field in fields:
-            name = str(field['source'])
-            if name == '*Unknown':
-                continue
-            if name.startswith('Target_'):
-                name = name[len('Target_'):]
-            elif name.startswith('Source_') and name[len('Source_'):] not in targets.columns:
-                name = name[len('Source_'):]
-            explicit.add(name)
-            if field.get('selected', True):
-                selected[field.get('rename') or name] = coerce_field(output[name], field.get('dtype'), field.get('size'))
-        if any(field['source'] == '*Unknown' and field.get('selected', True) for field in fields):
-            selected.update({column: output[column] for column in output.columns if column not in explicit and column not in selected})
-        output = pd.DataFrame(selected, index=output.index)
+    fields = config.get("select_fields", [])
+    output, names = append_rows(targets, source, fields, config.get("order_changed", False))
+    for field in fields:
+        reference, dtype = field["source"], field.get("dtype")
+        if dtype and reference in names and reference != "*Unknown":
+            name = names[reference]
+            output[name] = coerce_field(output[name], dtype, field.get("size"))
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

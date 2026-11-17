@@ -1,6 +1,7 @@
 import json
 import csv
 from pathlib import Path
+import runpy
 import subprocess
 import sys
 from xml.etree import ElementTree as ET
@@ -9,7 +10,8 @@ import pandas as pd
 import pytest
 
 from alteryx2python.comparison.workbook import workbook_snapshot
-from alteryx2python.generator.readable import ReadablePythonGenerator
+from alteryx2python.generator.python_generator import PythonGenerator
+from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.executor import run_workflow_graph
@@ -263,6 +265,64 @@ def test_configured_report_path_creates_default_date_folder(tmp_path):
     assert completed.returncode == 0, completed.stderr
     name = Path('reports') / today / 'result.xlsx'
     assert workbook_snapshot(first / name) == workbook_snapshot(second / name)
+
+
+@pytest.mark.parametrize('old_ir', [False, True])
+def test_appendfields_source_reference_reaches_formula_and_xlsx_render(tmp_path, old_ir):
+    builder = WorkflowBuilder()
+    records = builder.add_text_input(['Value'], [[42]])
+    table = builder._node('PortfolioComposerTable', '<TableMode>Basic</TableMode>', (150, 100))
+    settings = builder.add_text_input(['Output_Root_Folder', 'Target_SheetName'], [['reports', 'Trades']])
+    append = builder._node('AppendFields', '''
+        <CartesianMode>Allow</CartesianMode>
+        <SelectConfiguration><Configuration><OrderChanged value="False"/><SelectFields>
+            <SelectField field="Source_Output_Root_Folder" selected="True"/>
+            <SelectField field="Source_Target_SheetName" selected="True"/>
+            <SelectField field="*Unknown" selected="True"/>
+        </SelectFields></Configuration></SelectConfiguration>
+    ''', (270, 100))
+    formula = builder.add_formula([
+        ('dt_now', 'DateTime', '19', 'DateTimeNow()'),
+        ('OutputPath', 'V_WString', '256',
+         """[Output_Root_Folder] + '/' + DateTimeFormat([dt_now], '%Y%m%d') + '/Recon_Result_' + """
+         """DateTimeFormat([dt_now], '%Y%m%d%H%M%S') + '.xlsx'"""),
+    ])
+    render = builder._node('PortfolioComposerRender', '''
+        <OutputFile>report.xlsx</OutputFile><BatchMode value="True"/>
+        <GroupField>OutputPath</GroupField><FilenameModifier>ReplacePath</FilenameModifier><DataField>Table</DataField>
+    ''', (500, 100))
+    builder.connect(records, table)
+    builder.connect(table, append, target_anchor='Targets')
+    builder.connect(settings, append, target_anchor='Source')
+    builder.connect(append, formula)
+    builder.connect(formula, render)
+    workflow = save_workflow(builder, tmp_path)
+    if old_ir:
+        settings = next(node.config['normalized'] for node in workflow.nodes if node.node_id == str(append))
+        settings.pop('order_changed')
+        for field in settings['select_fields']:
+            if field['rename'] is None:
+                field['rename'] = field['source']
+    first, second = tmp_path / 'phase-one', tmp_path / 'phase-two'
+    clock = '2026-10-13 05:06:07'
+    phase_one = tmp_path / 'phase_one.py'
+    phase_one.write_text(PythonGenerator().generate(workflow), encoding='utf-8')
+    baseline, _ = runpy.run_path(str(phase_one))['run_workflow'](runtime_config={
+        'delivery_profile': 'xlsx-table-v1', 'input_dir': first, 'use_workflow_output_paths': True,
+        'as_of': clock,
+    })
+    output = baseline.node_results[str(append)].outputs['Output']
+    assert list(output.columns) == ['Table', 'Output_Root_Folder', 'Target_SheetName']
+    assert output['Output_Root_Folder'].tolist() == ['reports']
+    assert output['Target_SheetName'].tolist() == ['Trades']
+    script = tmp_path / 'readable.py'
+    ReadablePythonGenerator().generate(read_phase_one(phase_one), delivery_profile='xlsx-table-v1').write(script)
+    result = subprocess.run([sys.executable, '-I', str(script), '--input-dir', str(second),
+                             '--as-of', clock, '--use-workflow-output-paths'], capture_output=True)
+    assert result.returncode == 0, result.stderr
+    name = Path('reports') / '20261013' / 'Recon_Result_20261013050607.xlsx'
+    assert workbook_snapshot(first / name) == workbook_snapshot(second / name)
+    assert pd.read_excel(second / name)['Value'].tolist() == [42]
 
 
 def test_dynamic_input_blank_headers_reach_downstream_formula(tmp_path):

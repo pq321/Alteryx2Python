@@ -614,7 +614,9 @@ class ReadablePythonGenerator:
         self.__init__()
         self.profile = delivery_profile
         from alteryx2python.generator.parameters import prepare_parameters, ParameterExpression
-        from alteryx2python.runtime.executor import _topological_order, _next_input_anchor_name, _edge_connection_name, cancels_on_error
+        from alteryx2python.runtime.executor import (
+            _edge_connection_name, _next_input_anchor_name, _normalized_config, _topological_order, cancels_on_error,
+        )
         from alteryx2python.tools.registry import TOOL_REGISTRY
         original = deepcopy(workflow)
         if parameter_mode == 'dynamic':
@@ -689,7 +691,7 @@ class ReadablePythonGenerator:
         issues = []
         for node_id in order:
             node = by_id[node_id]
-            config = deepcopy(node.config.get('normalized', node.config))
+            config = deepcopy(_normalized_config(node))
             config.update(node_id=node_id, source_tool_id=node.source_tool_id,
                           expected_output_schema=node.expected_output_schema)
             if node_id in shared_group_keys:
