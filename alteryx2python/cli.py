@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import traceback
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from typing import Any
 
 import pandas as pd
@@ -299,6 +300,7 @@ def _inspect_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
 
 def _inspection_report(workflow: Any) -> dict[str, Any]:
     unsupported_nodes = _unsupported_nodes(workflow)
+    inputs, dynamic_inputs = _inspect_input_paths(workflow)
     return {
         "command": "inspect",
         "status": "ok",
@@ -315,10 +317,52 @@ def _inspection_report(workflow: Any) -> dict[str, Any]:
             for edge in workflow.edges
         ],
         "tool_types": sorted({node.tool_type for node in workflow.nodes}),
-        "external_dependencies": list(workflow.external_dependencies),
+        "external_dependencies": list(dict.fromkeys(item["source"] for item in inputs if item["source"])),
+        "configured_file_references": list(workflow.external_dependencies),
+        "input_paths": inputs,
+        "dynamic_inputs": dynamic_inputs,
         "unsupported_nodes": unsupported_nodes,
         "warnings": list(workflow.warnings),
     }
+
+
+def _inspect_input_paths(workflow):
+    from alteryx2python.runtime.scheduling import container_guards, detour_exclusions
+    from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
+
+    inputs, dynamic_inputs = [], []
+    variables = workflow_variables(workflow)
+    source = Path(workflow.source_file).absolute()
+    nodes = {node.node_id: node for node in workflow.nodes}
+    is_app = source.suffix.lower() == ".yxwz"
+    _, skipped = detour_exclusions(workflow.nodes, workflow.edges) if not is_app else (set(), set())
+    for node in workflow.nodes:
+        if node.node_id in skipped or (not is_app and None in container_guards(node, nodes, ())):
+            continue
+        config = node.config.get("normalized", {})
+        if node.tool_type == "DynamicInput":
+            dynamic_inputs.append({
+                "node_id": node.node_id,
+                "path_field": config.get("read_list_field"),
+                "configured_template": config.get("input_configuration", {}).get("file"),
+            })
+        if node.tool_type != "DbFileInput" or not config.get("file"):
+            continue
+        configured = config["file"]
+        entry = {"node_id": node.node_id, "configured": configured, "source": None}
+        try:
+            value = resolve_variable_tokens(configured, variables)
+        except ValueError as error:
+            entry["issue"] = str(error)
+        else:
+            filename, separator, selector = value.partition("|||")
+            # Inspect reports the configured source without touching a share or a cache.
+            if Path(filename).suffix.lower() in {".csv", ".tsv", ".txt", ".xlsx", ".yxdb", ".xls", ".xlsm"} and "://" not in filename:
+                if os.name == "nt" or not PureWindowsPath(filename).is_absolute():
+                    filename = os.path.abspath(source.parent / filename)
+            entry["source"] = filename + separator + selector
+        inputs.append(entry)
+    return inputs, dynamic_inputs
 
 
 def _pick_inspection_workflow() -> Path | None:
@@ -392,6 +436,8 @@ def _inspect_summary_report(workflow, inspection, output_dir, answers_file):
         "question_error": inspection.get("question_error"),
         "answers_file": str(answers_file.resolve()) if answers_file is not None else None,
         "external_dependencies": inspection["external_dependencies"],
+        "input_paths": inspection["input_paths"],
+        "dynamic_inputs": inspection["dynamic_inputs"],
         "warnings": inspection["warnings"],
         "active_issues": [issue for issue in audit["inventory"] if issue["active"]],
         "phase_two": audit["phase_two"],
@@ -424,6 +470,12 @@ def _format_inspect_summary(report: dict[str, Any]) -> str:
     lines.append(f'External dependencies: {len(report["external_dependencies"])} | Parser warnings: {len(report["warnings"])}')
     for dependency in report["external_dependencies"][:2]:
         lines.append(f"  Dependency: {dependency}")
+    unresolved = [item for item in report["input_paths"] if "issue" in item]
+    for item in unresolved[:2]:
+        lines.append(f'  Input Data {item["node_id"]}: {item["issue"]}')
+    if report["dynamic_inputs"]:
+        ids = ", ".join(item["node_id"] for item in report["dynamic_inputs"])
+        lines.append(f"Dynamic Input nodes {ids}: runtime file paths are discovered during Step 2.")
     for label, issues in (("Active issues", report["active_issues"]), ("Phase 2 blockers", phase_two.get("issues", []))):
         lines.append(f"{label}: {len(issues)}")
         for issue in issues[:3]:

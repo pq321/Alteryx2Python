@@ -92,6 +92,8 @@ Official capability references. [Alteryx Designer](https://help.alteryx.com/desi
 
 一屏查看节点与连接数、App 问题、外部依赖、活跃问题的节点 ID 和 Phase 2 编译预检结果。完整的 inspect.json 和 audit.json 自动保存。省略路径时可用 Windows 文件选择器。验证 macro 时，选调用它的 workflow。
 
+输入摘要会解析 `%User.*%` 等工作流常量，并按原工作流目录解释相对路径。Dynamic Input 的设计模板和路径字段记录在 `inspect.json`，实际读取的文件在第 2 步根据上游数据和 App 答案确定。
+
 ### 第 2 步 · Designer
 
 ```powershell
@@ -101,6 +103,8 @@ Official capability references. [Alteryx Designer](https://help.alteryx.com/desi
 脚本创建独立案例，记录答案、输入快照和 Event，再用 auto 模式打开 Designer。App 按终端提示填值，日期填 YYYY-MM-DD。脚本在日历中切到目标月份并选中日期，同时回读支持的输入控件。全部答案验证后，脚本点击 Finish；遇到需要人工填写的控件时，终端会提示。运行期间识别到的 Alteryx One 注册提示会自动关闭。只记录日志的 After Run Event 按提示选择 ID，原来的批处理由本地 JSONL 记录替代。
 
 Designer 完成后看实际 Results。命令会给出结果截图、案例目录和下一步。需要 AMP 探针导出时，第 3 步会自动处理。
+
+用案例中的 `inputs.json` 核对原始输入路径 `source` 和用于重放的缓存路径 `snapshot`。Dynamic Input 的模板来源在 `native/manifest.json` 的 `dynamic_inputs` 中。
 
 ### 第 3 步 · Phase 1 对照
 

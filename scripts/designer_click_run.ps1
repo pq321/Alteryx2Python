@@ -137,6 +137,11 @@ using System.Text;
 public static class DesignerMouse {
     [StructLayout(LayoutKind.Sequential)] public struct Box { public int Left, Top, Right, Bottom; }
     [StructLayout(LayoutKind.Sequential)] public struct Point { public int X, Y; }
+    [StructLayout(LayoutKind.Sequential)] private struct TitleBarInfo {
+        public int Size;
+        public Box Bounds;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 6)] public uint[] State;
+    }
     private delegate bool ChildCallback(IntPtr hwnd, IntPtr state);
     [DllImport("user32.dll")] public static extern bool SetProcessDPIAware();
     [DllImport("user32.dll")] private static extern bool GetWindowRect(IntPtr hwnd, out Box box);
@@ -152,6 +157,9 @@ public static class DesignerMouse {
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint message, IntPtr wParam,
         StringBuilder text, uint flags, uint milliseconds, out IntPtr result);
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint message, IntPtr wParam,
+        IntPtr lParam, uint flags, uint milliseconds, out IntPtr result);
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hwnd);
@@ -159,6 +167,9 @@ public static class DesignerMouse {
     [DllImport("user32.dll")] private static extern bool ShowWindowAsync(IntPtr hwnd, int command);
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
+    [DllImport("user32.dll")] private static extern bool GetTitleBarInfo(IntPtr hwnd, ref TitleBarInfo info);
+    [DllImport("user32.dll")] private static extern bool SetWindowPos(IntPtr hwnd, IntPtr after,
+        int x, int y, int width, int height, uint flags);
     [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(Point point);
     [DllImport("user32.dll")] private static extern bool IsChild(IntPtr parent, IntPtr child);
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
@@ -271,12 +282,6 @@ public static class DesignerMouse {
         return match;
     }
 
-    public static void OpenFileMenu(IntPtr root, uint expectedProcess) {
-        if (!IsWindowEnabled(root)) throw new InvalidOperationException("Designer has an open dialog.");
-        Point point = ToolbarMenuPoint(root, 36, 46);
-        ClickWindowPoint(root, expectedProcess, point.X, point.Y);
-    }
-
     private static Point ToolbarMenuPoint(IntPtr root, int x, int y) {
         Box window;
         using (var image = Capture(root, out window)) {
@@ -292,6 +297,43 @@ public static class DesignerMouse {
         var title = new StringBuilder(1024);
         GetWindowText(hwnd, title, title.Capacity);
         return title.ToString();
+    }
+
+    public static void RaiseForActivation(IntPtr root, uint expectedProcess) {
+        RequireVisibleWindow(root, expectedProcess);
+        // HWND_TOP, NOSIZE | NOMOVE | NOACTIVATE | ASYNCWINDOWPOS.
+        SetWindowPos(root, IntPtr.Zero, 0, 0, 0, 0, 0x4013);
+    }
+
+    public static bool TryActivateCaption(IntPtr root, uint expectedProcess) {
+        RequireVisibleWindow(root, expectedProcess);
+        if (GetForegroundWindow() == root) return true;
+        if (GetAsyncKeyState(1) < 0 || GetAsyncKeyState(0x10) < 0 ||
+            GetAsyncKeyState(0x11) < 0 || GetAsyncKeyState(0x12) < 0) return false;
+        var bar = new TitleBarInfo { Size = Marshal.SizeOf<TitleBarInfo>() };
+        if (!GetTitleBarInfo(root, ref bar)) return false;
+        Box bounds = bar.Bounds;
+        for (int fraction = 1; fraction <= 3; fraction++) {
+            var point = new Point {
+                X = bounds.Left + fraction * (bounds.Right - bounds.Left) / 4,
+                Y = bounds.Top + (bounds.Bottom - bounds.Top) / 2
+            };
+            if (WindowFromPoint(point) != root) continue;
+            // Ask Windows whether this is a caption, excluding buttons and Designer controls.
+            var position = new IntPtr(((point.Y & 65535) << 16) | (point.X & 65535));
+            IntPtr hit;
+            if (SendMessageTimeout(root, 0x0084, IntPtr.Zero, position, 2, 500, out hit) == IntPtr.Zero ||
+                hit.ToInt64() != 2) continue;
+            Point original;
+            if (!GetCursorPos(out original) || !SetCursorPos(point.X, point.Y)) return false;
+            try {
+                if (WindowFromPoint(point) != root || !IsWindowEnabled(root)) return false;
+                mouse_event(0x0002, 0, 0, 0, UIntPtr.Zero);
+                mouse_event(0x0004, 0, 0, 0, UIntPtr.Zero);
+                return true;
+            } finally { SetCursorPos(original.X, original.Y); }
+        }
+        return false;
     }
 
     public static bool TryShortcut(IntPtr root, uint expectedProcess, byte key) {
@@ -519,11 +561,15 @@ public static class DesignerMouse {
             throw new InvalidOperationException("Cannot close the selected Designer dialog.");
     }
 
-    public static void FocusModal(IntPtr dialog, uint expectedProcess) {
+    private static void RequireVisibleWindow(IntPtr dialog, uint expectedProcess) {
         uint pid;
         GetWindowThreadProcessId(dialog, out pid);
         if (pid != expectedProcess || !IsWindowEnabled(dialog) || !IsWindowVisible(dialog))
             throw new InvalidOperationException("Expected a managed Designer dialog.");
+    }
+
+    public static void FocusModal(IntPtr dialog, uint expectedProcess) {
+        RequireVisibleWindow(dialog, expectedProcess);
         SetForegroundWindow(dialog);
     }
 
@@ -958,6 +1004,38 @@ function Start-DesignerSession {
     $script:sessionHandle = $target.MainWindowHandle
 }
 
+function Open-WorkflowFilePicker {
+    # Ctrl+O is Designer's Open Workflow command. Wait for asynchronous activation
+    # and verify the target again before sending keys from the automation worker.
+    $shortcutSent = Wait-For {
+        [DesignerMouse]::TryShortcut($script:sessionHandle, $script:sessionId, 0x4F)
+    } 2
+    if (-not $shortcutSent) {
+        Write-Host 'Designer: bring the existing window forward through its title bar'
+        [DesignerMouse]::RaiseForActivation($script:sessionHandle, $script:sessionId)
+        [void](Wait-For {
+            [DesignerMouse]::TryActivateCaption($script:sessionHandle, $script:sessionId)
+        } 2)
+        $shortcutSent = Wait-For {
+            [DesignerMouse]::TryShortcut($script:sessionHandle, $script:sessionId, 0x4F)
+        } 3
+    }
+    if (-not $shortcutSent) {
+        throw "Could not activate Designer PID $script:sessionId for Ctrl+O. Check that its window is available on this desktop."
+    }
+    $file = Wait-For {
+        $file = [DesignerMouse]::FindDialog($script:sessionId, 'Alteryx - Open File')
+        if ($file -ne [IntPtr]::Zero) { return $file }
+    } 6
+    if (-not $file) {
+        $dialog = Get-SessionDialog
+        if ($dialog -and $dialog.Current.Name -ne 'Alteryx - Open File') {
+            throw "Designer opened '$($dialog.Current.Name)' instead of the file picker."
+        }
+    }
+    $file
+}
+
 function Open-WorkflowInSession([string]$Path) {
     $name = [IO.Path]::GetFileName($Path)
     Set-DesignerStage "open $name in Designer" 30
@@ -975,26 +1053,10 @@ function Open-WorkflowInSession([string]$Path) {
     if (@([DesignerMouse]::VisibleMenus($script:sessionId)).Count) {
         throw 'Close the open Designer menu before starting the batch.'
     }
-    if ([DesignerMouse]::TryShortcut($script:sessionHandle, $script:sessionId, 0x4F)) {
-        $file = Wait-ForNamedDialog 'Alteryx - Open File' 8
-    } else {
-        [DesignerMouse]::OpenFileMenu($script:sessionHandle, $script:sessionId)
-        $fileMenu = Wait-For {
-            $menus = @([DesignerMouse]::VisibleMenus($script:sessionId))
-            if ($menus.Count -eq 1) { $menus[0] }
-        } 5
-        if (-not $fileMenu) { throw 'Designer did not open its File menu.' }
-        [DesignerMouse]::ClickMenuItem($fileMenu, $script:sessionId, 80, 90)
-        $browseMenu = Wait-For {
-            $dialog = [DesignerMouse]::FindDialog($script:sessionId, 'Alteryx - Open File')
-            if ($dialog -ne [IntPtr]::Zero) { return 'picker' }
-            $menus = @([DesignerMouse]::VisibleMenus($script:sessionId) | Where-Object { $_ -ne $fileMenu })
-            if ($menus.Count -eq 1) { $menus[0] }
-        } ([Math]::Min(15, $TimeoutSeconds))
-        if (-not $browseMenu) { throw 'Designer did not open its Open Workflow submenu.' }
-        if ($browseMenu -is [IntPtr]) { [DesignerMouse]::ClickMenuItem($browseMenu, $script:sessionId, 58, 18) }
-        $file = Wait-ForNamedDialog 'Alteryx - Open File' 8
-    }
+    Set-DesignerStage 'activate Designer and open the workflow file picker' 15
+    $file = Open-WorkflowFilePicker
+    if (-not $file) { throw 'Designer did not open Alteryx - Open File after Ctrl+O.' }
+    Set-DesignerStage "select and load $name in Designer" 25
     $selected = Wait-For {
         [DesignerMouse]::SelectFile($file, $script:sessionId, $Path)
     } 10
@@ -1072,8 +1134,7 @@ function Open-AppFromWand($Case) {
     try {
         Open-WorkflowInSession $Case.path
     } catch {
-        if ($AppLaunch -ne 'auto' -or $_.Exception.Message -notin @(
-            'Designer did not open its File menu.', 'Designer did not open Alteryx - Open File.') -or
+        if ($AppLaunch -ne 'auto' -or $_.Exception.Message -ne 'Designer did not open Alteryx - Open File after Ctrl+O.' -or
             (Get-SessionWindow).MainWindowTitle -ne $previousTitle -or
             (Get-SessionDialog) -or @([DesignerMouse]::VisibleMenus($script:sessionId)).Count) {
             throw
@@ -1082,15 +1143,18 @@ function Open-AppFromWand($Case) {
     }
     Set-DesignerStage 'locate and click Run as Analytic App'
     $window = [System.Windows.Automation.AutomationElement]::FromHandle($script:sessionHandle)
+    $element = [System.Windows.Automation.AutomationElement]
+    $wandSelector = [System.Windows.Automation.OrCondition]::new(
+        [System.Windows.Automation.PropertyCondition]::new($element::AutomationIdProperty, 'btnRunApp'),
+        [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'btnRunApp'),
+        [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'Run as Analytic App')
+    )
     $button = Wait-For {
         $candidates = @($window.FindAll(
-            [System.Windows.Automation.TreeScope]::Descendants,
-            [System.Windows.Automation.Condition]::TrueCondition
+            [System.Windows.Automation.TreeScope]::Descendants, $wandSelector
         ) | Where-Object {
             $_.Current.IsEnabled -and -not $_.Current.IsOffscreen -and
-            ($_.Current.Name -eq 'btnRunApp' -or $_.Current.AutomationId -eq 'btnRunApp' -or
-                ($_.Current.ControlType -ne [System.Windows.Automation.ControlType]::Text -and
-                    ($_.Current.Name -like 'Run as Analytic App*' -or $_.Current.HelpText -like 'Run as Analytic App*')))
+            $_.Current.ControlType -ne [System.Windows.Automation.ControlType]::Text
         })
         if ($candidates.Count -eq 1) { $candidates[0] }
     } 5

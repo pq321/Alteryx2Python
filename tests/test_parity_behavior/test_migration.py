@@ -398,6 +398,54 @@ def test_migration_identifies_missing_user_constant_at_input_node(tmp_path):
     assert not (directory / "designer-plan.json").exists()
 
 
+def test_inspect_and_migrate_distinguish_user_input_runtime_files_and_templates(tmp_path, capsys):
+    from pathlib import Path
+
+    from alteryx2python.cli import main
+
+    workflow = dynamic_render_fixture(tmp_path, missing=False)
+    config = tmp_path / "file path config.csv"
+    config.write_text("InputPath\nsource.csv\n", encoding="utf-8")
+    template = tmp_path / "template-source.csv"
+    template.write_text("SheetName,Value\nTemplate,Design-time only\n", encoding="utf-8")
+    tree = ET.parse(workflow)
+    source_node = tree.find(".//Node[@ToolID='1']")
+    input_workflow, input_id = constant_input_fixture(tmp_path, "yxmd", config)
+    input_node = ET.parse(input_workflow).find(f".//Node[@ToolID='{input_id}']")
+    for tag in ("GuiSettings", "Properties", "EngineSettings"):
+        source_node.remove(source_node.find(tag))
+        source_node.append(input_node.find(tag))
+    declare_config_path(tree.getroot(), config)
+    tree.write(workflow, encoding="utf-8", xml_declaration=True)
+
+    inspection = tmp_path / "inspection"
+    main(["inspect", str(workflow), "--summary", "--output-dir", str(inspection)])
+    stdout = capsys.readouterr().out
+    inspected = json.loads((inspection / "inspect.json").read_text(encoding="utf-8"))
+    assert f"Dependency: {config}" in stdout
+    assert str(template) not in stdout
+    assert inspected["external_dependencies"] == [str(config)]
+    assert inspected["input_paths"] == [
+        {"node_id": "1", "configured": "%User.FILE_PATH_CONFIG%", "source": str(config)},
+    ]
+    assert inspected["dynamic_inputs"] == [
+        {"node_id": "2", "path_field": "InputPath", "configured_template": template.name},
+    ]
+
+    case = tmp_path / "case"
+    prepare_migration(workflow, case)
+    snapshots = json.loads((case / "inputs.json").read_text(encoding="utf-8"))
+    assert {item["source"] for item in snapshots} == {str(config), str(tmp_path / "source.csv")}
+    for item in snapshots:
+        assert Path(item["snapshot"]).read_bytes() == Path(item["source"]).read_bytes()
+    native = case / "native"
+    manifest = verify_manifest(native)
+    staged_template = manifest["dynamic_inputs"]["2"]["template"]
+    assert staged_template["source"] == str(template)
+    assert Path(staged_template["snapshot"]).is_relative_to(case / "templates")
+    assert any(Path(path) == Path(staged_template["snapshot"]) for path in manifest["inputs_sha256"])
+
+
 @pytest.mark.parametrize("missing", [False, True])
 def test_migrate_replaces_selected_after_run_event_for_both_python_phases(tmp_path, missing):
     source = app_fixture(tmp_path)

@@ -52,14 +52,14 @@ def prompt_answers(questions, read=None, display=None):
     return answers
 
 
-def _stage_input(root, source_dir, value, entries, allow_missing):
+def _stage_input(root, source_dir, value, entries, allow_missing, *, folder="inputs"):
     raw, separator, selection = value.partition("|||")
     source = (source_dir / raw).resolve()
     if source.suffix.lower() not in {".csv", ".tsv", ".txt", ".xlsx", ".yxdb"} or "://" in raw:
         raise ValueError(f"Expected a local input file: {raw}")
     entry = entries.get(str(source))
     if entry is None:
-        target = root / "inputs" / str(len(entries) + 1) / source.name
+        target = root / folder / str(len(entries) + 1) / source.name
         digest = None
         if source.is_file():
             digest = file_hash(source)
@@ -123,7 +123,7 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
     return entries
 
 
-def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, allow_missing, as_of):
+def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, templates, allow_missing, as_of):
     """Freeze the file list for this case before opening Designer."""
     workflow = XmlWorkflowParser().parse(staged)
     nodes = {node.node_id: node for node in workflow.nodes}
@@ -178,10 +178,16 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, allow_
             path = _resolve_path(value, variables, f"Dynamic Input {node_id}")
             snapshot = _stage_input(staged.parent, source_dir, path, entries, allow_missing or behaviour == "warning")
             frozen[value] = (staged.parent / snapshot).as_posix()
+        configured_template = reference
         reference = _resolve_path(reference, variables, f"Dynamic Input {node_id} template")
         raw, _, sheet = reference.partition("|||")
         if (source_dir / raw).is_file():
-            template = _stage_input(staged.parent, source_dir, reference, entries, False)
+            source = (source_dir / raw).resolve()
+            if str(source) in entries:
+                template = _stage_input(staged.parent, source_dir, reference, entries, False)
+            else:
+                template = _stage_input(staged.parent, source_dir, reference, templates, False, folder="templates")
+            template_origin = str(source)
         else:
             available = next((path for path in frozen.values() if Path(path.partition("|||")[0]).is_file()), None)
             if available is None:
@@ -189,7 +195,9 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, allow_
             filename, _, available_sheet = available.partition("|||")
             selector = available_sheet or sheet
             template = filename + ("|||" + selector if selector else "")
-        config.find("InputConfiguration/Configuration/File").text = (staged.parent / template).as_posix()
+            template_origin = next(item["source"] for item in entries.values() if Path(item["snapshot"]) == Path(filename))
+        template_path = (staged.parent / template).as_posix()
+        config.find("InputConfiguration/Configuration/File").text = template_path
         copy_field = f"__a2p_path_{node_id}"
         if copy_field in frame:
             raise ValueError(f"Dynamic Input {node_id} has a conflicting isolation field {copy_field!r}")
@@ -199,7 +207,10 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, allow_
         expression = "IF " + " ELSEIF ".join(branches) + f" ELSE {formula_text(missing)} ENDIF" if branches else formula_text(missing)
         insert_input_formula(document, node_id, next_id, copy_field, expression)
         config.find("ReadList_Field").text = copy_field
-        adapters[node_id] = {"path_field": field, "isolation_tool": str(next_id), "file_count": len(frozen)}
+        adapters[node_id] = {
+            "path_field": field, "isolation_tool": str(next_id), "file_count": len(frozen),
+            "template": {"configured": configured_template, "source": template_origin, "snapshot": template_path},
+        }
         next_id += 1
         ET.ElementTree(document).write(staged, encoding="utf-8", xml_declaration=True)
     return adapters
@@ -264,7 +275,8 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
     staged = directory / source.name
     ET.ElementTree(document).write(staged, encoding="utf-8", xml_declaration=True)
     as_of = datetime.now().isoformat(sep=" ", timespec="seconds")
-    dynamic_inputs = _stage_dynamic_inputs(staged, source.parent, document, answers, entries, allow_missing, as_of)
+    templates = {}
+    dynamic_inputs = _stage_dynamic_inputs(staged, source.parent, document, answers, entries, templates, allow_missing, as_of)
     write_json(directory / "inputs.json", list(entries.values()))
     staged_workflow = XmlWorkflowParser().parse(staged)
     has_render = any(node.tool_type == "PortfolioComposerRender" for node in staged_workflow.nodes)
@@ -303,8 +315,9 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
                 multi_file is not None and multi_file.get("value", "").lower() in {"true", "1"}
             ):
                 raise ValueError(f"App Action overrides the isolated output for tool {node.get('ToolID')}")
-    # Include all snapshots, including paths selected by app answers.
-    manifest["inputs_sha256"].update({item["snapshot"]: item["sha256"] for item in entries.values()})
+    # Verify all snapshots, including design-time templates and paths selected by app answers.
+    for snapshots in (entries, templates):
+        manifest["inputs_sha256"].update({item["snapshot"]: item["sha256"] for item in snapshots.values()})
     write_json(native / "manifest.json", manifest)
     plan = directory / "designer-plan.json"
     write_json(plan, [{"status": "ready", "workflow": str(staged), "run_dir": str(native)}])
