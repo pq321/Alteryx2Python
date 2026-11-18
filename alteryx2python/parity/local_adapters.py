@@ -108,10 +108,13 @@ def workbook_artifacts(directory):
 
 
 def workbook_digest(path):
-    payload = [
-        (sheet, [[(kind, encode_value(value)) for kind, value in row] for row in rows])
-        for sheet, rows in workbook_snapshot(path).items()
-    ]
+    payload = []
+    for sheet, rows in workbook_snapshot(path).items():
+        # Excel writers omit different amounts of trailing cell padding in sparse rows.
+        for row in rows:
+            while row and row[-1] == (None, None):
+                row.pop()
+        payload.append((sheet, [[(kind, encode_value(value)) for kind, value in row] for row in rows]))
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False).encode("utf-8")).hexdigest()
 
 

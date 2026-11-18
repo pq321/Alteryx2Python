@@ -25,7 +25,7 @@ from alteryx2python.tools.registry import TOOL_REGISTRY
 
 from .local_adapters import (
     bind_formula_clock, field_reference, formula_text, insert_input_formula, isolated_workbook_name,
-    project_report_snapshot, report_projection_nodes, workbook_artifacts,
+    project_report_snapshot, report_projection_nodes, workbook_artifacts, workbook_digest,
 )
 from .snapshot import encode_value, frame_snapshot, compare_snapshots
 
@@ -101,6 +101,10 @@ def write_json(path: Path, value: Any) -> None:
 
 def file_hash(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def sink_digest(path: Path) -> str:
+    return workbook_digest(path) if path.suffix.lower() == ".xlsx" else file_hash(path)
 
 
 def file_artifacts(directory: Path) -> dict:
@@ -284,7 +288,7 @@ def _capture_python(
         "warnings": context.warnings,
         "errors": context.errors,
         "sink_artifacts": {
-            path.stem.rsplit("-", 1)[-1]: file_hash(path)
+            path.stem.rsplit("-", 1)[-1]: sink_digest(path)
             for path in output_directory.glob(f"python-sink-{source_identity}-*")
             if path.is_file()
         },
@@ -875,12 +879,16 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
         node_id: workbook_artifacts(directory / folder)
         for node_id, folder in manifest.get("render_folders", {}).items()
     } if "render_artifacts" in run else None
+    sink_artifacts = {
+        node_id: sink_digest(directory / manifest["sink_files"][node_id])
+        for node_id in run["sink_artifacts"]
+    } if manifest.get("sink_files") and "sink_artifacts" in run else None
     return {
         "producer": "alteryx",
         "source_sha256": manifest["source_sha256"],
         "answers": manifest.get("answers"),
         **({"event_artifacts": run.get("event_artifacts")} if manifest.get("event_commands_sha256") else {}),
-        **({"sink_artifacts": run.get("sink_artifacts")} if manifest.get("sink_files") else {}),
+        **({"sink_artifacts": sink_artifacts} if manifest.get("sink_files") else {}),
         **({"render_workbooks": render_workbooks, "render_digests": (
             next(iter(render_workbooks.values())) if render_workbooks else None
         )} if manifest.get("render_folders") else {}),

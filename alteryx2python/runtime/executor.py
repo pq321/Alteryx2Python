@@ -267,7 +267,7 @@ def _run_workflow_graph(
             identity = hashlib.sha256(workflow.source_file.encode()).hexdigest()[:12]
             if not audit or config.get('file'):
                 config['file'] = str(Path(capture_dir) / f'python-sink-{identity}-{node_id}{suffix}')
-                if audit and separator:
+                if separator:
                     config['file'] += separator + selector
         if input_connection_names:
             config["input_connection_names"] = input_connection_names

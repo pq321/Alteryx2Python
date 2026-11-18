@@ -25,7 +25,7 @@ def _format_option(config: dict[str, Any], name: str, default: str = "") -> str:
         return default
     value = options.get(name)
     if isinstance(value, dict):
-        return str(value.get("text", default))
+        return str(value.get("text", (value.get("attributes") or {}).get("value", default)))
     return default if value is None else str(value)
 
 
@@ -133,9 +133,26 @@ def xlsx_output_options(config, selector):
         raise NotImplementedError("Excel output requires a single worksheet name")
     options = config.get("format_specific_options") or {}
     mode = _format_option(config, "OutputOption", "")
-    if mode not in {"", "OverwriteFile"} or options.keys() - {"OutputOption", "HeaderRow"}:
-        raise NotImplementedError("Excel output supports writing a full workbook only")
-    return sheet, _format_option(config, "HeaderRow", "True").lower() == "true"
+    if mode not in {"", "RemoveFile", "OverwriteFile"}:
+        raise NotImplementedError(f"Excel output mode is unsupported: {mode!r}. Use Overwrite File (Remove)")
+    defaults = {
+        "PreserveFormat": {"", "false", "0"},
+        "UNCLocal": {"", "false", "0"},
+        "SuppressBlankFile": {"", "false", "0"},
+        "MipSensitivity": {""},
+        "MipTenantId": {""},
+    }
+    unsupported = [
+        option for option in options.keys() - {"OutputOption", "HeaderRow", "SkipFieldNames"}
+        if _format_option(config, option).strip().lower() not in defaults.get(option, ())
+    ]
+    if unsupported:
+        raise NotImplementedError("Unsupported Excel output options: " + ", ".join(sorted(unsupported)))
+    header = _format_option(config, "HeaderRow", "True").lower() == "true"
+    skip = _format_option(config, "SkipFieldNames", "False").strip().lower()
+    if skip not in {"", "false", "0", "true", "1"}:
+        raise ValueError(f"Invalid Excel SkipFieldNames setting: {skip!r}")
+    return sheet, header and skip not in {"true", "1"}
 
 
 def dbfileoutput_tool(

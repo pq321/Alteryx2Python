@@ -2,13 +2,90 @@ import json
 from datetime import datetime
 from xml.etree import ElementTree as ET
 
+from openpyxl import Workbook
 import pytest
 
+from alteryx2python.comparison.workbook import workbook_snapshot
 from alteryx2python.parity.migration import prepare_migration, prompt_answers, resume_migration
-from alteryx2python.parity.runner import file_hash, verify_manifest
+from alteryx2python.parity.runner import file_hash, sink_digest, verify_manifest
 from alteryx2python.runtime.app_config import list_questions
 from alteryx2python.workflow_events import workflow_events
 from alteryx2python.workflow_generator import WorkflowBuilder
+
+
+def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
+    workbook = Workbook()
+    workbook.active.append(["Wrong worksheet"])
+    sheet = workbook.create_sheet("R5300")
+    sheet.append(["Label", "Amount", "Date", "Identifier"])
+    sheet.append(["NA", 1, datetime(2026, 10, 13), "00123"])
+    sheet.append([None, None, None, None])
+    sheet.append(["", 3, None, "N/A"])
+    source_file = tmp_path / "R5300.xlsx"
+    workbook.save(source_file)
+    source_hash = file_hash(source_file)
+
+    builder = WorkflowBuilder()
+    input_id = builder._node("DbFileInput", """
+        <File FileFormat="25">R5300.xlsx|||'R5300$'</File>
+        <FormatSpecificOptions><HeaderRow>True</HeaderRow></FormatSpecificOptions>
+    """, (100, 100))
+    output_id = builder._node("DbFileOutput", """
+        <File FileFormat="25" MaxRecords="">out/R5300.xlsx|||Target</File>
+        <FormatSpecificOptions>
+            <MipTenantId /><PreserveFormat>False</PreserveFormat><MipSensitivity />
+            <UNCLocal>False</UNCLocal><SkipFieldNames>False</SkipFieldNames>
+            <SuppressBlankFile>False</SuppressBlankFile><OutputOption>RemoveFile</OutputOption>
+        </FormatSpecificOptions>
+        <MultiFile value="False" />
+    """, (300, 100))
+    builder.connect(input_id, output_id)
+    root = ET.fromstring(builder.render())
+    ET.SubElement(root.find("Properties"), "RunWithE2", value="True")
+    source = tmp_path / "excel-copy.yxmd"
+    ET.ElementTree(root).write(source, encoding="utf-8")
+
+    case = tmp_path / "case"
+    prepare_migration(source, case)
+    manifest = verify_manifest(case / "native")
+    assert manifest["sink_files"] == {str(output_id): f"native-sink-{output_id}.xlsx"}
+    assert ET.parse(case / "native" / manifest["instrumented_file"]).find(
+        f".//Node[@ToolID='{output_id}']/Properties/Configuration/File"
+    ).text.endswith("|||Target")
+
+    result = resume_migration(case)
+    assert result["phase_one_outcome"] == "success"
+    assert result["phase_one_vs_phase_two"] == "match", result
+    assert result["standalone_execution"] == "match"
+    actual = case / "delivery/delivery-output/R5300.xlsx"
+    assert workbook_snapshot(actual) == {
+        "Target": [
+            [("s", "Label"), ("s", "Amount"), ("s", "Date"), ("s", "Identifier")],
+            [("s", "NA"), ("n", 1), ("d", datetime(2026, 10, 13)), ("s", "00123")],
+            [(None, None)] * 4,
+            [(None, None), ("n", 3), (None, None), ("s", "N/A")],
+        ],
+    }
+    assert not (tmp_path / "out").exists()
+    assert file_hash(source_file) == source_hash
+
+
+def test_excel_sink_comparison_ignores_sparse_cell_padding_but_preserves_types(tmp_path):
+    workbook = Workbook()
+    sheet = workbook.active
+    sheet["A1"] = "00123"
+    sheet["A3"] = "NA"
+    first, second = tmp_path / "first.xlsx", tmp_path / "second.xlsx"
+    workbook.save(first)
+    sheet["C2"].number_format = "0"
+    workbook.save(second)
+    assert file_hash(first) != file_hash(second)
+    assert sink_digest(first) == sink_digest(second)
+
+    sheet["A1"] = 123
+    workbook.save(second)
+    assert sink_digest(first) != sink_digest(second)
+
 
 def dynamic_render_fixture(directory, *, missing=True, excel=False):
     from openpyxl import Workbook

@@ -146,7 +146,11 @@ def excel_selection_options(selector, options, *, allow_bare=False):
 def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, **options):
     try:
         with pd.ExcelFile(path) as workbook:
-            frame = workbook.parse(sheet_name, header=header, skiprows=skiprows, usecols=usecols, **options)
+            # Keep text cells as text even if their values look numeric or like pandas NA tokens.
+            parse_options = {"dtype": object, "keep_default_na": False, "na_values": [""], **options}
+            frame = workbook.parse(sheet_name, header=header, skiprows=skiprows, usecols=usecols, **parse_options)
+            if "dtype" not in options:
+                frame = frame.infer_objects()
             if header != 0 or not any(isinstance(name, str) and name.startswith('Unnamed: ') for name in frame.columns):
                 return frame
 

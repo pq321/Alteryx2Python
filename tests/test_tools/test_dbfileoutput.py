@@ -1,3 +1,4 @@
+from openpyxl import Workbook, load_workbook
 import pandas as pd
 import pytest
 
@@ -49,6 +50,37 @@ def test_dbfileoutput_writes_basic_workbook(workflow_context, tmp_path):
     dbfileoutput_tool({"Input": pd.DataFrame({"a": [1]})},
                       {"file": f"{path}|||Data", "file_attributes": {"FileFormat": "25"}}, workflow_context)
     assert pd.read_excel(path, sheet_name="Data")["a"].tolist() == [1]
+
+
+def test_dbfileoutput_remove_file_replaces_all_old_sheets(workflow_context, tmp_path):
+    path = tmp_path / "out.xlsx"
+    old = Workbook()
+    old.active.title = "Previous"
+    old.create_sheet("Another")
+    old.save(path)
+    options = {"OutputOption": {"text": "RemoveFile"}, "SkipFieldNames": {"text": "True"}}
+    dbfileoutput_tool(
+        {"Input": pd.DataFrame({"a": [1]})},
+        {"file": f"{path}|||Data", "format_specific_options": options},
+        workflow_context,
+    )
+    with path.open("rb") as handle:
+        result = load_workbook(handle, read_only=True)
+        assert result.sheetnames == ["Data"]
+        assert list(result["Data"].values) == [(1,)]
+        result.close()
+
+
+def test_dbfileoutput_does_not_ignore_enabled_excel_options(workflow_context, tmp_path):
+    path = tmp_path / "out.xlsx"
+    options = {"OutputOption": {"text": "RemoveFile"}, "SuppressBlankFile": {"attributes": {"value": "True"}}}
+    with pytest.raises(NotImplementedError, match="SuppressBlankFile"):
+        dbfileoutput_tool(
+            {"Input": pd.DataFrame({"a": [1]})},
+            {"file": f"{path}|||Data", "format_specific_options": options},
+            workflow_context,
+        )
+    assert not path.exists()
 
 
 def test_dbfileoutput_expands_alteryx_temp_token(workflow_context, tmp_path, monkeypatch):

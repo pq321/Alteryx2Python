@@ -16,7 +16,10 @@ from alteryx2python.tools.delivery import XLSX_PROFILE
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 from .local_adapters import project_report_snapshot, workbook_artifacts
-from .runner import capture_python, collect_native, compare_runs, file_artifacts, file_hash, prepare, verify_manifest, write_json
+from .runner import (
+    capture_python, collect_native, compare_runs, file_artifacts, file_hash, prepare,
+    sink_digest, verify_manifest, write_json,
+)
 from .snapshot import frame_snapshot
 
 
@@ -76,6 +79,13 @@ def _compare_checkpoints(baseline, checkpoints):
     return findings
 
 
+def _delivery_artifacts(directory, xlsx_sinks):
+    artifacts = file_artifacts(directory)
+    for name in xlsx_sinks & artifacts.keys():
+        artifacts[name] = sink_digest(directory / name)
+    return artifacts
+
+
 def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
     manifest = verify_manifest(native_directory)
@@ -95,6 +105,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     }
     if len(set(sink_names.values())) != len(sink_names):
         raise ValueError("Delivery verification requires distinct output filenames")
+    xlsx_sinks = {name for name in sink_names.values() if Path(name).suffix.lower() == ".xlsx"}
 
     destination.mkdir(parents=True, exist_ok=False)
     phase_one = destination / "phase_one.py"
@@ -158,7 +169,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             report.update(_verify_observable(
                 delivered, source.parent, destination, commands, timeout, first, expected_files,
                 report.get("logging_events"),
-                as_of,
+                as_of, xlsx_sinks,
             ))
             checks = (native_result["status"], report["phase_one_vs_phase_two"])
             report["status"] = ("match" if checks == ("match", "match")
@@ -177,7 +188,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             checkpoints=checkpoints,
         )
         findings = _compare_checkpoints(first["nodes"], checkpoints)
-        phase_two_files = file_artifacts(verification_dir)
+        phase_two_files = _delivery_artifacts(verification_dir, xlsx_sinks)
         phase_two_result = {
             "nodes": findings, "phase_one_files": expected_files, "phase_two_files": phase_two_files,
             "status": "match" if all(item["status"] == "match" for item in findings)
@@ -198,7 +209,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         )
         (destination / "standalone.stdout.txt").write_bytes(process.stdout)
         (destination / "standalone.stderr.txt").write_bytes(process.stderr)
-        delivery_files = file_artifacts(delivery_dir)
+        delivery_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
         logging_match = _match_logging_events(report.get("logging_events"), phase_two_log, first)
         standalone = {
             "returncode": process.returncode, "outputs": delivery_files,
@@ -229,7 +240,8 @@ def _match_logging_events(evidence, phase_two_log, first):
     return matched
 
 
-def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files, logging_evidence=None, as_of=None):
+def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files,
+                       logging_evidence=None, as_of=None, xlsx_sinks=frozenset()):
     output = destination / "delivery-output"
     events = output / "events" if commands else output
     events.mkdir(parents=True)
@@ -246,7 +258,7 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     (destination / "standalone.stderr.txt").write_bytes(process.stderr)
     stderr = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
     failure_kind = stderr[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr else None
-    observed = file_artifacts(output)
+    observed = _delivery_artifacts(output, xlsx_sinks)
     workbook_result = {}
     if "workbooks" in first:
         rendered = {name: digest for name, digest in workbook_artifacts(output).items() if name not in expected_files}
