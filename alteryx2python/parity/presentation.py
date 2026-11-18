@@ -110,7 +110,7 @@ def _designer(args, state_file, state):
     lines = [f"Case: {case}", f'Inputs: {case / "inputs.json"}', f'Events: {case / "events.json"}',
              f'Engine: {manifest["engine_mode"]}', f'Designer workflow: {result["native_workflow"]}']
     if result.get("answers"):
-        lines.append(f'Confirm Designer inputs against {result["answers"]} before Finish.')
+        lines.append(f'App answers: {result["answers"]}')
     if args.prepare_only:
         lines.append(f'Next: demo designer --case "{case}"')
         return {**result, "display": "\n".join(lines)}, 0
@@ -122,13 +122,18 @@ def _designer(args, state_file, state):
         result["designer_launcher"] = str(args.designer_launcher.resolve())
     write_json(case / "migration.json", result)
     lines.extend((f'Designer: {receipt["status"]}', f'Results: {case / "designer-run.json"}'))
+    if receipt.get("finish_clicked"):
+        lines.append("Designer clicked Finish after verifying the supported App answers.")
+    if receipt.get("dismissed_alteryx_one"):
+        lines.append(f'Alteryx One prompts dismissed: {receipt["dismissed_alteryx_one"]}')
     if receipt.get("screenshot"):
         lines.append(f'Results screenshot: {receipt["screenshot"]}')
     if manifest["engine_mode"] == "amp":
         lines.append("AMP probes will be exported during compare.")
     if receipt.get("detail"):
         lines.append(receipt["detail"])
-    lines.append("Next: verify the Designer Results and run demo compare.")
+    if receipt["status"] in {"outputs_ready", "app_failed"}:
+        lines.append("Next: verify the Designer Results and run demo compare.")
     return {**result, "display": "\n".join(lines)}, 0 if receipt["status"] in {"outputs_ready", "app_failed"} else 1
 
 

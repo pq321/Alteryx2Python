@@ -98,7 +98,7 @@ Official capability references. [Alteryx Designer](https://help.alteryx.com/desi
 .\scripts\presentation.ps1 designer
 ```
 
-脚本创建独立案例，记录答案、输入快照和 Event，再用 auto 模式打开 Designer。App 按终端提示填值，日期填 YYYY-MM-DD。在 Designer 里核对本次答案，再点 Finish。只记录日志的 After Run Event 按提示选择 ID，原来的批处理由本地 JSONL 记录替代。
+脚本创建独立案例，记录答案、输入快照和 Event，再用 auto 模式打开 Designer。App 按终端提示填值，日期填 YYYY-MM-DD。脚本在日历中切到目标月份并选中日期，同时回读支持的输入控件。全部答案验证后，脚本点击 Finish；遇到需要人工填写的控件时，终端会提示。运行期间识别到的 Alteryx One 注册提示会自动关闭。只记录日志的 After Run Event 按提示选择 ID，原来的批处理由本地 JSONL 记录替代。
 
 Designer 完成后看实际 Results。命令会给出结果截图、案例目录和下一步。需要 AMP 探针导出时，第 3 步会自动处理。
 

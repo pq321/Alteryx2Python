@@ -351,7 +351,7 @@ def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped
 def launch_designer(directory, mode, pid, launcher=None):
     verify_manifest(directory / "native")
     if (directory / "answers.json").is_file():
-        print(f"Verify Designer's answers against {directory / 'answers.json'} before clicking Finish.", file=sys.stderr, flush=True)
+        print(f"Using recorded App answers from {directory / 'answers.json'}.", file=sys.stderr, flush=True)
     return launch_designer_plan(directory / "designer-plan.json", directory / "designer-run.json", mode, pid, launcher)
 
 

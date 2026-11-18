@@ -41,7 +41,7 @@ public static class DesignerMouse {
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr SendMessageTimeout(IntPtr hwnd, uint message, IntPtr wParam,
         StringBuilder text, uint flags, uint milliseconds, out IntPtr result);
-    [DllImport("user32.dll")] private static extern bool IsWindowVisible(IntPtr hwnd);
+    [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool ShowWindowAsync(IntPtr hwnd, int command);
@@ -194,6 +194,36 @@ public static class DesignerMouse {
         return found;
     }
 
+    private static bool IsOneRegistration(IntPtr hwnd, IntPtr mainWindow, uint expectedProcess) {
+        uint pid;
+        GetWindowThreadProcessId(hwnd, out pid);
+        if (hwnd == mainWindow || pid != expectedProcess || !IsWindowVisible(hwnd) || !IsWindowEnabled(hwnd))
+            return false;
+        var title = new StringBuilder(256);
+        GetWindowText(hwnd, title, title.Capacity);
+        switch (title.ToString().Trim().ToLowerInvariant()) {
+            case "alteryx one":
+            case "welcome to alteryx one":
+            case "register for alteryx one":
+            case "alteryx one registration":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static IntPtr FindOneRegistration(IntPtr mainWindow, uint expectedProcess) {
+        IntPtr popup = GetLastActivePopup(mainWindow);
+        if (IsOneRegistration(popup, mainWindow, expectedProcess)) return popup;
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((hwnd, state) => {
+            if (!IsOneRegistration(hwnd, mainWindow, expectedProcess)) return true;
+            found = hwnd;
+            return false;
+        }, IntPtr.Zero);
+        return found;
+    }
+
     public static void ClickControl(IntPtr control, uint expectedProcess) {
         Box bounds;
         if (!GetWindowRect(control, out bounds) || !IsWindowEnabled(control) || !IsWindowVisible(control))
@@ -213,12 +243,19 @@ public static class DesignerMouse {
     public static string ReadNumericEdit(IntPtr control, uint expectedProcess) {
         if (!IsNumericEdit(control, expectedProcess))
             throw new InvalidOperationException("Expected a Designer numeric edit control.");
-        var text = new StringBuilder(64);
+        var text = new StringBuilder(Math.Max(64, GetTextLength(control) + 1));
         IntPtr length;
         // WM_GETTEXT reads the edit value across processes. UI Automation Name is a label.
         if (SendMessageTimeout(control, 0x000D, new IntPtr(text.Capacity), text, 2, 3000, out length) == IntPtr.Zero)
             throw new InvalidOperationException("Designer did not return the numeric edit value.");
         return text.ToString();
+    }
+
+    private static int GetTextLength(IntPtr control) {
+        IntPtr length;
+        if (SendMessageTimeout(control, 0x000E, IntPtr.Zero, (string)null, 2, 3000, out length) == IntPtr.Zero)
+            throw new InvalidOperationException("Designer did not return the edit length.");
+        return length.ToInt32();
     }
 
     public static bool NumericEditMatches(IntPtr control, uint expectedProcess, decimal expected) {
@@ -234,6 +271,74 @@ public static class DesignerMouse {
         foreach (char digit in value)
             if (!PostMessage(control, 0x0102, new IntPtr(digit), new IntPtr(1)))
                 throw new InvalidOperationException("Designer rejected a character in the numeric app answer.");
+    }
+
+    public static void SetTextEdit(IntPtr control, uint expectedProcess, string value) {
+        IntPtr result;
+        if (!IsNumericEdit(control, expectedProcess) ||
+            SendMessageTimeout(control, 0x000C, IntPtr.Zero, value, 2, 3000, out result) == IntPtr.Zero)
+            throw new InvalidOperationException("Designer rejected the text app answer.");
+    }
+
+    private static bool CalendarBlue(Color pixel) {
+        return pixel.B >= 110 && pixel.G >= 80 && pixel.B - pixel.R >= 55 && pixel.G - pixel.R >= 30;
+    }
+
+    private static Point CalendarCell(int width, int height, int index) {
+        // Designer 2025.1's painted calendar has six day rows under the weekday header.
+        return new Point { X = (int)((18 + 36 * (index % 7)) * width / 257.0),
+                           Y = (int)((60 + 30 * (index / 7)) * height / 227.0) };
+    }
+
+    public static string CalendarHeader(IntPtr calendar) {
+        Box bounds;
+        using (var image = Capture(calendar, out bounds)) {
+            ulong checksum = 14695981039346656037UL;
+            for (int y = image.Height / 30; y < image.Height / 10; y++)
+                for (int x = image.Width / 4; x < image.Width * 3 / 4; x++)
+                    checksum = unchecked((checksum ^ (uint)image.GetPixel(x, y).ToArgb()) * 1099511628211UL);
+            return checksum.ToString("X16");
+        }
+    }
+
+    public static int[] CalendarHighlights(IntPtr calendar, bool selectedOnly) {
+        Box bounds;
+        var cells = new int[42];
+        int count = 0;
+        using (var image = Capture(calendar, out bounds)) {
+            int radiusX = Math.Max(2, image.Width / 28);
+            int radiusY = Math.Max(2, image.Height / 37);
+            for (int index = 0; index < 42; index++) {
+                Point cell = CalendarCell(image.Width, image.Height, index);
+                int blue = 0;
+                for (int y = cell.Y - radiusY; y <= cell.Y + radiusY; y++)
+                    for (int x = cell.X - radiusX; x <= cell.X + radiusX; x++)
+                    {
+                        Color pixel = image.GetPixel(x, y);
+                        // Today uses a blue glyph; ordinary text produces coloured
+                        // subpixel fringes which are not the calendar accent.
+                        if (selectedOnly ? CalendarBlue(pixel) :
+                            pixel.R <= 16 && pixel.G >= 116 && pixel.G <= 128 && pixel.B >= 195 && pixel.B <= 213)
+                            blue++;
+                    }
+                int area = (2 * radiusX + 1) * (2 * radiusY + 1);
+                if (selectedOnly ? blue > area * 3 / 5 : blue >= 3 && blue < area / 2) cells[count++] = index;
+            }
+        }
+        Array.Resize(ref cells, count);
+        return cells;
+    }
+
+    public static void ClickCalendar(IntPtr app, IntPtr calendar, uint expectedProcess, int cellOrArrow) {
+        Box bounds;
+        if (!IsChild(app, calendar) || !GetWindowRect(calendar, out bounds))
+            throw new InvalidOperationException("Expected a calendar in the managed Designer app.");
+        int width = bounds.Right - bounds.Left, height = bounds.Bottom - bounds.Top;
+        Point point = cellOrArrow >= 0
+            ? CalendarCell(width, height, cellOrArrow)
+            : new Point { X = (int)((cellOrArrow == -1 ? 39 : 217) * width / 257.0),
+                          Y = (int)(14 * height / 227.0) };
+        ClickWindowPoint(app, expectedProcess, bounds.Left + point.X, bounds.Top + point.Y);
     }
 
     public static IntPtr FindNumericEdit(IntPtr app, uint expectedProcess) {
@@ -461,9 +566,27 @@ function Get-PreparedCase($Entry) {
     }
     $app = $filename.EndsWith('.yxwz')
     $numeric = $null
+    $answers = @()
+    $questionCount = 0
     if ($app) {
         [xml]$workflow = Get-Content -LiteralPath $path -Raw
         $questions = @($workflow.SelectNodes('/AlteryxDocument/Properties/RuntimeProperties/Questions//Question[Type != "Tab"]'))
+        $questionCount = $questions.Count
+        $answers = @(
+            foreach ($question in $questions) {
+                $kind = $question.SelectSingleNode('Type').InnerText
+                if ($kind -notin @('Date', 'TextBox', 'QuestionTextBox', 'FolderBrowse', 'FileBrowse', 'QuestionFileBrowse')) { continue }
+                $key = $question.SelectSingleNode('Name').InnerText
+                if (-not $manifest.answers -or -not $manifest.answers.Contains($key)) { continue }
+                $description = $question.SelectSingleNode('Description')
+                $label = if ($description -and $description.InnerText) { $description.InnerText } else { $key }
+                $value = [string]$manifest.answers[$key]
+                if ($kind -eq 'Date') {
+                    [void][datetime]::ParseExact($value, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture)
+                }
+                @{ name = $key; label = $label; kind = $kind; value = $value }
+            }
+        )
         if ($questions.Count -eq 1 -and $questions[0].SelectSingleNode('Type').InnerText -eq 'NumericUpDown') {
             $question = $questions[0]
             $key = $question.SelectSingleNode('Name').InnerText
@@ -480,12 +603,32 @@ function Get-PreparedCase($Entry) {
             }
         }
     }
-    @{ path = $path; artifacts = $artifacts; renderFolders = $renderFolders; app = $app; numeric = $numeric; folder = $folder }
+    @{
+        path = $path; artifacts = $artifacts; renderFolders = $renderFolders; app = $app
+        numeric = $numeric; answers = $answers; questionCount = $questionCount; folder = $folder
+    }
+}
+
+function Close-OneRegistration([int]$ProcessId, [IntPtr]$MainWindow) {
+    if (-not $ProcessId) { return }
+    $dialog = [DesignerMouse]::FindOneRegistration($MainWindow, $ProcessId)
+    if ($dialog -eq [IntPtr]::Zero) { return }
+    [DesignerMouse]::CloseModal($dialog, $ProcessId)
+    $limit = [DateTime]::UtcNow.AddSeconds(4)
+    do {
+        if (-not [DesignerMouse]::IsWindowVisible($dialog)) {
+            $script:dismissedOne++
+            return
+        }
+        Start-Sleep -Milliseconds 100
+    } while ([DateTime]::UtcNow -lt $limit)
+    throw 'Designer did not close its Alteryx One registration window.'
 }
 
 function Wait-For([scriptblock]$Condition, [int]$Seconds) {
     $limit = [DateTime]::UtcNow.AddSeconds($Seconds)
     do {
+        if ($script:sessionId) { Close-OneRegistration $script:sessionId $script:sessionHandle }
         $result = & $Condition
         if ($result) { return $result }
         Start-Sleep -Milliseconds 350
@@ -570,6 +713,7 @@ function Start-DesignerSession {
     $started = Start-Process -FilePath $executable -WindowStyle Normal -PassThru
     $target = Wait-For {
         $process = Get-Process -Id $started.Id -ErrorAction SilentlyContinue
+        if ($process) { Close-OneRegistration $process.Id ([IntPtr]::Zero) }
         if ($process -and $process.MainWindowHandle -ne 0 -and
             $process.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$') {
             $process
@@ -583,6 +727,7 @@ function Start-DesignerSession {
 function Open-WorkflowInSession([string]$Path) {
     $name = [IO.Path]::GetFileName($Path)
     if (-not $script:sessionId) { Start-DesignerSession }
+    Close-OneRegistration $script:sessionId $script:sessionHandle
     [void](Get-SessionWindow)
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
         [DesignerMouse]::Restore($script:sessionHandle, $script:sessionId)
@@ -655,6 +800,7 @@ function Wait-ForNamedDialog([string]$Name, [int]$Seconds = [Math]::Min(45, $Tim
 
 function Open-AppFromOptions($Case) {
     if (-not $script:sessionId) { throw 'Select an existing Designer 2025.1 session to run an analytic app.' }
+    Close-OneRegistration $script:sessionId $script:sessionHandle
     [void](Get-SessionWindow)
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
         [DesignerMouse]::Restore($script:sessionHandle, $script:sessionId)
@@ -732,6 +878,68 @@ function Open-AppFromWand($Case) {
     return $true
 }
 
+function Find-AppQuestionControl($App, $Answer) {
+    $scope = [System.Windows.Automation.TreeScope]::Descendants
+    $all = [System.Windows.Automation.Condition]::TrueCondition
+    $label = ($Answer.label -replace '\s+', ' ').Trim()
+    $labels = @($App.FindAll($scope, $all) | Where-Object {
+        -not $_.Current.IsOffscreen -and $_.Current.ClassName -like 'WindowsForms10.STATIC.*' -and
+        ($_.Current.Name -replace '\s+', ' ').Trim() -ceq $label
+    })
+    if ($labels.Count -ne 1) { return }
+    $container = [System.Windows.Automation.TreeWalker]::RawViewWalker.GetParent($labels[0])
+    $controls = @($container.FindAll($scope, $all) | Where-Object {
+        $control = $_.Current
+        if (-not $control.IsEnabled -or $control.IsOffscreen -or -not $control.NativeWindowHandle) { return $false }
+        if ($Answer.kind -ne 'Date') { return $control.ClassName -like 'WindowsForms10.EDIT.*' }
+        $bounds = $control.BoundingRectangle
+        $control.ClassName -like 'WindowsForms10.Window.*' -and
+            $bounds.Height -ge 110 -and ($bounds.Width / $bounds.Height) -gt 1.06 -and
+            ($bounds.Width / $bounds.Height) -lt 1.20 -and
+            $bounds.Top -ge $labels[0].Current.BoundingRectangle.Bottom
+    })
+    if ($controls.Count -eq 1) { [IntPtr]$controls[0].Current.NativeWindowHandle }
+}
+
+function Get-CalendarCell([datetime]$Date) {
+    $first = $Date.AddDays(1 - $Date.Day)
+    $offset = [int]$first.DayOfWeek
+    # The control always draws preceding-month days in its first row.
+    if ($offset -eq 0) { $offset = 7 }
+    return $offset + $Date.Day - 1
+}
+
+function Set-AppDate([IntPtr]$AppHandle, [IntPtr]$Calendar, [datetime]$Expected) {
+    $today = [DateTime]::Today
+    $anchor = @([DesignerMouse]::CalendarHighlights($Calendar, $false))
+    if ($anchor.Count -ne 1 -or $anchor[0] -ne (Get-CalendarCell $today)) {
+        throw 'Designer calendar could not be anchored to its initial today marker.'
+    }
+    $monthOffset = ($Expected.Year - $today.Year) * 12 + $Expected.Month - $today.Month
+    $arrow = if ($monthOffset -lt 0) { -1 } else { -2 }
+    $headers = [System.Collections.Generic.HashSet[string]]::new()
+    [void]$headers.Add([DesignerMouse]::CalendarHeader($Calendar))
+    $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
+    for ($move = 0; $move -lt [Math]::Abs($monthOffset); $move++) {
+        if ([DateTime]::UtcNow -ge $deadline) { throw 'Designer calendar month navigation timed out.' }
+        [DesignerMouse]::ClickCalendar($AppHandle, $Calendar, $script:sessionId, $arrow)
+        $changed = Wait-For {
+            $header = [DesignerMouse]::CalendarHeader($Calendar)
+            if (-not $headers.Contains($header)) { $header }
+        } 3
+        if (-not $changed) { throw 'Designer calendar did not change to the adjacent month.' }
+        [void]$headers.Add($changed)
+    }
+    Close-OneRegistration $script:sessionId $script:sessionHandle
+    $cell = Get-CalendarCell $Expected
+    [DesignerMouse]::ClickCalendar($AppHandle, $Calendar, $script:sessionId, $cell)
+    $selected = Wait-For {
+        $cells = @([DesignerMouse]::CalendarHighlights($Calendar, $true))
+        if ($cells.Count -eq 1 -and $cells[0] -eq $cell) { $true }
+    } 4
+    if (-not $selected) { throw ('Designer did not select date ' + $Expected.ToString('yyyy-MM-dd')) }
+}
+
 function Run-AnalyticApp($Case) {
     $usedWand = $false
     if ($AppLaunch -ne 'options') {
@@ -753,6 +961,9 @@ function Run-AnalyticApp($Case) {
         $appHandle = Wait-ForNamedDialog $appName
     }
     $app = [System.Windows.Automation.AutomationElement]::FromHandle($appHandle)
+    $verifiedAnswers = @{}
+    $answerReview = 'operator'
+    $finish = $false
     if ($Case.numeric) {
         $editHandle = Wait-For {
             $candidate = [DesignerMouse]::FindNumericEdit($appHandle, $script:sessionId)
@@ -770,10 +981,36 @@ function Run-AnalyticApp($Case) {
             [DesignerMouse]::CloseModal($appHandle, $script:sessionId)
             throw "Designer numeric answer differs from the prepared value (expected $expected, observed '$observed')."
         }
-        Invoke-DialogButton $app @('Finish')
-    } else {
+        $finish = $true
+        $answerReview = 'numeric_readback'
+    } elseif ($Case.answers.Count) {
+        foreach ($answer in $Case.answers) {
+            $control = Wait-For { Find-AppQuestionControl $app $answer } 6
+            if (-not $control) { throw "Designer could not match the app control for '$($answer.name)'." }
+            if ($answer.kind -eq 'Date') {
+                $date = [datetime]::ParseExact($answer.value, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture)
+                Set-AppDate $appHandle $control $date
+            } else {
+                if ([DesignerMouse]::ReadNumericEdit($control, $script:sessionId) -cne $answer.value) {
+                    [DesignerMouse]::SetTextEdit($control, $script:sessionId, $answer.value)
+                }
+                if ([DesignerMouse]::ReadNumericEdit($control, $script:sessionId) -cne $answer.value) {
+                    throw "Designer did not confirm the prepared answer for '$($answer.name)'."
+                }
+            }
+            $verifiedAnswers[$answer.name] = $answer.value
+        }
+        $finish = $verifiedAnswers.Count -eq $Case.questionCount
+        $answerReview = if ($finish) { 'verified_controls' } else { 'operator_with_verified_controls' }
+    }
+    if (-not $finish) {
+        if (-not $ManualAppInputs) { throw 'The app contains questions requiring operator input.' }
         Write-Host "Review the prepared answers in Designer, then click Finish. Case directory: $($Case.folder)"
-        [DesignerMouse]::Save($appHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
+    }
+    [DesignerMouse]::Save($appHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
+    if ($finish) {
+        Close-OneRegistration $script:sessionId $script:sessionHandle
+        Invoke-DialogButton $app @('Finish')
     }
     $result = Wait-For {
         foreach ($name in @('App Results', 'Analytic App Error(s)')) {
@@ -822,7 +1059,9 @@ function Run-AnalyticApp($Case) {
         screenshot = $capture
         app_answer = $Case.numeric.value
         app_launch = if ($usedWand) { 'wand' } else { 'options' }
-        answer_review = if ($Case.numeric) { 'numeric_readback' } else { 'operator' }
+        answer_review = $answerReview
+        verified_answers = $verifiedAnswers
+        finish_clicked = $finish
     }
 }
 
@@ -842,7 +1081,10 @@ function Test-RenderFolders($Case) {
 }
 
 function Run-Case($Case) {
-    if ($Case.app -and -not $Case.numeric -and -not $ManualAppInputs) { return @{ status = 'requires_app_inputs'; workflow = $Case.path } }
+    if ($Case.app -and -not $Case.numeric -and -not $ManualAppInputs -and
+        (-not $Case.answers.Count -or $Case.answers.Count -ne $Case.questionCount)) {
+        return @{ status = 'requires_app_inputs'; workflow = $Case.path }
+    }
     if (-not $Case.artifacts.Count -and -not $Case.renderFolders.Count) { throw 'No probe or output file was declared for the workflow.' }
     if (@(Get-RenderWorkbooks $Case).Count) { throw 'Render output already exists. Use a fresh run.' }
     foreach ($path in $Case.artifacts) {
@@ -894,10 +1136,15 @@ function Invoke-DesignerBatch {
     $rows = @()
     $script:sessionId = 0
     $script:sessionHandle = [IntPtr]::Zero
+    $script:dismissedOne = 0
     if (-not $DesignerProcessId) {
         $existing = @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object {
             $_.MainWindowHandle -ne 0 -and (Test-Designer2025_1 $_.Path)
         })
+        $blankCandidates = @($existing | Where-Object { $_.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$' })
+        if ($blankCandidates.Count -eq 1) {
+            Close-OneRegistration $blankCandidates[0].Id $blankCandidates[0].MainWindowHandle
+        }
         $blank = @($existing | Where-Object {
             $_.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$' -and
                 [DesignerMouse]::IsWindowEnabled($_.MainWindowHandle)
@@ -907,6 +1154,9 @@ function Invoke-DesignerBatch {
     }
     if ($DesignerProcessId) {
         $initial = Get-Process -Id $DesignerProcessId
+        if ($initial.ProcessName -eq 'AlteryxGui' -and (Test-Designer2025_1 $initial.Path)) {
+            Close-OneRegistration $initial.Id $initial.MainWindowHandle
+        }
         if ($initial.ProcessName -ne 'AlteryxGui' -or $initial.MainWindowHandle -eq 0 -or
             $initial.MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
             -not [DesignerMouse]::IsWindowEnabled($initial.MainWindowHandle) -or
@@ -932,6 +1182,7 @@ function Invoke-DesignerBatch {
                     catch { $rows += @{ workflow = $entry.workflow; status = 'blocked'; detail = $_.Exception.Message } }
                 }
             }
+            $rows[-1].dismissed_alteryx_one = $script:dismissedOne
             ConvertTo-Json -InputObject $rows -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
             if ($rows[-1].status -in @('blocked', 'tab_close_blocked', 'designer_not_idle')) { break }
         }
@@ -941,6 +1192,7 @@ function Invoke-DesignerBatch {
         $case = @{ path = $path; artifacts = $artifacts; app = $path.EndsWith('.yxwz'); folder = Split-Path -Parent $reportPath }
         try { $rows += Run-Case $case }
         catch { $rows += @{ workflow = $path; status = 'blocked'; detail = $_.Exception.Message } }
+        $rows[-1].dismissed_alteryx_one = $script:dismissedOne
     }
     ConvertTo-Json -InputObject $rows -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
     $rows | ForEach-Object { Write-Output "$($_.status) $($_.workflow) $($_.detail)" }
