@@ -12,8 +12,10 @@ from xml.etree import ElementTree as ET
 from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
+from alteryx2python.tools.delivery import XLSX_PROFILE
 from alteryx2python.workflow_generator import WorkflowBuilder
 
+from .local_adapters import project_report_snapshot, workbook_artifacts
 from .runner import capture_python, collect_native, compare_runs, file_artifacts, file_hash, prepare, verify_manifest, write_json
 from .snapshot import frame_snapshot
 
@@ -82,6 +84,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     answers = manifest.get("answers")
     commands = tuple(manifest.get("event_commands_sha256", {}))
     log_event_ids = manifest.get("log_event_ids", [])
+    render_folders = manifest.get("render_folders")
+    as_of = manifest.get("as_of")
+    if render_folders:
+        observable = True
     # Scope this proof to sinks whose output locations the capture manifest can identify.
     sink_names = {
         node.node_id: PureWindowsPath(node.config["normalized"]["file"].split("|||", 1)[0]).name
@@ -97,7 +103,16 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         source, output_directory=destination / "phase-one-output", answers=answers,
         event_commands=commands, generated_entry=runpy.run_path(str(phase_one))["run_with_context"],
         log_event_ids=log_event_ids,
+        render_folders=render_folders,
+        as_of=as_of,
     )
+    if render_folders:
+        for node_id in manifest["report_projection_nodes"]:
+            node = first["nodes"].get(node_id)
+            if node is not None:
+                for direction in ("inputs", "outputs"):
+                    node[direction] = {anchor: project_report_snapshot(snapshot)
+                                       for anchor, snapshot in node[direction].items()}
     write_json(destination / "phase-one-capture.json", first)
     phase_two_log = destination / "phase-two-workflow.jsonl"
     log_args = ["--workflow-log", str(phase_two_log)] if log_event_ids else []
@@ -120,11 +135,19 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     }
     if log_event_ids:
         report["logging_events"] = logging_evidence
+    if render_folders:
+        report["render_workbooks"] = {
+            "designer": native["render_workbooks"],
+            "phase_one": first["workbooks"],
+        }
+    if as_of:
+        report["as_of"] = as_of
     try:
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
         artifact = ReadablePythonGenerator().generate(
             read_phase_one(phase_one), answers=answers, parameter_mode="specialized", log_event_ids=log_event_ids,
+            **({"delivery_profile": XLSX_PROFILE} if render_folders else {}),
         )
         delivered = destination / "phase_two.py"
         artifact.write(delivered)
@@ -135,6 +158,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             report.update(_verify_observable(
                 delivered, source.parent, destination, commands, timeout, first, expected_files,
                 report.get("logging_events"),
+                as_of,
             ))
             checks = (native_result["status"], report["phase_one_vs_phase_two"])
             report["status"] = ("match" if checks == ("match", "match")
@@ -205,7 +229,7 @@ def _match_logging_events(evidence, phase_two_log, first):
     return matched
 
 
-def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files, logging_evidence=None):
+def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files, logging_evidence=None, as_of=None):
     output = destination / "delivery-output"
     events = output / "events" if commands else output
     events.mkdir(parents=True)
@@ -214,7 +238,8 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     process = subprocess.run(
         [sys.executable, "-I", str(script), "--input-dir", str(input_dir), "--output-dir", str(output),
          "--event-working-dir", str(events), "--command-working-dir", str(output),
-         *[part for command in commands for part in ("--allow-command", command)], *log_args],
+         *[part for command in commands for part in ("--allow-command", command)], *log_args,
+         *(["--as-of", as_of] if as_of else [])],
         capture_output=True, timeout=timeout, cwd=output, check=False,
     )
     (destination / "standalone.stdout.txt").write_bytes(process.stdout)
@@ -222,18 +247,29 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     stderr = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
     failure_kind = stderr[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr else None
     observed = file_artifacts(output)
+    workbook_result = {}
+    if "workbooks" in first:
+        rendered = {name: digest for name, digest in workbook_artifacts(output).items() if name not in expected_files}
+        observed = {name: digest for name, digest in observed.items() if name not in rendered}
+        workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
+        workbook_match = first["workbooks"] == rendered
+        if first["status"] == "success":
+            workbook_match = bool(rendered) and workbook_match
+    else:
+        workbook_match = True
     if first["status"] == "success":
         outcome_matches = process.returncode == 0
-        evidence = bool(expected_files)
+        evidence = bool(expected_files or workbook_result)
     else:
         outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
         evidence = True
     logging_match = _match_logging_events(logging_evidence, phase_two_log, first)
-    status = "mismatch" if not outcome_matches or expected_files != observed or not logging_match else "match" if evidence else "incomplete"
+    status = "mismatch" if not outcome_matches or expected_files != observed or not logging_match or not workbook_match else "match" if evidence else "incomplete"
     result = {
         "profile": "observable", "status": status, "returncode": process.returncode,
         "phase_one_outcome": first["status"], "phase_two_failure_type": failure_kind if process.returncode else None,
         "phase_one_files": expected_files, "phase_two_files": observed,
+        **workbook_result,
         **({"logging_events": logging_evidence} if logging_evidence else {}),
     }
     write_json(destination / "phase-one-vs-phase-two.json", result)

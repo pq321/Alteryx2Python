@@ -20,8 +20,13 @@ from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.executor import run_workflow_graph
 from alteryx2python.runtime.scheduling import container_guards, detour_exclusions
+from alteryx2python.tools.delivery import XLSX_PROFILE, xlsx_render_options
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
+from .local_adapters import (
+    bind_formula_clock, field_reference, formula_text, insert_input_formula, isolated_workbook_name,
+    project_report_snapshot, report_projection_nodes, workbook_artifacts,
+)
 from .snapshot import encode_value, frame_snapshot, compare_snapshots
 
 # Automated runs only support local, side-effect-free data processing here.
@@ -113,6 +118,13 @@ def native_sink_artifacts(directory: Path, manifest: dict) -> dict:
     }
 
 
+def native_render_artifacts(directory: Path, manifest: dict) -> dict:
+    return {
+        name: file_artifacts(directory / name)
+        for name in manifest.get("render_folders", {}).values()
+    }
+
+
 def runtime_hash() -> str:
     package = Path(__file__).resolve().parents[1]
     digest = hashlib.sha256()
@@ -171,20 +183,26 @@ class CaptureContext(WorkflowContext):
 
 def capture_python(
     workflow_path: Path, *, output_directory: Path | None = None, answers: dict | None = None,
-    event_commands: tuple[str, ...] = (), generated_entry=None, log_event_ids=(),
+    event_commands: tuple[str, ...] = (), generated_entry=None, log_event_ids=(), render_folders=None, as_of=None,
 ) -> dict:
     if output_directory is None:
         with tempfile.TemporaryDirectory(prefix="a2p-capture-") as directory:
-            return _capture_python(workflow_path, Path(directory), answers, event_commands, generated_entry, log_event_ids)
+            return _capture_python(workflow_path, Path(directory), answers, event_commands, generated_entry, log_event_ids, render_folders, as_of)
     output_directory.mkdir(parents=True, exist_ok=True)
-    return _capture_python(workflow_path, output_directory, answers, event_commands, generated_entry, log_event_ids)
+    return _capture_python(workflow_path, output_directory, answers, event_commands, generated_entry, log_event_ids, render_folders, as_of)
 
 
 def _capture_python(
-    workflow_path: Path, output_directory: Path, answers: dict | None, event_commands: tuple[str, ...], generated_entry, log_event_ids
+    workflow_path: Path, output_directory: Path, answers: dict | None, event_commands: tuple[str, ...],
+    generated_entry, log_event_ids, render_folders, as_of,
 ) -> dict:
     workflow = XmlWorkflowParser().parse(workflow_path)
     runtime = {"capture_output_dir": str(output_directory.resolve()), "answers": answers}
+    if as_of:
+        runtime["as_of"] = as_of
+    report_directory = output_directory / "render"
+    if render_folders:
+        runtime.update(delivery_profile=XLSX_PROFILE, output_dir=report_directory)
     if log_event_ids:
         runtime["log_event_ids"] = log_event_ids
     if event_commands:
@@ -244,6 +262,16 @@ def _capture_python(
             # the Python compatibility Output return is not a native checkpoint.
             context.nodes[node.node_id]["outputs"] = {}
     source_identity = hashlib.sha256(workflow.source_file.encode()).hexdigest()[:12]
+    if render_folders:
+        workbooks = workbook_artifacts(report_directory)
+        destinations = {
+            name: label for item in context.diagnostics if item.get("kind") == "render_destinations"
+            for name, label in item["paths"].items()
+        }
+        render_digests = {
+            isolated_workbook_name(destinations[name]) if destinations.get(name) is not None else name: digest
+            for name, digest in workbooks.items()
+        }
     return {
         "source_sha256": file_hash(workflow_path),
         "producer": "python",
@@ -261,6 +289,7 @@ def _capture_python(
             if path.is_file()
         },
         **({"event_artifacts": file_artifacts(events_dir)} if event_commands else {}),
+        **({"workbooks": workbooks, "render_digests": render_digests} if render_folders else {}),
         **({"workflow_logs": [item["record"] for item in context.diagnostics if item.get("kind") == "workflow_log"]}
            if log_event_ids else {}),
         "environment": {
@@ -282,6 +311,7 @@ def prepare(
     event_commands: tuple[str, ...] = (),
     capture_reference: bool = True, allow_missing_inputs: bool = False,
     instrumented_filename: str | None = None, log_event_ids=(),
+    dynamic_inputs: dict | None = None, isolate_xlsx_render: bool = False, as_of=None,
 ) -> dict:
     workflow_path = workflow_path.resolve()
     workflow = XmlWorkflowParser().parse(workflow_path)
@@ -326,11 +356,21 @@ def prepare(
     skip_reasons = {node_id: "container_disabled" for node_id in static_skips}
     skip_reasons.update({node_id: "detour_inactive" for node_id in detour_skips})
     static_skips = set(skip_reasons)
+    dynamic_inputs = dynamic_inputs or {}
+    renders = {
+        node.node_id: xlsx_render_options(node.config["normalized"])
+        for node in workflow.nodes if isolate_xlsx_render and node.tool_type == "PortfolioComposerRender"
+        and node.node_id not in static_skips
+    }
+    if len(renders) > 1:
+        raise ValueError("Automatic XLSX capture supports one Render tool per case")
+    projected_nodes = report_projection_nodes(workflow, static_skips) if renders else set()
     unsupported = sorted(
         {
             node.tool_type
             for node in workflow.nodes
             if node.node_id not in static_skips
+            and node.node_id not in dynamic_inputs and node.node_id not in renders
             and node.tool_type not in _local_tools
             and node.tool_type not in _gui_only
             and not node.tool_type.startswith("Macro_")
@@ -360,6 +400,8 @@ def prepare(
     destination = destination.resolve()
     tree = ET.parse(workflow_path)
     root = tree.getroot()
+    if as_of:
+        bind_formula_clock(root, as_of)
     if programs or logging_ids:
         native_events = destination / "native-events"
         if programs:
@@ -396,6 +438,7 @@ def prepare(
     probes = []
     input_hashes = {}
     sink_files = {}
+    render_folders = {}
     from alteryx2python.generator.macro_sources import collect_macro_sources, resolve_macro_path
     from alteryx2python.parser.file_references import resolve_file_references
 
@@ -440,11 +483,32 @@ def prepare(
             filename = f"native-sink-{node.node_id}{Path(raw).suffix}"
             sink_files[node.node_id] = filename
             file_node.text = str(destination / filename) + marker + sheet
+        if node.node_id in renders:
+            filename, _, group, _ = renders[node.node_id]
+            folder = destination / f"render-{node.node_id}"
+            folder.mkdir()
+            render_folders[node.node_id] = folder.name
+            config = original_node.find("Properties/Configuration")
+            output = config.find("OutputFile")
+            if output is None:
+                output = ET.SubElement(config, "OutputFile")
+            output.text = str(folder / filename)
+            temp_type = config.find("TempFileType")
+            if temp_type is not None:
+                temp_type.text = None
+            if group:
+                path_field = f"__a2p_render_path_{node.node_id}"
+                prefix = formula_text(folder.as_posix() + "/report-")
+                expression = f'{prefix} + MD5_UTF8({field_reference(group)}) + ".xlsx"'
+                insert_input_formula(root, node.node_id, next_id, path_field, expression)
+                next_id += 1
+                config.find("GroupField").text = path_field
+                config.find("FilenameModifier").text = "ReplacePath"
         # Include disconnected anchors as well as those present in graph edges.
         anchors = set(metadata.output_anchors) | {
             anchor.name for anchor in node.output_anchors
         }
-        if node.tool_type == "DbFileOutput":
+        if node.tool_type == "DbFileOutput" or node.node_id in renders:
             anchors = set()
         for anchor in sorted(anchors):
             if (node.node_id, anchor) in inactive_detours:
@@ -514,10 +578,13 @@ def prepare(
         "instrumented_sha256": file_hash(instrumented),
         "instrumented_file": instrumented.name,
         "answers": answers,
+        **({"as_of": as_of} if as_of else {}),
         "event_commands_sha256": {str(path): file_hash(path) for path in programs.values()},
         **({"log_event_ids": logging_ids} if logging_ids else {}),
         "inputs_sha256": input_hashes,
         "sink_files": sink_files,
+        **({"dynamic_inputs": dynamic_inputs} if dynamic_inputs else {}),
+        **({"render_folders": render_folders, "report_projection_nodes": sorted(projected_nodes)} if render_folders else {}),
         "engine_mode": "amp" if use_amp else "original",
         "macro_dependencies_sha256": {},
         "probes": probes,
@@ -527,7 +594,7 @@ def prepare(
                 "tool_type": node.tool_type,
                 **({"skip_reason": skip_reasons[node.node_id]} if node.node_id in static_skips else {}),
                 **({"may_skip": True} if node.config.get("container_id") else {}),
-                **({"no_data_output": True} if node.tool_type in _gui_only or node.tool_type in {"BrowseV2", "DbFileOutput"} else {}),
+                **({"no_data_output": True} if node.tool_type in _gui_only or node.tool_type in {"BrowseV2", "DbFileOutput"} or node.node_id in renders else {}),
             }
             for node in workflow.nodes
         ],
@@ -566,6 +633,8 @@ def prepare(
                 workflow_path, output_directory=destination / "python-outputs", answers=answers,
                 event_commands=tuple(manifest["event_commands_sha256"]),
                 log_event_ids=logging_ids,
+                render_folders=render_folders,
+                as_of=as_of,
             ),
         )
     return manifest
@@ -641,6 +710,7 @@ def execute_native(directory: Path, engine: Path, timeout: float = 120) -> dict:
             },
             **({"event_artifacts": file_artifacts(directory / "native-events")} if manifest.get("event_commands_sha256") else {}),
             **({"sink_artifacts": native_sink_artifacts(directory, manifest)} if manifest.get("sink_files") else {}),
+            **({"render_artifacts": native_render_artifacts(directory, manifest)} if manifest.get("render_folders") else {}),
         }
     )
     write_json(directory / "native-run.json", result)
@@ -699,6 +769,9 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
     if manifest.get("sink_files") and "sink_artifacts" in run:
         if run["sink_artifacts"] != native_sink_artifacts(directory, manifest):
             raise ValueError("Native sink artifacts changed after the run")
+    if manifest.get("render_folders") and "render_artifacts" in run:
+        if run["render_artifacts"] != native_render_artifacts(directory, manifest):
+            raise ValueError("Native Render artifacts changed after the run")
     console_path = directory / "native-console.txt"
     console = console_path.read_text(encoding="utf-8") if console_path.exists() else ""
     # Raw console messages do not establish complete per-node diagnostics.
@@ -741,6 +814,8 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
                 snapshot, removed = _without_probe_messages(snapshot, probe_paths)
                 if removed:
                     node["excluded_probe_log_rows"] = removed
+            if probe["node_id"] in manifest.get("report_projection_nodes", ()):
+                snapshot = project_report_snapshot(snapshot)
             node["outputs"][probe["anchor"]] = snapshot
         except Exception as exc:
             unreadable.append({**probe, "error": str(exc)})
@@ -754,7 +829,10 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
             while anchor in inputs:
                 anchor = f"{edge['input']}_{suffix}"
                 suffix += 1
-            inputs[anchor] = output
+            inputs[anchor] = (
+                project_report_snapshot(output) if edge["target"] in manifest.get("report_projection_nodes", ())
+                else output
+            )
     # Engine console lines attribute failures to nodes ("ToolId 5: ... Error").
     # Only the fact of failure is used (never the message text) so parity
     # matches behaviour, not wording.
@@ -793,12 +871,19 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
             definition.get("no_data_output") or node["tool_type"] == "DbFileOutput" and node["inputs"]
         ):
             node["status"] = "unknown"
+    render_workbooks = {
+        node_id: workbook_artifacts(directory / folder)
+        for node_id, folder in manifest.get("render_folders", {}).items()
+    } if "render_artifacts" in run else None
     return {
         "producer": "alteryx",
         "source_sha256": manifest["source_sha256"],
         "answers": manifest.get("answers"),
         **({"event_artifacts": run.get("event_artifacts")} if manifest.get("event_commands_sha256") else {}),
         **({"sink_artifacts": run.get("sink_artifacts")} if manifest.get("sink_files") else {}),
+        **({"render_workbooks": render_workbooks, "render_digests": (
+            next(iter(render_workbooks.values())) if render_workbooks else None
+        )} if manifest.get("render_folders") else {}),
         "status": run["status"],
         "run": run,
         "nodes": nodes,

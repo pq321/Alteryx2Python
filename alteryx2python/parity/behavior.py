@@ -20,7 +20,7 @@ def compare_behavior_runs(
         issues.append("invalid_producer")
     if python.get("runtime_sha256") != current_runtime_hash:
         issues.append("python_runtime_changed_or_unrecorded")
-    for key in ("event_artifacts", "sink_artifacts"):
+    for key in ("event_artifacts", "sink_artifacts", "render_digests"):
         if key not in native:
             continue
         if native.get(key) is None or python.get(key) is None:

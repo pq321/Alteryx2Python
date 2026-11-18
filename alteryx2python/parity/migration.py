@@ -1,7 +1,7 @@
 """Prepare and resume a local Designer migration using one recorded case."""
 
 from dataclasses import asdict
-from datetime import date
+from datetime import date, datetime
 import json
 from pathlib import Path
 import shutil
@@ -12,14 +12,19 @@ from xml.etree import ElementTree as ET
 from alteryx2python.generator.macro_sources import resolve_macro_path
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import _typed, bind_answers, configure_workflow, question_manifest
-from alteryx2python.runtime.scheduling import container_guards
+from alteryx2python.runtime.context import WorkflowContext
+from alteryx2python.runtime.executor import _target_ancestor_node_ids, _topological_order, run_workflow_graph
+from alteryx2python.runtime.scheduling import container_guards, detour_exclusions
 from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
+from alteryx2python.tools.delivery import XLSX_PROFILE
+from alteryx2python.tools.dynamicinput import read_list_options
 from alteryx2python.workflow_audit import audit_workflow
 from alteryx2python.workflow_events import bind_logging_events, workflow_events
 
 from .delivery import verify_delivery
+from .local_adapters import field_reference, formula_text, insert_input_formula
 from .manual import attest_native
-from .runner import file_hash, prepare, verify_manifest, write_json
+from .runner import _dynamic_local_tools, file_hash, prepare, verify_manifest, write_json
 
 
 def prompt_answers(questions, read=None, display=None):
@@ -114,7 +119,89 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
                 if not folder.is_dir():
                     raise ValueError(f"Folder Browse requires an existing directory: {folder}")
                 answers[question.name] = str(folder)
-    return list(entries.values())
+    return entries
+
+
+def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, allow_missing, as_of):
+    """Freeze the file list for this case before opening Designer."""
+    workflow = XmlWorkflowParser().parse(staged)
+    nodes = {node.node_id: node for node in workflow.nodes}
+    _, detour_skips = detour_exclusions(workflow.nodes, workflow.edges) if answers is None else (set(), set())
+    selected = {
+        node.node_id for node in workflow.nodes if node.tool_type == "DynamicInput"
+        and node.node_id not in detour_skips
+        and not (answers is None and None in container_guards(node, nodes, ()))
+    }
+    if not selected:
+        return {}
+    configured, _ = configure_workflow(document, answers) if answers is not None else (document, {})
+    configured_nodes = {node.get("ToolID"): node for node in configured.iter("Node")}
+    elements = {node.get("ToolID"): node for node in document.iter("Node")}
+    variables = workflow_variables(workflow)
+    variables.update({f"Question.{name}": value for name, value in (answers or {}).items()})
+    local_tools = _dynamic_local_tools() - {"Directory", "DbFileOutput"}
+    next_id = max(map(int, elements)) + 1
+    adapters = {}
+    for node_id in _topological_order(workflow.nodes, workflow.edges):
+        if node_id not in selected:
+            continue
+        node = nodes[node_id]
+        config = elements[node_id].find("Properties/Configuration")
+        actual = configured_nodes[node_id].find("Properties/Configuration")
+        if ET.tostring(config) != ET.tostring(actual):
+            raise ValueError(f"App Action changes Dynamic Input {node_id}'s configuration; its file list cannot be frozen")
+        field, reference, behaviour, _ = read_list_options(node.config["normalized"])
+        incoming = [edge for edge in workflow.edges if edge.target_node_id == node_id and edge.target_anchor == "Input"]
+        if len(incoming) != 1:
+            raise ValueError(f"Dynamic Input {node_id} requires one upstream file list")
+        edge = incoming[0]
+        targets = {edge.source_node_id}
+        current = XmlWorkflowParser().parse(staged)
+        predecessors = _target_ancestor_node_ids(current, targets)
+        unsupported = {
+            item.tool_type for item in current.nodes
+            if item.node_id in predecessors and item.tool_type not in local_tools and item.node_id not in adapters
+        }
+        if unsupported:
+            raise ValueError(f"Dynamic Input {node_id} file-list preflight has no adapter for: {', '.join(sorted(unsupported))}")
+        context = WorkflowContext(runtime_config={
+            "answers": answers, "_workflow_audit": True, "execute_commands": False, "as_of": as_of,
+        })
+        run = run_workflow_graph(current, context, target_node_ids=targets)
+        result = run.node_results.get(edge.source_node_id)
+        frame = result.outputs.get(edge.source_anchor) if result is not None else None
+        if frame is None or field not in frame:
+            raise ValueError(f"Dynamic Input {node_id} preflight could not read path field {field!r}")
+        frozen = {}
+        for value in sorted({value for value in frame[field] if isinstance(value, str) and value.strip()}):
+            path = _resolve_path(value, variables, f"Dynamic Input {node_id}")
+            snapshot = _stage_input(staged.parent, source_dir, path, entries, allow_missing or behaviour == "warning")
+            frozen[value] = (staged.parent / snapshot).as_posix()
+        reference = _resolve_path(reference, variables, f"Dynamic Input {node_id} template")
+        raw, _, sheet = reference.partition("|||")
+        if (source_dir / raw).is_file():
+            template = _stage_input(staged.parent, source_dir, reference, entries, False)
+        else:
+            available = next((path for path in frozen.values() if Path(path.partition("|||")[0]).is_file()), None)
+            if available is None:
+                raise FileNotFoundError(f"Dynamic Input {node_id} has no available template or source file")
+            filename, _, available_sheet = available.partition("|||")
+            selector = available_sheet or sheet
+            template = filename + ("|||" + selector if selector else "")
+        config.find("InputConfiguration/Configuration/File").text = (staged.parent / template).as_posix()
+        copy_field = f"__a2p_path_{node_id}"
+        if copy_field in frame:
+            raise ValueError(f"Dynamic Input {node_id} has a conflicting isolation field {copy_field!r}")
+        missing = (staged.parent / "inputs" / f"unbound-{node_id}{Path(raw).suffix}").as_posix()
+        branches = [f"{field_reference(field)} == {formula_text(value)} THEN {formula_text(path)}"
+                    for value, path in frozen.items()]
+        expression = "IF " + " ELSEIF ".join(branches) + f" ELSE {formula_text(missing)} ENDIF" if branches else formula_text(missing)
+        insert_input_formula(document, node_id, next_id, copy_field, expression)
+        config.find("ReadList_Field").text = copy_field
+        adapters[node_id] = {"path_field": field, "isolation_tool": str(next_id), "file_count": len(frozen)}
+        next_id += 1
+        ET.ElementTree(document).write(staged, encoding="utf-8", xml_declaration=True)
+    return adapters
 
 
 def prepare_migration(source, directory, *, supplied=None, interactive=False, allow_missing=False, event_commands=(),
@@ -158,13 +245,13 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
                 if not answers[question.name]:
                     raise ValueError(f"Date question {question.name!r} has no saved default. Supply YYYY-MM-DD with --interactive or --answers.")
                 answers[question.name] = date.fromisoformat(str(answers[question.name])).isoformat()
-    inputs = _stage_workflow(workflow, directory, document, answers, questions, allow_missing)
-    write_json(directory / "inputs.json", inputs)
+    entries = _stage_workflow(workflow, directory, document, answers, questions, allow_missing)
+    write_json(directory / "inputs.json", list(entries.values()))
     if answers is not None:
         write_json(directory / "answers.json", answers)
         configured, _ = configure_workflow(document, answers)
         input_ids = {node.node_id for node in workflow.nodes if node.tool_type == "DbFileInput"}
-        frozen = {Path(item["snapshot"]) for item in inputs}
+        frozen = {Path(item["snapshot"]) for item in entries.values()}
         for node in configured.iter("Node"):
             if node.get("ToolID") in input_ids:
                 target = node.findtext("Properties/Configuration/File", "").partition("|||")[0]
@@ -175,17 +262,33 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         _resolve_event_commands(document, source.parent, log_event_ids)
     staged = directory / source.name
     ET.ElementTree(document).write(staged, encoding="utf-8", xml_declaration=True)
+    as_of = datetime.now().isoformat(sep=" ", timespec="seconds")
+    dynamic_inputs = _stage_dynamic_inputs(staged, source.parent, document, answers, entries, allow_missing, as_of)
+    write_json(directory / "inputs.json", list(entries.values()))
     staged_workflow = XmlWorkflowParser().parse(staged)
+    has_render = any(node.tool_type == "PortfolioComposerRender" for node in staged_workflow.nodes)
     write_json(directory / "audit.json", audit_workflow(
         staged_workflow, answers=answers, parameter_mode="specialized", log_event_ids=log_event_ids,
+        delivery_profile=XLSX_PROFILE if has_render else None,
     ))
     native = directory / "native"
     manifest = prepare(staged, native, answers=answers, event_commands=event_commands,
                        capture_reference=False, allow_missing_inputs=allow_missing,
-                       instrumented_filename=instrumented_filename, log_event_ids=log_event_ids)
+                       instrumented_filename=instrumented_filename, log_event_ids=log_event_ids,
+                       dynamic_inputs=dynamic_inputs, isolate_xlsx_render=True,
+                       as_of=as_of if dynamic_inputs or has_render else None)
     if answers is not None:
-        configured, _ = configure_workflow(native / manifest["instrumented_file"], answers)
+        instrumented = native / manifest["instrumented_file"]
+        configured, _ = configure_workflow(instrumented, answers)
+        render_configs = {
+            node.get("ToolID"): ET.tostring(node.find("Properties/Configuration"))
+            for node in ET.parse(instrumented).iter("Node")
+            if node.get("ToolID") in manifest.get("render_folders", {})
+        }
         for node in configured.iter("Node"):
+            expected_render = render_configs.get(node.get("ToolID"))
+            if expected_render is not None and ET.tostring(node.find("Properties/Configuration")) != expected_render:
+                raise ValueError(f"App Action changes the isolated Render configuration for tool {node.get('ToolID')}")
             filename = manifest["sink_files"].get(node.get("ToolID"))
             if filename is None:
                 continue
@@ -197,7 +300,7 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
             ):
                 raise ValueError(f"App Action overrides the isolated output for tool {node.get('ToolID')}")
     # Include all snapshots, including paths selected by app answers.
-    manifest["inputs_sha256"].update({item["snapshot"]: item["sha256"] for item in inputs})
+    manifest["inputs_sha256"].update({item["snapshot"]: item["sha256"] for item in entries.values()})
     write_json(native / "manifest.json", manifest)
     plan = directory / "designer-plan.json"
     write_json(plan, [{"status": "ready", "workflow": str(staged), "run_dir": str(native)}])

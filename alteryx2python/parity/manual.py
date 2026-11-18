@@ -24,12 +24,14 @@ from .runner import (
     CaptureContext,
     file_artifacts,
     file_hash,
+    native_render_artifacts,
     native_sink_artifacts,
     read_yxdb,
     runtime_hash,
     verify_manifest,
     write_json,
 )
+from .local_adapters import workbook_artifacts
 
 
 def attest_native(
@@ -98,6 +100,12 @@ def attest_native(
             raise ValueError(f"Skipped node produced native sink {filename}")
         if status == "success" and outcomes[node_id] != "skipped" and node_id not in sink_artifacts:
             raise ValueError(f"Successful review is missing native sink {filename}")
+    for node_id, folder in manifest.get("render_folders", {}).items():
+        workbooks = workbook_artifacts(directory / folder)
+        if outcomes[node_id] == "skipped" and workbooks:
+            raise ValueError(f"Skipped Render {node_id} produced a workbook")
+        if status == "success" and outcomes[node_id] != "skipped" and not workbooks:
+            raise ValueError(f"Successful review is missing an XLSX workbook from Render {node_id}")
     review = {
         "status": status,
         "source_sha256": manifest["source_sha256"],
@@ -108,6 +116,7 @@ def attest_native(
         "answers": manifest.get("answers"),
         **({"event_artifacts": file_artifacts(directory / "native-events")} if manifest.get("event_commands_sha256") else {}),
         **({"sink_artifacts": sink_artifacts} if manifest.get("sink_files") else {}),
+        **({"render_artifacts": native_render_artifacts(directory, manifest)} if manifest.get("render_folders") else {}),
         "reviewer": reviewer,
         "note": note,
         "method": "Designer/manual outcome attestation",

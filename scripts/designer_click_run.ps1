@@ -455,6 +455,10 @@ function Get-PreparedCase($Entry) {
     if ($manifest.sink_files) {
         $artifacts += @($manifest.sink_files.Values | ForEach-Object { Join-Path $folder $_ })
     }
+    $renderFolders = @()
+    if ($manifest.Contains('render_folders')) {
+        $renderFolders = @($manifest.render_folders.Values | ForEach-Object { Join-Path $folder $_ })
+    }
     $app = $filename.EndsWith('.yxwz')
     $numeric = $null
     if ($app) {
@@ -476,7 +480,7 @@ function Get-PreparedCase($Entry) {
             }
         }
     }
-    @{ path = $path; artifacts = $artifacts; app = $app; numeric = $numeric; folder = $folder }
+    @{ path = $path; artifacts = $artifacts; renderFolders = $renderFolders; app = $app; numeric = $numeric; folder = $folder }
 }
 
 function Wait-For([scriptblock]$Condition, [int]$Seconds) {
@@ -808,12 +812,13 @@ function Run-AnalyticApp($Case) {
     }
     if ($usedWand) { Close-ManagedWorkflow ([IO.Path]::GetFileName($Case.path)) }
     $files = @($Case.artifacts | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
+    $workbooks = @(Get-RenderWorkbooks $Case | ForEach-Object FullName)
     return @{
-        status = if (-not $ok) { 'app_failed' } elseif ($files.Count -ne $Case.artifacts.Count) { 'output_timeout' } else { 'outputs_ready' }
+        status = if (-not $ok) { 'app_failed' } elseif ($files.Count -ne $Case.artifacts.Count -or -not (Test-RenderFolders $Case)) { 'output_timeout' } else { 'outputs_ready' }
         workflow = $Case.path
         designer_pid = $script:sessionId
         expected_output_count = $Case.artifacts.Count
-        output_files = $files
+        output_files = $files + $workbooks
         screenshot = $capture
         app_answer = $Case.numeric.value
         app_launch = if ($usedWand) { 'wand' } else { 'options' }
@@ -821,9 +826,25 @@ function Run-AnalyticApp($Case) {
     }
 }
 
+function Get-RenderWorkbooks($Case) {
+    foreach ($folder in $Case.renderFolders) {
+        Get-ChildItem -LiteralPath $folder -Filter '*.xlsx' -File | Where-Object { $_.Length -gt 0 }
+    }
+}
+
+function Test-RenderFolders($Case) {
+    foreach ($folder in $Case.renderFolders) {
+        if (-not (Get-ChildItem -LiteralPath $folder -Filter '*.xlsx' -File | Where-Object { $_.Length -gt 0 } | Select-Object -First 1)) {
+            return $false
+        }
+    }
+    return $true
+}
+
 function Run-Case($Case) {
     if ($Case.app -and -not $Case.numeric -and -not $ManualAppInputs) { return @{ status = 'requires_app_inputs'; workflow = $Case.path } }
-    if (-not $Case.artifacts.Count) { throw 'No probe or output file was declared for the workflow.' }
+    if (-not $Case.artifacts.Count -and -not $Case.renderFolders.Count) { throw 'No probe or output file was declared for the workflow.' }
+    if (@(Get-RenderWorkbooks $Case).Count) { throw 'Render output already exists. Use a fresh run.' }
     foreach ($path in $Case.artifacts) {
         if (Test-Path -LiteralPath $path) { throw "Output already exists. Use a fresh run: $path" }
     }
@@ -847,7 +868,7 @@ function Run-Case($Case) {
             $item = Get-Item -LiteralPath $_ -ErrorAction SilentlyContinue
             -not $item -or $item.Length -le 0 -or $item.LastWriteTimeUtc -lt $before.AddSeconds(-1)
         })
-        if ($missing.Count -eq 0) { $true }
+        if ($missing.Count -eq 0 -and (Test-RenderFolders $Case)) { $true }
     } $TimeoutSeconds
     $idle = Wait-For { [DesignerMouse]::IsRunReady($handle) } $TimeoutSeconds
     $capture = Join-Path $Case.folder 'designer-result.png'
@@ -863,7 +884,7 @@ function Run-Case($Case) {
         status = if (-not $idle) { 'designer_not_idle' } elseif ($closeError) { 'tab_close_blocked' } elseif (-not $complete) { 'output_timeout' } else { 'outputs_ready' }
         detail = $closeError
         designer_pid = $script:sessionId
-        output_files = @($Case.artifacts | Where-Object { Test-Path -LiteralPath $_ })
+        output_files = @($Case.artifacts | Where-Object { Test-Path -LiteralPath $_ }) + @(Get-RenderWorkbooks $Case | ForEach-Object FullName)
         expected_output_count = $Case.artifacts.Count
         screenshot = $capture
     }

@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 from xml.etree import ElementTree as ET
 
 import pytest
@@ -8,6 +9,104 @@ from alteryx2python.parity.runner import file_hash, verify_manifest
 from alteryx2python.runtime.app_config import list_questions
 from alteryx2python.workflow_events import workflow_events
 from alteryx2python.workflow_generator import WorkflowBuilder
+
+def dynamic_render_fixture(directory, *, missing=True, excel=False):
+    from openpyxl import Workbook
+
+    if excel:
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.title = "Prod mapping"
+        sheet.append(["SheetName", "Value"])
+        sheet.append(["Summary", "Alpha"])
+        sheet.append(["Detail", "Beta"])
+        workbook.save(directory / "source.xlsx")
+        source_file, missing_file, file_format = "source.xlsx|||Prod mapping", "missing.xlsx|||Prod mapping", 25
+    else:
+        (directory / "source.csv").write_text("SheetName,Value\nSummary,Alpha\nDetail,Beta\n", encoding="utf-8")
+        source_file, missing_file, file_format = "source.csv", "missing.csv", 0
+    builder = WorkflowBuilder()
+    source_paths = [[source_file], [missing_file]] if missing else [[source_file]]
+    paths = builder.add_text_input(["InputPath"], source_paths)
+    dynamic = builder._node("DynamicInput", f"""
+        <InputConfiguration><Configuration><Passwords />
+          <File FileFormat="{file_format}" OutputFileName="" RecordLimit="" SearchSubDirs="False">template-{source_file}</File>
+          <FormatSpecificOptions><HeaderRow>True</HeaderRow><Delimeter>,</Delimeter></FormatSpecificOptions>
+        </Configuration></InputConfiguration>
+        <Mode>ReadList</Mode><ReadList_Field>InputPath</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+        <ErrorBehaviour>Warning</ErrorBehaviour>
+    """, (200, 100))
+    table = builder._node("PortfolioComposerTable", """
+        <TableMode>Basic</TableMode><GroupingFields><Field name="SheetName" /></GroupingFields>
+        <ShowHeader value="True" /><Width>432</Width>
+        <TableFields><Field name="Value" selected="True" Alignment="Left" /></TableFields>
+    """, (300, 100))
+    layout = builder._node("PortfolioComposerLayout", """
+        <GroupingMode>PerGroup</GroupingMode><GroupingFields><Field name="SheetName" /></GroupingFields>
+        <Orientation>V</Orientation><Separator>Breaking</Separator><Width>100%</Width>
+        <SectionNameForGroup>SheetName</SectionNameForGroup>
+        <LayoutFields orderChanged="True"><Field name="Table" selected="True" Alignment="Center" /></LayoutFields>
+    """, (400, 100))
+    formula = builder.add_formula([
+        ("OutputPath", "V_WString", "1024",
+         '"../outside/report-" + DateTimeFormat(DateTimeNow(), "%Y%m%d%H%M%S") + ".xlsx"'),
+    ])
+    render = builder._node("PortfolioComposerRender", """
+        <TempFileType /><OutputFile>temp.xlsx</OutputFile><BatchMode value="True" />
+        <GroupField>OutputPath</GroupField><FilenameModifier>ReplacePath</FilenameModifier><DataField>Layout</DataField>
+        <Separator>Continuous</Separator><ShowHeader value="False" /><ShowFooter value="False" />
+        <PortraitMode value="True" /><PaperType Width="612" Height="792" Left="36" Right="36" Top="36" Bottom="36" />
+    """, (600, 100))
+    sequence = [paths, dynamic, table, layout, formula, render]
+    for upstream, downstream in zip(sequence, sequence[1:]):
+        builder.connect(upstream, downstream)
+    workflow = directory / "dynamic-render.yxmd"
+    workflow.write_text(builder.render(), encoding="utf-8")
+    return workflow
+
+
+@pytest.mark.parametrize("excel", [False, True])
+def test_dynamic_input_and_grouped_render_migration(tmp_path, excel):
+    from alteryx2python.comparison.workbook import workbook_snapshot
+    from alteryx2python.parity.local_adapters import workbook_artifacts
+    from alteryx2python.parity.runner import collect_native
+
+    source = dynamic_render_fixture(tmp_path, excel=excel)
+    original = file_hash(source)
+    case = tmp_path / "case"
+    prepare_migration(source, case)
+    native = case / "native"
+    manifest = verify_manifest(native)
+    assert list(manifest["dynamic_inputs"]) == ["2"]
+    assert manifest["render_folders"] == {"6": "render-6"}
+    assert "5" in manifest["report_projection_nodes"]
+    reference = ET.parse(native / manifest["instrumented_file"])
+    template = reference.find(".//InputConfiguration/Configuration/File")
+    filename = "source.xlsx" if excel else "source.csv"
+    snapshot = next((case / "inputs").rglob(filename))
+    assert template.text == snapshot.as_posix() + ("|||Prod mapping" if excel else "")
+    expression = reference.find(".//FormulaField[@field='OutputPath']").get("expression")
+    assert f'DateTimeParse("{manifest["as_of"]}"' in expression
+    assert "DateTimeNow()" in (case / source.name).read_text(encoding="utf-8")
+    assert len(manifest["inputs_sha256"]) == 2
+    assert any(digest is None for digest in manifest["inputs_sha256"].values())
+    (tmp_path / filename).unlink()
+    assert collect_native(native, manual=True)["render_digests"] is None
+    result = resume_migration(case)
+    assert result["native_vs_phase_one"] == "incomplete"
+    assert result["phase_one_vs_phase_two"] == "match", result
+    outputs = case / "delivery/delivery-output"
+    filename = f'report-{datetime.fromisoformat(manifest["as_of"]):%Y%m%d%H%M%S}.xlsx'
+    assert list(workbook_artifacts(outputs)) == [filename]
+    workbook = workbook_snapshot(outputs / filename)
+    assert list(workbook) == ["Detail", "Summary"]
+    assert workbook == {
+        "Detail": [[("s", "Value")], [("s", "Beta")]],
+        "Summary": [[("s", "Value")], [("s", "Alpha")]],
+    }
+    assert not (tmp_path / "outside").exists()
+    assert file_hash(source) == original
+
 
 
 def app_fixture(tmp_path):

@@ -27,7 +27,7 @@ XLSX_PROFILE = 'xlsx-table-v1'
 def xlsx_report_table(frame, fields, group_fields, show_header):
     if 'Table' in group_fields:
         raise ValueError("Table cannot also be a group field")
-    groups = frame.groupby(group_fields, sort=False, dropna=False) if group_fields else [((), frame)]
+    groups = frame.groupby(group_fields, sort=True, dropna=False) if group_fields else [((), frame)]
     records = []
     for keys, group in groups:
         if group_fields and not isinstance(keys, tuple):
@@ -92,7 +92,7 @@ def xlsx_report_layout(frame, groups, fields, section_field=None):
         ]
     else:
         records = []
-        for keys, entries in frame.groupby(groups, sort=False, dropna=False):
+        for keys, entries in frame.groupby(groups, sort=True, dropna=False):
             keys = keys if isinstance(keys, tuple) else (keys,)
             tables = [table for row in entries.to_dict("records")
                       for field in fields for table in _xlsx_fragments(row[field])]
@@ -159,13 +159,14 @@ def render_xlsx_tables(frame, destination, data_field, group=None, modifier=None
             raise ValueError(f"Duplicate XLSX Render target: {path}")
         sheets = _xlsx_workbook_sheets(rows[data_field])
         if sheets:
-            outputs[identity] = (path, sheets)
+            outputs[identity] = (path, sheets, label)
     header = frame.attrs.get("xlsx_header", True)
-    for path, sheets in outputs.values():
+    for path, sheets, _ in outputs.values():
         ensure_output_directory(path.parent)
         with pd.ExcelWriter(path, engine="openpyxl") as writer:
             for name, table in sheets.items():
                 table.to_excel(writer, sheet_name=name, index=False, header=header)
+    return {path.name: str(label) if group else None for path, _, label in outputs.values()}
 
 
 def report_table(frame, fields, show_header=True):

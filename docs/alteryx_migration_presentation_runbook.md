@@ -135,7 +135,7 @@ $prepared | Select-Object status, native_workflow, designer_plan, runtime_input_
 if ($isApp) { Get-Content "$case/answers.json" }
 ```
 
-运行前看 `inputs.json`、`events.json` 和该目录的 `audit.json`。动态路径、macro 资源和外部程序可能需要单独布置测试数据。对于只记录运行结果的 After Run 批处理，在准备命令上加 `--log-event <ID>`，ID 以 `events.json` 为准。Designer 副本排除该命令，两阶段 Python 分别写本地 JSONL。如果准备过程已经停止，选一个新的 `$case` 重跑。其他需要执行的命令 Event 仍需明确传入 `--allow-event-command <可执行文件路径>`。输入文件和输出位置确认后再启动 Designer。
+运行前看 `inputs.json`、`events.json` 和该目录的 `audit.json`。Dynamic Input 的 **Change Entire File Path** 会按本次回答计算路径，把 CSV、XLSX 及其工作表选择记录在隔离案例中。当前保存的模板无法读取时，会尝试用本次可用的源文件作为模板。macro 资源和外部程序可能需要单独布置测试数据。对于只记录运行结果的 After Run 批处理，在准备命令上加 `--log-event <ID>`，ID 以 `events.json` 为准。Designer 副本排除该命令，两阶段 Python 分别写本地 JSONL。如果准备过程已经停止，选一个新的 `$case` 重跑。其他需要执行的命令 Event 仍需明确传入 `--allow-event-command <可执行文件路径>`。输入文件和输出位置确认后再启动 Designer。
 
 ```powershell
 & $py -m alteryx2python.cli migrate --run-dir $case --designer auto
@@ -176,6 +176,8 @@ $nativeComparison.comparisons |
 ```
 
 `native-vs-phase-one.json` 是核对节点的入口。`phase-one-capture.json` 记录生成的 Phase 1 实际执行过程。在差异处查看 `value_differences` 和输入来源。原生缺少某个节点的证据时，按照报告处理其 `incomplete` 状态。
+
+有 XLSX Render 的案例，在 `$case/native/render-<节点 ID>` 查看 Designer 实际写出的工作簿。`acceptance.json` 记录工作簿的对照结果，包含分组、工作表名称与顺序、单元格值与类型。节点对照继续检查流经报表工具的普通字段。报告的 `as_of` 是本案例为 Formula 中的 `DateTimeNow()` 和 `DateTimeToday()` 固定的时间点。
 
 ### 第 4 步 · 看 Phase 2 的业务规则和独立运行结果
 

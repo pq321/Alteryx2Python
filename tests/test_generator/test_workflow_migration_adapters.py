@@ -171,7 +171,7 @@ def test_dynamic_input_warns_and_grouped_layout_creates_named_worksheets(tmp_pat
     first = workbook_snapshot(first_dir / 'report.xlsx')
     second = workbook_snapshot(second_dir / 'report.xlsx')
     assert first == second
-    assert list(second) == ['Summary', 'Detail']
+    assert list(second) == ['Detail', 'Summary']
     assert second['Summary'] == [[('s', 'Value')], [('n', 4)]]
     assert second['Detail'] == [[('s', 'Value')], [('n', 7)], [('n', 9)]]
     audit = audit_workflow(workflow, run=True, delivery_profile='xlsx-table-v1')
