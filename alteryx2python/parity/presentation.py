@@ -286,6 +286,10 @@ def _deliver(args, case):
         f'Output: {output or "none recorded"}',
         f'Acceptance report: {report_path}',
     ]
+    if result.get("phase_two_bindings"):
+        lines.append(f'Runtime bindings: {result["phase_two_bindings"]}')
+    elif result.get("phase_two_reuse_blocker"):
+        lines.append(f'Phase 2 mode: {result["phase_two_mode"]}. {result["phase_two_reuse_blocker"]}')
     if node_id and not entry:
         lines.append(f"Node {node_id} has no dedicated source location in this build.")
     if not args.paths_only and os.name == "nt" and result["status"] == "match":

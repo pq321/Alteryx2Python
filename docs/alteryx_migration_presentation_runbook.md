@@ -118,6 +118,8 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 
 沿用第 3 步选择的节点，显示生成脚本位置和实际产物路径。在 Windows 上，验收通过时打开 Python 和一个可预览的输出文件。终端可找到 VS Code 时跳到对应行。只想显示路径可加 --paths-only。现场演示业务规则变更时，才运行另存的脚本副本。
 
+可复用交付会同时显示运行参数文件 `phase-two-bindings.json`。展示如何换一组输入时，只需换这份 JSON，再用 `phase_two.py --bindings <参数文件>` 运行同一脚本。核心 `transform` 直接接收数据表和业务参数。需要其他 I/O 适配的案例会在验收报告中注明交付模式。
+
 ### 彩排选项
 
 - designer --prepare-only 只生成隔离案例和 Designer 副本。随后用 designer --case '<案例路径>' 启动。已有答案时，用 designer --answers '<answers.json>'。已确认的日志 Event 可用 --log-event ID。需要执行其他 Event 时，沿用 --allow-event-command。
@@ -162,11 +164,17 @@ Import-Csv "$backupOut/delivery-output/grouped-records.csv" |
 备用案例可以演示 `groupby(...).cumcount() + 1`。在临时副本把这一条规则的 `+ 1` 改成 `+ 100`，单独运行。编号应从 `1, 2, 1, 1, 2, 1` 变为 `100, 101, 100, 100, 101, 100`。展示时说明这一步是模拟一次业务规则变更。把修改好的副本放在 `$backupOut/phase_two_edit.py`，现场只需运行它并显示输出。
 
 ```powershell
-& $py -I "$backupOut/phase_two_edit.py" --output-dir "$backupOut/edited-output"
+if (Test-Path "$backupOut/edited-bindings.json") {
+    & $py -I "$backupOut/phase_two_edit.py" --bindings "$backupOut/edited-bindings.json"
+} else {
+    & $py -I "$backupOut/phase_two_edit.py" --output-dir "$backupOut/edited-output"
+}
 if ($LASTEXITCODE -ne 0) { throw 'Edited delivery failed' }
 Import-Csv "$backupOut/edited-output/grouped-records.csv" |
     Select-Object Region, 'Grouped Record ID' | Format-Table -AutoSize
 ```
+
+彩排时，如果验收报告提供了 `phase-two-bindings.json`，复制为 `edited-bindings.json`，将 CSV 对应的 `output_file_*` 值改到 `edited-output/grouped-records.csv` 的绝对路径。
 
 ## 4. 现场操作顺序（默认 6 分钟 demo）
 

@@ -18,7 +18,7 @@ from alteryx2python.generator.source_linker import SourceLinker, UnsupportedLowe
 from alteryx2python.ir.models import AnchorIR, EdgeIR, NodeIR, WorkflowIR
 
 
-TEMPLATE_VERSION = 'readable-python/2.1.0'
+TEMPLATE_VERSION = 'readable-python/2.2.0'
 # Each entry uses the checked-in implementation as a versioned source template.
 # Metadata stubs, opaque model wrappers and graph interpreters are deliberately absent.
 SOURCE_TEMPLATES = frozenset({
@@ -44,14 +44,16 @@ def _literal(value):
     return ast.parse(repr(value), mode='eval').body
 
 
-def _series_predicate(expression, frame):
+def _series_predicate(expression, frame, string_parameters=None):
     """Lower scalar predicates with equivalent Series behavior for known dtypes."""
     from alteryx2python.expressions.ast import BinaryExpression, FieldReference, FunctionExpression, LiteralExpression, UnaryExpression
+    from alteryx2python.generator.parameters import ParameterExpression
 
     fields = {}
     literals = {}
     used_names = set()
     string_types = {'str', 'string'}
+    string_parameters = string_parameters or {}
 
     def field_series(field, dtypes):
         fields[field.name] = fields.get(field.name, dtypes) & dtypes
@@ -84,7 +86,13 @@ def _series_predicate(expression, frame):
             operator = '&' if value.operator == 'AND' else '|'
             return f'({left} {operator} {right})' if left is not None and right is not None else None
         methods = {'=': 'eq', '==': 'eq', '!=': 'ne', '<': 'lt', '<=': 'le', '>': 'gt', '>=': 'ge'}
-        if value.operator not in methods or not isinstance(value.right, LiteralExpression):
+        if value.operator not in methods:
+            return None
+        if isinstance(value.right, ParameterExpression) and value.operator in {'=', '==', '!='}:
+            parameter = string_parameters.get(value.right.name)
+            series = text_series(value.left) if parameter else None
+            return f'{series}.{methods[value.operator]}({parameter}).fillna({value.operator == "!="!r})' if series else None
+        if not isinstance(value.right, LiteralExpression):
             return None
         literal = value.right.value
         if isinstance(literal, str) and value.operator in {'=', '==', '!='}:
@@ -249,6 +257,7 @@ class ReadablePythonGenerator:
         self.parameter_expressions = {}
         self.parameters = []
         self.parameter_names = {}
+        self.reusable = None
 
     def expression(self, expression, literal_names=None):
         from alteryx2python.generator.parameters import ParameterExpression
@@ -271,6 +280,8 @@ class ReadablePythonGenerator:
                 return f'row.get({expression.name!r}, {parameters[constant[9:]]})'
             values = getattr(self, 'current_constants', {})
             if constant in values:
+                if self.reusable:
+                    raise UnsupportedLowering(f'Workflow variable needs an explicit transform argument: {constant}')
                 import hashlib
                 name = identifier(constant).upper() + '_' + hashlib.sha256(repr(values[constant]).encode()).hexdigest()[:8].upper()
                 self.linker.definitions[name] = f'{name} = {values[constant]!r}'
@@ -288,6 +299,8 @@ class ReadablePythonGenerator:
             if expression.name.upper() in {'DATETIMENOW', 'DATETIMETODAY'}:
                 if expression.args:
                     raise UnsupportedLowering(f'{expression.name} takes no arguments')
+                if self.reusable:
+                    self.reusable.needs_clock = True
                 return f'{name}(as_of)'
             return f'{name}(' + ', '.join(render(arg) for arg in expression.args) + ')'
         if isinstance(expression, BinaryExpression):
@@ -527,7 +540,8 @@ class ReadablePythonGenerator:
             if config.get('unsupported_operator'):
                 raise UnsupportedLowering(f"Simple Filter operator requires a template: {config['unsupported_operator']}")
             parsed = self.parameter_expressions.get((node.node_id, ('expression',)), parse_expression(config['expression']))
-            vector = _series_predicate(parsed, frame)
+            string_parameters = {item['name']: item['python_name'] for item in self.parameters if item['expression_text']}
+            vector = _series_predicate(parsed, frame, string_parameters)
             literals = vector[2] if vector else {}
             expression = self.expression(parsed, {key: name for key, (name, _) in literals.items()})
             scalar = f'mask = pd.Series([bool({expression}) for row in {frame}.to_dict("records")], index={frame}.index, dtype=bool)'
@@ -637,16 +651,26 @@ class ReadablePythonGenerator:
         )
         from alteryx2python.tools.registry import TOOL_REGISTRY
         original = deepcopy(workflow)
-        if parameter_mode == 'dynamic':
+        if parameter_mode in {'dynamic', 'reusable'}:
             prepared, self.parameter_expressions, self.parameters = prepare_parameters(workflow, answers, constants)
         elif parameter_mode == 'specialized':
             from alteryx2python.runtime.app_config import prepare_workflow
             prepared = prepare_workflow(deepcopy(workflow), answers)
         else:
             raise ValueError(f'Unknown parameter mode: {parameter_mode}')
+        if parameter_mode == 'reusable':
+            from alteryx2python.generator.reusable import ReusablePipeline, active_transform_graph, validate_runtime_variables
+
+            prepared, omitted = active_transform_graph(prepared)
+            unbound = prepared
         from alteryx2python.runtime.variables import bind_workflow_variables
         prepared = bind_workflow_variables(prepared, constants)
+        if parameter_mode == 'reusable':
+            validate_runtime_variables(unbound, prepared)
+            self.reusable = ReusablePipeline(prepared, omitted)
         if input_bindings:
+            if parameter_mode == 'reusable':
+                raise UnsupportedLowering('Pass input paths when running the reusable script')
             from alteryx2python.input_bindings import apply_input_bindings
 
             apply_input_bindings(prepared, input_bindings)
@@ -661,6 +685,8 @@ class ReadablePythonGenerator:
             'use_workflow_output_paths'}
         import builtins
         reserved_parameters.update(dir(builtins))
+        if self.reusable:
+            reserved_parameters.update(self.reusable.reserved_names | {'transform', 'bindings'})
         for parameter in self.parameters:
             base = identifier(parameter['name'])
             if base in reserved_parameters or base.endswith('_frame'):
@@ -686,6 +712,8 @@ class ReadablePythonGenerator:
         )
         possibly_missing_outputs = set()
         order = _topological_order(workflow.nodes, workflow.edges)
+        if self.reusable:
+            self.reusable.validate_order(order)
         shared_group_keys = {}
         for edge in workflow.edges:
             source, sink = by_id[edge.source_node_id], by_id[edge.target_node_id]
@@ -704,10 +732,11 @@ class ReadablePythonGenerator:
                 shared_group_keys.update({source.node_id: key_name, sink.node_id: key_name})
         variables = {}
         native_python_functions = set()
-        used_names = {'run_workflow'}
+        used_names = {'run_workflow', 'transform'}
         calls = []
         issues = []
         for node_id in order:
+            call_start = len(calls)
             node = by_id[node_id]
             config = deepcopy(_normalized_config(node))
             config.update(node_id=node_id, source_tool_id=node.source_tool_id,
@@ -818,6 +847,10 @@ class ReadablePythonGenerator:
                     elif binding['kind'] == 'command':
                         config.setdefault('_command_parameters', {})[binding['path'][0]] = parameter_name
                 runtime_arguments.extend(sorted(parameter_names))
+                if self.reusable:
+                    self.reusable.bind_io(config, node_id, runtime_arguments)
+                    if node.tool_type == 'DateTimeNow':
+                        self.reusable.needs_clock = True
                 from alteryx2python.generator.native_io import lower_io
                 self.current_constants = node.metadata.get('workflow_constants', prepared.metadata.get('workflow_constants', {}))
                 from alteryx2python.generator.native_tabular import lower_tabular
@@ -940,6 +973,8 @@ class ReadablePythonGenerator:
                     'tool_type': node.tool_type, 'function': name, 'template_sha256': template_hash,
                     'inputs': dict(input_vars), 'variables': dict(zip(outputs, node_vars)),
                     'template_version': TEMPLATE_VERSION, 'outputs': list(outputs), 'config_sha256': hashlib.sha256(json.dumps(config, sort_keys=True, default=str).encode()).hexdigest()})
+                if self.reusable:
+                    self.reusable.partition(node_id, calls, call_start, input_vars, node_vars)
             except (UnsupportedLowering, UnsupportedExpressionError, KeyError, ValueError) as exc:
                 if isinstance(exc, UnsupportedExpressionError) and not collect_expression_issues:
                     raise
@@ -1082,7 +1117,8 @@ class ReadablePythonGenerator:
             + (f'    {log_config}(args.workflow_log, args.workflow_log_columns)\n' if has_log else '')
             + '    print(run_workflow(input_dir=args.input_dir, output_dir=args.output_dir, event_working_dir=args.event_working_dir, command_working_dir=args.command_working_dir, allowed_commands=args.allow_command, as_of=args.as_of, use_workflow_output_paths=args.use_workflow_output_paths'
             + ''.join(f', {item["python_name"]}=args.{item["python_name"]}' for item in self.parameters) + '))\n')
-        source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + pipeline + main
+        entry_points = self.reusable.render(calls, self.parameters, self.linker) if self.reusable else pipeline + main
+        source = header + self.linker.render() + '\n\n' + '\n\n'.join(self.functions) + entry_points
         from alteryx2python.generator.business_source import assemble
         source, verification_source = assemble(source, self.mapping, native_python_functions)
         parsed_source = ast.parse(source)
@@ -1101,7 +1137,7 @@ class ReadablePythonGenerator:
         manifest = {'format_version': 1, 'template_version': TEMPLATE_VERSION,
             'workflow_id': original.workflow_id, 'source_sha256': original.source_hash,
             'generated_sha256': hashlib.sha256(source.encode()).hexdigest(),
-            'delivery_profile': delivery_profile, 'bound_answers': prepared.metadata.get('answers', {}),
+            'delivery_profile': delivery_profile, 'bound_answers': {} if self.reusable else prepared.metadata.get('answers', {}),
             'parameter_mode': parameter_mode, 'constant_overrides': constants or {},
             'native_equivalence': 'unverified', 'python_differential': 'unverified',
             'helper_sha256': self.linker.digests, 'nodes': self.mapping}
@@ -1109,10 +1145,13 @@ class ReadablePythonGenerator:
         if input_bindings:
             manifest['input_bindings'] = input_bindings
         manifest['workflow_constants'] = prepared.metadata.get('workflow_constants', {})
-        manifest['parameters'] = self.parameters
+        manifest['parameters'] = [{key: value for key, value in item.items() if key != 'default'}
+                                  for item in self.parameters] if self.reusable else self.parameters
+        if self.reusable:
+            manifest['reusable'] = self.reusable.manifest()
         manifest['verification_sha256'] = hashlib.sha256(verification_source.encode()).hexdigest()
         manifest['compiler_sha256'] = {name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
-                                       for name in ('readable.py','source_linker.py','parameters.py', 'native_io.py', 'native_tabular.py', 'native_relational.py', 'native_reshape.py', 'native_fields.py', 'business_source.py', 'partial_eval.py', 'python_tool.py')}
+                                       for name in ('readable.py','source_linker.py','parameters.py', 'native_io.py', 'native_tabular.py', 'native_relational.py', 'native_reshape.py', 'native_fields.py', 'business_source.py', 'reusable.py', 'partial_eval.py', 'python_tool.py')}
         package = Path(__file__).resolve().parents[1]
         compiler_paths = {Path(__file__).with_name(name).resolve() for name in manifest['compiler_sha256']}
         manifest['semantic_sha256'] = {path.relative_to(package).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()

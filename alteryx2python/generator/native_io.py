@@ -91,13 +91,18 @@ def _input(config: dict, raw: str, selector: str | None, compiler) -> list[str]:
         raise UnsupportedLowering(f"Unsupported DbFileInput FileFormat: {file_format or suffix}")
     header = _header_row(config)
     skiprows, limit = max(_import_line(config) - 1, 0), _record_limit(config)
-    path = _path(raw).as_posix() if config.get("explicit_input_binding") else _portable_input(raw, config.get("base_dir"))
-    lines = [f"path = input_dir / {path!r}"]
-    if config.get('_file_parameter'):
-        parameter = config['_file_parameter']
-        if selector:
+    reusable_parameter = config.get('_input_path_parameter')
+    parameter = reusable_parameter or config.get('_file_parameter')
+    if parameter:
+        if selector and config.get('_file_parameter'):
             raise UnsupportedLowering('File parameters with worksheet/range selectors require a binding template')
-        lines = [f'path = Path({parameter})', f'if path.suffix.lower() != {suffix!r}:', '    raise ValueError("File input parameter changes configured format")', 'path = input_dir / path']
+        lines = [f'path = Path({parameter})', f'if path.suffix.lower() != {suffix!r}:',
+                 '    raise ValueError("File input parameter changes configured format")']
+        if not reusable_parameter:
+            lines.append('path = input_dir / path')
+    else:
+        path = _path(raw).as_posix() if config.get("explicit_input_binding") else _portable_input(raw, config.get("base_dir"))
+        lines = [f"path = input_dir / {path!r}"]
     options = f"skiprows={skiprows!r}, nrows={limit!r}, header={0 if header else None!r}"
     if csv:
         read_csv = compiler.linker.function(read_delimited_file) if compiler is not None else 'read_delimited_file'
@@ -117,8 +122,12 @@ def _input(config: dict, raw: str, selector: str | None, compiler) -> list[str]:
 
 def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) -> list[str]:
     path = _path(raw)
-    resolve_output = compiler.linker.function(delivery_output_path) if compiler is not None else 'delivery_output_path'
-    destination = f"{resolve_output}({raw!r}, output_dir, input_dir, use_workflow_output_paths)"
+    output_parameter = config.get('_output_path_parameter')
+    if output_parameter:
+        destination = f'Path({output_parameter})'
+    else:
+        resolve_output = compiler.linker.function(delivery_output_path) if compiler is not None else 'delivery_output_path'
+        destination = f"{resolve_output}({raw!r}, output_dir, input_dir, use_workflow_output_paths)"
     file_format = _file_attribute(config, "FileFormat")
     if path.suffix.lower() == ".xlsx" and file_format != "0":
         if config.get('_file_parameter'):
@@ -184,7 +193,8 @@ def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[
             if output_format not in FORMAT_MAP:
                 raise UnsupportedLowering(f"DateTimeNow output format is not supported: {output_format}")
             function = compiler.linker.function(date_time_frame)
-            return [f"return {function}(as_of or {config.get('now')!r}, {output_format!r})"]
+            clock = 'as_of' if compiler.reusable else f"as_of or {config.get('now')!r}"
+            return [f"return {function}({clock}, {output_format!r})"]
         if kind == "DynamicInput":
             from alteryx2python.tools.dynamicinput import read_file_list, read_list_options
 

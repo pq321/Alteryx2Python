@@ -1,4 +1,7 @@
 import json
+import runpy
+import subprocess
+import sys
 from datetime import datetime
 from xml.etree import ElementTree as ET
 
@@ -6,8 +9,10 @@ from openpyxl import Workbook
 import pytest
 
 from alteryx2python.comparison.workbook import workbook_snapshot
+from alteryx2python.parity.delivery import capture_generated_phase_one
 from alteryx2python.parity.migration import prepare_migration, prompt_answers, resume_migration
 from alteryx2python.parity.runner import file_hash, sink_digest, verify_manifest
+from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import list_questions
 from alteryx2python.workflow_events import workflow_events
 from alteryx2python.workflow_generator import WorkflowBuilder
@@ -40,7 +45,17 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
         <MultiFile value="False" />
     """, (300, 100))
     builder.connect(input_id, output_id)
+    disabled_sink = builder.add_csv_output("out/disabled.csv")
+    builder.connect(input_id, disabled_sink)
     root = ET.fromstring(builder.render())
+    nodes = root.find("Nodes")
+    disabled_node = nodes.find(f"Node[@ToolID='{disabled_sink}']")
+    nodes.remove(disabled_node)
+    container = ET.SubElement(nodes, "Node", ToolID="100")
+    ET.SubElement(container, "GuiSettings", Plugin="AlteryxGuiToolkit.ToolContainer.ToolContainer")
+    config = ET.SubElement(ET.SubElement(container, "Properties"), "Configuration")
+    ET.SubElement(config, "Disabled", value="True")
+    ET.SubElement(container, "ChildNodes").append(disabled_node)
     ET.SubElement(root.find("Properties"), "RunWithE2", value="True")
     source = tmp_path / "excel-copy.yxmd"
     ET.ElementTree(root).write(source, encoding="utf-8")
@@ -57,6 +72,9 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     assert result["phase_one_outcome"] == "success"
     assert result["phase_one_vs_phase_two"] == "match", result
     assert result["standalone_execution"] == "match"
+    assert result["phase_two_mode"] == "reusable"
+    delivery_manifest = json.loads((case / "delivery/phase_two.manifest.json").read_text(encoding="utf-8"))
+    assert delivery_manifest["reusable"]["omitted_nodes"] == ["100", str(disabled_sink)]
     actual = case / "delivery/delivery-output/R5300.xlsx"
     assert workbook_snapshot(actual) == {
         "Target": [
@@ -68,6 +86,36 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     }
     assert not (tmp_path / "out").exists()
     assert file_hash(source_file) == source_hash
+
+    script = case / "delivery/phase_two.py"
+    script_hash = file_hash(script)
+    code = script.read_text(encoding="utf-8")
+    assert 'R5300.xlsx' not in code and 'inputs/1/' not in code
+    transform = runpy.run_path(str(script))["transform"]
+    import pandas as pd
+
+    supplied = pd.DataFrame({"example": [15]})
+    pd.testing.assert_frame_equal(transform(load_data=supplied), supplied)
+
+    alternate = tmp_path / "second-batch"
+    alternate.mkdir()
+    sheet.append(["second batch", 4, None, "00543"])
+    second_input = alternate / "Renamed source.xlsx"
+    workbook.save(second_input)
+    alternate_source = alternate / "second.yxmd"
+    root.find(f".//Node[@ToolID='{input_id}']/Properties/Configuration/File").text = "Renamed source.xlsx|||'R5300$'"
+    ET.ElementTree(root).write(alternate_source, encoding="utf-8")
+    phase_one = capture_generated_phase_one(XmlWorkflowParser().parse(alternate_source), alternate)
+    reused_output = alternate / "replayed/Renamed result.xlsx"
+    completed = subprocess.run(
+        [sys.executable, "-I", str(script), f"--input-file-{input_id}", str(second_input),
+         f"--output-file-{output_id}", str(reused_output)],
+        cwd=alternate, capture_output=True, timeout=60,
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert phase_one["status"] == "success"
+    assert sink_digest(reused_output) == phase_one["sink_artifacts"][str(output_id)]
+    assert file_hash(script) == script_hash
 
 
 def test_excel_sink_comparison_ignores_sparse_cell_padding_but_preserves_types(tmp_path):
@@ -172,6 +220,8 @@ def test_dynamic_input_and_grouped_render_migration(tmp_path, excel):
     result = resume_migration(case)
     assert result["native_vs_phase_one"] == "incomplete"
     assert result["phase_one_vs_phase_two"] == "match", result
+    assert result["phase_two_mode"] == "specialized"
+    assert "DynamicInput" in result["phase_two_reuse_blocker"]
     outputs = case / "delivery/delivery-output"
     filename = f'report-{datetime.fromisoformat(manifest["as_of"]):%Y%m%d%H%M%S}.xlsx'
     assert list(workbook_artifacts(outputs)) == [filename]

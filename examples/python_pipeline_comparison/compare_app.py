@@ -3,11 +3,15 @@
 import argparse
 import csv
 import json
+import subprocess
+import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
+from alteryx2python.parity.delivery import capture_generated_phase_one, reusable_arguments
 from alteryx2python.parity.migration import launch_designer, prepare_migration, resume_migration
-from alteryx2python.parity.runner import write_json
+from alteryx2python.parity.runner import file_hash, verify_manifest, write_json
+from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import MANUAL_CHOICE_SEPARATOR
 from alteryx2python.workflow_generator import WorkflowBuilder
 
@@ -166,25 +170,48 @@ def compare_app(directory):
         "empty": {**defaults, "region": "EMEA", "input_file": "empty-trades.csv"},
     }
     reports = []
+    shared_script = directory / "defaults/delivery/phase_two.py"
     for label, answers in cases.items():
         case = directory / label
         prepare_migration(source, case, supplied=answers,
                           instrumented_filename=f"{directory.name}-{label}.yxwz")
-        compiled = resume_migration(case)
+        delivery = case / "delivery"
+        output = delivery / "delivery-output"
+        if label == "defaults":
+            compiled = resume_migration(case)
+            if compiled.get("phase_two_mode") != "reusable" or compiled["phase_one_vs_phase_two"] != "match":
+                raise ValueError(f"The app could not produce a verified reusable script: {compiled}")
+            contract = json.loads(shared_script.with_suffix(".manifest.json").read_text(encoding="utf-8"))
+            output_node, = contract["reusable"]["outputs"]
+            phase_two_hash = file_hash(shared_script)
+        else:
+            manifest = verify_manifest(case / "native")
+            workflow = XmlWorkflowParser().parse(Path(manifest["source"]))
+            delivery.mkdir()
+            captured = capture_generated_phase_one(workflow, delivery, answers=manifest["answers"])
+            bindings = delivery / "phase-two-bindings.json"
+            write_json(bindings, reusable_arguments(contract, workflow, manifest["answers"], output))
+            completed = subprocess.run(
+                [sys.executable, "-I", str(shared_script), "--bindings", str(bindings)],
+                capture_output=True, timeout=60, check=True,
+            )
+            (delivery / "standalone.stdout.txt").write_bytes(completed.stdout)
+            match = captured["status"] == "success" and captured["sink_artifacts"][output_node] == file_hash(output / "report.csv")
+            compiled = {"phase_one_vs_phase_two": "match" if match else "mismatch", "native_vs_phase_one": "incomplete"}
         original = {**answers, "input_file": str(directory / answers["input_file"]),
                     "report_folder": str(directory / answers["report_folder"])}
         run_report(original, case / "handwritten-output")
         expected = _read_csv(case / "handwritten-output/report.csv")
-        actual = _read_csv(case / "delivery/delivery-output/report.csv")
-        source_code = case / "delivery/phase_two.py"
+        actual = _read_csv(output / "report.csv")
         reports.append({
             "case": label, "answers": answers, "phase_one_vs_phase_two": compiled["phase_one_vs_phase_two"],
             "handwritten_vs_phase_two": "match" if expected == actual else "mismatch",
-            "records": len(actual) - 1, "source_lines": len(source_code.read_text(encoding="utf-8").splitlines()),
+            "records": len(actual) - 1, "phase_two_sha256": file_hash(shared_script),
             "native_vs_phase_one": compiled["native_vs_phase_one"],
         })
-    status = "match" if all(item["phase_one_vs_phase_two"] == item["handwritten_vs_phase_two"] == "match" for item in reports) else "mismatch"
-    result = {"status": status, "cases": reports}
+    matches = all(item["phase_one_vs_phase_two"] == item["handwritten_vs_phase_two"] == "match"
+                  and item["phase_two_sha256"] == phase_two_hash for item in reports)
+    result = {"status": "match" if matches else "mismatch", "phase_two_script": str(shared_script), "cases": reports}
     write_json(directory / "comparison.json", result)
     return result
 

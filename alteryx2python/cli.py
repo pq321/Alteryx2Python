@@ -46,8 +46,8 @@ def _build_parser() -> argparse.ArgumentParser:
     readable.add_argument('--output', required=True)
     readable.add_argument('--answers', help='JSON file containing default user answers')
     readable.add_argument('--constants', help='JSON file containing workflow constant overrides')
-    readable.add_argument('--parameter-mode', choices=['dynamic', 'specialized'], default='dynamic',
-                          help='Keep named parameters, or freeze current answers before native compilation')
+    readable.add_argument('--parameter-mode', choices=['dynamic', 'specialized', 'reusable'], default='dynamic',
+                          help='Choose named defaults, frozen answers, or an explicit file adapter and reusable frame transform')
     readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
     readable.add_argument('--log-event', action='append', default=[], metavar='ID')
     readable.add_argument('--bind-input', action='append', default=[], metavar='NODE_ID=PATH')
@@ -88,7 +88,7 @@ def _build_parser() -> argparse.ArgumentParser:
     audit_parser.add_argument('--as-of')
     audit_parser.add_argument('--input-dir', type=Path)
     audit_parser.add_argument('--bind-input', action='append', default=[], metavar='NODE_ID=PATH')
-    audit_parser.add_argument('--parameter-mode', choices=['dynamic', 'specialized'], default='dynamic')
+    audit_parser.add_argument('--parameter-mode', choices=['dynamic', 'specialized', 'reusable'], default='dynamic')
     audit_parser.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
     audit_parser.add_argument('--log')
     audit_parser.set_defaults(func=_audit_command)

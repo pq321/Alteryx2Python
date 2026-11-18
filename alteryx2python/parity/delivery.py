@@ -6,11 +6,13 @@ import json
 import runpy
 import subprocess
 import sys
+from datetime import datetime
 from pathlib import Path, PureWindowsPath
 from xml.etree import ElementTree as ET
 
 from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
+from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.tools.delivery import XLSX_PROFILE
 from alteryx2python.workflow_generator import WorkflowBuilder
@@ -54,11 +56,14 @@ def prepare_record_id_demo(sample: Path, destination: Path) -> dict:
     return entry
 
 
-def _compare_checkpoints(baseline, checkpoints):
+def _compare_checkpoints(baseline, checkpoints, omitted=()):
     findings = []
     for node_id in sorted(baseline.keys() | checkpoints.keys()):
         node = baseline.get(node_id)
         frames = checkpoints.get(node_id)
+        if frames is None and node_id in omitted and node and not node["outputs"] and node["status"] in {"success", "skipped"}:
+            findings.append({"node_id": node_id, "status": "match", "omitted_from_transform": True})
+            continue
         if node is None or frames is None:
             findings.append({"node_id": node_id, "status": "missing_node"})
             continue
@@ -86,6 +91,53 @@ def _delivery_artifacts(directory, xlsx_sinks):
     return artifacts
 
 
+def reusable_arguments(manifest, workflow, answers, output, as_of=None):
+    """Bind a reusable script to one replay, outside its generated source."""
+    from alteryx2python.runtime.app_config import prepare_workflow
+    from alteryx2python.runtime.variables import bind_workflow_variables
+
+    configured = bind_workflow_variables(prepare_workflow(workflow, answers))
+    nodes = {node.node_id: node.config.get("normalized", node.config) for node in configured.nodes}
+    arguments = {
+        parameter["python_name"]: configured.metadata["answers"][parameter["name"]]
+        for parameter in manifest["parameters"]
+    }
+    base = Path(workflow.source_file).parent
+    plan = manifest["reusable"]
+    for node_id, entry in plan["inputs"].items():
+        raw = nodes[node_id]["file"].partition("|||")[0]
+        arguments[entry["parameter"]] = str((base / raw).resolve())
+    for node_id, entry in plan["outputs"].items():
+        filename = PureWindowsPath(nodes[node_id]["file"].partition("|||")[0]).name
+        arguments[entry["parameter"]] = str(output / filename)
+    if plan["requires_as_of"]:
+        if as_of is None:
+            raise ValueError("Reusable delivery needs an explicit replay timestamp")
+        arguments["as_of"] = as_of
+    return arguments
+
+
+def _standalone_arguments(script, input_dir, output, events, commands, log_args, as_of, bindings=None):
+    command = [sys.executable, "-I", str(script)]
+    if bindings is not None:
+        return command + ["--bindings", str(bindings)]
+    return command + [
+        "--input-dir", str(input_dir), "--output-dir", str(output), "--event-working-dir", str(events),
+        "--command-working-dir", str(output),
+        *[part for program in commands for part in ("--allow-command", program)], *log_args,
+        *(["--as-of", as_of] if as_of else []),
+    ]
+
+
+def capture_generated_phase_one(workflow, destination, **options):
+    script = destination / "phase_one.py"
+    script.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
+    return capture_python(
+        Path(workflow.source_file), output_directory=destination / "phase-one-output",
+        generated_entry=runpy.run_path(str(script))["run_with_context"], **options,
+    )
+
+
 def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
     manifest = verify_manifest(native_directory)
@@ -95,7 +147,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     commands = tuple(manifest.get("event_commands_sha256", {}))
     log_event_ids = manifest.get("log_event_ids", [])
     render_folders = manifest.get("render_folders")
-    as_of = manifest.get("as_of")
+    as_of = manifest.get("as_of") or datetime.now().isoformat(sep=" ", timespec="seconds")
     if render_folders:
         observable = True
     # Scope this proof to sinks whose output locations the capture manifest can identify.
@@ -109,14 +161,8 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
 
     destination.mkdir(parents=True, exist_ok=False)
     phase_one = destination / "phase_one.py"
-    phase_one.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
-    first = capture_python(
-        source, output_directory=destination / "phase-one-output", answers=answers,
-        event_commands=commands, generated_entry=runpy.run_path(str(phase_one))["run_with_context"],
-        log_event_ids=log_event_ids,
-        render_folders=render_folders,
-        as_of=as_of,
-    )
+    first = capture_generated_phase_one(workflow, destination, answers=answers, event_commands=commands,
+                                        log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of)
     if render_folders:
         for node_id in manifest["report_projection_nodes"]:
             node = first["nodes"].get(node_id)
@@ -156,20 +202,31 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     try:
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
-        artifact = ReadablePythonGenerator().generate(
-            read_phase_one(phase_one), answers=answers, parameter_mode="specialized", log_event_ids=log_event_ids,
-            **({"delivery_profile": XLSX_PROFILE} if render_folders else {}),
-        )
+        phase_one_ir = read_phase_one(phase_one)
+        compile_options = {"answers": answers, "log_event_ids": log_event_ids,
+                           "delivery_profile": XLSX_PROFILE if render_folders else None}
+        try:
+            artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="reusable", **compile_options)
+        except UnsupportedLowering as error:
+            report["phase_two_reuse_blocker"] = str(error)
+            artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="specialized", **compile_options)
+        report["phase_two_mode"] = artifact.manifest["parameter_mode"]
         delivered = destination / "phase_two.py"
         artifact.write(delivered)
         report["phase_two_sha256"] = file_hash(delivered)
+        bindings = None
+        delivery_dir = destination / "delivery-output"
+        if "reusable" in artifact.manifest:
+            bindings = destination / "phase-two-bindings.json"
+            write_json(bindings, reusable_arguments(artifact.manifest, workflow, answers, delivery_dir, as_of))
+            report["phase_two_bindings"] = str(bindings)
         expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
         expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
         if observable:
             report.update(_verify_observable(
                 delivered, source.parent, destination, commands, timeout, first, expected_files,
                 report.get("logging_events"),
-                as_of, xlsx_sinks,
+                as_of, xlsx_sinks, bindings,
             ))
             checks = (native_result["status"], report["phase_one_vs_phase_two"])
             report["status"] = ("match" if checks == ("match", "match")
@@ -182,12 +239,14 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         namespace = {"__name__": "delivery_verification", "__file__": str(delivered)}
         exec(compile(artifact.verification_source, str(delivered), "exec"), namespace)
         checkpoints = {}
-        namespace["run_workflow"](
-            input_dir=source.parent, output_dir=verification_dir, allowed_commands=commands,
-            event_working_dir=verification_events, command_working_dir=verification_dir,
-            checkpoints=checkpoints,
+        verification_arguments = (
+            reusable_arguments(artifact.manifest, workflow, answers, verification_dir, as_of)
+            if bindings else dict(input_dir=source.parent, output_dir=verification_dir, allowed_commands=commands,
+                                  event_working_dir=verification_events, command_working_dir=verification_dir,
+                                  as_of=as_of)
         )
-        findings = _compare_checkpoints(first["nodes"], checkpoints)
+        namespace["run_workflow"](**verification_arguments, checkpoints=checkpoints)
+        findings = _compare_checkpoints(first["nodes"], checkpoints, artifact.manifest.get("reusable", {}).get("omitted_nodes", ()))
         phase_two_files = _delivery_artifacts(verification_dir, xlsx_sinks)
         phase_two_result = {
             "nodes": findings, "phase_one_files": expected_files, "phase_two_files": phase_two_files,
@@ -197,14 +256,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         write_json(destination / "phase-one-vs-phase-two.json", phase_two_result)
         report["phase_one_vs_phase_two"] = phase_two_result["status"]
 
-        delivery_dir = destination / "delivery-output"
         delivery_events = delivery_dir / "events" if commands else delivery_dir
         delivery_events.mkdir(parents=True)
         process = subprocess.run(
-            [sys.executable, "-I", str(delivered), "--input-dir", str(source.parent),
-             "--output-dir", str(delivery_dir), "--event-working-dir", str(delivery_events),
-             "--command-working-dir", str(delivery_dir),
-             *[part for command in commands for part in ("--allow-command", command)], *log_args],
+            _standalone_arguments(delivered, source.parent, delivery_dir, delivery_events, commands, log_args, as_of, bindings),
             capture_output=True, timeout=timeout, cwd=delivery_dir, check=False,
         )
         (destination / "standalone.stdout.txt").write_bytes(process.stdout)
@@ -241,17 +296,14 @@ def _match_logging_events(evidence, phase_two_log, first):
 
 
 def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files,
-                       logging_evidence=None, as_of=None, xlsx_sinks=frozenset()):
+                       logging_evidence=None, as_of=None, xlsx_sinks=frozenset(), bindings=None):
     output = destination / "delivery-output"
     events = output / "events" if commands else output
     events.mkdir(parents=True)
     phase_two_log = destination / "phase-two-workflow.jsonl"
     log_args = ["--workflow-log", str(phase_two_log)] if logging_evidence else []
     process = subprocess.run(
-        [sys.executable, "-I", str(script), "--input-dir", str(input_dir), "--output-dir", str(output),
-         "--event-working-dir", str(events), "--command-working-dir", str(output),
-         *[part for command in commands for part in ("--allow-command", command)], *log_args,
-         *(["--as-of", as_of] if as_of else [])],
+        _standalone_arguments(script, input_dir, output, events, commands, log_args, as_of, bindings),
         capture_output=True, timeout=timeout, cwd=output, check=False,
     )
     (destination / "standalone.stdout.txt").write_bytes(process.stdout)

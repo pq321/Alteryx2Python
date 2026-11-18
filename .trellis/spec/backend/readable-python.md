@@ -17,6 +17,11 @@
   stubs are explicit compile blockers. A registered tool is not an implementation.
 - Explicit specialized exports bind current answers before native compilation;
   record mode/answers/constant overrides. Never silently freeze dynamic inputs.
+- Reusable exports expose a frame-in, frame-out `transform` and an explicit
+  file adapter. File paths, App answers and any run clock are runtime values.
+  Keep replay bindings outside the Python source. Split only graphs whose
+  file I/O order and effects can be preserved. Record the reason when a
+  migration needs a case-bound export.
 - Direct Question references and event tokens use current dynamic parameters.
   Record-field precedence applies even to User/Global/Engine/Question names.
 - Workflow email attachments use relocated sink bindings when applicable;

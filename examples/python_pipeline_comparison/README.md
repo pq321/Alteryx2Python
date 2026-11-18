@@ -68,12 +68,26 @@ the output and the selected CSV supplies the actual transactions.
 .venv/Scripts/python.exe -m examples.python_pipeline_comparison.compare_app reports/seven-question-app
 ```
 
-The comparison runs generated Phase 1, the standalone Phase 2 script and
-the independent handwritten report for default answers, changed answers
-and a header-only input. `comparison.json` records matches and row counts.
-The editable Filter exposes each shared comparison value once. The
-regression changes one region value and runs both the pandas and row-wise
-branches against the handwritten result.
+The comparison generates one standalone Phase 2 script and runs it for
+default answers, changed answers and a header-only input. Each case has its
+own generated Phase 1 replay and handwritten result. `comparison.json`
+records matches, row counts and the shared script hash. Pass `--region`
+to change a region for either Filter branch at runtime.
+
+The generated `transform` function accepts frames and business arguments.
+The `run_workflow` adapter reads and writes the files supplied at runtime.
+Each replay records its arguments in `phase-two-bindings.json`. Run the same
+script with a different bindings file or override individual values, such as
+`--input-file` or `--output-file-8`.
+
+```powershell
+.venv/Scripts/python.exe -I reports/seven-question-app/defaults/delivery/phase_two.py --bindings reports/seven-question-app/alternate/delivery/phase-two-bindings.json
+```
+
+For another Phase 1 script or workflow, use `readable --parameter-mode reusable`
+to require this shape. A migration acceptance report records `phase_two_mode`
+and any reason it used a case-bound script for a workflow that still needs
+an I/O adapter.
 
 Add `--designer` to open the default case in Designer using the automatic
 route. It tries the magic wand first and uses Options when the wand cannot

@@ -175,10 +175,13 @@ def assemble(source, mapping, native_functions=()):
             if name in consumers:
                 consumers[name].add(item['node_id'])
     pipeline = next(line for line in tree.body if isinstance(line, ast.FunctionDef) and line.name == 'run_workflow')
+    core = next((line for line in tree.body if isinstance(line, ast.FunctionDef) and line.name == 'transform'), None)
     runtime = {arg.arg for arg in pipeline.args.kwonlyargs}
     runtime.update({'deferred_messages', 'workflow_errors'})
     reserved = variables | runtime | {line.name for line in tree.body if isinstance(line, (ast.FunctionDef, ast.ClassDef))}
     reserved.update(item.id for item in ast.walk(pipeline) if isinstance(item, ast.Name))
+    if core is not None:
+        reserved.update(item.id for item in ast.walk(core) if isinstance(item, ast.Name))
     stages = []
 
     def blocks(statements, owner):
@@ -247,15 +250,18 @@ def assemble(source, mapping, native_functions=()):
         return result
 
     pipeline.body = blocks(pipeline.body, 'run_workflow')
+    if core is not None:
+        core.body = blocks(core.body, 'transform')
     position = tree.body.index(pipeline)
     tree.body[position:position] = stages
     # Show the orchestration first, followed by stages and their small helpers.
     imports = [line for line in tree.body if isinstance(line, (ast.Import, ast.ImportFrom))]
-    other = [line for line in tree.body if line not in imports and line is not pipeline and line not in stages]
+    other = [line for line in tree.body if line not in imports and line is not pipeline and line is not core and line not in stages]
     definitions = [line for line in other if isinstance(line, (ast.FunctionDef, ast.ClassDef, ast.Assign))]
     main = [line for line in other if line not in definitions]
     docstrings = [line for line in main if isinstance(line, ast.Expr) and isinstance(line.value, ast.Constant) and isinstance(line.value.value, str)]
-    tree.body = docstrings + imports + [pipeline] + stages + definitions + [line for line in main if line not in docstrings]
+    entry_points = [core, pipeline] if core is not None else [pipeline]
+    tree.body = docstrings + imports + entry_points + stages + definitions + [line for line in main if line not in docstrings]
     class LocalAnnotations(ast.NodeTransformer):
         def visit_FunctionDef(self, node):
             class Assignments(ast.NodeTransformer):

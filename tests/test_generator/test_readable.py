@@ -171,7 +171,7 @@ def test_complex_expression_fixture_matches_reference_and_delivered_python(tmp_p
     assert result['rows'] == {'Output': 3, 'True': 1, 'False': 2}
 
 
-def test_seven_app_input_types_match_handwritten_python_and_share_editable_filter_value(tmp_path):
+def test_seven_app_input_types_match_handwritten_python_with_one_reusable_script(tmp_path):
     import re
     import subprocess
     import sys
@@ -183,15 +183,17 @@ def test_seven_app_input_types_match_handwritten_python_and_share_editable_filte
     assert result["status"] == "match"
     assert [case["records"] for case in result["cases"]] == [1, 2, 0]
     case = directory / "defaults"
-    script = (case / "delivery/phase_two.py").read_text(encoding="utf-8")
-    assert script.count("region_filter_value = 'APAC'") == 1
-    assert ".eq(region_filter_value)" in script
-    assert "row['region'] == region_filter_value" in script
-    edited = script.replace("region_filter_value = 'APAC'", "region_filter_value = 'EMEA'", 1)
+    script = Path(result["phase_two_script"]).read_text(encoding="utf-8")
+    assert len({item["phase_two_sha256"] for item in result["cases"]}) == 1
+    assert not (directory / "alternate/delivery/phase_two.py").exists()
+    assert 'region_filter_value =' not in script
+    assert ".eq(region)" in script and "row['region']" in script
+    assert "include_archived=False" not in script
+    assert str(directory) not in script and "2026-11-18" not in script and "'Reviewed'" not in script
     answers = {**result["cases"][0]["answers"], "region": "EMEA",
                "input_file": str(directory / "trades.csv"), "report_folder": str(directory / "reports-a")}
     run_report(answers, tmp_path / "expected")
-    guard = re.search(r"(?m)^( +)if (\w+)\.columns\.is_unique", edited)
+    guard = re.search(r"(?m)^( +)if (\w+)\.columns\.is_unique", script)
     assert guard
     for label, dtype in (("pandas", "string"), ("row", "object")):
         indent, frame = guard.groups()
@@ -199,12 +201,26 @@ def test_seven_app_input_types_match_handwritten_python_and_share_editable_filte
         cast = "".join(f"{indent}{frame}[{field!r}] = {frame}[{field!r}].astype({target!r})\n"
                        for field, target in (("status", "string"), ("include_flag", "string"), ("region", dtype)))
         executable = tmp_path / f"{label}.py"
-        executable.write_text(edited[:guard.start()] + cast + edited[guard.start():], encoding="utf-8")
+        executable.write_text(script[:guard.start()] + cast + script[guard.start():], encoding="utf-8")
         output = tmp_path / label
-        process = subprocess.run([sys.executable, "-I", str(executable), "--input-dir", str(case),
-                                  "--output-dir", str(output)], cwd=tmp_path, capture_output=True, timeout=60)
+        process = subprocess.run([sys.executable, "-I", str(executable), "--bindings",
+                                  str(case / "delivery/phase-two-bindings.json"), "--region", "EMEA",
+                                  "--output-file-8", str(output / "report.csv")],
+                                 cwd=tmp_path, capture_output=True, timeout=60)
         assert process.returncode == 0, process.stderr
         assert _read_csv(output / "report.csv") == _read_csv(tmp_path / "expected/report.csv")
+
+
+@pytest.mark.parametrize('expression', ['[Engine.WorkflowDirectory]', '"%Engine.WorkflowDirectory%"'])
+def test_reusable_mode_reports_ambient_workflow_paths_in_business_logic(tmp_path, expression):
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(['value'], [['1']])
+    formula = builder.add_formula([('directory', 'V_WString', '256', expression)])
+    sink = builder.add_csv_output('report.csv')
+    builder.connect(source, formula)
+    builder.connect(formula, sink)
+    with pytest.raises(UnsupportedLowering, match='Workflow variable'):
+        ReadablePythonGenerator().generate(parse(builder, tmp_path), parameter_mode='reusable')
 
 
 def test_unknown_node_blocks_compilation(tmp_path):
