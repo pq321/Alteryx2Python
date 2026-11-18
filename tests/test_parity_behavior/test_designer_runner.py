@@ -197,3 +197,74 @@ catch { $_.Exception.Message }
     )
     assert "magic-wand lookup timed out" in result.stdout
     assert "Options reached for C:/case/prepared app.yxwz, PID 456" in result.stdout
+
+
+@pytest.mark.skipif(shutil.which("pwsh") is None, reason="PowerShell 7 is required")
+def test_date_navigation_confirms_selected_cell_after_changing_month(tmp_path):
+    script = tmp_path / "verify calendar steps.ps1"
+    script.write_text(
+        """
+$ErrorActionPreference = 'Stop'
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($args[0], [ref]$null, [ref]$null)
+foreach ($name in @('Get-CalendarCell', 'Set-AppDate')) {
+    $definition = $ast.Find({
+        param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+    }, $false)
+    Invoke-Expression $definition.Extent.Text
+}
+Add-Type @'
+using System;
+using System.Collections.Generic;
+public static class DesignerMouse {
+    public static int TodayCell, SelectedCell, MonthChanges;
+    public static bool WrongCell;
+    public static List<int> Clicks = new List<int>();
+    public static int[] CalendarHighlights(IntPtr calendar, bool selected) {
+        return new[] { selected ? SelectedCell : TodayCell };
+    }
+    public static string CalendarHeader(IntPtr calendar) { return MonthChanges.ToString(); }
+    public static void ClickCalendar(IntPtr app, IntPtr calendar, uint session, int cell) {
+        Clicks.Add(cell);
+        if (cell < 0) MonthChanges++;
+        else SelectedCell = WrongCell ? cell + 1 : cell;
+    }
+}
+'@
+$script:steps = [Collections.Generic.List[string]]::new()
+function Set-DesignerStage($Name, $Seconds) { $script:steps.Add($Name) }
+function Close-OneRegistration {}
+function Wait-For($Condition, $Seconds) { & $Condition }
+$TimeoutSeconds = 45
+$today = [datetime]::Today
+$date = $today.AddMonths(-1)
+$date = $date.AddDays(13 - $date.Day)
+[DesignerMouse]::TodayCell = Get-CalendarCell $today
+Set-AppDate ([IntPtr]1) ([IntPtr]2) $date
+$clicks = [DesignerMouse]::Clicks.ToArray()
+$stages = $script:steps.ToArray()
+[DesignerMouse]::WrongCell = $true
+$mismatch = try { Set-AppDate ([IntPtr]1) ([IntPtr]2) $date } catch { $_.Exception.Message }
+@{
+    clicks = $clicks
+    target_cell = Get-CalendarCell $date
+    month = $date.ToString('yyyy-MM')
+    date = $date.ToString('yyyy-MM-dd')
+    stages = $stages
+    mismatch = $mismatch
+} | ConvertTo-Json
+""",
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["pwsh", "-NoProfile", "-File", str(script), str(RUNNER)],
+        capture_output=True, text=True, check=True, timeout=15,
+    )
+    observed = json.loads(result.stdout)
+    assert observed["clicks"] == [-1, observed["target_cell"]]
+    assert observed["stages"] == [
+        f"read the calendar month for {observed['date']}",
+        f"navigate calendar to {observed['month']}",
+        f"select and verify calendar day {observed['date']}",
+    ]
+    assert observed["mismatch"] == f"Designer did not select date {observed['date']}."

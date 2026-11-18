@@ -172,6 +172,7 @@ public static class DesignerMouse {
         int x, int y, int width, int height, uint flags);
     [DllImport("user32.dll")] private static extern IntPtr WindowFromPoint(Point point);
     [DllImport("user32.dll")] private static extern bool IsChild(IntPtr parent, IntPtr child);
+    [DllImport("user32.dll")] private static extern IntPtr GetParent(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
     [DllImport("user32.dll")] private static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll")] private static extern void mouse_event(uint flags, uint x, uint y, uint data, UIntPtr extra);
@@ -476,6 +477,73 @@ public static class DesignerMouse {
         if (!IsNumericEdit(control, expectedProcess) ||
             SendMessageTimeout(control, 0x000C, IntPtr.Zero, value, 2, 3000, out result) == IntPtr.Zero)
             throw new InvalidOperationException("Designer rejected the text app answer.");
+    }
+
+    private static IntPtr UniqueVisibleChild(IntPtr root, uint expectedProcess, Func<IntPtr, string, bool> match) {
+        IntPtr found = IntPtr.Zero;
+        EnumChildWindows(root, (child, state) => {
+            uint pid;
+            GetWindowThreadProcessId(child, out pid);
+            if (pid != expectedProcess || !IsWindowVisible(child) || !IsWindowEnabled(child)) return true;
+            var name = new StringBuilder(100);
+            GetClassName(child, name, name.Capacity);
+            if (!match(child, name.ToString())) return true;
+            if (found == IntPtr.Zero) {
+                found = child;
+                return true;
+            }
+            found = IntPtr.Zero;
+            return false;
+        }, IntPtr.Zero);
+        return found;
+    }
+
+    private static string NormalizeCaption(string text) {
+        return String.Join(" ", text.Split((char[])null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static IntPtr FindCaptionedControl(IntPtr app, uint expectedProcess, string[] captions,
+                                                params string[] classPrefixes) {
+        // Caption reads must stay bounded even if Designer's UI thread stalls.
+        DateTime deadline = DateTime.UtcNow.AddMilliseconds(1000);
+        bool complete = true;
+        IntPtr control = UniqueVisibleChild(app, expectedProcess, (window, name) => {
+            if (!Array.Exists(classPrefixes, prefix => name.StartsWith(prefix, StringComparison.Ordinal))) return false;
+            var text = new StringBuilder(1024);
+            IntPtr length;
+            if (DateTime.UtcNow >= deadline ||
+                SendMessageTimeout(window, 0x000D, new IntPtr(text.Capacity), text, 2, 200, out length) == IntPtr.Zero) {
+                complete = false;
+                return false;
+            }
+            return Array.IndexOf(captions, NormalizeCaption(text.ToString())) >= 0;
+        });
+        return complete ? control : IntPtr.Zero;
+    }
+
+    public static IntPtr FindAppQuestionControl(IntPtr app, uint expectedProcess, string caption, bool date) {
+        RequireVisibleWindow(app, expectedProcess);
+        IntPtr label = FindCaptionedControl(app, expectedProcess, new[] { NormalizeCaption(caption) }, "WindowsForms10.STATIC.");
+        Box labelBounds;
+        if (label == IntPtr.Zero || !GetWindowRect(label, out labelBounds)) return IntPtr.Zero;
+        IntPtr panel = GetParent(label);
+        if (panel != app && !IsChild(app, panel)) return IntPtr.Zero;
+        return UniqueVisibleChild(panel, expectedProcess, (window, name) => {
+            if (!date) return name.StartsWith("WindowsForms10.EDIT.", StringComparison.Ordinal);
+            Box bounds;
+            if (!name.StartsWith("WindowsForms10.Window.", StringComparison.Ordinal) ||
+                !GetWindowRect(window, out bounds) || bounds.Top < labelBounds.Bottom) return false;
+            int height = bounds.Bottom - bounds.Top;
+            if (height < 110) return false;
+            double ratio = (double)(bounds.Right - bounds.Left) / height;
+            return ratio > 1.06 && ratio < 1.20;
+        });
+    }
+
+    public static IntPtr FindAppFinish(IntPtr app, uint expectedProcess) {
+        RequireVisibleWindow(app, expectedProcess);
+        return FindCaptionedControl(app, expectedProcess, new[] { "Finish", "&Finish" },
+                                    "WindowsForms10.Window.", "WindowsForms10.BUTTON.");
     }
 
     private static bool CalendarBlue(Color pixel) {
@@ -1212,29 +1280,6 @@ function Open-AppFromWand($Case) {
     return $true
 }
 
-function Find-AppQuestionControl($App, $Answer) {
-    $scope = [System.Windows.Automation.TreeScope]::Descendants
-    $all = [System.Windows.Automation.Condition]::TrueCondition
-    $label = ($Answer.label -replace '\s+', ' ').Trim()
-    $labels = @($App.FindAll($scope, $all) | Where-Object {
-        -not $_.Current.IsOffscreen -and $_.Current.ClassName -like 'WindowsForms10.STATIC.*' -and
-        ($_.Current.Name -replace '\s+', ' ').Trim() -ceq $label
-    })
-    if ($labels.Count -ne 1) { return }
-    $container = [System.Windows.Automation.TreeWalker]::RawViewWalker.GetParent($labels[0])
-    $controls = @($container.FindAll($scope, $all) | Where-Object {
-        $control = $_.Current
-        if (-not $control.IsEnabled -or $control.IsOffscreen -or -not $control.NativeWindowHandle) { return $false }
-        if ($Answer.kind -ne 'Date') { return $control.ClassName -like 'WindowsForms10.EDIT.*' }
-        $bounds = $control.BoundingRectangle
-        $control.ClassName -like 'WindowsForms10.Window.*' -and
-            $bounds.Height -ge 110 -and ($bounds.Width / $bounds.Height) -gt 1.06 -and
-            ($bounds.Width / $bounds.Height) -lt 1.20 -and
-            $bounds.Top -ge $labels[0].Current.BoundingRectangle.Bottom
-    })
-    if ($controls.Count -eq 1) { [IntPtr]$controls[0].Current.NativeWindowHandle }
-}
-
 function Get-CalendarCell([datetime]$Date) {
     $first = $Date.AddDays(1 - $Date.Day)
     $offset = [int]$first.DayOfWeek
@@ -1244,6 +1289,8 @@ function Get-CalendarCell([datetime]$Date) {
 }
 
 function Set-AppDate([IntPtr]$AppHandle, [IntPtr]$Calendar, [datetime]$Expected) {
+    $targetDate = $Expected.ToString('yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture)
+    Set-DesignerStage "read the calendar month for $targetDate"
     $today = [DateTime]::Today
     $anchor = @([DesignerMouse]::CalendarHighlights($Calendar, $false))
     if ($anchor.Count -ne 1 -or $anchor[0] -ne (Get-CalendarCell $today)) {
@@ -1256,6 +1303,9 @@ function Set-AppDate([IntPtr]$AppHandle, [IntPtr]$Calendar, [datetime]$Expected)
     $deadline = [DateTime]::UtcNow.AddSeconds($TimeoutSeconds)
     for ($move = 0; $move -lt [Math]::Abs($monthOffset); $move++) {
         if ([DateTime]::UtcNow -ge $deadline) { throw 'Designer calendar month navigation timed out.' }
+        $month = $today.AddMonths(($move + 1) * [Math]::Sign($monthOffset)).ToString(
+            'yyyy-MM', [Globalization.CultureInfo]::InvariantCulture)
+        Set-DesignerStage "navigate calendar to $month" 8
         [DesignerMouse]::ClickCalendar($AppHandle, $Calendar, $script:sessionId, $arrow)
         $changed = Wait-For {
             $header = [DesignerMouse]::CalendarHeader($Calendar)
@@ -1264,6 +1314,7 @@ function Set-AppDate([IntPtr]$AppHandle, [IntPtr]$Calendar, [datetime]$Expected)
         if (-not $changed) { throw 'Designer calendar did not change to the adjacent month.' }
         [void]$headers.Add($changed)
     }
+    Set-DesignerStage "select and verify calendar day $targetDate" 8
     Close-OneRegistration $script:sessionId $script:sessionHandle
     $cell = Get-CalendarCell $Expected
     [DesignerMouse]::ClickCalendar($AppHandle, $Calendar, $script:sessionId, $cell)
@@ -1271,7 +1322,7 @@ function Set-AppDate([IntPtr]$AppHandle, [IntPtr]$Calendar, [datetime]$Expected)
         $cells = @([DesignerMouse]::CalendarHighlights($Calendar, $true))
         if ($cells.Count -eq 1 -and $cells[0] -eq $cell) { $true }
     } 4
-    if (-not $selected) { throw ('Designer did not select date ' + $Expected.ToString('yyyy-MM-dd')) }
+    if (-not $selected) { throw "Designer did not select date $targetDate." }
 }
 
 function Run-AnalyticApp($Case) {
@@ -1298,7 +1349,6 @@ function Run-AnalyticApp($Case) {
         $appHandle = Wait-ForNamedDialog $appName
     }
     Set-DesignerStage 'inspect the Analytic App questions'
-    $app = [System.Windows.Automation.AutomationElement]::FromHandle($appHandle)
     $verifiedAnswers = @{}
     $answerReview = 'operator'
     $finish = $false
@@ -1324,13 +1374,18 @@ function Run-AnalyticApp($Case) {
         $answerReview = 'numeric_readback'
     } elseif ($Case.answers.Count) {
         foreach ($answer in $Case.answers) {
-            Set-DesignerStage "enter and verify App answer '$($answer.name)'"
-            $control = Wait-For { Find-AppQuestionControl $app $answer } 6
+            Set-DesignerStage "locate App control for '$($answer.name)'" 10
+            $control = Wait-For {
+                $candidate = [DesignerMouse]::FindAppQuestionControl(
+                    $appHandle, $script:sessionId, $answer.label, $answer.kind -eq 'Date')
+                if ($candidate -ne [IntPtr]::Zero) { $candidate }
+            } 6
             if (-not $control) { throw "Designer could not match the app control for '$($answer.name)'." }
             if ($answer.kind -eq 'Date') {
                 $date = [datetime]::ParseExact($answer.value, 'yyyy-MM-dd', [Globalization.CultureInfo]::InvariantCulture)
                 Set-AppDate $appHandle $control $date
             } else {
+                Set-DesignerStage "enter and verify App answer '$($answer.name)'"
                 if ([DesignerMouse]::ReadNumericEdit($control, $script:sessionId) -cne $answer.value) {
                     [DesignerMouse]::SetTextEdit($control, $script:sessionId, $answer.value)
                 }
@@ -1352,7 +1407,13 @@ function Run-AnalyticApp($Case) {
     if ($finish) {
         Set-DesignerStage 'click Finish on the Analytic App'
         Close-OneRegistration $script:sessionId $script:sessionHandle
-        Invoke-DialogButton $app @('Finish')
+        $finishButton = Wait-For {
+            $candidate = [DesignerMouse]::FindAppFinish($appHandle, $script:sessionId)
+            if ($candidate -ne [IntPtr]::Zero) { $candidate }
+        } 6
+        if (-not $finishButton) { throw 'Designer did not expose an enabled Finish button.' }
+        try { [DesignerMouse]::ClickFocusedButton($appHandle, $finishButton, $script:sessionId) }
+        catch { [DesignerMouse]::ClickControl($finishButton, $script:sessionId) }
     }
     Set-DesignerStage 'wait for the Analytic App result' $TimeoutSeconds
     $result = Wait-For {
