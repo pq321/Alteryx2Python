@@ -67,3 +67,4 @@ def emit_workflow_log(run, workflow, event_id, working_dir, warning_count, error
     }
     logger = logging.getLogger("alteryx.workflow")
     logger.log(logging.ERROR if error is not None else logging.INFO, json.dumps(payload, ensure_ascii=False))
+    return payload

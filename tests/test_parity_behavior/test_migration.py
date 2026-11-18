@@ -6,6 +6,7 @@ import pytest
 from alteryx2python.parity.migration import prepare_migration, prompt_answers, resume_migration
 from alteryx2python.parity.runner import file_hash, verify_manifest
 from alteryx2python.runtime.app_config import list_questions
+from alteryx2python.workflow_events import workflow_events
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 
@@ -169,6 +170,52 @@ def test_migration_identifies_missing_user_constant_at_input_node(tmp_path):
     with pytest.raises(ValueError, match=rf"Input Data {input_id}: Unresolved workflow variable: User\.UNKNOWN_CONFIG"):
         prepare_migration(source, directory)
     assert not (directory / "designer-plan.json").exists()
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_migrate_replaces_selected_after_run_event_for_both_python_phases(tmp_path, missing):
+    source = app_fixture(tmp_path)
+    tree = ET.parse(source)
+    events = ET.SubElement(tree.find("Properties"), "Events")
+    ET.SubElement(events, "Event", When="Disabled", Command="disabled.bat")
+    ET.SubElement(events, "Event", When="AfterRun", Command="AlteryxLogTest.bat")
+    tree.write(source, encoding="utf-8", xml_declaration=True)
+    directory = tmp_path / "case"
+    answers = {"source_file": "missing.csv"} if missing else None
+
+    receipt = prepare_migration(source, directory, supplied=answers, allow_missing=missing, log_event_ids=["1"])
+    manifest = verify_manifest(directory / "native")
+    assert receipt["log_event_ids"] == manifest["log_event_ids"] == ["1"]
+    assert manifest["event_commands_sha256"] == {}
+    assert workflow_events(source.read_text(encoding="utf-8"))[0]["program"] == "AlteryxLogTest.bat"
+    instrumented = directory / "native" / manifest["instrumented_file"]
+    assert not workflow_events(instrumented.read_text(encoding="utf-8"))
+    assert ET.parse(instrumented).find("./Properties/Events/Event").get("Command") == "disabled.bat"
+
+    result = resume_migration(directory)
+    evidence = result["logging_events"]
+    assert evidence["status"] == result["phase_one_vs_phase_two"] == result["standalone_execution"] == "match"
+    assert result["native_vs_phase_one"] == "incomplete"
+    for name in ("phase_one_log", "phase_two_log"):
+        records = (directory / "delivery" / evidence[name]).read_text(encoding="utf-8").splitlines()
+        record, = map(json.loads, records)
+        assert record["event_id"] == "1"
+        assert record["status"] == ("failed" if missing else "success")
+        assert record["error_count"] == int(missing)
+
+
+def test_migrate_logging_selection_preserves_block_on_unisolated_commands(tmp_path):
+    source = app_fixture(tmp_path)
+    tree = ET.parse(source)
+    events = ET.SubElement(tree.find("Properties"), "Events")
+    ET.SubElement(events, "Event", When="BeforeRun", Command="other.bat")
+    ET.SubElement(events, "Event", When="AfterRun", Command="AlteryxLogTest.bat")
+    tree.write(source, encoding="utf-8", xml_declaration=True)
+    with pytest.raises(ValueError, match="enabled After Run"):
+        prepare_migration(source, tmp_path / "wrong-event", log_event_ids=["0"])
+    with pytest.raises(ValueError, match="needs an isolated workflow event test case"):
+        prepare_migration(source, tmp_path / "unisolated", log_event_ids=["1"])
+    assert not (tmp_path / "unisolated/designer-plan.json").exists()
 
 
 def test_app_action_cannot_overwrite_prepared_native_sink(tmp_path):

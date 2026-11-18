@@ -15,7 +15,7 @@ from alteryx2python.runtime.app_config import _typed, bind_answers, configure_wo
 from alteryx2python.runtime.scheduling import container_guards
 from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
 from alteryx2python.workflow_audit import audit_workflow
-from alteryx2python.workflow_events import workflow_events
+from alteryx2python.workflow_events import bind_logging_events, workflow_events
 
 from .delivery import verify_delivery
 from .manual import attest_native
@@ -118,7 +118,8 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
 
 
 def prepare_migration(source, directory, *, supplied=None, interactive=False, allow_missing=False, event_commands=(),
-                      instrumented_filename=None):
+                      instrumented_filename=None, log_event_ids=()):
+    log_event_ids = tuple(log_event_ids)
     source, directory = source.resolve(), directory.resolve()
     workflow = XmlWorkflowParser().parse(source)
     document = ET.fromstring(workflow.source_xml)
@@ -139,8 +140,15 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
     except (ValueError, NotImplementedError) as error:
         write_json(directory / "events.json", {"events": [], "error": str(error)})
     else:
+        selected = bind_logging_events(events, log_event_ids)
+        logging_ids = {event["id"] for event in selected if event.get("kind") == "logging"}
+        for event in events:
+            if event["id"] in logging_ids:
+                event["migration"] = {"designer": "excluded", "python": "logging"}
         write_json(directory / "events.json", {"events": events})
-    write_json(directory / "audit.json", audit_workflow(workflow, answers=supplied, parameter_mode="specialized"))
+    write_json(directory / "audit.json", audit_workflow(
+        workflow, answers=supplied, parameter_mode="specialized", log_event_ids=log_event_ids,
+    ))
     if interactive:
         supplied = prompt_answers(questions)
     answers = bind_answers(document, supplied)[1] if is_app else None
@@ -164,14 +172,17 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
                     raise ValueError(f"App Action resolves Input Data {node.get('ToolID')} outside the staged inputs")
         document, _ = configure_workflow(document, answers, apply=False)
     if event_commands:
-        _resolve_event_commands(document, source.parent)
+        _resolve_event_commands(document, source.parent, log_event_ids)
     staged = directory / source.name
     ET.ElementTree(document).write(staged, encoding="utf-8", xml_declaration=True)
     staged_workflow = XmlWorkflowParser().parse(staged)
-    write_json(directory / "audit.json", audit_workflow(staged_workflow, answers=answers, parameter_mode="specialized"))
+    write_json(directory / "audit.json", audit_workflow(
+        staged_workflow, answers=answers, parameter_mode="specialized", log_event_ids=log_event_ids,
+    ))
     native = directory / "native"
     manifest = prepare(staged, native, answers=answers, event_commands=event_commands,
-                       capture_reference=False, allow_missing_inputs=allow_missing, instrumented_filename=instrumented_filename)
+                       capture_reference=False, allow_missing_inputs=allow_missing,
+                       instrumented_filename=instrumented_filename, log_event_ids=log_event_ids)
     if answers is not None:
         configured, _ = configure_workflow(native / manifest["instrumented_file"], answers)
         for node in configured.iter("Node"):
@@ -198,14 +209,15 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         ],
         "designer_plan": str(plan), "native_workflow": str(native / manifest["instrumented_file"]),
         "answers": str(directory / "answers.json") if is_app else None,
+        **({"log_event_ids": manifest["log_event_ids"]} if manifest.get("log_event_ids") else {}),
     }
     write_json(directory / "migration.json", result)
     return result
 
 
-def _resolve_event_commands(document, source_dir):
+def _resolve_event_commands(document, source_dir, log_event_ids):
     elements = document.findall("./Properties/Events/Event")
-    events = workflow_events(ET.tostring(document, encoding="unicode"))
+    events = bind_logging_events(workflow_events(ET.tostring(document, encoding="unicode")), log_event_ids)
     for event in events:
         if "program" not in event:
             continue

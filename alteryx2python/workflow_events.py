@@ -124,8 +124,9 @@ def run_events(events, phase, context, attachment_paths=None, *, log_run=None, w
         if event.get("kind") == "logging":
             from alteryx2python.workflow_logging import emit_workflow_log
 
-            emit_workflow_log(log_run, workflow_name, event["id"], base, len(context.warnings),
-                              max(len(context.errors), int(error is not None)), error)
+            record = emit_workflow_log(log_run, workflow_name, event["id"], base, len(context.warnings),
+                                       max(len(context.errors), int(error is not None)), error)
+            context.record_diagnostic({"kind": "workflow_log", "record": record})
             continue
         if event.get('kind') == 'email':
             from alteryx2python.tools.delivery import deliver_event_email, PROFILE, SMTP_PROFILE

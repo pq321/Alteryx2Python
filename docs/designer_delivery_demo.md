@@ -120,6 +120,12 @@ $py = '.venv/Scripts/python.exe'
    attestation. A controlled missing-input case can be prepared with
    `--allow-missing-input`. An isolated command event needs an explicit
    `--allow-event-command path` during preparation.
+   For an After Run command used only to log the workflow outcome, select its
+   original event ID with `--log-event ID` during preparation. Use the ID from
+   `events.json`. The prepared Designer copy excludes that command. Phase 1
+   and Phase 2 write separate local JSONL logs in the delivery directory.
+   `acceptance.json` records whether both Python phases logged the selected
+   event IDs with the expected outcome.
 
    ```powershell
    & $py -m alteryx2python.cli migrate --run-dir reports/example-case --resume --native-outcome success

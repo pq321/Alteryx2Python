@@ -135,7 +135,7 @@ $prepared | Select-Object status, native_workflow, designer_plan, runtime_input_
 if ($isApp) { Get-Content "$case/answers.json" }
 ```
 
-运行前看 `inputs.json`、`events.json` 和该目录的 `audit.json`。动态路径、macro 资源和外部程序可能需要单独布置测试数据。命令 Event 只有在隔离案例中明确传入 `--allow-event-command <可执行文件路径>` 才纳入运行。输入文件和输出位置确认后再启动 Designer。
+运行前看 `inputs.json`、`events.json` 和该目录的 `audit.json`。动态路径、macro 资源和外部程序可能需要单独布置测试数据。对于只记录运行结果的 After Run 批处理，在准备命令上加 `--log-event <ID>`，ID 以 `events.json` 为准。Designer 副本排除该命令，两阶段 Python 分别写本地 JSONL。如果准备过程已经停止，选一个新的 `$case` 重跑。其他需要执行的命令 Event 仍需明确传入 `--allow-event-command <可执行文件路径>`。输入文件和输出位置确认后再启动 Designer。
 
 ```powershell
 & $py -m alteryx2python.cli migrate --run-dir $case --designer auto
@@ -208,6 +208,7 @@ Get-ChildItem $standaloneOut.FullName -File -Recurse
 | `native-vs-phase-one.json` | 所选节点的 anchor、行数和比较状态 |
 | `phase-one-vs-phase-two.json` | 可观察的运行结果与最终文件清单 |
 | `phase_two.py`、`standalone.json`、`delivery-output/` | 可交付代码、独立进程退出码和实际输出 |
+| `phase-one-workflow.jsonl`、`phase-two-workflow.jsonl` | 用 `--log-event` 迁移的本地日志。对应结果在 `acceptance.json` 的 `logging_events` |
 
 ### 演示彩排与备用案例
 

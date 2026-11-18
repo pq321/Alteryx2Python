@@ -231,6 +231,7 @@ def main(argv: list[str] | None = None) -> int:
                     capture_python(
                         Path(manifest["source"]), answers=manifest.get("answers"),
                         event_commands=tuple(manifest.get("event_commands_sha256", {})),
+                        log_event_ids=manifest.get("log_event_ids", ()),
                     ),
                 )
         native = collect_native(directory, manual=getattr(args, "manual", False))

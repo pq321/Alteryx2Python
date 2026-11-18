@@ -177,7 +177,8 @@ def _inventory(workflow, call_path=(), parents=(), inactive=False, messages_expo
                 yield {**location, **issue, 'field': 'RuntimeProperties/Actions/Expression'}
 
 
-def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter_mode='dynamic', delivery_profile=None):
+def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter_mode='dynamic', delivery_profile=None,
+                   log_event_ids=()):
     from alteryx2python.generator.readable import ReadablePythonGenerator
     from alteryx2python.runtime.executor import run_workflow_graph
 
@@ -195,7 +196,7 @@ def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter
     compilation = {'status': 'compiled'}
     try:
         ReadablePythonGenerator().generate(workflow, answers=answers, parameter_mode=parameter_mode,
-                                           delivery_profile=delivery_profile,
+                                           delivery_profile=delivery_profile, log_event_ids=log_event_ids,
                                            input_bindings=(runtime or {}).get('input_bindings'), collect_expression_issues=True)
     except (KeyError, ValueError, NotImplementedError, UnsupportedExpressionError, OSError, ET.ParseError) as error:
         compilation = {'status': 'blocked', 'issues': getattr(error, 'issues', None) or [{'reason': str(error)}]}

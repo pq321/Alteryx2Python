@@ -171,20 +171,22 @@ class CaptureContext(WorkflowContext):
 
 def capture_python(
     workflow_path: Path, *, output_directory: Path | None = None, answers: dict | None = None,
-    event_commands: tuple[str, ...] = (), generated_entry=None,
+    event_commands: tuple[str, ...] = (), generated_entry=None, log_event_ids=(),
 ) -> dict:
     if output_directory is None:
         with tempfile.TemporaryDirectory(prefix="a2p-capture-") as directory:
-            return _capture_python(workflow_path, Path(directory), answers, event_commands, generated_entry)
+            return _capture_python(workflow_path, Path(directory), answers, event_commands, generated_entry, log_event_ids)
     output_directory.mkdir(parents=True, exist_ok=True)
-    return _capture_python(workflow_path, output_directory, answers, event_commands, generated_entry)
+    return _capture_python(workflow_path, output_directory, answers, event_commands, generated_entry, log_event_ids)
 
 
 def _capture_python(
-    workflow_path: Path, output_directory: Path, answers: dict | None, event_commands: tuple[str, ...], generated_entry=None
+    workflow_path: Path, output_directory: Path, answers: dict | None, event_commands: tuple[str, ...], generated_entry, log_event_ids
 ) -> dict:
     workflow = XmlWorkflowParser().parse(workflow_path)
     runtime = {"capture_output_dir": str(output_directory.resolve()), "answers": answers}
+    if log_event_ids:
+        runtime["log_event_ids"] = log_event_ids
     if event_commands:
         events_dir = output_directory / "events"
         events_dir.mkdir(exist_ok=False)
@@ -259,6 +261,8 @@ def _capture_python(
             if path.is_file()
         },
         **({"event_artifacts": file_artifacts(events_dir)} if event_commands else {}),
+        **({"workflow_logs": [item["record"] for item in context.diagnostics if item.get("kind") == "workflow_log"]}
+           if log_event_ids else {}),
         "environment": {
             "python": sys.version,
             "pandas": pd.__version__,
@@ -277,7 +281,7 @@ def prepare(
     workflow_path: Path, destination: Path, *, answers: dict | None = None,
     event_commands: tuple[str, ...] = (),
     capture_reference: bool = True, allow_missing_inputs: bool = False,
-    instrumented_filename: str | None = None,
+    instrumented_filename: str | None = None, log_event_ids=(),
 ) -> dict:
     workflow_path = workflow_path.resolve()
     workflow = XmlWorkflowParser().parse(workflow_path)
@@ -289,9 +293,11 @@ def prepare(
     if answers is not None and not is_app:
         raise ValueError("Explicit Designer answers require an analytic app (.yxwz)")
     from alteryx2python.runtime.app_config import INTERFACE
-    from alteryx2python.workflow_events import workflow_events
+    from alteryx2python.workflow_events import bind_logging_events, workflow_events
 
-    events = workflow_events(workflow.source_xml)
+    events = bind_logging_events(workflow_events(workflow.source_xml), log_event_ids)
+    logging_ids = [event["id"] for event in events if event.get("kind") == "logging"]
+    events = [event for event in events if event.get("kind") != "logging"]
     if events and not event_commands:
         raise ValueError("Automatic capture needs an isolated workflow event test case")
     programs = {}
@@ -354,10 +360,15 @@ def prepare(
     destination = destination.resolve()
     tree = ET.parse(workflow_path)
     root = tree.getroot()
-    if programs:
+    if programs or logging_ids:
         native_events = destination / "native-events"
-        native_events.mkdir()
-        for index, event in enumerate(root.findall("./Properties/Events/Event")):
+        if programs:
+            native_events.mkdir()
+        saved_events = root.find("./Properties/Events")
+        for index, event in enumerate(saved_events.findall("Event")):
+            if str(index) in logging_ids:
+                saved_events.remove(event)
+                continue
             if index not in programs:
                 continue
             for names, value in (
@@ -504,6 +515,7 @@ def prepare(
         "instrumented_file": instrumented.name,
         "answers": answers,
         "event_commands_sha256": {str(path): file_hash(path) for path in programs.values()},
+        **({"log_event_ids": logging_ids} if logging_ids else {}),
         "inputs_sha256": input_hashes,
         "sink_files": sink_files,
         "engine_mode": "amp" if use_amp else "original",
@@ -553,6 +565,7 @@ def prepare(
             capture_python(
                 workflow_path, output_directory=destination / "python-outputs", answers=answers,
                 event_commands=tuple(manifest["event_commands_sha256"]),
+                log_event_ids=logging_ids,
             ),
         )
     return manifest

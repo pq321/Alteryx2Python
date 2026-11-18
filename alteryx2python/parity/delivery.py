@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import runpy
 import subprocess
 import sys
@@ -80,6 +81,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     workflow = XmlWorkflowParser().parse(source)
     answers = manifest.get("answers")
     commands = tuple(manifest.get("event_commands_sha256", {}))
+    log_event_ids = manifest.get("log_event_ids", [])
     # Scope this proof to sinks whose output locations the capture manifest can identify.
     sink_names = {
         node.node_id: PureWindowsPath(node.config["normalized"]["file"].split("|||", 1)[0]).name
@@ -94,8 +96,19 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     first = capture_python(
         source, output_directory=destination / "phase-one-output", answers=answers,
         event_commands=commands, generated_entry=runpy.run_path(str(phase_one))["run_with_context"],
+        log_event_ids=log_event_ids,
     )
     write_json(destination / "phase-one-capture.json", first)
+    phase_two_log = destination / "phase-two-workflow.jsonl"
+    log_args = ["--workflow-log", str(phase_two_log)] if log_event_ids else []
+    if log_event_ids:
+        phase_one_log = destination / "phase-one-workflow.jsonl"
+        phase_one_log.write_text("".join(json.dumps(row, ensure_ascii=False) + "\n"
+                                        for row in first["workflow_logs"]), encoding="utf-8")
+        logging_evidence = {
+            "status": "pending", "event_ids": log_event_ids, "native_policy": "excluded_from_designer",
+            "phase_one_log": phase_one_log.name, "phase_two_log": phase_two_log.name,
+        }
     native = collect_native(native_directory, manual=True)
     native_result = compare_runs(native, first)
     write_json(destination / "native-vs-phase-one.json", native_result)
@@ -105,11 +118,13 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         "native_vs_phase_one": native_result["status"], "phase_one_outcome": first["status"],
         "phase_one_vs_phase_two": "pending", "standalone_execution": "pending",
     }
+    if log_event_ids:
+        report["logging_events"] = logging_evidence
     try:
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
         artifact = ReadablePythonGenerator().generate(
-            read_phase_one(phase_one), answers=answers, parameter_mode="specialized",
+            read_phase_one(phase_one), answers=answers, parameter_mode="specialized", log_event_ids=log_event_ids,
         )
         delivered = destination / "phase_two.py"
         artifact.write(delivered)
@@ -119,6 +134,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         if observable:
             report.update(_verify_observable(
                 delivered, source.parent, destination, commands, timeout, first, expected_files,
+                report.get("logging_events"),
             ))
             checks = (native_result["status"], report["phase_one_vs_phase_two"])
             report["status"] = ("match" if checks == ("match", "match")
@@ -153,16 +169,18 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             [sys.executable, "-I", str(delivered), "--input-dir", str(source.parent),
              "--output-dir", str(delivery_dir), "--event-working-dir", str(delivery_events),
              "--command-working-dir", str(delivery_dir),
-             *[part for command in commands for part in ("--allow-command", command)]],
+             *[part for command in commands for part in ("--allow-command", command)], *log_args],
             capture_output=True, timeout=timeout, cwd=delivery_dir, check=False,
         )
         (destination / "standalone.stdout.txt").write_bytes(process.stdout)
         (destination / "standalone.stderr.txt").write_bytes(process.stderr)
         delivery_files = file_artifacts(delivery_dir)
+        logging_match = _match_logging_events(report.get("logging_events"), phase_two_log, first)
         standalone = {
             "returncode": process.returncode, "outputs": delivery_files,
             "status": "match" if process.returncode == 0 and delivery_files
-            and delivery_files == phase_two_files else "mismatch",
+            and delivery_files == phase_two_files and logging_match else "mismatch",
+            **({"logging_events": logging_evidence} if log_event_ids else {}),
         }
         write_json(destination / "standalone.json", standalone)
         report["standalone_execution"] = standalone["status"]
@@ -175,14 +193,28 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     return report
 
 
-def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files):
+def _match_logging_events(evidence, phase_two_log, first):
+    if evidence is None:
+        return True
+    records = [json.loads(line) for line in phase_two_log.read_text(encoding="utf-8").splitlines()] if phase_two_log.is_file() else []
+    expected = [(event_id, first["status"]) for event_id in evidence["event_ids"]]
+    one = [(row.get("event_id"), row.get("status")) for row in first["workflow_logs"]]
+    two = [(row.get("event_id"), row.get("status")) for row in records]
+    matched = one == two == expected
+    evidence["status"] = "match" if matched else "mismatch"
+    return matched
+
+
+def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files, logging_evidence=None):
     output = destination / "delivery-output"
     events = output / "events" if commands else output
     events.mkdir(parents=True)
+    phase_two_log = destination / "phase-two-workflow.jsonl"
+    log_args = ["--workflow-log", str(phase_two_log)] if logging_evidence else []
     process = subprocess.run(
         [sys.executable, "-I", str(script), "--input-dir", str(input_dir), "--output-dir", str(output),
          "--event-working-dir", str(events), "--command-working-dir", str(output),
-         *[part for command in commands for part in ("--allow-command", command)]],
+         *[part for command in commands for part in ("--allow-command", command)], *log_args],
         capture_output=True, timeout=timeout, cwd=output, check=False,
     )
     (destination / "standalone.stdout.txt").write_bytes(process.stdout)
@@ -196,11 +228,13 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     else:
         outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
         evidence = True
-    status = "mismatch" if not outcome_matches or expected_files != observed else "match" if evidence else "incomplete"
+    logging_match = _match_logging_events(logging_evidence, phase_two_log, first)
+    status = "mismatch" if not outcome_matches or expected_files != observed or not logging_match else "match" if evidence else "incomplete"
     result = {
         "profile": "observable", "status": status, "returncode": process.returncode,
         "phase_one_outcome": first["status"], "phase_two_failure_type": failure_kind if process.returncode else None,
         "phase_one_files": expected_files, "phase_two_files": observed,
+        **({"logging_events": logging_evidence} if logging_evidence else {}),
     }
     write_json(destination / "phase-one-vs-phase-two.json", result)
     write_json(destination / "standalone.json", result)

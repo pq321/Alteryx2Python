@@ -101,6 +101,8 @@ def _build_parser() -> argparse.ArgumentParser:
     answer_mode.add_argument("--interactive", action="store_true", help="Prompt for app answers in the terminal")
     migrate.add_argument("--allow-missing-input", action="store_true", help="Prepare a controlled missing-input case")
     migrate.add_argument("--allow-event-command", action="append", default=[], help="Explicit event executable for an isolated test")
+    migrate.add_argument("--log-event", action="append", default=[], metavar="ID",
+                         help="Replace an After Run command with local Python logging")
     migrate.add_argument("--designer", nargs="?", const="auto", choices=["auto", "wand", "options"],
                          help="Open the prepared case in Designer (default mode: auto)")
     migrate.add_argument("--designer-pid", type=int)
@@ -341,7 +343,7 @@ def _migrate_command(args):
     from alteryx2python.parity.runner import write_json
 
     if args.resume:
-        if args.workflow or args.answers or args.interactive or args.allow_missing_input or args.allow_event_command or args.designer or args.designer_pid or args.designer_launcher:
+        if args.workflow or args.answers or args.interactive or args.allow_missing_input or args.allow_event_command or args.log_event or args.designer or args.designer_pid or args.designer_launcher:
             raise ValueError("Resume takes the existing run directory and optional native attestation")
         if not args.native_outcome and (args.failed_node or args.skipped_node):
             raise ValueError("Failed/skipped nodes require a native outcome")
@@ -355,8 +357,8 @@ def _migrate_command(args):
     if args.workflow:
         result = prepare_migration(args.workflow, args.run_dir, supplied=_read_answers(args.answers) if args.answers else None,
                                    interactive=args.interactive, allow_missing=args.allow_missing_input,
-                                   event_commands=tuple(args.allow_event_command))
-    elif args.designer and not (args.answers or args.interactive or args.allow_missing_input or args.allow_event_command):
+                                   event_commands=tuple(args.allow_event_command), log_event_ids=args.log_event)
+    elif args.designer and not (args.answers or args.interactive or args.allow_missing_input or args.allow_event_command or args.log_event):
         result = json.loads((args.run_dir / "migration.json").read_text(encoding="utf-8"))
     else:
         raise ValueError("Provide a workflow or use --designer with a prepared run directory")
