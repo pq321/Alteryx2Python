@@ -3,17 +3,19 @@ from __future__ import annotations
 
 import re
 from dataclasses import replace
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 from tempfile import TemporaryDirectory
 from xml.etree import ElementTree as ET
 
 from alteryx2python.expressions.errors import UnsupportedExpressionError
 from alteryx2python.expressions.parser import SUPPORTED_FUNCTIONS, parse_expression
 from alteryx2python.generator.macro_sources import resolve_macro_path
+from alteryx2python.input_bindings import STAGEABLE_INPUT_SUFFIXES
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import INTERFACE, SUPPORTED_ACTION_TYPES, _value, prepare_workflow
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.runtime.scheduling import container_guards, detour_exclusions
+from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
 from alteryx2python.tools.registry import TOOL_REGISTRY
 
 
@@ -177,8 +179,30 @@ def _inventory(workflow, call_path=(), parents=(), inactive=False, messages_expo
                 yield {**location, **issue, 'field': 'RuntimeProperties/Actions/Expression'}
 
 
+def _staged_input_bindings(workflow):
+    variables = workflow_variables(workflow)
+    nodes = {node.node_id: node for node in workflow.nodes}
+    _, skipped = detour_exclusions(workflow.nodes, workflow.edges)
+    bindings = {}
+    for node in workflow.nodes:
+        if node.tool_type != 'DbFileInput' or node.node_id in skipped or None in container_guards(node, nodes, ()):
+            continue
+        config = node.config.get('normalized', node.config)
+        try:
+            filename = resolve_variable_tokens(config.get('file', ''), variables).partition('|||')[0]
+        except ValueError:
+            # Let the compiler report unresolved variables with its normal diagnostics.
+            continue
+        windows = PureWindowsPath(filename)
+        path = windows if windows.drive else Path(filename)
+        if (path.is_absolute() and path.suffix.lower() in STAGEABLE_INPUT_SUFFIXES
+                and '://' not in filename and not any(char in filename for char in '*?')):
+            bindings[node.node_id] = f'inputs/{node.node_id}/{path.name}'
+    return bindings
+
+
 def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter_mode='dynamic', delivery_profile=None,
-                   log_event_ids=()):
+                   log_event_ids=(), staged_input_preflight=False):
     from alteryx2python.generator.readable import ReadablePythonGenerator
     from alteryx2python.runtime.executor import run_workflow_graph
 
@@ -194,12 +218,18 @@ def audit_workflow(workflow, *, run=False, answers=None, runtime=None, parameter
         issues.extend({**item, 'active': False, 'saved_only': True} for item in original if item not in issues)
 
     compilation = {'status': 'compiled'}
+    simulated_inputs = {}
     try:
+        if staged_input_preflight and prepared is not None:
+            simulated_inputs = _staged_input_bindings(prepared)
+        input_bindings = {**simulated_inputs, **((runtime or {}).get('input_bindings') or {})}
         ReadablePythonGenerator().generate(workflow, answers=answers, parameter_mode=parameter_mode,
                                            delivery_profile=delivery_profile, log_event_ids=log_event_ids,
-                                           input_bindings=(runtime or {}).get('input_bindings'), collect_expression_issues=True)
+                                           input_bindings=input_bindings, collect_expression_issues=True)
     except (KeyError, ValueError, NotImplementedError, UnsupportedExpressionError, OSError, ET.ParseError) as error:
         compilation = {'status': 'blocked', 'issues': getattr(error, 'issues', None) or [{'reason': str(error)}]}
+    if simulated_inputs:
+        compilation['staged_input_nodes'] = list(simulated_inputs)
 
     execution = {'status': 'not_requested'}
     if run and prepared is None:

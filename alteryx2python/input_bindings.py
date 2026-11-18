@@ -3,6 +3,9 @@
 from pathlib import PureWindowsPath
 
 
+STAGEABLE_INPUT_SUFFIXES = {".csv", ".tsv", ".txt", ".xlsx", ".yxdb"}
+
+
 def parse_input_bindings(values):
     bindings = {}
     for value in values:

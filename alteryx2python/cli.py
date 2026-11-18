@@ -413,7 +413,9 @@ def _inspect_summary_report(workflow, inspection, output_dir, answers_file):
                 continue
             profile = XLSX_PROFILE
             break
-    audit = audit_workflow(workflow, answers=answers, parameter_mode="specialized", delivery_profile=profile)
+    audit = audit_workflow(
+        workflow, answers=answers, parameter_mode="specialized", delivery_profile=profile, staged_input_preflight=True,
+    )
     if output_dir is None:
         report_root = Path("reports/demo-inspect").resolve()
         report_root.mkdir(parents=True, exist_ok=True)
@@ -476,6 +478,9 @@ def _format_inspect_summary(report: dict[str, Any]) -> str:
     if report["dynamic_inputs"]:
         ids = ", ".join(item["node_id"] for item in report["dynamic_inputs"])
         lines.append(f"Dynamic Input nodes {ids}: runtime file paths are discovered during Step 2.")
+    if phase_two.get("staged_input_nodes"):
+        ids = ", ".join(phase_two["staged_input_nodes"])
+        lines.append(f"Phase 2 preflight assumes Step 2 stages Input Data nodes {ids}.")
     for label, issues in (("Active issues", report["active_issues"]), ("Phase 2 blockers", phase_two.get("issues", []))):
         lines.append(f"{label}: {len(issues)}")
         for issue in issues[:3]:

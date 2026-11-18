@@ -11,6 +11,7 @@ import sys
 from xml.etree import ElementTree as ET
 
 from alteryx2python.generator.macro_sources import resolve_macro_path
+from alteryx2python.input_bindings import STAGEABLE_INPUT_SUFFIXES
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import _typed, bind_answers, configure_workflow, question_manifest
 from alteryx2python.runtime.context import WorkflowContext
@@ -55,7 +56,7 @@ def prompt_answers(questions, read=None, display=None):
 def _stage_input(root, source_dir, value, entries, allow_missing, *, folder="inputs"):
     raw, separator, selection = value.partition("|||")
     source = (source_dir / raw).resolve()
-    if source.suffix.lower() not in {".csv", ".tsv", ".txt", ".xlsx", ".yxdb"} or "://" in raw:
+    if source.suffix.lower() not in STAGEABLE_INPUT_SUFFIXES or "://" in raw:
         raise ValueError(f"Expected a local input file: {raw}")
     entry = entries.get(str(source))
     if entry is None:
@@ -247,6 +248,7 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         write_json(directory / "events.json", {"events": events})
     write_json(directory / "source-audit.json", audit_workflow(
         workflow, answers=supplied, parameter_mode="specialized", log_event_ids=log_event_ids,
+        staged_input_preflight=True,
     ))
     if interactive:
         supplied = prompt_answers(questions)

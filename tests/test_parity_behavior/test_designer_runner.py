@@ -161,3 +161,39 @@ def test_prepared_cases_have_distinct_titles_in_a_reused_designer_window(tmp_pat
     second_name = Path(second["native_workflow"]).name
     assert first_name != second_name
     assert Path(first_name).suffix == Path(second_name).suffix == ".yxwz"
+
+
+@pytest.mark.skipif(sys.platform != "win32" or shutil.which("pwsh") is None, reason="Windows PowerShell 7 is required")
+def test_stuck_wand_query_falls_back_to_options_in_same_worker(tmp_path):
+    script = tmp_path / "simulate wand provider stall.ps1"
+    script.write_text(
+        """
+$ErrorActionPreference = 'Stop'
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($args[0], [ref]$null, [ref]$null)
+foreach ($name in @('Invoke-DesignerWandProbe', 'Open-AppFromWand', 'Run-AnalyticApp')) {
+    $definition = $ast.Find({
+        param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+    }, $false)
+    Invoke-Expression $definition.Extent.Text
+}
+function Set-DesignerStage($Message) {}
+function Open-WorkflowInSession($Path) {}
+function Get-SessionWindow { @{ MainWindowTitle = 'Alteryx Designer x64 - prepared app.yxwz' } }
+function Find-DesignerAppWand {
+    Invoke-DesignerWandProbe { Start-Sleep -Seconds 35 } ([IntPtr]123) 456 700
+}
+function Open-AppFromOptions($Case) { throw "Options reached for $($Case.path), PID $script:sessionId" }
+$AppLaunch = 'auto'
+$script:sessionId = 456
+try { Run-AnalyticApp @{ path = 'C:/case/prepared app.yxwz' } }
+catch { $_.Exception.Message }
+""",
+        encoding="utf-8",
+    )
+    result = subprocess.run(
+        ["pwsh", "-NoProfile", "-File", str(script), str(RUNNER)],
+        capture_output=True, text=True, check=True, timeout=10,
+    )
+    assert "magic-wand lookup timed out" in result.stdout
+    assert "Options reached for C:/case/prepared app.yxwz, PID 456" in result.stdout

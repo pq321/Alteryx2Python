@@ -1129,6 +1129,65 @@ function Open-AppFromOptions($Case) {
     Invoke-DialogButton $choose @('Run')
 }
 
+function Invoke-DesignerWandProbe([scriptblock]$Probe, [IntPtr]$Window, [int]$ProcessId,
+                                  [int]$Milliseconds = 4000) {
+    # FindAll can block inside the UI Automation provider. The probe cannot click or launch an app.
+    $command = "`$ErrorActionPreference = 'Stop'`n& { $Probe } $($Window.ToInt64()) $ProcessId"
+    $encoded = [Convert]::ToBase64String([Text.Encoding]::Unicode.GetBytes($command))
+    $start = [Diagnostics.ProcessStartInfo]::new((Get-Process -Id $PID).Path)
+    $start.UseShellExecute = $false
+    $start.CreateNoWindow = $true
+    $start.RedirectStandardOutput = $true
+    $start.RedirectStandardError = $true
+    foreach ($argument in @('-NoProfile', '-NonInteractive', '-EncodedCommand', $encoded)) {
+        $start.ArgumentList.Add($argument)
+    }
+    $probeProcess = [Diagnostics.Process]::Start($start)
+    try {
+        $stdout = $probeProcess.StandardOutput.ReadToEndAsync()
+        [void]$probeProcess.StandardError.ReadToEndAsync()
+        if (-not $probeProcess.WaitForExit($Milliseconds)) {
+            Write-Host 'Designer: magic-wand lookup timed out'
+            return
+        }
+        if ($probeProcess.ExitCode -ne 0) {
+            Write-Host 'Designer: magic-wand lookup could not query the toolbar'
+            return
+        }
+        $output = $stdout.GetAwaiter().GetResult().Trim()
+        if ($output) { ConvertFrom-Json -InputObject $output }
+    } finally {
+        if (-not $probeProcess.HasExited) {
+            try { $probeProcess.Kill() }
+            catch [InvalidOperationException] { if (-not $probeProcess.HasExited) { throw } }
+        }
+        $probeProcess.Dispose()
+    }
+}
+
+function Find-DesignerAppWand {
+    Invoke-DesignerWandProbe {
+        param([long]$WindowHandle, [int]$ExpectedProcess)
+        Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes,WindowsBase
+        $element = [System.Windows.Automation.AutomationElement]
+        $window = $element::FromHandle([IntPtr]$WindowHandle)
+        if ($window.Current.ProcessId -ne $ExpectedProcess) { return }
+        $selector = [System.Windows.Automation.OrCondition]::new(
+            [System.Windows.Automation.PropertyCondition]::new($element::AutomationIdProperty, 'btnRunApp'),
+            [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'btnRunApp'),
+            [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'Run as Analytic App')
+        )
+        $buttons = @($window.FindAll([System.Windows.Automation.TreeScope]::Descendants, $selector) |
+            Where-Object { $_.Current.ProcessId -eq $ExpectedProcess -and $_.Current.IsEnabled -and
+                -not $_.Current.IsOffscreen -and $_.Current.ControlType -ne [System.Windows.Automation.ControlType]::Text })
+        if ($buttons.Count -ne 1) { return }
+        $bounds = $buttons[0].Current.BoundingRectangle
+        if ($bounds.IsEmpty) { return }
+        @{ x = [int]($bounds.X + $bounds.Width / 2); y = [int]($bounds.Y + $bounds.Height / 2) } |
+            ConvertTo-Json -Compress
+    } $script:sessionHandle $script:sessionId
+}
+
 function Open-AppFromWand($Case) {
     $previousTitle = (Get-SessionWindow).MainWindowTitle
     try {
@@ -1141,34 +1200,15 @@ function Open-AppFromWand($Case) {
         }
         return $false
     }
-    Set-DesignerStage 'locate and click Run as Analytic App'
-    $window = [System.Windows.Automation.AutomationElement]::FromHandle($script:sessionHandle)
-    $element = [System.Windows.Automation.AutomationElement]
-    $wandSelector = [System.Windows.Automation.OrCondition]::new(
-        [System.Windows.Automation.PropertyCondition]::new($element::AutomationIdProperty, 'btnRunApp'),
-        [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'btnRunApp'),
-        [System.Windows.Automation.PropertyCondition]::new($element::NameProperty, 'Run as Analytic App')
-    )
-    $button = Wait-For {
-        $candidates = @($window.FindAll(
-            [System.Windows.Automation.TreeScope]::Descendants, $wandSelector
-        ) | Where-Object {
-            $_.Current.IsEnabled -and -not $_.Current.IsOffscreen -and
-            $_.Current.ControlType -ne [System.Windows.Automation.ControlType]::Text
-        })
-        if ($candidates.Count -eq 1) { $candidates[0] }
-    } 5
-    if (-not $button) {
-        $title = (Get-SessionWindow).MainWindowTitle
-        $filename = [IO.Path]::GetFileName($Case.path)
-        if ($title.EndsWith($filename, [StringComparison]::OrdinalIgnoreCase)) {
-            Close-ManagedWorkflow $filename
-        } elseif ($title -notmatch '^Alteryx Designer.* - New Workflow\d+$') {
-            throw 'The active Designer tab changed while locating the Analytic App button.'
-        }
-        return $false
+    Set-DesignerStage 'locate Run as Analytic App'
+    $point = Find-DesignerAppWand
+    if (-not (Get-SessionWindow).MainWindowTitle.EndsWith(
+        [IO.Path]::GetFileName($Case.path), [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'The active Designer tab changed while locating the Analytic App button.'
     }
-    Click-DesignerToolbarButton $button
+    if (-not $point) { return $false }
+    Set-DesignerStage 'click Run as Analytic App'
+    [DesignerMouse]::ClickWindowPoint($script:sessionHandle, $script:sessionId, $point.x, $point.y)
     return $true
 }
 
@@ -1252,6 +1292,7 @@ function Run-AnalyticApp($Case) {
         }
     }
     if (-not $usedWand) {
+        if ($AppLaunch -eq 'auto') { Write-Host 'Designer: continue through Options > Run Analytic Apps' }
         Open-AppFromOptions $Case
         Set-DesignerStage 'wait for the Analytic App questions'
         $appHandle = Wait-ForNamedDialog $appName

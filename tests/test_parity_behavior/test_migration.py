@@ -398,6 +398,36 @@ def test_migration_identifies_missing_user_constant_at_input_node(tmp_path):
     assert not (directory / "designer-plan.json").exists()
 
 
+def test_inspect_preflights_external_user_input_using_staging_paths(tmp_path, capsys):
+    from alteryx2python.cli import main
+    from alteryx2python.parser.xml_parser import XmlWorkflowParser
+    from alteryx2python.workflow_audit import audit_workflow
+
+    original = tmp_path / "workflow"
+    original.mkdir()
+    csv = tmp_path / "business config.csv"
+    source, input_id = constant_input_fixture(original, "yxwz", csv)
+    digest = file_hash(source)
+    raw = audit_workflow(XmlWorkflowParser().parse(source), parameter_mode="specialized")
+    assert raw["phase_two"]["status"] == "blocked"
+    assert "portable binding" in raw["phase_two"]["issues"][0]["reason"]
+
+    inspection = tmp_path / "inspect"
+    assert main(["inspect", str(source), "--summary", "--output-dir", str(inspection)]) == 0
+    assert "Phase 2 compile: compiled" in capsys.readouterr().out
+    audit = json.loads((inspection / "audit.json").read_text(encoding="utf-8"))
+    assert audit["phase_two"] == {"status": "compiled", "staged_input_nodes": [input_id]}
+    assert audit["execution"]["status"] == "not_requested"
+    assert not csv.exists()
+    assert file_hash(source) == digest
+
+    csv.write_text("region\nAPAC\n", encoding="utf-8")
+    case = tmp_path / "case"
+    prepare_migration(source, case)
+    final_audit = json.loads((case / "audit.json").read_text(encoding="utf-8"))
+    assert final_audit["phase_two"] == {"status": "compiled"}
+
+
 def test_inspect_and_migrate_distinguish_user_input_runtime_files_and_templates(tmp_path, capsys):
     from pathlib import Path
 

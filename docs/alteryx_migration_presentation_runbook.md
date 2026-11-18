@@ -94,6 +94,8 @@ Official capability references. [Alteryx Designer](https://help.alteryx.com/desi
 
 输入摘要会解析 `%User.*%` 等工作流常量，并按原工作流目录解释相对路径。Dynamic Input 的设计模板和路径字段记录在 `inspect.json`，实际读取的文件在第 2 步根据上游数据和 App 答案确定。
 
+Phase 2 预检按第 2 步将绝对输入路径暂存到案例目录的方式检查编译。文件是否可读由第 2 步验证。
+
 ### 第 2 步 · Designer
 
 ```powershell
@@ -128,6 +130,7 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 
 - designer --prepare-only 只生成隔离案例和 Designer 副本。随后用 designer --case '<案例路径>' 启动。已有答案时，用 designer --answers '<answers.json>'。已确认的日志 Event 可用 --log-event ID。需要执行其他 Event 时，沿用 --allow-event-command。
 - Designer 会优先复用可用的 2025.1 窗口，现有 Workflow 标签页可以保留。多个候选窗口无法自动确定时，用 `designer --designer-pid <PID>`。界面阻塞时命令以非零状态退出，终端和 `designer-run.json` 会显示停在哪一步。每个案例的自动化总时限为 180 秒。
+- 魔法棒查找超时或控件不可用时，auto 会通过 Options 打开 App。若上次停在启动阶段且尚无输出，可用 `designer --case '<案例路径>' --app-launch options` 复用已暂存的输入和答案。
 - compare 和 deliver 可用 --case '<案例路径>' 打开指定的历史案例。报告包括输入快照、暂存后的审计、Designer 状态、逐节点对照和独立运行结果。
 - 路径、文件和工作表不匹配时，从第 3 步打印的报告定位原生节点和差异。用第 2 步建立新案例重跑，每次保留独立的快照和记录。
 

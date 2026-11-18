@@ -27,6 +27,7 @@ def add_parser(subparsers, handler):
     designer.add_argument("--allow-event-command", action="append", default=[], metavar="PATH")
     designer.add_argument("--designer-pid", type=int)
     designer.add_argument("--designer-launcher", type=Path)
+    designer.add_argument("--app-launch", choices=["auto", "wand", "options"], default="auto")
     designer.add_argument("--prepare-only", action="store_true")
     designer.add_argument("--case", type=Path, help="Launch an already prepared case")
     compare = steps.add_parser("compare", help="Confirm Designer's outcome, compare Phase 1, and verify Phase 2")
@@ -114,7 +115,7 @@ def _designer(args, state_file, state):
     if args.prepare_only:
         lines.append(f'Next: demo designer --case "{case}"')
         return {**result, "display": "\n".join(lines)}, 0
-    receipt = launch_designer(case, "auto", args.designer_pid, args.designer_launcher)
+    receipt = launch_designer(case, args.app_launch, args.designer_pid, args.designer_launcher)
     result["designer"] = receipt
     if args.designer_pid is not None:
         result["designer_requested_pid"] = args.designer_pid
