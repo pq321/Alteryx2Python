@@ -3,3 +3,4 @@
 *.jpg binary
 *.xlsx binary
 *.xls binary
+examples/readable_benchmark/data/iris.data text eol=lf
