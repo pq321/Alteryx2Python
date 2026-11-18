@@ -8,11 +8,122 @@ param(
     [int]$DesignerProcessId,
     [string]$DesignerLauncher,
     [ValidateSet('auto', 'wand', 'options')][string]$AppLaunch = 'auto',
-    [switch]$ManualAppInputs
+    [switch]$ManualAppInputs,
+    [Parameter(DontShow)][switch]$Worker
 )
 
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'This runner requires Windows Designer.' }
+
+function Write-DesignerJson($Value, [string]$Path) {
+    $temporary = "$Path.tmp"
+    ConvertTo-Json -InputObject $Value -Depth 6 | Set-Content -LiteralPath $temporary -Encoding utf8
+    [IO.File]::Move($temporary, $Path, $true)
+}
+
+function Set-DesignerStage([string]$Stage, [int]$Seconds = 20) {
+    $script:stage = @{
+        stage = $Stage; workflow = $script:currentWorkflow; case_index = $script:caseIndex
+        designer_pid = $script:sessionId; session = $script:sessionMode
+        stage_deadline = [DateTimeOffset]::UtcNow.AddSeconds([Math]::Min($Seconds, $TimeoutSeconds)).ToUnixTimeMilliseconds()
+        case_deadline = $script:caseDeadline
+    }
+    Write-DesignerJson $script:stage "$Report.progress"
+    Write-Host "Designer: $Stage"
+}
+
+function New-DesignerBlocked($Progress, [string]$Detail, [string]$Reason) {
+    @{
+        status = 'blocked'; workflow = $Progress.workflow; stage = $Progress.stage
+        designer_pid = $Progress.designer_pid; session = $Progress.session
+        reason = $Reason; detail = $Detail
+    }
+}
+
+function Read-DesignerProgress([string]$Path) {
+    if (-not [IO.File]::Exists($Path)) { return }
+    $sharing = [IO.FileShare]::ReadWrite -bor [IO.FileShare]::Delete
+    $reader = [IO.StreamReader]::new([IO.File]::Open($Path, 'Open', 'Read', $sharing))
+    try { ConvertFrom-Json -InputObject $reader.ReadToEnd() -AsHashtable }
+    finally { $reader.Dispose() }
+}
+
+function Invoke-DesignerSupervisor([string]$ScriptPath, [string]$ReportPath, $Arguments, [int]$Seconds) {
+    [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($ReportPath))
+    $scratch = "$ReportPath.$([guid]::NewGuid().ToString('N'))"
+    $progress = @{ stage = 'start automation'; case_index = 0 }
+    $process = $null
+    $mutex = [Threading.Mutex]::new($false, 'Local\Alteryx2Python.DesignerBatch')
+    $hasLock = $false
+    try {
+        try { $hasLock = $mutex.WaitOne(0) }
+        catch [Threading.AbandonedMutexException] { $hasLock = $true }
+        if (-not $hasLock) { throw 'A Designer parity batch is already running in this Windows session.' }
+        $startInfo = [Diagnostics.ProcessStartInfo]::new((Get-Process -Id $PID).Path)
+        $startInfo.UseShellExecute = $false
+        foreach ($argument in @('-NoProfile', '-File', $ScriptPath, '-Worker', '-Report', $scratch)) {
+            $startInfo.ArgumentList.Add($argument)
+        }
+        foreach ($argument in $Arguments) { $startInfo.ArgumentList.Add([string]$argument) }
+        $process = [Diagnostics.Process]::Start($startInfo)
+        $startupDeadline = [DateTimeOffset]::UtcNow.AddSeconds([Math]::Min(30, $Seconds)).ToUnixTimeMilliseconds()
+        while (-not $process.WaitForExit(250)) {
+            $latest = Read-DesignerProgress "$scratch.progress"
+            if ($latest) { $progress = $latest }
+            $deadline = $progress.stage_deadline ?? $startupDeadline
+            if ($progress.case_deadline) { $deadline = [Math]::Min($deadline, $progress.case_deadline) }
+            if ([DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() -ge $deadline) {
+                if (-not $process.HasExited) { $process.Kill() }
+                [void]$process.WaitForExit(2000)
+                $completed = @(Get-Content -LiteralPath $scratch -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json -AsHashtable)
+                $completed = @($completed | Select-Object -First ([int]$progress.case_index))
+                $detail = "Designer automation timed out during '$($progress.stage)'."
+                $completed += New-DesignerBlocked $progress $detail 'automation_timeout'
+                Write-DesignerJson $completed $ReportPath
+                Write-Host $detail
+                return 1
+            }
+        }
+        if (-not [IO.File]::Exists($scratch)) {
+            $latest = Read-DesignerProgress "$scratch.progress"
+            if ($latest) { $progress = $latest }
+            throw "Designer automation exited during '$($progress.stage)' (code $($process.ExitCode))."
+        }
+        [IO.File]::Move($scratch, $ReportPath, $true)
+        return $process.ExitCode
+    } catch {
+        $detail = $_.Exception.Message
+        Write-DesignerJson @((New-DesignerBlocked $progress $detail 'automation_blocked')) $ReportPath
+        Write-Host $detail
+        return 1
+    } finally {
+        if ($process) {
+            if (-not $process.HasExited) { $process.Kill() }
+            $process.Dispose()
+        }
+        if ($hasLock) { $mutex.ReleaseMutex() }
+        $mutex.Dispose()
+        foreach ($path in @($scratch, "$scratch.tmp", "$scratch.progress", "$scratch.progress.tmp")) {
+            [IO.File]::Delete($path)
+        }
+    }
+}
+
+if (-not $Worker) {
+    $arguments = @('-TimeoutSeconds', $TimeoutSeconds)
+    foreach ($parameter in $PSBoundParameters.GetEnumerator()) {
+        if ($parameter.Key -in @('Report', 'TimeoutSeconds', 'Worker')) { continue }
+        if ($parameter.Value -is [switch]) {
+            if ($parameter.Value) { $arguments += "-$($parameter.Key)" }
+        } else {
+            $arguments += @("-$($parameter.Key)", $parameter.Value)
+        }
+    }
+    $reportPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Report)
+    exit (Invoke-DesignerSupervisor $PSCommandPath $reportPath $arguments $TimeoutSeconds)
+}
+
+Set-DesignerStage 'load Windows automation'
 Add-Type -AssemblyName System.Drawing
 Add-Type -AssemblyName UIAutomationClient,UIAutomationTypes,WindowsBase
 $drawingAssemblies = @([System.Drawing.Bitmap].Assembly.Location, [System.Drawing.Rectangle].Assembly.Location)
@@ -44,6 +155,7 @@ public static class DesignerMouse {
     [DllImport("user32.dll")] public static extern bool IsWindowVisible(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsWindowEnabled(IntPtr hwnd);
     [DllImport("user32.dll")] public static extern bool IsIconic(IntPtr hwnd);
+    [DllImport("user32.dll")] public static extern bool IsHungAppWindow(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool ShowWindowAsync(IntPtr hwnd, int command);
     [DllImport("user32.dll")] private static extern bool SetForegroundWindow(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern IntPtr GetForegroundWindow();
@@ -52,6 +164,8 @@ public static class DesignerMouse {
     [DllImport("user32.dll")] private static extern bool GetCursorPos(out Point point);
     [DllImport("user32.dll")] private static extern bool SetCursorPos(int x, int y);
     [DllImport("user32.dll")] private static extern void mouse_event(uint flags, uint x, uint y, uint data, UIntPtr extra);
+    [DllImport("user32.dll")] private static extern void keybd_event(byte key, byte scan, uint flags, UIntPtr extra);
+    [DllImport("user32.dll")] private static extern short GetAsyncKeyState(int key);
     [DllImport("user32.dll")] public static extern IntPtr GetLastActivePopup(IntPtr hwnd);
     [DllImport("user32.dll")] private static extern bool ScreenToClient(IntPtr hwnd, ref Point point);
     [DllImport("user32.dll")] private static extern uint GetWindowThreadProcessId(IntPtr hwnd, out uint pid);
@@ -93,10 +207,29 @@ public static class DesignerMouse {
         } catch (InvalidOperationException) { return false; }
     }
 
+    private static int PaintedWidth(Bitmap image) {
+        // Some DPI combinations render a smaller window into the top-left of PrintWindow's bitmap.
+        int contentRight = image.Width;
+        while (contentRight > 0) {
+            bool painted = false;
+            for (int y = 24; y < Math.Min(240, image.Height); y += 12) {
+                Color pixel = image.GetPixel(contentRight - 1, y);
+                if ((pixel.R | pixel.G | pixel.B) != 0) {
+                    painted = true;
+                    break;
+                }
+            }
+            if (painted) return contentRight;
+            contentRight--;
+        }
+        return image.Width;
+    }
+
     private static Rectangle FindRun(Bitmap image) {
-        int width = Math.Min(330, image.Width);
-        int height = Math.Min(340, image.Height);
-        int originX = image.Width - width;
+        int contentRight = PaintedWidth(image);
+        int width = Math.Min(520, contentRight);
+        int height = Math.Min(500, image.Height);
+        int originX = contentRight - width;
         var blue = new bool[height, width];
         for (int y = 80; y < height; y++)
             for (int x = 0; x < width; x++) {
@@ -127,7 +260,7 @@ public static class DesignerMouse {
                     }
                 }
                 int w = right - left + 1, h = bottom - top + 1;
-                if (w >= 42 && w <= 125 && h >= 15 && h <= 48 && width - right < 75 &&
+                if (w >= 42 && w <= 190 && h >= 15 && h <= 76 && width - right < 135 &&
                     (double)w / h >= 2.1 && (double)w / h <= 3.3 && pixels > 0.48 * w * h) {
                     match = Rectangle.FromLTRB(originX + left, top, originX + right + 1, bottom + 1);
                     matches++;
@@ -138,20 +271,43 @@ public static class DesignerMouse {
         return match;
     }
 
-    public static void ClickRun(IntPtr root, uint expectedProcess) {
-        if (!IsWindowEnabled(root)) throw new InvalidOperationException("Designer has an open dialog.");
-        Box window;
-        Rectangle button;
-        using (var image = Capture(root, out window)) { button = FindRun(image); }
-        Click(root, expectedProcess, window.Left + button.Left + button.Width / 2,
-            window.Top + button.Top + button.Height / 2);
-    }
-
     public static void OpenFileMenu(IntPtr root, uint expectedProcess) {
         if (!IsWindowEnabled(root)) throw new InvalidOperationException("Designer has an open dialog.");
+        Point point = ToolbarMenuPoint(root, 36, 46);
+        ClickWindowPoint(root, expectedProcess, point.X, point.Y);
+    }
+
+    private static Point ToolbarMenuPoint(IntPtr root, int x, int y) {
         Box window;
-        if (!GetWindowRect(root, out window)) throw new InvalidOperationException("Designer window is not available.");
-        ClickWindowPoint(root, expectedProcess, window.Left + 36, window.Top + 46);
+        using (var image = Capture(root, out window)) {
+            double scale = (double)image.Width / PaintedWidth(image);
+            return new Point { X = window.Left + (int)(x * scale), Y = window.Top + (int)(y * scale) };
+        }
+    }
+
+    public static string WindowTitle(IntPtr hwnd, uint expectedProcess) {
+        uint pid;
+        GetWindowThreadProcessId(hwnd, out pid);
+        if (pid != expectedProcess) throw new InvalidOperationException("The selected Designer window is no longer available.");
+        var title = new StringBuilder(1024);
+        GetWindowText(hwnd, title, title.Capacity);
+        return title.ToString();
+    }
+
+    public static bool TryShortcut(IntPtr root, uint expectedProcess, byte key) {
+        FocusModal(root, expectedProcess);
+        const byte Control = 0x11;
+        if (GetForegroundWindow() != root || GetAsyncKeyState(Control) < 0 ||
+            GetAsyncKeyState(0x10) < 0 || GetAsyncKeyState(0x12) < 0) return false;
+        keybd_event(Control, 0, 0, UIntPtr.Zero);
+        try {
+            if (GetForegroundWindow() != root) return false;
+            keybd_event(key, 0, 0, UIntPtr.Zero);
+            keybd_event(key, 0, 2, UIntPtr.Zero);
+        } finally {
+            keybd_event(Control, 0, 2, UIntPtr.Zero);
+        }
+        return true;
     }
 
     public static void ClickMenuItem(IntPtr popup, uint expectedProcess, int x, int y) {
@@ -380,10 +536,7 @@ public static class DesignerMouse {
     }
 
     public static void OpenOptionsMenu(IntPtr root, uint expectedProcess) {
-        Box bounds;
-        if (!GetWindowRect(root, out bounds))
-            throw new InvalidOperationException("The managed Designer window is not available.");
-        var point = new Point { X = bounds.Left + 205, Y = bounds.Top + 46 };
+        Point point = ToolbarMenuPoint(root, 205, 46);
         ClickFocusedPoint(root, expectedProcess, point, IntPtr.Zero);
     }
 
@@ -636,11 +789,64 @@ function Wait-For([scriptblock]$Condition, [int]$Seconds) {
 }
 
 function Get-SessionWindow {
-    $process = Get-Process -Id $script:sessionId
-    if ($process.ProcessName -ne 'AlteryxGui' -or $process.MainWindowHandle -ne $script:sessionHandle) {
-        throw 'The selected Designer session changed.'
+    # Windows may temporarily report a modal dialog as the process's main window.
+    @{ MainWindowTitle = [DesignerMouse]::WindowTitle($script:sessionHandle, $script:sessionId) }
+}
+
+function Select-DesignerCandidate($Candidates) {
+    $candidates = @($Candidates | Where-Object { $_.ready })
+    if ($candidates.Count -eq 1) { return $candidates[0] }
+    $blank = @($candidates | Where-Object { $_.blank })
+    if ($blank.Count -eq 1) { return $blank[0] }
+    if ($candidates.Count -gt 1) {
+        throw "Multiple Designer windows are available (PIDs $($candidates.id -join ', ')). Use -DesignerProcessId to select one."
     }
-    $process
+}
+
+function Connect-DesignerSession {
+    if ($script:sessionId) { return }
+    Set-DesignerStage 'detect an existing Designer session'
+    $windowsSession = (Get-Process -Id $PID).SessionId
+    if ($DesignerProcessId) {
+        $processes = @(Get-Process -Id $DesignerProcessId -ErrorAction SilentlyContinue)
+    } else {
+        $processes = @(Get-Process -Name AlteryxGui -ErrorAction SilentlyContinue)
+    }
+    $executable = if ($DesignerLauncher) { Resolve-DesignerExecutable }
+    $compatible = @($processes | Where-Object {
+        $_.SessionId -eq $windowsSession -and $_.ProcessName -eq 'AlteryxGui' -and
+            (Test-Designer2025_1 $_.Path) -and (-not $executable -or $_.Path -eq $executable)
+    })
+    if (-not $compatible.Count) {
+        if ($DesignerProcessId) { throw "Designer PID $DesignerProcessId is unavailable or incompatible in this Windows session." }
+        Start-DesignerSession
+        return
+    }
+    $candidates = @(
+        foreach ($process in $compatible) {
+            $handle = $process.MainWindowHandle
+            $title = $process.MainWindowTitle
+            $blank = $title -match '^Alteryx Designer.* - New Workflow\d+$'
+            $ready = $handle -ne 0 -and $title -match '^Alteryx Designer(?: x64)?(?: - .+)?$' -and
+                -not [DesignerMouse]::IsHungAppWindow($handle) -and
+                -not @([DesignerMouse]::VisibleMenus($process.Id)).Count -and
+                ([DesignerMouse]::IsWindowEnabled($handle) -or
+                    [DesignerMouse]::FindOneRegistration($handle, $process.Id) -ne [IntPtr]::Zero)
+            @{ id = $process.Id; handle = $handle; ready = $ready; blank = $blank }
+        }
+    )
+    $selected = Select-DesignerCandidate $candidates
+    if (-not $selected) {
+        throw "Existing Designer session unavailable (PIDs $($compatible.Id -join ', ')). Check its window, dialogs or running workflows."
+    }
+    $script:sessionId = $selected.id
+    $script:sessionHandle = $selected.handle
+    $script:sessionMode = 'reused'
+    Set-DesignerStage "reuse Designer PID $script:sessionId"
+    Close-OneRegistration $script:sessionId $script:sessionHandle
+    if (-not [DesignerMouse]::IsWindowEnabled($script:sessionHandle) -or (Get-SessionDialog)) {
+        throw "Designer PID $script:sessionId has an open dialog."
+    }
 }
 
 function Get-SessionDialog {
@@ -685,7 +891,31 @@ function Invoke-DialogButton($Dialog, [string[]]$Names) {
     }
 }
 
+function Find-DesignerRunButton {
+    if (-not [DesignerMouse]::IsWindowEnabled($script:sessionHandle)) { return }
+    $window = [System.Windows.Automation.AutomationElement]::FromHandle($script:sessionHandle)
+    $id = [System.Windows.Automation.PropertyCondition]::new(
+        [System.Windows.Automation.AutomationElement]::AutomationIdProperty, 'btnRun')
+    $buttons = @($window.FindAll([System.Windows.Automation.TreeScope]::Descendants, $id) |
+        Where-Object { $_.Current.IsEnabled -and -not $_.Current.IsOffscreen })
+    if (-not $buttons.Count) {
+        $buttons = @(Find-EnabledDialogControls $window @('btnRun') | Where-Object { -not $_.Current.IsOffscreen })
+    }
+    if ($buttons.Count -eq 1) { $buttons[0] }
+}
+
+function Click-DesignerToolbarButton($Button) {
+    $bounds = $Button.Current.BoundingRectangle
+    if ($bounds.IsEmpty) { throw 'The Designer toolbar button has no screen position.' }
+    [DesignerMouse]::ClickWindowPoint(
+        $script:sessionHandle, $script:sessionId, [int]($bounds.X + $bounds.Width / 2),
+        [int]($bounds.Y + $bounds.Height / 2))
+}
+
 function Close-ManagedWorkflow([string]$Filename) {
+    # Leave all tabs in a borrowed window in place, including the test copy.
+    if ($script:sessionMode -eq 'reused') { return }
+    Set-DesignerStage "close managed tab $Filename"
     if (-not (Get-SessionWindow).MainWindowTitle.EndsWith($Filename, [StringComparison]::OrdinalIgnoreCase)) {
         throw 'The current tab is no longer the workflow opened by the script.'
     }
@@ -709,16 +939,20 @@ function Close-ManagedWorkflow([string]$Filename) {
 }
 
 function Start-DesignerSession {
+    $script:sessionMode = 'launched'
+    Set-DesignerStage 'start Designer and wait for its window' 30
     $executable = Resolve-DesignerExecutable
     $started = Start-Process -FilePath $executable -WindowStyle Normal -PassThru
+    $script:sessionId = $started.Id
+    Set-DesignerStage "wait for Designer PID $script:sessionId" 30
     $target = Wait-For {
         $process = Get-Process -Id $started.Id -ErrorAction SilentlyContinue
-        if ($process) { Close-OneRegistration $process.Id ([IntPtr]::Zero) }
+        if (-not $process) { throw "Designer exited before opening its window (PID $($started.Id))." }
         if ($process -and $process.MainWindowHandle -ne 0 -and
             $process.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$') {
             $process
         }
-    } $TimeoutSeconds
+    } ([Math]::Min(28, $TimeoutSeconds))
     if (-not $target) { throw "Timed out waiting for the new Designer 2025.1 window (PID $($started.Id))." }
     $script:sessionId = $target.Id
     $script:sessionHandle = $target.MainWindowHandle
@@ -726,9 +960,12 @@ function Start-DesignerSession {
 
 function Open-WorkflowInSession([string]$Path) {
     $name = [IO.Path]::GetFileName($Path)
-    if (-not $script:sessionId) { Start-DesignerSession }
+    Set-DesignerStage "open $name in Designer" 30
     Close-OneRegistration $script:sessionId $script:sessionHandle
-    [void](Get-SessionWindow)
+    $active = (Get-SessionWindow).MainWindowTitle
+    if ($active.EndsWith($name, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Designer already has a tab named $name selected. Switch tabs before running this case."
+    }
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
         [DesignerMouse]::Restore($script:sessionHandle, $script:sessionId)
         if (-not (Wait-For { -not [DesignerMouse]::IsIconic($script:sessionHandle) } 5)) {
@@ -738,31 +975,28 @@ function Open-WorkflowInSession([string]$Path) {
     if (@([DesignerMouse]::VisibleMenus($script:sessionId)).Count) {
         throw 'Close the open Designer menu before starting the batch.'
     }
-    [DesignerMouse]::OpenFileMenu($script:sessionHandle, $script:sessionId)
-    $fileMenu = Wait-For {
-        $menus = @([DesignerMouse]::VisibleMenus($script:sessionId))
-        if ($menus.Count -eq 1) { $menus[0] }
-    } 5
-    if (-not $fileMenu) { throw 'Designer did not open its File menu.' }
-    [DesignerMouse]::ClickMenuItem($fileMenu, $script:sessionId, 80, 90)
-    $browseMenu = Wait-For {
-        $dialog = Get-SessionDialog
-        if ($dialog -and $dialog.Current.Name -eq 'Alteryx - Open File') { return 'picker' }
-        $menus = @([DesignerMouse]::VisibleMenus($script:sessionId) | Where-Object { $_ -ne $fileMenu })
-        if ($menus.Count -eq 1) { $menus[0] }
-    } ([Math]::Min(15, $TimeoutSeconds))
-    if (-not $browseMenu) { throw 'Designer did not open its Open Workflow submenu.' }
-    if ($browseMenu -is [IntPtr]) { [DesignerMouse]::ClickMenuItem($browseMenu, $script:sessionId, 58, 18) }
-    $dialog = Wait-For {
-        $candidate = Get-SessionDialog
-        if ($candidate -and $candidate.Current.Name -eq 'Alteryx - Open File') { $candidate }
-    } ([Math]::Min(15, $TimeoutSeconds))
-    if (-not $dialog) { throw 'Designer did not open its file picker.' }
+    if ([DesignerMouse]::TryShortcut($script:sessionHandle, $script:sessionId, 0x4F)) {
+        $file = Wait-ForNamedDialog 'Alteryx - Open File' 8
+    } else {
+        [DesignerMouse]::OpenFileMenu($script:sessionHandle, $script:sessionId)
+        $fileMenu = Wait-For {
+            $menus = @([DesignerMouse]::VisibleMenus($script:sessionId))
+            if ($menus.Count -eq 1) { $menus[0] }
+        } 5
+        if (-not $fileMenu) { throw 'Designer did not open its File menu.' }
+        [DesignerMouse]::ClickMenuItem($fileMenu, $script:sessionId, 80, 90)
+        $browseMenu = Wait-For {
+            $dialog = [DesignerMouse]::FindDialog($script:sessionId, 'Alteryx - Open File')
+            if ($dialog -ne [IntPtr]::Zero) { return 'picker' }
+            $menus = @([DesignerMouse]::VisibleMenus($script:sessionId) | Where-Object { $_ -ne $fileMenu })
+            if ($menus.Count -eq 1) { $menus[0] }
+        } ([Math]::Min(15, $TimeoutSeconds))
+        if (-not $browseMenu) { throw 'Designer did not open its Open Workflow submenu.' }
+        if ($browseMenu -is [IntPtr]) { [DesignerMouse]::ClickMenuItem($browseMenu, $script:sessionId, 58, 18) }
+        $file = Wait-ForNamedDialog 'Alteryx - Open File' 8
+    }
     $selected = Wait-For {
-        $candidate = Get-SessionDialog
-        if ($candidate -and $candidate.Current.Name -eq 'Alteryx - Open File') {
-            [DesignerMouse]::SelectFile([IntPtr]$candidate.Current.NativeWindowHandle, $script:sessionId, $Path)
-        }
+        [DesignerMouse]::SelectFile($file, $script:sessionId, $Path)
     } 10
     if (-not $selected) { throw 'Designer file picker did not expose its filename and Open controls.' }
     $loaded = Wait-For {
@@ -799,6 +1033,7 @@ function Wait-ForNamedDialog([string]$Name, [int]$Seconds = [Math]::Min(45, $Tim
 }
 
 function Open-AppFromOptions($Case) {
+    Set-DesignerStage 'open the prepared Analytic App through Options' 30
     if (-not $script:sessionId) { throw 'Select an existing Designer 2025.1 session to run an analytic app.' }
     Close-OneRegistration $script:sessionId $script:sessionHandle
     [void](Get-SessionWindow)
@@ -833,16 +1068,19 @@ function Open-AppFromOptions($Case) {
 }
 
 function Open-AppFromWand($Case) {
+    $previousTitle = (Get-SessionWindow).MainWindowTitle
     try {
         Open-WorkflowInSession $Case.path
     } catch {
-        if ($AppLaunch -ne 'auto' -or $_.Exception.Message -ne 'Designer did not open its File menu.' -or
-            (Get-SessionWindow).MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
+        if ($AppLaunch -ne 'auto' -or $_.Exception.Message -notin @(
+            'Designer did not open its File menu.', 'Designer did not open Alteryx - Open File.') -or
+            (Get-SessionWindow).MainWindowTitle -ne $previousTitle -or
             (Get-SessionDialog) -or @([DesignerMouse]::VisibleMenus($script:sessionId)).Count) {
             throw
         }
         return $false
     }
+    Set-DesignerStage 'locate and click Run as Analytic App'
     $window = [System.Windows.Automation.AutomationElement]::FromHandle($script:sessionHandle)
     $button = Wait-For {
         $candidates = @($window.FindAll(
@@ -866,15 +1104,7 @@ function Open-AppFromWand($Case) {
         }
         return $false
     }
-    if ($button.Current.NativeWindowHandle) {
-        [DesignerMouse]::ClickControl([IntPtr]$button.Current.NativeWindowHandle, $script:sessionId)
-    } else {
-        $bounds = $button.Current.BoundingRectangle
-        if ($bounds.IsEmpty) { throw 'The Designer Analytic App button has no screen position.' }
-        [DesignerMouse]::ClickWindowPoint(
-            $script:sessionHandle, $script:sessionId, [int]($bounds.X + $bounds.Width / 2),
-            [int]($bounds.Y + $bounds.Height / 2))
-    }
+    Click-DesignerToolbarButton $button
     return $true
 }
 
@@ -948,6 +1178,7 @@ function Run-AnalyticApp($Case) {
     }
     $appName = 'Alteryx Designer x64 Analytic App - ' + [IO.Path]::GetFileNameWithoutExtension($Case.path)
     if ($usedWand) {
+        Set-DesignerStage 'wait for the Analytic App questions'
         try { $appHandle = Wait-ForNamedDialog $appName ([Math]::Min(12, $TimeoutSeconds)) }
         catch {
             if ($AppLaunch -ne 'auto' -or (Get-SessionDialog) -or
@@ -958,13 +1189,16 @@ function Run-AnalyticApp($Case) {
     }
     if (-not $usedWand) {
         Open-AppFromOptions $Case
+        Set-DesignerStage 'wait for the Analytic App questions'
         $appHandle = Wait-ForNamedDialog $appName
     }
+    Set-DesignerStage 'inspect the Analytic App questions'
     $app = [System.Windows.Automation.AutomationElement]::FromHandle($appHandle)
     $verifiedAnswers = @{}
     $answerReview = 'operator'
     $finish = $false
     if ($Case.numeric) {
+        Set-DesignerStage 'enter and verify the numeric App answer' 35
         $editHandle = Wait-For {
             $candidate = [DesignerMouse]::FindNumericEdit($appHandle, $script:sessionId)
             if ($candidate -ne [IntPtr]::Zero) { $candidate }
@@ -985,6 +1219,7 @@ function Run-AnalyticApp($Case) {
         $answerReview = 'numeric_readback'
     } elseif ($Case.answers.Count) {
         foreach ($answer in $Case.answers) {
+            Set-DesignerStage "enter and verify App answer '$($answer.name)'"
             $control = Wait-For { Find-AppQuestionControl $app $answer } 6
             if (-not $control) { throw "Designer could not match the app control for '$($answer.name)'." }
             if ($answer.kind -eq 'Date') {
@@ -1007,11 +1242,14 @@ function Run-AnalyticApp($Case) {
         if (-not $ManualAppInputs) { throw 'The app contains questions requiring operator input.' }
         Write-Host "Review the prepared answers in Designer, then click Finish. Case directory: $($Case.folder)"
     }
+    Set-DesignerStage 'capture the Analytic App answers'
     [DesignerMouse]::Save($appHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
     if ($finish) {
+        Set-DesignerStage 'click Finish on the Analytic App'
         Close-OneRegistration $script:sessionId $script:sessionHandle
         Invoke-DialogButton $app @('Finish')
     }
+    Set-DesignerStage 'wait for the Analytic App result' $TimeoutSeconds
     $result = Wait-For {
         foreach ($name in @('App Results', 'Analytic App Error(s)')) {
             $dialog = [DesignerMouse]::FindDialog($script:sessionId, $name)
@@ -1019,6 +1257,7 @@ function Run-AnalyticApp($Case) {
         }
     } $TimeoutSeconds
     if (-not $result) { throw 'Designer app did not report an outcome before timeout.' }
+    Set-DesignerStage 'capture and close the Analytic App result' 30
     $capture = Join-Path $Case.folder 'designer-result.png'
     [DesignerMouse]::Save($result.handle, $capture)
     $ok = $result.name -eq 'App Results'
@@ -1090,21 +1329,22 @@ function Run-Case($Case) {
     foreach ($path in $Case.artifacts) {
         if (Test-Path -LiteralPath $path) { throw "Output already exists. Use a fresh run: $path" }
     }
-    if ($Case.app) {
-        if (-not $script:sessionId) { Start-DesignerSession }
-        return Run-AnalyticApp $Case
-    }
+    Connect-DesignerSession
+    if ($Case.app) { return Run-AnalyticApp $Case }
     $name = [IO.Path]::GetFileName($Case.path)
     Open-WorkflowInSession $Case.path
     $handle = $script:sessionHandle
     $before = [DateTime]::UtcNow
-    $clicked = Wait-For {
-        $same = Get-SessionWindow
-        if (-not $same.MainWindowTitle.EndsWith($name, [StringComparison]::OrdinalIgnoreCase)) { return }
-        try { [DesignerMouse]::ClickRun($handle, $script:sessionId); $true }
-        catch { $script:lastClickError = $_.Exception.Message }
-    } ([Math]::Min(15, $TimeoutSeconds))
-    if (-not $clicked) { throw "Could not click Run in $name. $script:lastClickError" }
+    Set-DesignerStage "click Run for $name"
+    if (-not (Get-SessionWindow).MainWindowTitle.EndsWith($name, [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'The active tab changed before the prepared workflow could run.'
+    }
+    if (-not [DesignerMouse]::TryShortcut($handle, $script:sessionId, 0x52)) {
+        $button = Find-DesignerRunButton
+        if (-not $button) { throw "Designer did not expose an enabled Run button for $name." }
+        Click-DesignerToolbarButton $button
+    }
+    Set-DesignerStage "wait for $name outputs" $TimeoutSeconds
     $complete = Wait-For {
         $missing = @($Case.artifacts | Where-Object {
             $item = Get-Item -LiteralPath $_ -ErrorAction SilentlyContinue
@@ -1112,7 +1352,12 @@ function Run-Case($Case) {
         })
         if ($missing.Count -eq 0 -and (Test-RenderFolders $Case)) { $true }
     } $TimeoutSeconds
-    $idle = Wait-For { [DesignerMouse]::IsRunReady($handle) } $TimeoutSeconds
+    Set-DesignerStage "wait for $name to finish"
+    $idle = Wait-For {
+        if ([DesignerMouse]::IsRunReady($handle)) { $true }
+        else { Find-DesignerRunButton }
+    } ([Math]::Min(15, $TimeoutSeconds))
+    Set-DesignerStage "capture the $name result"
     $capture = Join-Path $Case.folder 'designer-result.png'
     try { [DesignerMouse]::Save($handle, $capture) }
     catch { $capture = $null }
@@ -1124,7 +1369,9 @@ function Run-Case($Case) {
     return @{
         workflow = $Case.path
         status = if (-not $idle) { 'designer_not_idle' } elseif ($closeError) { 'tab_close_blocked' } elseif (-not $complete) { 'output_timeout' } else { 'outputs_ready' }
-        detail = $closeError
+        detail = if (-not $idle) { 'Designer did not show the ready Run control after producing output.' }
+            elseif (-not $complete) { 'Designer did not produce all expected outputs.' } else { $closeError }
+        stage = if (-not $idle) { "wait for $name to finish" }
         designer_pid = $script:sessionId
         output_files = @($Case.artifacts | Where-Object { Test-Path -LiteralPath $_ }) + @(Get-RenderWorkbooks $Case | ForEach-Object FullName)
         expected_output_count = $Case.artifacts.Count
@@ -1137,77 +1384,49 @@ function Invoke-DesignerBatch {
     $script:sessionId = 0
     $script:sessionHandle = [IntPtr]::Zero
     $script:dismissedOne = 0
-    if (-not $DesignerProcessId) {
-        $existing = @(Get-Process AlteryxGui -ErrorAction SilentlyContinue | Where-Object {
-            $_.MainWindowHandle -ne 0 -and (Test-Designer2025_1 $_.Path)
-        })
-        $blankCandidates = @($existing | Where-Object { $_.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$' })
-        if ($blankCandidates.Count -eq 1) {
-            Close-OneRegistration $blankCandidates[0].Id $blankCandidates[0].MainWindowHandle
-        }
-        $blank = @($existing | Where-Object {
-            $_.MainWindowTitle -match '^Alteryx Designer.* - New Workflow\d+$' -and
-                [DesignerMouse]::IsWindowEnabled($_.MainWindowHandle)
-        })
-        if ($blank.Count -eq 1) { $DesignerProcessId = $blank[0].Id }
-        elseif ($blank.Count -gt 1) { throw 'Use -DesignerProcessId to select a single Designer window with a blank workflow tab.' }
-    }
-    if ($DesignerProcessId) {
-        $initial = Get-Process -Id $DesignerProcessId
-        if ($initial.ProcessName -eq 'AlteryxGui' -and (Test-Designer2025_1 $initial.Path)) {
-            Close-OneRegistration $initial.Id $initial.MainWindowHandle
-        }
-        if ($initial.ProcessName -ne 'AlteryxGui' -or $initial.MainWindowHandle -eq 0 -or
-            $initial.MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
-            -not [DesignerMouse]::IsWindowEnabled($initial.MainWindowHandle) -or
-            -not (Test-Designer2025_1 $initial.Path)) {
-            throw 'Choose an existing Designer 2025.1 window with a blank workflow tab and no open dialog.'
-        }
-        $script:sessionId = $initial.Id
-        $script:sessionHandle = $initial.MainWindowHandle
-    }
     $reportPath = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Report)
-    [void][IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($reportPath))
     if ($PSCmdlet.ParameterSetName -eq 'Plan') {
         $entries = @(Get-Content -LiteralPath $Plan -Raw | ConvertFrom-Json)
-        foreach ($entry in $entries) {
-            if ($entry.status -notin @('ready', 'already_prepared')) {
-                $rows += @{ workflow = $entry.workflow; status = 'not_prepared'; detail = $entry.reason }
-            } else {
-                $prepared = $null
-                try { $prepared = Get-PreparedCase $entry }
-                catch { $rows += @{ workflow = $entry.workflow; status = 'preflight_blocked'; detail = $_.Exception.Message } }
-                if ($prepared) {
-                    try { $rows += Run-Case $prepared }
-                    catch { $rows += @{ workflow = $entry.workflow; status = 'blocked'; detail = $_.Exception.Message } }
-                }
-            }
-            $rows[-1].dismissed_alteryx_one = $script:dismissedOne
-            ConvertTo-Json -InputObject $rows -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
-            if ($rows[-1].status -in @('blocked', 'tab_close_blocked', 'designer_not_idle')) { break }
-        }
     } else {
-        $path = (Resolve-Path -LiteralPath $Workflow).Path
-        $artifacts = @($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($WatchFile))
-        $case = @{ path = $path; artifacts = $artifacts; app = $path.EndsWith('.yxwz'); folder = Split-Path -Parent $reportPath }
-        try { $rows += Run-Case $case }
-        catch { $rows += @{ workflow = $path; status = 'blocked'; detail = $_.Exception.Message } }
-        $rows[-1].dismissed_alteryx_one = $script:dismissedOne
+        $entries = @(@{ workflow = $Workflow; status = 'ready' })
     }
-    ConvertTo-Json -InputObject $rows -Depth 6 | Set-Content -LiteralPath $reportPath -Encoding utf8
+    foreach ($entry in $entries) {
+        $script:caseIndex = $rows.Count
+        $script:currentWorkflow = $entry.workflow
+        $script:caseDeadline = [DateTimeOffset]::UtcNow.AddSeconds($TimeoutSeconds).ToUnixTimeMilliseconds()
+        Set-DesignerStage 'validate the prepared workflow' $TimeoutSeconds
+        if ($entry.status -notin @('ready', 'already_prepared')) {
+            $row = @{ workflow = $entry.workflow; status = 'not_prepared'; detail = $entry.reason }
+        } else {
+            $prepared = $null
+            try {
+                if ($PSCmdlet.ParameterSetName -eq 'Plan') {
+                    $prepared = Get-PreparedCase $entry
+                } else {
+                    $path = (Resolve-Path -LiteralPath $Workflow).Path
+                    $artifacts = @($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($WatchFile))
+                    $prepared = @{ path = $path; artifacts = $artifacts; app = $path.EndsWith('.yxwz')
+                        folder = Split-Path -Parent $reportPath }
+                }
+            } catch {
+                $row = @{ workflow = $entry.workflow; status = 'preflight_blocked'; detail = $_.Exception.Message }
+            }
+            if ($prepared) {
+                $script:currentWorkflow = $prepared.path
+                try { $row = Run-Case $prepared }
+                catch { $row = New-DesignerBlocked $script:stage $_.Exception.Message 'automation_blocked' }
+            }
+        }
+        $row.dismissed_alteryx_one = $script:dismissedOne
+        $row.session = $script:sessionMode
+        $rows += $row
+        Write-DesignerJson $rows $reportPath
+        if ($row.status -in @('blocked', 'tab_close_blocked', 'designer_not_idle')) { break }
+    }
+    if (-not $rows.Count) { Write-DesignerJson $rows $reportPath }
     $rows | ForEach-Object { Write-Output "$($_.status) $($_.workflow) $($_.detail)" }
     $script:batchFailed = -not $rows.Count -or @($rows | Where-Object status -ne 'outputs_ready').Count
 }
 
-$batchLock = [Threading.Mutex]::new($false, 'Local\Alteryx2Python.DesignerBatch')
-$hasLock = $false
-try {
-    try { $hasLock = $batchLock.WaitOne(0) }
-    catch [Threading.AbandonedMutexException] { $hasLock = $true }
-    if (-not $hasLock) { throw 'A Designer parity batch is already running in this Windows session.' }
-    Invoke-DesignerBatch
-} finally {
-    if ($hasLock) { $batchLock.ReleaseMutex() }
-    $batchLock.Dispose()
-}
+Invoke-DesignerBatch
 if ($script:batchFailed) { exit 1 }

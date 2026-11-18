@@ -122,13 +122,17 @@ def _designer(args, state_file, state):
         result["designer_launcher"] = str(args.designer_launcher.resolve())
     write_json(case / "migration.json", result)
     lines.extend((f'Designer: {receipt["status"]}', f'Results: {case / "designer-run.json"}'))
+    if receipt.get("session") and receipt.get("designer_pid"):
+        lines.append(f'Designer session: {receipt["session"]} (PID {receipt["designer_pid"]})')
+    if receipt.get("stage"):
+        lines.append(f'Designer stage: {receipt["stage"]}')
     if receipt.get("finish_clicked"):
         lines.append("Designer clicked Finish after verifying the supported App answers.")
     if receipt.get("dismissed_alteryx_one"):
         lines.append(f'Alteryx One prompts dismissed: {receipt["dismissed_alteryx_one"]}')
     if receipt.get("screenshot"):
         lines.append(f'Results screenshot: {receipt["screenshot"]}')
-    if manifest["engine_mode"] == "amp":
+    if manifest["engine_mode"] == "amp" and receipt["status"] in {"outputs_ready", "app_failed"}:
         lines.append("AMP probes will be exported during compare.")
     if receipt.get("detail"):
         lines.append(receipt["detail"])
@@ -189,7 +193,8 @@ def _export_amp_probes(case, manifest, migration, skipped):
     result = launch_designer_plan(plan, report, "auto", migration.get("designer_requested_pid"),
                                   Path(launcher) if launcher else None)
     if result["status"] != "outputs_ready":
-        raise ValueError(f'AMP export {result["status"]}. See {report}.')
+        detail = result.get("detail") or "Designer did not produce the expected export."
+        raise ValueError(f'AMP export {result["status"]}. {detail} See {report}.')
 
 
 def _compare(args, case):

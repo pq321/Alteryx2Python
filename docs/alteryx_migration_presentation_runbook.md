@@ -121,6 +121,7 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 ### 彩排选项
 
 - designer --prepare-only 只生成隔离案例和 Designer 副本。随后用 designer --case '<案例路径>' 启动。已有答案时，用 designer --answers '<answers.json>'。已确认的日志 Event 可用 --log-event ID。需要执行其他 Event 时，沿用 --allow-event-command。
+- Designer 会优先复用可用的 2025.1 窗口，现有 Workflow 标签页可以保留。多个候选窗口无法自动确定时，用 `designer --designer-pid <PID>`。界面阻塞时命令以非零状态退出，终端和 `designer-run.json` 会显示停在哪一步。每个案例的自动化总时限为 180 秒。
 - compare 和 deliver 可用 --case '<案例路径>' 打开指定的历史案例。报告包括输入快照、暂存后的审计、Designer 状态、逐节点对照和独立运行结果。
 - 路径、文件和工作表不匹配时，从第 3 步打印的报告定位原生节点和差异。用第 2 步建立新案例重跑，每次保留独立的快照和记录。
 

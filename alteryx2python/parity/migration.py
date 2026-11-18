@@ -2,6 +2,7 @@
 
 from dataclasses import asdict
 from datetime import date, datetime
+from hashlib import sha256
 import json
 from pathlib import Path
 import shutil
@@ -272,6 +273,9 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         delivery_profile=XLSX_PROFILE if has_render else None,
     ))
     native = directory / "native"
+    if instrumented_filename is None:
+        case_id = sha256(str(directory).encode("utf-8")).hexdigest()[:12]
+        instrumented_filename = f"instrumented-{case_id}{source.suffix.lower()}"
     manifest = prepare(staged, native, answers=answers, event_commands=event_commands,
                        capture_reference=False, allow_missing_inputs=allow_missing,
                        instrumented_filename=instrumented_filename, log_event_ids=log_event_ids,

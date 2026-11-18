@@ -20,12 +20,13 @@ $sample = 'D:/Alteryx/Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Reco
 pwsh -NoProfile -File scripts/designer_click_run.ps1 -Plan "$root/plan.json" -Report "$root/designer-run.json"
 ```
 
-The runner starts Designer 2025.1 directly if no matching window is open.
+The runner reuses a compatible Designer 2025.1 window, including one with
+workflows open. It starts Designer if no compatible session exists.
 For a custom installation, pass `-DesignerLauncher` with the full path to
-the 2025.1 `AlteryxGui.exe`. If multiple Designer 2025.1 processes are open,
-give the runner the PID of a blank Designer window with `-DesignerProcessId`.
-Reuse that PID for the next invocation. The runner saves a Designer Results
-screenshot and closes the workflow tab it opened.
+the 2025.1 `AlteryxGui.exe`. If the runner cannot choose a window, supply
+its PID with `-DesignerProcessId`. A reused window keeps its open tabs.
+If automation gets blocked, the command exits nonzero and records its
+last step and the Designer PID in the run report.
 
 When Results identifies an AMP run, convert its probes in Designer before
 attesting. Review both Results screenshots for successful completion and
@@ -109,7 +110,7 @@ $py = '.venv/Scripts/python.exe'
    For multiple questions, confirm the displayed values and click **Finish**.
    `--designer auto` tries the identifiable magic wand and falls back to
    **Options → Run as Analytic App → External File**. Select `wand` or
-   `options` to use a specific route. Use `--designer-pid` for an existing blank
+   `options` to use a specific route. Use `--designer-pid` for an existing
    Designer 2025.1 window. Without `--designer`, open the prepared file
    under `native/` in Designer and run it there.
    To reopen an already prepared case, omit the source workflow and run

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from hashlib import sha256
 from pathlib import Path
 from xml.etree import ElementTree as ET
 
@@ -52,7 +53,8 @@ def prepare_amp_export(directory: Path) -> dict:
         edge = ET.SubElement(connections, "Connection")
         ET.SubElement(edge, "Origin", ToolID=str(source_id), Connection="Output")
         ET.SubElement(edge, "Destination", ToolID=str(sink_id), Connection="Input")
-    workflow = destination / "export-classic.yxmd"
+    export_id = sha256(str(directory).encode("utf-8")).hexdigest()[:12]
+    workflow = destination / f"export-classic-{export_id}.yxmd"
     ET.ElementTree(root).write(workflow, encoding="utf-8", xml_declaration=True)
     write_json(destination / "manifest.json", {
         "instrumented_file": workflow.name,
