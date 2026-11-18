@@ -30,7 +30,10 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as exc:  # pragma: no cover - exercised through subprocess CLI tests
         report = _error_report(args.command, exc)
         exit_code = 2
-    _emit_report(report, getattr(args, "log", None))
+    display = _format_inspect_summary if args.command == "inspect" and args.summary else None
+    if args.command == "demo":
+        display = lambda result: result.get("display") or f'Demo error: {result["error"]["message"]}'
+    _emit_report(report, getattr(args, "log", None), display=display)
     return exit_code
 
 
@@ -59,8 +62,12 @@ def _build_parser() -> argparse.ArgumentParser:
     benchmark.set_defaults(func=_benchmark_command)
 
     inspect_parser = subparsers.add_parser("inspect", help="Inspect workflow nodes, edges, tools, and dependencies")
-    inspect_parser.add_argument("workflow")
-    inspect_parser.add_argument("--compact", action="store_true")
+    inspect_parser.add_argument("workflow", nargs="?", help="Workflow path. Summary mode opens a file picker if omitted.")
+    inspect_mode = inspect_parser.add_mutually_exclusive_group()
+    inspect_mode.add_argument("--compact", action="store_true")
+    inspect_mode.add_argument("--summary", action="store_true", help="Print a preflight summary and save inspect.json and audit.json")
+    inspect_parser.add_argument("--output-dir", type=Path, help="New report directory for --summary (default: reports/demo-inspect/inspect-*)")
+    inspect_parser.add_argument("--answers", type=Path, help="App answers JSON for the --summary preflight")
     inspect_parser.add_argument("--log")
     inspect_parser.set_defaults(func=_inspect_command)
 
@@ -261,15 +268,38 @@ def _build_parser() -> argparse.ArgumentParser:
     for command_parser in subparsers.choices.values():
         if "--log" not in command_parser._option_string_actions:
             command_parser.add_argument("--log")
+    from alteryx2python.parity.presentation import add_parser
+
+    add_parser(subparsers, _demo_command)
     return parser
 
 
+def _demo_command(args):
+    from alteryx2python.parity.presentation import run
+
+    return run(args, _inspect_command, _format_inspect_summary)
+
+
 def _inspect_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
-    workflow = XmlWorkflowParser().parse(Path(args.workflow))
+    if not args.summary and (args.output_dir is not None or args.answers is not None):
+        raise ValueError("--output-dir and --answers require --summary")
+    if args.workflow is None and not args.summary:
+        raise ValueError("Provide a workflow path or use --summary to select a file")
+    path = Path(args.workflow) if args.workflow is not None else _pick_inspection_workflow()
+    if path is None:
+        return {"command": "inspect", "status": "cancelled"}, 0
+    workflow = XmlWorkflowParser().parse(path.resolve() if args.summary else path)
     if args.compact:
         return _compact_report(workflow), 0
+    report = _inspection_report(workflow)
+    if args.summary:
+        return _inspect_summary_report(workflow, report, args.output_dir, args.answers)
+    return report, 0
+
+
+def _inspection_report(workflow: Any) -> dict[str, Any]:
     unsupported_nodes = _unsupported_nodes(workflow)
-    report = {
+    return {
         "command": "inspect",
         "status": "ok",
         "workflow": _workflow_summary(workflow),
@@ -289,7 +319,120 @@ def _inspect_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "unsupported_nodes": unsupported_nodes,
         "warnings": list(workflow.warnings),
     }
-    return report, 0
+
+
+def _pick_inspection_workflow() -> Path | None:
+    try:
+        import tkinter as tk
+        from tkinter import filedialog
+    except ImportError as exc:
+        raise ValueError("The file picker is unavailable. Pass a workflow path to inspect --summary.") from exc
+    try:
+        window = tk.Tk()
+        try:
+            window.withdraw()
+            selected = filedialog.askopenfilename(
+                parent=window,
+                title="Select an Alteryx workflow",
+                filetypes=[("Alteryx files", ("*.yxmd", "*.yxwz", "*.yxmc"))],
+            )
+        finally:
+            window.destroy()
+    except tk.TclError as exc:
+        raise ValueError("The file picker requires a desktop session. Pass a workflow path to inspect --summary.") from exc
+    return Path(selected) if selected else None
+
+
+def _inspect_summary_report(workflow, inspection, output_dir, answers_file):
+    from dataclasses import asdict
+    from tempfile import mkdtemp
+
+    from alteryx2python.parity.runner import write_json
+    from alteryx2python.runtime.app_config import list_questions
+    from alteryx2python.workflow_audit import audit_workflow
+
+    try:
+        questions = [asdict(question) for question in list_questions(workflow.source_xml)]
+    except ValueError as exc:
+        questions = []
+        inspection["question_error"] = str(exc)
+    inspection["questions"] = questions
+    answers = _read_answers(answers_file) if answers_file is not None else None
+    from alteryx2python.tools.delivery import XLSX_PROFILE, xlsx_render_options
+
+    profile = None
+    for node in workflow.nodes:
+        if node.tool_type == "PortfolioComposerRender":
+            try:
+                xlsx_render_options(node.config["normalized"])
+            except (ValueError, NotImplementedError):
+                continue
+            profile = XLSX_PROFILE
+            break
+    audit = audit_workflow(workflow, answers=answers, parameter_mode="specialized", delivery_profile=profile)
+    if output_dir is None:
+        report_root = Path("reports/demo-inspect").resolve()
+        report_root.mkdir(parents=True, exist_ok=True)
+        output_dir = Path(mkdtemp(prefix="inspect-", dir=report_root))
+    else:
+        output_dir = output_dir.resolve()
+        output_dir.mkdir(parents=True, exist_ok=False)
+    inspect_path = output_dir / "inspect.json"
+    audit_path = output_dir / "audit.json"
+    write_json(inspect_path, inspection)
+    write_json(audit_path, audit)
+
+    status = "needs_review" if "question_error" in inspection else audit["status"]
+    return {
+        "command": "inspect",
+        "status": status,
+        "workflow": inspection["workflow"],
+        "tool_type_count": len(inspection["tool_types"]),
+        "questions": questions,
+        "question_error": inspection.get("question_error"),
+        "answers_file": str(answers_file.resolve()) if answers_file is not None else None,
+        "external_dependencies": inspection["external_dependencies"],
+        "warnings": inspection["warnings"],
+        "active_issues": [issue for issue in audit["inventory"] if issue["active"]],
+        "phase_two": audit["phase_two"],
+        "inspect_report": str(inspect_path),
+        "audit_report": str(audit_path),
+    }, 0 if status == "completed" else 2
+
+
+def _format_inspect_summary(report: dict[str, Any]) -> str:
+    if report["status"] == "error":
+        return f'Inspect error: {report["error"]["message"]}'
+    if report["status"] == "cancelled":
+        return "Workflow selection cancelled."
+
+    workflow = report["workflow"]
+    questions = [f'{question["name"]} ({question["kind"]})' for question in report["questions"]]
+    phase_two = report["phase_two"]
+    lines = [
+        f'Workflow: {Path(workflow["source_file"]).name}',
+        f'Graph: {workflow["node_count"]} nodes, {workflow["edge_count"]} connections, {report["tool_type_count"]} tool types',
+        f'Preflight: {report["status"]} | Phase 2 compile: {phase_two["status"]} | Native parity: unverified',
+        f'App answers: {Path(report["answers_file"]).name if report["answers_file"] else "saved workflow defaults"}'
+        if questions else "App questions: none detected",
+    ]
+    if questions:
+        lines.append(f'App questions ({len(questions)}): {", ".join(questions[:3])}'
+                     + (" (more in inspect.json)" if len(questions) > 3 else ""))
+    if report["question_error"]:
+        lines.append(f'Question inventory issue: {report["question_error"]}')
+    lines.append(f'External dependencies: {len(report["external_dependencies"])} | Parser warnings: {len(report["warnings"])}')
+    for dependency in report["external_dependencies"][:2]:
+        lines.append(f"  Dependency: {dependency}")
+    for label, issues in (("Active issues", report["active_issues"]), ("Phase 2 blockers", phase_two.get("issues", []))):
+        lines.append(f"{label}: {len(issues)}")
+        for issue in issues[:3]:
+            location = issue.get("node_id")
+            reason = issue.get("reason") or issue.get("message") or issue.get("code", "see audit.json")
+            reason = " ".join(reason.split())
+            lines.append(f'  {f"Node {location}: " if location else ""}{reason[:160]}')
+    lines.extend((f'Inspect report: {report["inspect_report"]}', f'Audit report: {report["audit_report"]}'))
+    return "\n".join(lines)
 
 
 def _compact_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
@@ -1027,9 +1170,9 @@ def _benchmark_command(args):
     return run_benchmark(args.source, args.output, answers=answers), 0
 
 
-def _emit_report(report: dict[str, Any], log_path: str | None) -> None:
+def _emit_report(report: dict[str, Any], log_path: str | None, *, display=None) -> None:
     payload = json.dumps(report, indent=2, sort_keys=True, default=str)
-    print(payload)
+    print(display(report) if display is not None else payload)
     if log_path:
         path = Path(log_path)
         path.parent.mkdir(parents=True, exist_ok=True)

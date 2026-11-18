@@ -233,7 +233,7 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
             if event["id"] in logging_ids:
                 event["migration"] = {"designer": "excluded", "python": "logging"}
         write_json(directory / "events.json", {"events": events})
-    write_json(directory / "audit.json", audit_workflow(
+    write_json(directory / "source-audit.json", audit_workflow(
         workflow, answers=supplied, parameter_mode="specialized", log_event_ids=log_event_ids,
     ))
     if interactive:
@@ -350,21 +350,24 @@ def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped
 
 def launch_designer(directory, mode, pid, launcher=None):
     verify_manifest(directory / "native")
+    if (directory / "answers.json").is_file():
+        print(f"Verify Designer's answers against {directory / 'answers.json'} before clicking Finish.", file=sys.stderr, flush=True)
+    return launch_designer_plan(directory / "designer-plan.json", directory / "designer-run.json", mode, pid, launcher)
+
+
+def launch_designer_plan(plan, report, mode, pid=None, launcher=None):
     runner = Path(__file__).resolve().parents[2] / "scripts" / "designer_click_run.ps1"
     shell = shutil.which("pwsh")
     if shell is None or not runner.is_file():
         raise ValueError("Designer automation requires PowerShell 7 and the repository scripts directory")
-    report = directory / "designer-run.json"
     command = [
-        shell, "-NoProfile", "-File", str(runner), "-Plan", str(directory / "designer-plan.json"),
+        shell, "-NoProfile", "-File", str(runner), "-Plan", str(plan),
         "-Report", str(report), "-AppLaunch", mode, "-ManualAppInputs", "-TimeoutSeconds", "180",
     ]
     if pid:
         command.extend(["-DesignerProcessId", str(pid)])
     if launcher:
         command.extend(["-DesignerLauncher", str(launcher.resolve(strict=True))])
-    if (directory / "answers.json").is_file():
-        print(f"Verify Designer's answers against {directory / 'answers.json'} before clicking Finish.", file=sys.stderr, flush=True)
     result = subprocess.run(command, stdout=sys.stderr, check=False)
     if not report.is_file():
         return {"status": "blocked", "returncode": result.returncode}

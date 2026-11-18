@@ -82,137 +82,51 @@ Official capability references. [Alteryx Designer](https://help.alteryx.com/desi
 
 ## 3. 从陌生 workflow 开始的四步命令
 
-在仓库根目录使用 Windows PowerShell 7、已安装项目依赖的 Python 环境和 Alteryx Designer 2025.1。准备一个有权限的测试副本。真实 workflow 涉及共享盘、邮件或外部程序时，先确认测试输入和副作用的隔离方式。以下命令在同一个终端按顺序运行，先替换 workflow 路径。迁移的主案例用含固定本地文件输出的 `.yxmd` 或 `.yxwz`。验证 `.yxmc` 时，选包含该 macro 的调用 workflow。
+在仓库根目录使用 PowerShell 7 和已安装项目依赖的 Python。Designer 步骤需要 Windows 上的 Alteryx Designer。第一次运行只需要提供 workflow 路径。后续命令沿用同一份记录，所有报告路径都由命令打印。
 
-### 第 1 步 · Inspect，了解 workflow
-
-`inspect` 只读取 workflow。先查看工具、连接、输入输出锚点、外部依赖和未支持工具，再选一个节点贯穿演示。报告记录可复查的节点 ID 和依赖。它的成功退出表示文件已解析。
+### 第 1 步 · Inspect
 
 ```powershell
-$py = (Resolve-Path '.venv/Scripts/python.exe').Path
-$workflow = (Resolve-Path 'C:/approved-test/workflow.yxwz').Path
-$runRoot = New-Item -ItemType Directory -Path (
-    Join-Path 'reports' ('presentation-' + (Get-Date -Format 'yyyyMMdd-HHmmss-fff'))
-)
-$runRoot = $runRoot.FullName
-$case = Join-Path $runRoot 'case'
-$isApp = [IO.Path]::GetExtension($workflow) -ieq '.yxwz'
-
-& $py -m alteryx2python.cli inspect $workflow --log "$runRoot/inspect.json"
-if ($LASTEXITCODE -ne 0) { throw "Review $runRoot/inspect.json" }
-
-$inspection = Get-Content -Raw "$runRoot/inspect.json" | ConvertFrom-Json
-$inspection.workflow | Format-List
-$inspection.nodes | Select-Object node_id, tool_type, tool_name | Format-Table -AutoSize
-$inspection.external_dependencies
-$inspection.unsupported_nodes | Format-Table -AutoSize
+.\scripts\presentation.ps1 inspect 'C:/approved-test/workflow.yxwz'
 ```
 
-再用 `audit` 查工具配置、表达式、依赖和 Phase 2 的编译问题。`audit.json` 的 `inventory` 给出已发现的问题，`phase_two` 记录这次编译预检。对于需要填写答案的 App，准备阶段还会用实际答案生成一份审计。遇到未支持的选项或未解析的依赖，先按节点 ID 查清影响，再决定是否可以用这组测试数据继续。
+一屏查看节点与连接数、App 问题、外部依赖、活跃问题的节点 ID 和 Phase 2 编译预检结果。完整的 inspect.json 和 audit.json 自动保存。省略路径时可用 Windows 文件选择器。验证 macro 时，选调用它的 workflow。
+
+### 第 2 步 · Designer
 
 ```powershell
-& $py -m alteryx2python.cli audit $workflow --parameter-mode specialized --log "$runRoot/audit.json"
-$auditExit = $LASTEXITCODE
-$audit = Get-Content -Raw "$runRoot/audit.json" | ConvertFrom-Json
-$audit.inventory | Format-Table -AutoSize
-$audit.phase_two | Format-List
-"Audit exit code: $auditExit"
+.\scripts\presentation.ps1 designer
 ```
 
-### 第 2 步 · 准备隔离副本并在 Designer 中运行
+脚本创建独立案例，记录答案、输入快照和 Event，再用 auto 模式打开 Designer。App 按终端提示填值，日期填 YYYY-MM-DD。在 Designer 里核对本次答案，再点 Finish。只记录日志的 After Run Event 按提示选择 ID，原来的批处理由本地 JSONL 记录替代。
 
-`migrate` 将支持的本地输入复制到运行目录，记录节点、问题、Event、输入快照和审计结果，并生成带探针的 Designer 副本。App 在终端逐项填写，Enter 使用显示的默认值。Date 输入 `YYYY-MM-DD`，Folder Browse 和 File Browse 输入路径，Checkbox、Radio Button 和 Drop Down 按终端提示选择。若已保存答案，用 `--answers 'C:/approved-test/answers.json'` 替换 `--interactive`。每组答案使用一个新的 `$case` 路径。
+Designer 完成后看实际 Results。命令会给出结果截图、案例目录和下一步。需要 AMP 探针导出时，第 3 步会自动处理。
+
+### 第 3 步 · Phase 1 对照
 
 ```powershell
-$prepareArgs = @()
-if ($isApp) { $prepareArgs = @('--interactive') }
-
-& $py -m alteryx2python.cli migrate $workflow --run-dir $case @prepareArgs
-if ($LASTEXITCODE -ne 0) { throw "Review preparation under $case" }
-
-$prepared = Get-Content -Raw "$case/migration.json" | ConvertFrom-Json
-$prepared | Select-Object status, native_workflow, designer_plan, runtime_input_dependencies | Format-List
-if ($isApp) { Get-Content "$case/answers.json" }
+.\scripts\presentation.ps1 compare
 ```
 
-运行前看 `inputs.json`、`events.json` 和该目录的 `audit.json`。Dynamic Input 的 **Change Entire File Path** 会按本次回答计算路径，把 CSV、XLSX 及其工作表选择记录在隔离案例中。当前保存的模板无法读取时，会尝试用本次可用的源文件作为模板。macro 资源和外部程序可能需要单独布置测试数据。对于只记录运行结果的 After Run 批处理，在准备命令上加 `--log-event <ID>`，ID 以 `events.json` 为准。Designer 副本排除该命令，两阶段 Python 分别写本地 JSONL。如果准备过程已经停止，选一个新的 `$case` 重跑。其他需要执行的命令 Event 仍需明确传入 `--allow-event-command <可执行文件路径>`。输入文件和输出位置确认后再启动 Designer。
+按提示确认实际看到的结果，失败时填写节点 ID，有跳过节点时也如实记录。命令运行 Phase 1 和独立 Phase 2，显示总状态、节点与 anchor、第一处差异或缺失证据，以及报告路径。可在 compare 后加一个节点 ID，例如 138。已有确认记录的案例可以直接重放。
+
+### 第 4 步 · 展示 Phase 2 交付
 
 ```powershell
-& $py -m alteryx2python.cli migrate --run-dir $case --designer auto
-$designerExit = $LASTEXITCODE
-if (Test-Path "$case/designer-run.json") { Get-Content "$case/designer-run.json" }
-"Designer automation exit code: $designerExit"
+.\scripts\presentation.ps1 deliver
 ```
 
-`auto` 对 App 优先尝试右上角魔法棒，可回退到 **Options → Run as Analytic App → External File → Run**。多问题 App 在 Designer 里按 `answers.json` 核对回答，文件与文件夹输入框为空时粘贴其中的路径，再点 **Finish**。已有空白的 2025.1 窗口可加 `--designer-pid <PID>`，自定义安装可加 `--designer-launcher <AlteryxGui.exe 完整路径>`。也可手动打开 `$prepared.native_workflow` 运行。最终以实际 Designer Results 确认成功、失败节点和跳过节点。自动化退出码只描述自动化调用的结果。
+沿用第 3 步选择的节点，显示生成脚本位置和实际产物路径。在 Windows 上，验收通过时打开 Python 和一个可预览的输出文件。终端可找到 VS Code 时跳到对应行。只想显示路径可加 --paths-only。现场演示业务规则变更时，才运行另存的脚本副本。
 
-如果 `$case/native/manifest.json` 的 `engine_mode` 是 `amp`，在进入第 3 步前生成 AMP 导出计划，再让 Designer 转换探针。只有这一分支需要以下命令。
+### 彩排选项
 
-```powershell
-$ampPlan = Join-Path $runRoot 'amp-export-plan.json'
-& $py -m alteryx2python.parity prepare-amp-export "$case/native" |
-    Set-Content -Encoding utf8 $ampPlan
-if ($LASTEXITCODE -ne 0) { throw 'AMP probe export preparation failed' }
-
-pwsh -NoProfile -File scripts/designer_click_run.ps1 -Plan $ampPlan -Report "$runRoot/amp-export-run.json"
-if ($LASTEXITCODE -ne 0) { throw "Review $runRoot/amp-export-run.json" }
-```
-
-### 第 3 步 · 登记原生结果并查看 Phase 1 逐节点对照
-
-实际看到 Designer 成功后执行下面的命令。若观察到失败，使用 `--native-outcome failed`，并按实际情况附上 `--failed-node <ID>` 或 `--skipped-node <ID>`。`--resume` 会在一次命令中生成并执行 Phase 1，做 Designer 逐节点比对，然后继续生成并独立执行 Phase 2。先用 Phase 1 报告确认第 1 步选定的节点和 anchor。已经登记过原生结果时，重跑只需 `--resume`。
-
-```powershell
-& $py -m alteryx2python.cli migrate --run-dir $case --resume --native-outcome success --log "$runRoot/resume.json"
-$resumeExit = $LASTEXITCODE
-$result = Get-Content -Raw "$runRoot/resume.json" | ConvertFrom-Json
-if (-not $result.report) { throw "Review $runRoot/resume.json" }
-$delivery = Split-Path -Parent $result.report
-$nativeComparison = Get-Content -Raw "$delivery/native-vs-phase-one.json" | ConvertFrom-Json
-$nativeComparison.comparisons |
-    Select-Object node_id, direction, anchor, status, expected_row_count, actual_row_count |
-    Format-Table -AutoSize
-"Verification exit code: $resumeExit"
-```
-
-`native-vs-phase-one.json` 是核对节点的入口。`phase-one-capture.json` 记录生成的 Phase 1 实际执行过程。在差异处查看 `value_differences` 和输入来源。原生缺少某个节点的证据时，按照报告处理其 `incomplete` 状态。
-
-有 XLSX Render 的案例，在 `$case/native/render-<节点 ID>` 查看 Designer 实际写出的工作簿。`acceptance.json` 记录工作簿的对照结果，包含分组、工作表名称与顺序、单元格值与类型。节点对照继续检查流经报表工具的普通字段。报告的 `as_of` 是本案例为 Formula 中的 `DateTimeNow()` 和 `DateTimeToday()` 固定的时间点。
-
-### 第 4 步 · 看 Phase 2 的业务规则和独立运行结果
-
-第 3 步已运行 Phase 2。这里读报告、打开同一个节点对应的 Python 和产物。逐节点对照在第 3 步完成。Phase 1 与 Phase 2 核对已捕获的运行结果和最终文件，包括适用的隔离 Event 文件。验收页三项均为 `match` 后，再用该案例演示成功交付。
-
-```powershell
-Get-Content -Raw "$delivery/acceptance.json" | ConvertFrom-Json |
-    Select-Object status, native_vs_phase_one, phase_one_vs_phase_two, standalone_execution |
-    Format-List
-Get-Content -Raw "$delivery/standalone.json"
-Get-ChildItem "$delivery/delivery-output" -File -Recurse
-```
-
-打开 `phase_two.py`，用 `phase_two.manifest.json` 从源节点定位到生成函数或行号。可在现场再执行一次交付脚本。下面适用于普通文件型案例。含命令 Event 的案例沿用第 3 步的独立执行结果，其中已使用隔离工作目录和批准的命令。
-
-```powershell
-$standaloneOut = New-Item -ItemType Directory -Path (
-    Join-Path $runRoot ('standalone-' + (Get-Date -Format 'HHmmss-fff'))
-)
-& $py -I "$delivery/phase_two.py" --input-dir $case --output-dir $standaloneOut.FullName
-if ($LASTEXITCODE -ne 0) { throw 'Standalone Phase 2 execution failed' }
-Get-ChildItem $standaloneOut.FullName -File -Recurse
-```
-
-| 文件 | 现场看什么 |
-| --- | --- |
-| `inspect.json`、`audit.json` | workflow 结构、依赖、未支持配置和编译预检 |
-| `case/answers.json`、`inputs.json` | 这次实际使用的答案与输入快照 |
-| `case/designer-run.json` | Designer 启动路径、产物和截图 |
-| `native-vs-phase-one.json` | 所选节点的 anchor、行数和比较状态 |
-| `phase-one-vs-phase-two.json` | 可观察的运行结果与最终文件清单 |
-| `phase_two.py`、`standalone.json`、`delivery-output/` | 可交付代码、独立进程退出码和实际输出 |
-| `phase-one-workflow.jsonl`、`phase-two-workflow.jsonl` | 用 `--log-event` 迁移的本地日志。对应结果在 `acceptance.json` 的 `logging_events` |
+- designer --prepare-only 只生成隔离案例和 Designer 副本。随后用 designer --case '<案例路径>' 启动。已有答案时，用 designer --answers '<answers.json>'。已确认的日志 Event 可用 --log-event ID。需要执行其他 Event 时，沿用 --allow-event-command。
+- compare 和 deliver 可用 --case '<案例路径>' 打开指定的历史案例。报告包括输入快照、暂存后的审计、Designer 状态、逐节点对照和独立运行结果。
+- 路径、文件和工作表不匹配时，从第 3 步打印的报告定位原生节点和差异。用第 2 步建立新案例重跑，每次保留独立的快照和记录。
 
 ### 演示彩排与备用案例
+
+附录命令使用与主流程相同的 Python 环境。若使用仓库虚拟环境，先运行 `$py = (Resolve-Path '.venv/Scripts/python.exe').Path`。
 
 可用七类输入示例彩排 App 问答。它在同一个 workflow 中包含 Text Box、Checkbox、Drop Down、Radio Button、Date、Folder Browse 和 File Browse。以下命令会运行三组独立 Python 对照并在 Designer 中打开默认用例。它使用自己的新报告目录，适合技术问答或替代演示。
 
@@ -255,23 +169,11 @@ Import-Csv "$backupOut/edited-output/grouped-records.csv" |
 
 ## 4. 现场操作顺序（默认 6 分钟 demo）
 
-1. **0:00–0:45 · Inspect。** 按第 1 步运行 `inspect`，展示节点数和一个陌生节点的 ID、工具类型、依赖或 anchor。用这份清单解释接下来为何看该节点。
-2. **0:45–2:00 · Designer。** 定位同一节点及配置，再展示第 2 步用同一份输入捕获的原生结果。命令按需要现场执行。六分钟版可在会前完成原生采集。
-3. **2:00–4:15 · Phase 1。** 用下面的重放命令读取已登记的原生证据，再生成并运行两份 Python。到 `native-vs-phase-one.json` 查第 1 步的节点与 anchor，指出匹配或差异。
-4. **4:15–5:30 · Phase 2。** 用第 4 步的报告命令显示状态，然后打开 `phase_two.py` 和实际输出。展示修改业务规则的位置以及独立进程结果。
-5. **5:30–6:00 · 回到 PPT。** 按实际报告说明这个案例验证了什么。已有批量证据时再给出通过、差异和待验证数量。
-
-下列命令用于重放第 3 和第 4 步。现场用第 2 步和第 3 步已经采集并登记过的 `$case`，沿用第 1 步的路径变量。
-
-```powershell
-& $py -m alteryx2python.cli migrate --run-dir $case --resume --log "$runRoot/live-resume.json"
-$liveExit = $LASTEXITCODE
-$live = Get-Content -Raw "$runRoot/live-resume.json" | ConvertFrom-Json
-$live | Select-Object status, native_vs_phase_one, phase_one_vs_phase_two, standalone_execution, report |
-    Format-List
-if ($live.report) { $delivery = Split-Path -Parent $live.report }
-"Verification exit code: $liveExit"
-```
+1. **0:00–0:45 · Inspect。** 展示一屏摘要，选一个业务节点。
+2. **0:45–2:00 · Designer。** 展示同一节点的配置和原生结果。六分钟版可会前完成原生采集。
+3. **2:00–4:15 · Phase 1。** 运行 compare，看同一个节点的 anchor 和第一处差异。已有原生确认的案例直接重放。
+4. **4:15–5:30 · Phase 2。** 运行 deliver，打开对应 Python 和实际产物。
+5. **5:30–6:00 · 回到 PPT。** 用验收结果说明该案例验证了哪些行为。
 
 ### 4.1 每个屏幕的英文讲法
 
