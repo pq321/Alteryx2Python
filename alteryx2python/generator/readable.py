@@ -49,6 +49,8 @@ def _series_predicate(expression, frame):
     from alteryx2python.expressions.ast import BinaryExpression, FieldReference, FunctionExpression, LiteralExpression, UnaryExpression
 
     fields = {}
+    literals = {}
+    used_names = set()
     string_types = {'str', 'string'}
 
     def field_series(field, dtypes):
@@ -93,7 +95,17 @@ def _series_predicate(expression, frame):
         else:
             return None
         if series is not None:
-            return f'{series}.{methods[value.operator]}({literal!r}).fillna({value.operator == "!="!r})'
+            field = value.left
+            while isinstance(field, FunctionExpression):
+                field = field.args[0]
+            stem = f'{identifier(field.name)}_filter_value'
+            name, suffix = stem, 2
+            while name in used_names or name in {frame, 'mask'}:
+                name = f'{stem}_{suffix}'
+                suffix += 1
+            used_names.add(name)
+            literals[id(value.right)] = name, literal
+            return f'{series}.{methods[value.operator]}({name}).fillna({value.operator == "!="!r})'
 
     predicate = lower(expression)
     if predicate is None or any(not dtypes for dtypes in fields.values()):
@@ -101,7 +113,7 @@ def _series_predicate(expression, frame):
     guards = [f'{frame}.columns.is_unique']
     for name, dtypes in fields.items():
         guards.extend([f'{name!r} in {frame}', f'str({frame}[{name!r}].dtype) in {tuple(sorted(dtypes))!r}'])
-    return ' and '.join(guards), predicate
+    return ' and '.join(guards), predicate, literals
 
 
 def workflow_from_dict(value):
@@ -238,16 +250,20 @@ class ReadablePythonGenerator:
         self.parameters = []
         self.parameter_names = {}
 
-    def expression(self, expression):
+    def expression(self, expression, literal_names=None):
         from alteryx2python.generator.parameters import ParameterExpression
         from alteryx2python.expressions.ast import (LiteralExpression, FieldReference, BinaryExpression,
             ConditionalExpression, UnaryExpression, FunctionExpression)
         from alteryx2python.expressions.functions import FUNCTION_REGISTRY
         from alteryx2python.expressions.numeric import add_nullable, arithmetic_operand, as_formula_value
+
+        def render(child):
+            return self.expression(child, literal_names)
+
         if isinstance(expression, ParameterExpression):
             return self.parameter_names[expression.name]
         if isinstance(expression, LiteralExpression):
-            return repr(expression.value)
+            return (literal_names or {}).get(id(expression), repr(expression.value))
         if isinstance(expression, FieldReference):
             constant = expression.name.strip('%')
             parameters = getattr(self, 'current_parameter_names', {})
@@ -261,9 +277,9 @@ class ReadablePythonGenerator:
                 return f'row.get({expression.name!r}, {name})'
             return f'row[{expression.name!r}]'
         if isinstance(expression, ConditionalExpression):
-            return f'({self.expression(expression.true_value)} if bool({self.expression(expression.condition)}) else {self.expression(expression.false_value)})'
+            return f'({render(expression.true_value)} if bool({render(expression.condition)}) else {render(expression.false_value)})'
         if isinstance(expression, UnaryExpression) and expression.operator == '!':
-            return f'(not bool({self.expression(expression.operand)}))'
+            return f'(not bool({render(expression.operand)}))'
         if isinstance(expression, FunctionExpression):
             function = FUNCTION_REGISTRY.get(expression.name.upper())
             if function is None:
@@ -273,9 +289,9 @@ class ReadablePythonGenerator:
                 if expression.args:
                     raise UnsupportedLowering(f'{expression.name} takes no arguments')
                 return f'{name}(as_of)'
-            return f'{name}(' + ', '.join(self.expression(arg) for arg in expression.args) + ')'
+            return f'{name}(' + ', '.join(render(arg) for arg in expression.args) + ')'
         if isinstance(expression, BinaryExpression):
-            left, right = self.expression(expression.left), self.expression(expression.right)
+            left, right = render(expression.left), render(expression.right)
             operator = expression.operator
             if operator in {'AND', 'OR'}:
                 return f'(bool({left}) {operator.lower()} bool({right}))'
@@ -511,12 +527,14 @@ class ReadablePythonGenerator:
             if config.get('unsupported_operator'):
                 raise UnsupportedLowering(f"Simple Filter operator requires a template: {config['unsupported_operator']}")
             parsed = self.parameter_expressions.get((node.node_id, ('expression',)), parse_expression(config['expression']))
-            expression = self.expression(parsed)
-            scalar = f'mask = pd.Series([bool({expression}) for row in {frame}.to_dict("records")], index={frame}.index, dtype=bool)'
             vector = _series_predicate(parsed, frame)
+            literals = vector[2] if vector else {}
+            expression = self.expression(parsed, {key: name for key, (name, _) in literals.items()})
+            scalar = f'mask = pd.Series([bool({expression}) for row in {frame}.to_dict("records")], index={frame}.index, dtype=bool)'
             if vector:
-                guard, predicate = vector
-                lines = [f'if {guard}:', f'    mask = {predicate}', 'else:', f'    {scalar}']
+                guard, predicate, _ = vector
+                lines = [f'{name} = {value!r}' for name, value in literals.values()]
+                lines.extend([f'if {guard}:', f'    mask = {predicate}', 'else:', f'    {scalar}'])
             else:
                 lines = [scalar]
             return [*lines, f'return {frame}.loc[mask].copy(), {frame}.loc[~mask].copy()']

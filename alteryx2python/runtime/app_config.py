@@ -16,6 +16,7 @@ from alteryx2python.tools.unavailable import ToolUnavailableError
 
 LAYOUT = {"Tab", "Label", "LabelGroup", "Link", "MacroInput", "MacroOutput"}
 VALUE_ACTION_TYPES = {"UpdateValue", "UpdateValueReplace", "UpdateValueFormula", "UpdateRawXml"}
+MANUAL_CHOICE_SEPARATOR = "5419541n5148905f1n0941f5809"
 SUPPORTED_ACTION_TYPES = VALUE_ACTION_TYPES | {
     "Dynamic", "Error", "UpdateInput", "UpdateOutput", "UpdateSelect", "UpdateFieldList",
     "EditExpression", "UpdateMap", "DeleteTool",
@@ -68,6 +69,7 @@ class Question:
     node_id: str = ""
     minimum: str = ""
     maximum: str = ""
+    description: str = ""
 
 
 def question_manifest(root):
@@ -81,6 +83,8 @@ def question_manifest(root):
         if element.tag in {"Questions", "Type", "Default"}:
             continue
         kind = _value(element, "Type") if element.tag == "Question" else element.tag
+        if kind == "ListBox" and _value(element, "Multiple").lower() in {"false", "0"}:
+            kind = "DropDown"
         if kind in LAYOUT or kind not in {
             "TextBox",
             "QuestionTextBox",
@@ -107,7 +111,8 @@ def question_manifest(root):
         manual = _value(element, "Manual_Values")
         for row in manual.splitlines():
             if row:
-                choices.append(row.split(":", 1)[-1])
+                separator = MANUAL_CHOICE_SEPARATOR if MANUAL_CHOICE_SEPARATOR in row else ":"
+                choices.append(row.split(separator, 1)[-1])
         choices.extend(x.text for x in element.findall("Option") if x.text is not None)
         questions.append(
             Question(
@@ -119,6 +124,7 @@ def question_manifest(root):
                 _value(element, "ToolId", element.get("ToolID", "")),
                 _value(element, "Min", _value(element, "Minimum")),
                 _value(element, "Max", _value(element, "Maximum")),
+                _value(element, "Description"),
             )
         )
     if len({q.name for q in questions}) != len(questions):
@@ -236,6 +242,20 @@ def _destination(root, path):
     return targets, attribute
 
 
+def _wired_question(root, action):
+    action_id = _value(action, "ToolId")
+    if not action_id:
+        return ""
+    names = {question.node_id: question.name for question in question_manifest(root) if question.node_id}
+    linked = []
+    for connection in root.findall("./Connections/Connection"):
+        origin, target = connection.find("Origin"), connection.find("Destination")
+        if (origin is not None and target is not None and target.get("ToolID") == action_id
+                and target.get("Connection") == origin.get("Connection") == "Question"):
+            linked.append(names.get(origin.get("ToolID")))
+    return (linked[0] or "") if len(linked) == 1 else ""
+
+
 def _apply_dynamic_action(root, action, values):
     import re
 
@@ -262,16 +282,10 @@ def _apply_dynamic_action(root, action, values):
 
     expression = _value(action, "Expression").strip()
     if "{{INPUT}}" in expression:
-        question_names = {item.node_id: item.name for item in question_manifest(root)}
-        linked = []
-        for connection in root.findall("./Connections/Connection"):
-            source, destination = connection.find("Origin"), connection.find("Destination")
-            if (source is not None and destination is not None and destination.get("ToolID") == action_id
-                    and destination.get("Connection") == "Question" and source.get("Connection") == "Question"):
-                linked.append(question_names.get(source.get("ToolID")))
-        if len(linked) != 1 or linked[0] not in values:
+        name = _wired_question(root, action)
+        if name not in values:
             raise ToolUnavailableError(f"Dynamic Action #{action_id} requires one bound Question connection")
-        incoming = values[linked[0]]
+        incoming = values[name]
         value = incoming if expression == "{{INPUT}}" else _expression(
             expression.replace("{{INPUT}}", "[__action_input__]"), {**values, "__action_input__": incoming}
         )
@@ -309,7 +323,7 @@ def apply_actions(root, values):
                 raise ValueError(_value(action, "Description", "App validation failed"))
             return
         if mode in {"UpdateInput", "UpdateOutput"}:
-            variable = _value(action, "Variable")
+            variable = _value(action, "Variable") or _wired_question(root, action)
             tool = _value(
                 action, "InputTool" if mode == "UpdateInput" else "OutputTool"
             )
@@ -429,7 +443,7 @@ def apply_actions(root, values):
         if mode in {"UpdateValueFormula", "UpdateRawXml"}:
             value = _expression(_value(action, "Expression"), values)
         else:
-            variable = _value(action, "Variable")
+            variable = _value(action, "Variable") or _wired_question(root, action)
             if variable not in values:
                 raise ToolUnavailableError(
                     f"Action variable has no bound question: {variable!r}"

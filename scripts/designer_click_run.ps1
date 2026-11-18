@@ -6,7 +6,9 @@ param(
     [Parameter(Mandatory)][string]$Report,
     [ValidateRange(5, 3600)][int]$TimeoutSeconds = 45,
     [int]$DesignerProcessId,
-    [string]$DesignerLauncher
+    [string]$DesignerLauncher,
+    [ValidateSet('auto', 'wand', 'options')][string]$AppLaunch = 'auto',
+    [switch]$ManualAppInputs
 )
 
 $ErrorActionPreference = 'Stop'
@@ -149,7 +151,7 @@ public static class DesignerMouse {
         if (!IsWindowEnabled(root)) throw new InvalidOperationException("Designer has an open dialog.");
         Box window;
         if (!GetWindowRect(root, out window)) throw new InvalidOperationException("Designer window is not available.");
-        Click(root, expectedProcess, window.Left + 36, window.Top + 46);
+        ClickWindowPoint(root, expectedProcess, window.Left + 36, window.Top + 46);
     }
 
     public static void ClickMenuItem(IntPtr popup, uint expectedProcess, int x, int y) {
@@ -264,10 +266,6 @@ public static class DesignerMouse {
         SetForegroundWindow(dialog);
     }
 
-    public static bool IsForeground(IntPtr hwnd) {
-        return GetForegroundWindow() == hwnd;
-    }
-
     public static void ClickFocusedButton(IntPtr dialog, IntPtr button, uint expectedProcess) {
         Box bounds;
         if (!IsChild(dialog, button) || !GetWindowRect(button, out bounds) || !IsWindowEnabled(button))
@@ -282,6 +280,18 @@ public static class DesignerMouse {
             throw new InvalidOperationException("The managed Designer window is not available.");
         var point = new Point { X = bounds.Left + 205, Y = bounds.Top + 46 };
         ClickFocusedPoint(root, expectedProcess, point, IntPtr.Zero);
+    }
+
+    public static void ClickWindowPoint(IntPtr root, uint expectedProcess, int x, int y) {
+        Box bounds;
+        if (!IsWindowEnabled(root) || !GetWindowRect(root, out bounds) ||
+            x < bounds.Left || x >= bounds.Right || y < bounds.Top || y >= bounds.Bottom)
+            throw new InvalidOperationException("The Designer control lies outside the managed window.");
+        try {
+            ClickFocusedPoint(root, expectedProcess, new Point { X = x, Y = y }, IntPtr.Zero);
+        } catch (InvalidOperationException) {
+            Click(root, expectedProcess, x, y);
+        }
     }
 
     private static void ClickFocusedPoint(IntPtr root, uint expectedProcess, Point point, IntPtr expectedControl) {
@@ -639,7 +649,7 @@ function Wait-ForNamedDialog([string]$Name, [int]$Seconds = [Math]::Min(45, $Tim
     $handle
 }
 
-function Run-NumericApp($Case) {
+function Open-AppFromOptions($Case) {
     if (-not $script:sessionId) { throw 'Select an existing Designer 2025.1 session to run an analytic app.' }
     [void](Get-SessionWindow)
     if ([DesignerMouse]::IsIconic($script:sessionHandle)) {
@@ -670,26 +680,97 @@ function Run-NumericApp($Case) {
     if (-not $selected) { throw 'Designer did not select the prepared app.' }
     $choose = [System.Windows.Automation.AutomationElement]::FromHandle((Wait-ForNamedDialog 'Choose Analytic App'))
     Invoke-DialogButton $choose @('Run')
+}
+
+function Open-AppFromWand($Case) {
+    try {
+        Open-WorkflowInSession $Case.path
+    } catch {
+        if ($AppLaunch -ne 'auto' -or $_.Exception.Message -ne 'Designer did not open its File menu.' -or
+            (Get-SessionWindow).MainWindowTitle -notmatch '^Alteryx Designer.* - New Workflow\d+$' -or
+            (Get-SessionDialog) -or @([DesignerMouse]::VisibleMenus($script:sessionId)).Count) {
+            throw
+        }
+        return $false
+    }
+    $window = [System.Windows.Automation.AutomationElement]::FromHandle($script:sessionHandle)
+    $button = Wait-For {
+        $candidates = @($window.FindAll(
+            [System.Windows.Automation.TreeScope]::Descendants,
+            [System.Windows.Automation.Condition]::TrueCondition
+        ) | Where-Object {
+            $_.Current.IsEnabled -and -not $_.Current.IsOffscreen -and
+            ($_.Current.Name -eq 'btnRunApp' -or $_.Current.AutomationId -eq 'btnRunApp' -or
+                ($_.Current.ControlType -ne [System.Windows.Automation.ControlType]::Text -and
+                    ($_.Current.Name -like 'Run as Analytic App*' -or $_.Current.HelpText -like 'Run as Analytic App*')))
+        })
+        if ($candidates.Count -eq 1) { $candidates[0] }
+    } 5
+    if (-not $button) {
+        $title = (Get-SessionWindow).MainWindowTitle
+        $filename = [IO.Path]::GetFileName($Case.path)
+        if ($title.EndsWith($filename, [StringComparison]::OrdinalIgnoreCase)) {
+            Close-ManagedWorkflow $filename
+        } elseif ($title -notmatch '^Alteryx Designer.* - New Workflow\d+$') {
+            throw 'The active Designer tab changed while locating the Analytic App button.'
+        }
+        return $false
+    }
+    if ($button.Current.NativeWindowHandle) {
+        [DesignerMouse]::ClickControl([IntPtr]$button.Current.NativeWindowHandle, $script:sessionId)
+    } else {
+        $bounds = $button.Current.BoundingRectangle
+        if ($bounds.IsEmpty) { throw 'The Designer Analytic App button has no screen position.' }
+        [DesignerMouse]::ClickWindowPoint(
+            $script:sessionHandle, $script:sessionId, [int]($bounds.X + $bounds.Width / 2),
+            [int]($bounds.Y + $bounds.Height / 2))
+    }
+    return $true
+}
+
+function Run-AnalyticApp($Case) {
+    $usedWand = $false
+    if ($AppLaunch -ne 'options') {
+        $usedWand = Open-AppFromWand $Case
+        if (-not $usedWand -and $AppLaunch -eq 'wand') { throw 'Designer did not expose a unique Run as Analytic App button.' }
+    }
     $appName = 'Alteryx Designer x64 Analytic App - ' + [IO.Path]::GetFileNameWithoutExtension($Case.path)
-    $appHandle = Wait-ForNamedDialog $appName
+    if ($usedWand) {
+        try { $appHandle = Wait-ForNamedDialog $appName ([Math]::Min(12, $TimeoutSeconds)) }
+        catch {
+            if ($AppLaunch -ne 'auto' -or (Get-SessionDialog) -or
+                -not [DesignerMouse]::IsWindowEnabled($script:sessionHandle)) { throw }
+            Close-ManagedWorkflow ([IO.Path]::GetFileName($Case.path))
+            $usedWand = $false
+        }
+    }
+    if (-not $usedWand) {
+        Open-AppFromOptions $Case
+        $appHandle = Wait-ForNamedDialog $appName
+    }
     $app = [System.Windows.Automation.AutomationElement]::FromHandle($appHandle)
-    $editHandle = Wait-For {
-        $candidate = [DesignerMouse]::FindNumericEdit($appHandle, $script:sessionId)
-        if ($candidate -ne [IntPtr]::Zero) { $candidate }
-    } ([Math]::Min(30, $TimeoutSeconds))
-    if (-not $editHandle) { throw 'Expected exactly one editable numeric answer.' }
-    $expected = [decimal]$Case.numeric.value
-    if (-not [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected)) {
-        [DesignerMouse]::SetNumericEdit($editHandle, $script:sessionId, $Case.numeric.value)
+    if ($Case.numeric) {
+        $editHandle = Wait-For {
+            $candidate = [DesignerMouse]::FindNumericEdit($appHandle, $script:sessionId)
+            if ($candidate -ne [IntPtr]::Zero) { $candidate }
+        } ([Math]::Min(30, $TimeoutSeconds))
+        if (-not $editHandle) { throw 'Expected exactly one editable numeric answer.' }
+        $expected = [decimal]$Case.numeric.value
+        if (-not [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected)) {
+            [DesignerMouse]::SetNumericEdit($editHandle, $script:sessionId, $Case.numeric.value)
+        }
+        $verified = Wait-For { [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected) } 8
+        [DesignerMouse]::Save($appHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
+        if (-not $verified) {
+            $observed = [DesignerMouse]::ReadNumericEdit($editHandle, $script:sessionId)
+            [DesignerMouse]::CloseModal($appHandle, $script:sessionId)
+            throw "Designer numeric answer differs from the prepared value (expected $expected, observed '$observed')."
+        }
+        Invoke-DialogButton $app @('Finish')
+    } else {
+        Write-Host "Review the prepared answers in Designer, then click Finish. Case directory: $($Case.folder)"
+        [DesignerMouse]::Save($appHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
     }
-    $verified = Wait-For { [DesignerMouse]::NumericEditMatches($editHandle, $script:sessionId, $expected) } 8
-    [DesignerMouse]::Save([IntPtr]$app.Current.NativeWindowHandle, (Join-Path $Case.folder 'designer-app-answer.png'))
-    if (-not $verified) {
-        $observed = [DesignerMouse]::ReadNumericEdit($editHandle, $script:sessionId)
-        [DesignerMouse]::CloseModal($appHandle, $script:sessionId)
-        throw "Designer numeric answer differs from the prepared value (expected $expected, observed '$observed')."
-    }
-    Invoke-DialogButton $app @('Finish')
     $result = Wait-For {
         foreach ($name in @('App Results', 'Analytic App Error(s)')) {
             $dialog = [DesignerMouse]::FindDialog($script:sessionId, $name)
@@ -708,26 +789,24 @@ function Run-NumericApp($Case) {
     } 8
     if ($remainingApp -is [IntPtr]) {
         $form = [System.Windows.Automation.AutomationElement]::FromHandle($remainingApp)
-        if (-not (Wait-For { Find-EnabledDialogControls $form @('Close', 'Exit') } 8)) {
-            throw 'The managed Analytic App has no enabled Close or Exit button.'
-        }
-        $buttons = @(Find-EnabledDialogControls $form @('Close', 'Exit'))
-        if ($buttons.Count -ne 1) { throw 'Expected one managed app exit button.' }
-        try {
-            [DesignerMouse]::FocusModal($remainingApp, $script:sessionId)
-            if (Wait-For { [DesignerMouse]::IsForeground($remainingApp) } 5) {
+        $buttons = @(Find-EnabledDialogControls $form @('Close', 'Exit') | Where-Object {
+            -not $_.Current.IsOffscreen -and $_.Current.NativeWindowHandle
+        })
+        if ($buttons.Count -eq 1) {
+            try {
                 [DesignerMouse]::ClickFocusedButton(
                     $remainingApp, [IntPtr]$buttons[0].Current.NativeWindowHandle, $script:sessionId)
-            } else {
-                Invoke-DialogButton $form @('Close', 'Exit')
+            } catch {
+                [DesignerMouse]::CloseModal($remainingApp, $script:sessionId)
             }
-        } catch {
-            Invoke-DialogButton $form @('Close', 'Exit')
+        } else {
+            [DesignerMouse]::CloseModal($remainingApp, $script:sessionId)
         }
     }
     if (-not (Wait-For { [DesignerMouse]::IsWindowEnabled($script:sessionHandle) } ([Math]::Min(20, $TimeoutSeconds)))) {
         throw 'The managed Analytic App remained open.'
     }
+    if ($usedWand) { Close-ManagedWorkflow ([IO.Path]::GetFileName($Case.path)) }
     $files = @($Case.artifacts | Where-Object { Test-Path -LiteralPath $_ -PathType Leaf })
     return @{
         status = if (-not $ok) { 'app_failed' } elseif ($files.Count -ne $Case.artifacts.Count) { 'output_timeout' } else { 'outputs_ready' }
@@ -737,18 +816,20 @@ function Run-NumericApp($Case) {
         output_files = $files
         screenshot = $capture
         app_answer = $Case.numeric.value
+        app_launch = if ($usedWand) { 'wand' } else { 'options' }
+        answer_review = if ($Case.numeric) { 'numeric_readback' } else { 'operator' }
     }
 }
 
 function Run-Case($Case) {
-    if ($Case.app -and -not $Case.numeric) { return @{ status = 'requires_app_inputs'; workflow = $Case.path } }
+    if ($Case.app -and -not $Case.numeric -and -not $ManualAppInputs) { return @{ status = 'requires_app_inputs'; workflow = $Case.path } }
     if (-not $Case.artifacts.Count) { throw 'No probe or output file was declared for the workflow.' }
     foreach ($path in $Case.artifacts) {
         if (Test-Path -LiteralPath $path) { throw "Output already exists. Use a fresh run: $path" }
     }
     if ($Case.app) {
         if (-not $script:sessionId) { Start-DesignerSession }
-        return Run-NumericApp $Case
+        return Run-AnalyticApp $Case
     }
     $name = [IO.Path]::GetFileName($Case.path)
     Open-WorkflowInSession $Case.path

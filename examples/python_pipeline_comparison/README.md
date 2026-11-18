@@ -56,3 +56,30 @@ regex predicates, month boundaries, multiples and rounding ties, hashing,
 nulls, and FinancePMT and FinanceMIRR. Alteryx ROUND takes a multiple. For
 example, ROUND(amount, 0.01) rounds to cents. Designer 2025.1 requires all five
 FinancePMT arguments.
+
+## Analytic App questions and editable filters
+
+The transaction app combines Text Box, Check Box, Drop Down, Radio Button,
+Date, Folder Browse and File Browse in one workflow. The two radio options
+select detail or summary. The folder determines the planned report path in
+the output and the selected CSV supplies the actual transactions.
+
+```powershell
+.venv/Scripts/python.exe -m examples.python_pipeline_comparison.compare_app reports/seven-question-app
+```
+
+The comparison runs generated Phase 1, the standalone Phase 2 script and
+the independent handwritten report for default answers, changed answers
+and a header-only input. `comparison.json` records matches and row counts.
+The editable Filter exposes each shared comparison value once. The
+regression changes one region value and runs both the pandas and row-wise
+branches against the handwritten result.
+
+Add `--designer` to open the default case in Designer using the automatic
+route. It tries the magic wand first and uses Options when the wand cannot
+be located. Add `--designer-pid PID` to reuse a blank Designer 2025.1 session.
+Confirm the displayed answers against `defaults/answers.json` before clicking
+Finish. Paste the staged folder and CSV paths from that file if Designer
+displays empty path controls. A successful Designer run automatically
+compares the probes and report to Phase 1 and links the acceptance report
+from `comparison.json`.

@@ -88,3 +88,46 @@ tool configurations, incomplete native evidence and differing outputs
 produce a nonzero status. The successful case above covers the specific
 sample and inputs under the behavioral profile. Verify each company
 workflow using its own inputs and Designer evidence.
+## Guided migration
+
+Run the following from the repository root in a terminal. Use a fresh case
+directory for each input and answer combination.
+
+```powershell
+$py = '.venv/Scripts/python.exe'
+& $py -m alteryx2python.cli migrate '.\example.yxwz' --run-dir reports/example-case --interactive --designer auto
+```
+
+1. The command writes the node, question, event and audit reports. It stages
+   supported local file inputs and the File Browse selections, then records
+   the paths and SHA-256 digests in `inputs.json`. Runtime-discovered paths
+   and macro dependencies can still require a separate fixture.
+2. Press Enter to accept a question's default. Enter dates as `YYYY-MM-DD`.
+   `--answers path.json` replays saved answers and omitting both answer
+   options uses app defaults. Follow `answers.json` in the Designer dialog.
+   The numeric single-question adapter verifies its value automatically.
+   For multiple questions, confirm the displayed values and click **Finish**.
+   `--designer auto` tries the identifiable magic wand and falls back to
+   **Options → Run as Analytic App → External File**. Select `wand` or
+   `options` to use a specific route. Use `--designer-pid` for an existing blank
+   Designer 2025.1 window. Without `--designer`, open the prepared file
+   under `native/` in Designer and run it there.
+   To reopen an already prepared case, omit the source workflow and run
+   `migrate --run-dir reports/example-case --designer options`.
+3. After reviewing the Designer result, resume using the observed outcome.
+   Add `--failed-node ID` for a failed run and `--skipped-node ID` for observed
+   skips. For AMP probes, use the existing AMP export instructions before
+   attestation. A controlled missing-input case can be prepared with
+   `--allow-missing-input`. An isolated command event needs an explicit
+   `--allow-event-command path` during preparation.
+
+   ```powershell
+   & $py -m alteryx2python.cli migrate --run-dir reports/example-case --resume --native-outcome success
+   ```
+
+4. Read `delivery/acceptance.json`. The native evidence is compared against
+   the generated Phase 1 by node and anchor. Phase 2 runs as an independent
+   delivered script. The guided comparison checks its exit outcome and
+   output file content, plus isolated event files where applicable.
+   A successful case needs a declared output to establish delivery parity.
+   A repeated resume writes a separate delivery directory.

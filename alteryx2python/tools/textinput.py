@@ -63,7 +63,8 @@ def _infer_types(frame: pd.DataFrame, infer_dates: bool = True) -> pd.DataFrame:
 
     A column where every non-empty cell parses as an integer becomes Int64;
     a column where every non-empty cell parses as a float becomes Double;
-    an ISO date column becomes a datetime column. Other values stay as text.
+    an ISO date column becomes a datetime column. True/False app answers
+    become booleans. Other values stay as text.
     """
     inferred = frame.copy()
     dates = []
@@ -72,7 +73,9 @@ def _infer_types(frame: pd.DataFrame, infer_dates: bool = True) -> pd.DataFrame:
         non_empty = [value for value in values if value is not None and str(value) != ""]
         if not non_empty:
             continue
-        if all(_is_int(value) for value in non_empty):
+        if all(value in ("True", "False") for value in non_empty):
+            inferred[column] = values.map({"True": True, "False": False}).astype("boolean")
+        elif all(_is_int(value) for value in non_empty):
             if len(non_empty) == len(values):
                 inferred[column] = values.map(lambda value: int(str(value)))
             else:

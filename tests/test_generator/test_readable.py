@@ -171,6 +171,42 @@ def test_complex_expression_fixture_matches_reference_and_delivered_python(tmp_p
     assert result['rows'] == {'Output': 3, 'True': 1, 'False': 2}
 
 
+def test_seven_app_input_types_match_handwritten_python_and_share_editable_filter_value(tmp_path):
+    import re
+    import subprocess
+    import sys
+    from examples.python_pipeline_comparison.app_reference import run_report
+    from examples.python_pipeline_comparison.compare_app import compare_app, _read_csv
+
+    directory = tmp_path / "seven-questions"
+    result = compare_app(directory)
+    assert result["status"] == "match"
+    assert [case["records"] for case in result["cases"]] == [1, 2, 0]
+    case = directory / "defaults"
+    script = (case / "delivery/phase_two.py").read_text(encoding="utf-8")
+    assert script.count("region_filter_value = 'APAC'") == 1
+    assert ".eq(region_filter_value)" in script
+    assert "row['region'] == region_filter_value" in script
+    edited = script.replace("region_filter_value = 'APAC'", "region_filter_value = 'EMEA'", 1)
+    answers = {**result["cases"][0]["answers"], "region": "EMEA",
+               "input_file": str(directory / "trades.csv"), "report_folder": str(directory / "reports-a")}
+    run_report(answers, tmp_path / "expected")
+    guard = re.search(r"(?m)^( +)if (\w+)\.columns\.is_unique", edited)
+    assert guard
+    for label, dtype in (("pandas", "string"), ("row", "object")):
+        indent, frame = guard.groups()
+        # Exercise each equivalent branch with its real dtype guard.
+        cast = "".join(f"{indent}{frame}[{field!r}] = {frame}[{field!r}].astype({target!r})\n"
+                       for field, target in (("status", "string"), ("include_flag", "string"), ("region", dtype)))
+        executable = tmp_path / f"{label}.py"
+        executable.write_text(edited[:guard.start()] + cast + edited[guard.start():], encoding="utf-8")
+        output = tmp_path / label
+        process = subprocess.run([sys.executable, "-I", str(executable), "--input-dir", str(case),
+                                  "--output-dir", str(output)], cwd=tmp_path, capture_output=True, timeout=60)
+        assert process.returncode == 0, process.stderr
+        assert _read_csv(output / "report.csv") == _read_csv(tmp_path / "expected/report.csv")
+
+
 def test_unknown_node_blocks_compilation(tmp_path):
     builder = WorkflowBuilder()
     builder.add_text_input(['value'], [['1']])

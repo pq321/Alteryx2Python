@@ -276,10 +276,16 @@ def instrumented_path(directory: Path, manifest: dict) -> Path:
 def prepare(
     workflow_path: Path, destination: Path, *, answers: dict | None = None,
     event_commands: tuple[str, ...] = (),
+    capture_reference: bool = True, allow_missing_inputs: bool = False,
+    instrumented_filename: str | None = None,
 ) -> dict:
     workflow_path = workflow_path.resolve()
     workflow = XmlWorkflowParser().parse(workflow_path)
     is_app = workflow_path.suffix.lower() == ".yxwz"
+    extension = ".yxwz" if is_app else ".yxmd"
+    instrumented_name = Path(instrumented_filename or ("instrumented" + extension))
+    if instrumented_name.parent != Path(".") or instrumented_name.suffix.lower() != extension:
+        raise ValueError(f"Instrumented filename must be a local {extension} filename")
     if answers is not None and not is_app:
         raise ValueError("Explicit Designer answers require an analytic app (.yxwz)")
     from alteryx2python.runtime.app_config import INTERFACE
@@ -338,7 +344,7 @@ def prepare(
             if (
                 "://" in raw_path
                 or path.suffix.lower() not in {".csv", ".tsv", ".txt", ".xlsx", ".yxdb"}
-                or not path.is_file()
+                or (not path.is_file() and (path.exists() or not allow_missing_inputs))
             ):
                 raise ValueError(
                     "Automatic capture supports existing local file inputs only"
@@ -410,7 +416,7 @@ def prepare(
             if not path.is_absolute():
                 path = workflow_path.parent / path
             path = path.resolve()
-            input_hashes[str(path)] = file_hash(path)
+            input_hashes[str(path)] = file_hash(path) if path.is_file() else None
             file_node.text = str(path) + marker + sheet
         if node.tool_type == "DbFileOutput":
             file_node = original_node.find("Properties/Configuration/File")
@@ -489,7 +495,7 @@ def prepare(
     ) or any(node.tool_type == "ControlContainer" and node.node_id not in static_skips for node in workflow.nodes)
     for flag in (amp, e2):
         flag.set("value", str(use_amp))
-    instrumented = destination / ("instrumented.yxwz" if is_app else "instrumented.yxmd")
+    instrumented = destination / instrumented_name
     tree.write(instrumented, encoding="utf-8", xml_declaration=True)
     manifest = {
         "source": str(workflow_path),
@@ -541,13 +547,14 @@ def prepare(
         path: file_hash(Path(path)) for path in sources
     }
     write_json(destination / "manifest.json", manifest)
-    write_json(
-        destination / "python.json",
-        capture_python(
-            workflow_path, output_directory=destination / "python-outputs", answers=answers,
-            event_commands=tuple(manifest["event_commands_sha256"]),
-        ),
-    )
+    if capture_reference:
+        write_json(
+            destination / "python.json",
+            capture_python(
+                workflow_path, output_directory=destination / "python-outputs", answers=answers,
+                event_commands=tuple(manifest["event_commands_sha256"]),
+            ),
+        )
     return manifest
 
 
@@ -575,6 +582,8 @@ def verify_manifest(directory: Path) -> dict:
         if not Path(path).is_file() or file_hash(Path(path)) != digest:
             raise ValueError(f"Event executable changed after preparation: {path}")
     for path, digest in manifest.get("inputs_sha256", {}).items():
+        if digest is None and not Path(path).exists():
+            continue
         if not Path(path).is_file() or file_hash(Path(path)) != digest:
             raise ValueError(f"Input file changed after preparation: {path}")
     return manifest
@@ -582,7 +591,7 @@ def verify_manifest(directory: Path) -> dict:
 
 def execute_native(directory: Path, engine: Path, timeout: float = 120) -> dict:
     manifest = verify_manifest(directory)
-    if manifest.get("instrumented_file") == "instrumented.yxwz":
+    if instrumented_path(directory, manifest).suffix.lower() == ".yxwz":
         raise ValueError("Run the analytic app in Designer with the recorded answers")
     if (directory / "native-run.json").exists() or any(directory.glob("probe-*.yxdb")):
         raise ValueError("Native artifacts already exist; prepare a new run directory")

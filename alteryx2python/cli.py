@@ -93,6 +93,24 @@ def _build_parser() -> argparse.ArgumentParser:
     generate_parser.add_argument("--log")
     generate_parser.set_defaults(func=_generate_command)
 
+    migrate = subparsers.add_parser("migrate", help="Prepare a four-step migration or resume after Designer evidence")
+    migrate.add_argument("workflow", nargs="?", type=Path)
+    migrate.add_argument("--run-dir", required=True, type=Path)
+    answer_mode = migrate.add_mutually_exclusive_group()
+    answer_mode.add_argument("--answers", type=Path)
+    answer_mode.add_argument("--interactive", action="store_true", help="Prompt for app answers in the terminal")
+    migrate.add_argument("--allow-missing-input", action="store_true", help="Prepare a controlled missing-input case")
+    migrate.add_argument("--allow-event-command", action="append", default=[], help="Explicit event executable for an isolated test")
+    migrate.add_argument("--designer", nargs="?", const="auto", choices=["auto", "wand", "options"],
+                         help="Open the prepared case in Designer (default mode: auto)")
+    migrate.add_argument("--designer-pid", type=int)
+    migrate.add_argument("--designer-launcher", type=Path)
+    migrate.add_argument("--resume", action="store_true", help="Use existing Designer evidence and run the two Python phases")
+    migrate.add_argument("--native-outcome", choices=["success", "failed"], help="Record the outcome personally observed in Designer")
+    migrate.add_argument("--failed-node", action="append", default=[])
+    migrate.add_argument("--skipped-node", action="append", default=[])
+    migrate.set_defaults(func=_migrate_command)
+
     generate_samples_parser = subparsers.add_parser(
         "generate-samples",
         help="Recursively generate Python scripts for Alteryx sample workflows",
@@ -316,6 +334,37 @@ def _generate_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         "representation": "source-xml-and-complete-ir",
         "semantic_equivalence_proven": False,
     }, 0
+
+
+def _migrate_command(args):
+    from alteryx2python.parity.migration import launch_designer, prepare_migration, resume_migration
+    from alteryx2python.parity.runner import write_json
+
+    if args.resume:
+        if args.workflow or args.answers or args.interactive or args.allow_missing_input or args.allow_event_command or args.designer or args.designer_pid or args.designer_launcher:
+            raise ValueError("Resume takes the existing run directory and optional native attestation")
+        if not args.native_outcome and (args.failed_node or args.skipped_node):
+            raise ValueError("Failed/skipped nodes require a native outcome")
+        result = resume_migration(args.run_dir, native_outcome=args.native_outcome,
+                                  failed_nodes=args.failed_node, skipped_nodes=args.skipped_node)
+        return result, 0 if result["status"] == "match" else 1
+    if args.native_outcome or args.failed_node or args.skipped_node:
+        raise ValueError("Preparation needs a workflow. Native outcomes and node evidence belong to --resume.")
+    if not args.designer and (args.designer_pid or args.designer_launcher):
+        raise ValueError("Designer session options require --designer")
+    if args.workflow:
+        result = prepare_migration(args.workflow, args.run_dir, supplied=_read_answers(args.answers) if args.answers else None,
+                                   interactive=args.interactive, allow_missing=args.allow_missing_input,
+                                   event_commands=tuple(args.allow_event_command))
+    elif args.designer and not (args.answers or args.interactive or args.allow_missing_input or args.allow_event_command):
+        result = json.loads((args.run_dir / "migration.json").read_text(encoding="utf-8"))
+    else:
+        raise ValueError("Provide a workflow or use --designer with a prepared run directory")
+    if args.designer:
+        result["designer"] = launch_designer(args.run_dir.resolve(), args.designer, args.designer_pid, args.designer_launcher)
+        write_json(args.run_dir / "migration.json", result)
+        return result, 0 if result["designer"]["status"] in {"outputs_ready", "app_failed"} else 1
+    return result, 0
 
 
 def _generate_samples_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:

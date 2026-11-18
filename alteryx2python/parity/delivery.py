@@ -73,7 +73,7 @@ def _compare_checkpoints(baseline, checkpoints):
     return findings
 
 
-def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120) -> dict:
+def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
     manifest = verify_manifest(native_directory)
     source = Path(manifest["source"])
@@ -106,7 +106,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         "phase_one_vs_phase_two": "pending", "standalone_execution": "pending",
     }
     try:
-        if first["status"] != "success":
+        if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
         artifact = ReadablePythonGenerator().generate(
             read_phase_one(phase_one), answers=answers, parameter_mode="specialized",
@@ -114,6 +114,17 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         delivered = destination / "phase_two.py"
         artifact.write(delivered)
         report["phase_two_sha256"] = file_hash(delivered)
+        expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
+        expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
+        if observable:
+            report.update(_verify_observable(
+                delivered, source.parent, destination, commands, timeout, first, expected_files,
+            ))
+            checks = (native_result["status"], report["phase_one_vs_phase_two"])
+            report["status"] = ("match" if checks == ("match", "match")
+                                else "mismatch" if "mismatch" in checks else "incomplete")
+            write_json(destination / "acceptance.json", report)
+            return report
         verification_dir = destination / "phase-two-verification-output"
         verification_events = verification_dir / "events" if commands else verification_dir
         verification_events.mkdir(parents=True)
@@ -127,8 +138,6 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         )
         findings = _compare_checkpoints(first["nodes"], checkpoints)
         phase_two_files = file_artifacts(verification_dir)
-        expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
-        expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
         phase_two_result = {
             "nodes": findings, "phase_one_files": expected_files, "phase_two_files": phase_two_files,
             "status": "match" if all(item["status"] == "match" for item in findings)
@@ -164,3 +173,35 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}
     write_json(destination / "acceptance.json", report)
     return report
+
+
+def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files):
+    output = destination / "delivery-output"
+    events = output / "events" if commands else output
+    events.mkdir(parents=True)
+    process = subprocess.run(
+        [sys.executable, "-I", str(script), "--input-dir", str(input_dir), "--output-dir", str(output),
+         "--event-working-dir", str(events), "--command-working-dir", str(output),
+         *[part for command in commands for part in ("--allow-command", command)]],
+        capture_output=True, timeout=timeout, cwd=output, check=False,
+    )
+    (destination / "standalone.stdout.txt").write_bytes(process.stdout)
+    (destination / "standalone.stderr.txt").write_bytes(process.stderr)
+    stderr = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
+    failure_kind = stderr[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr else None
+    observed = file_artifacts(output)
+    if first["status"] == "success":
+        outcome_matches = process.returncode == 0
+        evidence = bool(expected_files)
+    else:
+        outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
+        evidence = True
+    status = "mismatch" if not outcome_matches or expected_files != observed else "match" if evidence else "incomplete"
+    result = {
+        "profile": "observable", "status": status, "returncode": process.returncode,
+        "phase_one_outcome": first["status"], "phase_two_failure_type": failure_kind if process.returncode else None,
+        "phase_one_files": expected_files, "phase_two_files": observed,
+    }
+    write_json(destination / "phase-one-vs-phase-two.json", result)
+    write_json(destination / "standalone.json", result)
+    return {"phase_one_vs_phase_two": status, "standalone_execution": status}
