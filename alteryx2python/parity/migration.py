@@ -13,6 +13,7 @@ from alteryx2python.generator.macro_sources import resolve_macro_path
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import _typed, bind_answers, configure_workflow, question_manifest
 from alteryx2python.runtime.scheduling import container_guards
+from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
 from alteryx2python.workflow_audit import audit_workflow
 from alteryx2python.workflow_events import workflow_events
 
@@ -66,8 +67,18 @@ def _stage_input(root, source_dir, value, entries, allow_missing):
     return Path(entry["snapshot"]).relative_to(root).as_posix() + separator + selection
 
 
+def _resolve_path(value, variables, location):
+    try:
+        return resolve_variable_tokens(value, variables)
+    except ValueError as error:
+        raise ValueError(f"{location}: {error}") from error
+
+
 def _stage_workflow(workflow, root, document, answers, questions, allow_missing):
     entries = {}
+    source_dir = Path(workflow.source_file).parent
+    variables = workflow_variables(workflow)
+    variables.update({f"Question.{name}": value for name, value in (answers or {}).items()})
     xml_nodes = {node.get("ToolID"): node for node in document.iter("Node")}
     by_id = {node.node_id: node for node in workflow.nodes}
     for node in workflow.nodes:
@@ -78,26 +89,28 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
         if node.tool_type == "DbFileInput" and config is not None:
             file = config.find("File")
             if file is not None and file.text:
-                file.text = _stage_input(root, Path(workflow.source_file).parent, file.text, entries, allow_missing)
+                path = _resolve_path(file.text, variables, f"Input Data {node.node_id}")
+                file.text = _stage_input(root, source_dir, path, entries, allow_missing)
         if node.tool_type.startswith("Macro_"):
             settings = element.find("EngineSettings")
             if settings is None:
                 settings = element.find("Properties/EngineSettings")
             if settings is not None and settings.get("Macro"):
-                path = resolve_macro_path(settings.get("Macro"), Path(workflow.source_file).parent)
+                path = resolve_macro_path(settings.get("Macro"), source_dir)
                 if path is not None:
                     settings.set("Macro", str(path))
     if answers is not None:
         for question in questions:
             value = answers[question.name]
-            if not value:
+            if not value or question.kind not in {"FileBrowse", "QuestionFileBrowse", "FolderBrowse"}:
                 continue
+            value = _resolve_path(str(value), variables, f"{question.kind} {question.name}")
             if question.kind in {"FileBrowse", "QuestionFileBrowse"}:
-                staged = _stage_input(root, Path(workflow.source_file).parent, str(value), entries, allow_missing)
+                staged = _stage_input(root, source_dir, value, entries, allow_missing)
                 filename, separator, selection = staged.partition("|||")
                 answers[question.name] = str(root / filename) + separator + selection
             if question.kind == "FolderBrowse":
-                folder = (Path(workflow.source_file).parent / str(value)).resolve()
+                folder = (source_dir / value).resolve()
                 if not folder.is_dir():
                     raise ValueError(f"Folder Browse requires an existing directory: {folder}")
                 answers[question.name] = str(folder)

@@ -91,6 +91,86 @@ def test_case_detects_changed_snapshot(tmp_path):
         resume_migration(directory)
 
 
+def declare_config_path(root, value):
+    properties = root.find("Properties")
+    constant = ET.SubElement(ET.SubElement(properties, "Constants"), "Constant")
+    ET.SubElement(constant, "Namespace").text = "User"
+    ET.SubElement(constant, "Name").text = "FILE_PATH_CONFIG"
+    ET.SubElement(constant, "Value").text = str(value)
+    ET.SubElement(constant, "IsNumeric", value="False")
+
+
+def constant_input_fixture(tmp_path, extension, value, variable="FILE_PATH_CONFIG"):
+    builder = WorkflowBuilder()
+    input_id = builder._node(
+        "DbFileInput",
+        f'<File FileFormat="0">%User.{variable}%</File>'
+        '<FormatSpecificOptions><HeaderRow>True</HeaderRow><Delimeter>,</Delimeter>'
+        '<CodePage>932</CodePage></FormatSpecificOptions>',
+        (100, 100),
+    )
+    builder.connect(input_id, builder.add_csv_output("report.csv"))
+    root = ET.fromstring(builder.render())
+    root.set("yxmdVer", "2025.1")
+    if extension == "yxwz":
+        ET.SubElement(root.find("Properties/RuntimeProperties"), "ModuleType").text = "Wizard"
+    declare_config_path(root, value)
+    source = tmp_path / f"variable-input.{extension}"
+    ET.ElementTree(root).write(source, encoding="utf-8", xml_declaration=True)
+    return source, str(input_id)
+
+
+@pytest.mark.parametrize("extension, absolute", [("yxmd", False), ("yxwz", True)])
+def test_migration_freezes_user_constant_input_before_designer_and_python(tmp_path, extension, absolute):
+    config = tmp_path / "file path config.csv"
+    config.write_bytes(b"region\r\nAPAC\r\n")
+    source, input_id = constant_input_fixture(tmp_path, extension, config if absolute else config.name)
+    source_hash = file_hash(source)
+    directory = tmp_path / "case"
+
+    receipt = prepare_migration(source, directory)
+    assert receipt["status"] == "awaiting_designer"
+    assert (directory / "designer-plan.json").is_file()
+    snapshot, = json.loads((directory / "inputs.json").read_text(encoding="utf-8"))
+    assert snapshot["source"] == str(config.resolve())
+    assert verify_manifest(directory / "native")["inputs_sha256"] == {snapshot["snapshot"]: file_hash(config)}
+    file_selector = f".//Node[@ToolID='{input_id}']/Properties/Configuration/File"
+    assert ET.parse(receipt["native_workflow"]).findtext(file_selector) == snapshot["snapshot"]
+    assert ET.parse(source).findtext(file_selector) == "%User.FILE_PATH_CONFIG%"
+    assert file_hash(source) == source_hash
+
+    config.write_bytes(b"region\r\nEMEA\r\n")
+    result = resume_migration(directory)
+    assert result["phase_one_outcome"] == "success"
+    assert result["phase_one_vs_phase_two"] == result["standalone_execution"] == "match"
+    assert (directory / "delivery/delivery-output/report.csv").read_bytes() == b"region\r\nAPAC\r\n"
+
+
+def test_migration_freezes_file_browse_answer_using_user_constant(tmp_path):
+    source = app_fixture(tmp_path)
+    config = tmp_path / "selected.csv"
+    config.write_text("amount\n25\n", encoding="utf-8")
+    tree = ET.parse(source)
+    declare_config_path(tree.getroot(), config)
+    tree.write(source, encoding="utf-8", xml_declaration=True)
+    directory = tmp_path / "case"
+
+    prepare_migration(source, directory, supplied={"source_file": "%User.FILE_PATH_CONFIG%"})
+    manifest = verify_manifest(directory / "native")
+    answer = manifest["answers"]["source_file"]
+    assert answer.endswith("selected.csv")
+    assert manifest["inputs_sha256"][answer] == file_hash(config)
+    assert resume_migration(directory)["phase_one_vs_phase_two"] == "match"
+
+
+def test_migration_identifies_missing_user_constant_at_input_node(tmp_path):
+    source, input_id = constant_input_fixture(tmp_path, "yxwz", "unused.csv", variable="UNKNOWN_CONFIG")
+    directory = tmp_path / "case"
+    with pytest.raises(ValueError, match=rf"Input Data {input_id}: Unresolved workflow variable: User\.UNKNOWN_CONFIG"):
+        prepare_migration(source, directory)
+    assert not (directory / "designer-plan.json").exists()
+
+
 def test_app_action_cannot_overwrite_prepared_native_sink(tmp_path):
     source = app_fixture(tmp_path)
     tree = ET.parse(source)
