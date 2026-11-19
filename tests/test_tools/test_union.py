@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 import pandas as pd
 import pytest
 
@@ -84,3 +86,54 @@ def test_union_manual_reads_saved_connection_mapping(mode, workflow_context):
         {"Name": None, "Quantity": 7},
     ]
     assert isinstance(result.at[1, "Quantity"], int)
+
+@pytest.mark.parametrize("mode", ["ByName", "ByPos", "Manual"])
+def test_union_promotes_mixed_keys_to_text_before_stacking(mode, workflow_context):
+    right_name = "code" if mode == "ByName" else "lookup"
+    left = pd.DataFrame({"code": pd.Series([123, 9007199254740993, None], dtype="Int64")})
+    right = pd.DataFrame({right_name: ["00123", "", "ABC"]})
+    config = {"mode": mode}
+    if mode == "Manual":
+        config["manual_inputs"] = {
+            "#1": [{"column": 1, "name": "code"}],
+            "#2": [{"column": 1, "name": right_name}],
+        }
+
+    output = union_tool({"Input": left, "Input_2": right}, config, workflow_context)["Output"]
+
+    assert output["code"].tolist() == ["123", "9007199254740993", None, "00123", "", "ABC"]
+    assert left["code"].iloc[0] == 123
+
+
+def test_union_uses_text_declaration_on_empty_input(workflow_context):
+    numbers = pd.DataFrame({"code": [123], "quantity": [10]})
+    text = pd.DataFrame({"code": pd.Series(dtype=object), "quantity": pd.Series(dtype="int64")})
+    text.attrs["alteryx_schema"] = [{"name": "code", "type": "V_WString", "size": 30}]
+
+    output = union_tool({"Input": numbers, "Input_2": text}, {"mode": "ByName"}, workflow_context)["Output"]
+
+    assert output.to_dict("records") == [{"code": "123", "quantity": 10}]
+    assert output.attrs["alteryx_schema"] == [{"name": "code", "type": "V_WString", "size": 30}]
+
+def test_union_formats_values_using_designer_text_widths(workflow_context):
+    numeric = pd.DataFrame({
+        "integer": pd.Series([-2147483648], dtype="Int32"),
+        "fraction": pd.Series([1.23456789], dtype="float32"),
+        "exponent": [1e20],
+        "decimal": [Decimal("123.2500")],
+        "flag": [False],
+    })
+    declarations = [("integer", "Int32", 4), ("fraction", "Float", 4), ("exponent", "Double", 8),
+                    ("decimal", "FixedDecimal", "16.4"), ("flag", "Bool", 1)]
+    numeric.attrs["alteryx_schema"] = [
+        {"name": name, "type": kind, "size": size} for name, kind, size in declarations
+    ]
+    text = pd.DataFrame({column: ["X"] for column in numeric})
+    text.attrs["alteryx_schema"] = [{"name": column, "type": "String", "size": 1} for column in text]
+
+    output = union_tool({"Input": numeric, "Input_2": text}, {"mode": "ByName"}, workflow_context)["Output"]
+
+    assert output.iloc[0].tolist() == ["-214748364", "1.234568", "1.e+20", "123.2500", "False"]
+    assert [(field["type"], field["size"]) for field in output.attrs["alteryx_schema"]] == [
+        ("V_String", 10), ("V_String", 13), ("V_String", 23), ("V_String", 16), ("V_String", 5),
+    ]

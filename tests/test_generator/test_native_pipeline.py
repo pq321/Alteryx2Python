@@ -316,3 +316,30 @@ def test_branch_rejoin_and_delivery_sink_match_runtime(tmp_path):
     delivered = tmp_path / "delivered"
     namespace["run_workflow"](input_dir=tmp_path, output_dir=delivered)
     assert (delivered / expected.name).read_bytes() == expected.read_bytes()
+
+
+@pytest.mark.parametrize("mode", ["ByName", "ByPos"])
+def test_union_promotion_reaches_join_in_generated_python(tmp_path, mode):
+    text_column = "code" if mode == "ByName" else "code_from_text"
+    nodes = [
+        _text("number", ["code"], [["123"], ["9007199254740993"], [None]]),
+        _text("text", [text_column], [["00123"], ["ABC"]]),
+        _node("stack", "Union", {"mode": mode}),
+        _text("keys", ["lookup"], [["123"], ["9007199254740993"], ["00123"], ["ABC"], ["unmatched"]]),
+        _node("match", "Join", {"joins": [
+            {"connection": "Left", "field": "code"}, {"connection": "Right", "field": "lookup"},
+        ]}),
+    ]
+    edges = [
+        ("number", "Output", "stack", "Input"),
+        ("text", "Output", "stack", "Input"),
+        ("stack", "Output", "match", "Left"),
+        ("keys", "Output", "match", "Right"),
+    ]
+
+    _, checkpoints = _compare(_workflow(tmp_path, nodes, edges), tmp_path)
+
+    assert checkpoints["stack"]["Output"]["code"].tolist() == ["123", "9007199254740993", None, "00123", "ABC"]
+    assert checkpoints["match"]["Join"]["Right_lookup"].tolist() == ["00123", "123", "9007199254740993", "ABC"]
+    assert checkpoints["match"]["Left"]["code"].tolist() == [None]
+    assert checkpoints["match"]["Right"]["lookup"].tolist() == ["unmatched"]

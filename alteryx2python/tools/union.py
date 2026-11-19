@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any
 
 import pandas as pd
@@ -7,6 +8,7 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
+from alteryx2python.tools.field_contracts import STRING_TYPES
 
 
 def union_tool(
@@ -22,20 +24,15 @@ def union_tool(
     ordered_frames = [inputs[anchor] for anchor in ordered_anchors]
     if mode.lower() == "byname":
         columns = list(dict.fromkeys(column for frame in ordered_frames for column in frame.columns))
-        aligned = [frame.reindex(columns=columns) for frame in ordered_frames]
+        frames = ordered_frames
     elif mode.lower() == "bypos":
         columns = _bypos_output_columns(ordered_frames, config)
-        aligned = []
-        for frame in ordered_frames:
-            renamed = frame.copy()
-            renamed.columns = columns[: len(renamed.columns)]
-            aligned.append(renamed.reindex(columns=columns))
+        frames = [rename_union_fields(frame, columns[:len(frame.columns)]) for frame in ordered_frames]
     elif mode.lower() in {"manual", "manualdelayed"}:
-        aligned = _align_manual(ordered_anchors, inputs, config)
+        columns, frames = _align_manual(ordered_anchors, inputs, config)
     else:
         raise NotImplementedError(f"Unsupported Union mode: {mode}")
-    concatenated = pd.concat(aligned, ignore_index=True)
-    output = concatenated.astype(object).where(pd.notna(concatenated), None)
+    output = stack_union_rows(frames, columns)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
@@ -51,6 +48,96 @@ def union_tool(
         },
     )
     return outputs
+
+
+# Minimum Designer text widths when a numeric field promotes to variable text.
+_NUMERIC_TEXT_WIDTHS = {
+    "Byte": 3, "Int16": 6, "Int32": 10, "Int64": 20,
+    "Float": 13, "Double": 23, "FixedDecimal": 19, "Bool": 5,
+}
+_INFERRED_TYPES = {"string": "string", "integer": "Int64", "floating": "Double",
+                   "mixed-integer-float": "Double", "decimal": "FixedDecimal", "boolean": "Bool"}
+
+
+def rename_union_fields(frame, columns):
+    renamed = frame.copy(deep=False)
+    renamed.columns = columns
+    field_names = dict(zip(frame.columns, columns))
+    if "alteryx_schema" in frame.attrs:
+        renamed.attrs["alteryx_schema"] = [
+            {**field, "name": field_names[field["name"]]} for field in frame.attrs["alteryx_schema"]
+            if field["name"] in field_names
+        ]
+    return renamed
+
+
+def _union_text(value, kind):
+    if kind in {"Float", "Double"}:
+        text = format(value, ".7g" if kind == "Float" else ".15g")
+        mantissa, separator, exponent = text.partition("e")
+        if separator and "." not in mantissa:
+            return f"{mantissa}.e{exponent}"
+        return text
+    return format(value, "f") if isinstance(value, Decimal) else str(value)
+
+
+def stack_union_rows(frames, columns):
+    """Reconcile shared text/numeric fields before pandas stacks the rows."""
+    schemas = [{field["name"]: field for field in frame.attrs.get("alteryx_schema", [])} for frame in frames]
+    converted = [{} for frame in frames]
+    promotions = {}
+    for column in columns:
+        typed = []
+        for index, (frame, schema) in enumerate(zip(frames, schemas)):
+            if column not in frame:
+                continue
+            series, declaration = frame[column], schema.get(column, {})
+            kind = declaration.get("type")
+            if not kind:
+                inferred = "string" if isinstance(series.dtype, pd.StringDtype) else pd.api.types.infer_dtype(series, skipna=True)
+                kind = _INFERRED_TYPES.get(inferred, inferred)
+            if kind != "empty":
+                typed.append((index, series, declaration, kind))
+        kinds = {kind for _, _, _, kind in typed}
+        numeric_types = _NUMERIC_TEXT_WIDTHS.keys()
+        if not (kinds & STRING_TYPES and kinds & numeric_types and kinds <= STRING_TYPES | numeric_types):
+            continue
+
+        wide = False
+        widths = []
+        for _, series, declaration, kind in typed:
+            if kind in STRING_TYPES:
+                wide |= kind in {"WString", "V_WString"}
+                size = declaration.get("size") or max((len(str(value)) for value in series.dropna()), default=1)
+            elif kind == "FixedDecimal" and declaration.get("size"):
+                size = str(declaration["size"]).split(".", 1)[0]
+            else:
+                size = _NUMERIC_TEXT_WIDTHS[kind]
+            widths.append(int(size))
+        width = max(widths)
+        promotions[column] = {"name": column, "type": "V_WString" if wide else "V_String", "size": width}
+        for index, series, _, kind in typed:
+            # Nullable Pandas integers can pass through float during map.
+            # Boxing first keeps every Int64 digit, even with nulls.
+            converted[index][column] = series.astype(object).map(
+                lambda value: _union_text(value, kind)[:width], na_action="ignore"
+            )
+
+    aligned = []
+    for frame, text_columns in zip(frames, converted):
+        aligned_frame = frame.reindex(columns=columns)
+        for column, values in text_columns.items():
+            aligned_frame[column] = values
+        aligned.append(aligned_frame)
+    combined = pd.concat(aligned, ignore_index=True)
+    output = combined.astype(object).where(pd.notna(combined), None)
+    if promotions:
+        inherited = {field["name"]: field for field in output.attrs.get("alteryx_schema", [])}
+        output.attrs["alteryx_schema"] = [
+            promotions.get(column, inherited.get(column)) for column in columns
+            if column in promotions or column in inherited
+        ]
+    return output
 
 
 def _align_manual(anchors, inputs, config):
@@ -73,15 +160,15 @@ def _align_manual(anchors, inputs, config):
             if name not in frame:
                 raise ValueError(f"Union input {connection} has no field {name!r}")
             labels.setdefault(column, name)
-            small[column] = frame[name].astype(object)
-        mappings.append((frame.index, small))
+            small[column] = name
+        mappings.append((frame, small))
     columns = sorted(labels)
     result = []
-    for index, mapping in mappings:
-        frame = pd.DataFrame(mapping, index=index).reindex(columns=columns)
-        frame.columns = [labels[column] for column in columns]
-        result.append(frame)
-    return result
+    for frame, mapping in mappings:
+        positions = sorted(mapping)
+        fields = frame.loc[:, [mapping[column] for column in positions]].astype(object)
+        result.append(rename_union_fields(fields, [labels[column] for column in positions]))
+    return [labels[column] for column in columns], result
 
 
 class UnionTool(BaseTool):

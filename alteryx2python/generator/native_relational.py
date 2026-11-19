@@ -5,7 +5,7 @@ from alteryx2python.generator.source_linker import UnsupportedLowering
 
 def lower_relational(compiler, kind, config, arguments):
     if kind == 'Union':
-        from alteryx2python.tools.union import _ordered_input_anchors, _expected_output_columns
+        from alteryx2python.tools.union import _ordered_input_anchors, _expected_output_columns, rename_union_fields, stack_union_rows
         ordered = _ordered_input_anchors(arguments, config)
         if not ordered:
             raise UnsupportedLowering('Union needs input data')
@@ -13,16 +13,16 @@ def lower_relational(compiler, kind, config, arguments):
         lines = [f'frames = {frames}']
         mode = str(config.get('mode', 'ByName')).lower()
         if mode == 'byname':
-            lines += ['columns = list(dict.fromkeys(column for frame in frames for column in frame.columns))',
-                      'aligned = [frame.reindex(columns=columns) for frame in frames]']
+            lines += ['columns = list(dict.fromkeys(column for frame in frames for column in frame.columns))']
         elif mode == 'bypos':
             expected = _expected_output_columns(config.get('expected_output_schema'))
+            rename = compiler.linker.function(rename_union_fields)
             lines += [f'columns = {expected!r}' if expected else 'columns = list(frames[0].columns)',
-                      'aligned = []', 'for frame in frames:', '    renamed = frame.copy()',
-                      '    renamed.columns = columns[:len(renamed.columns)]', '    aligned.append(renamed.reindex(columns=columns))']
+                      f'frames = [{rename}(frame, columns[:len(frame.columns)]) for frame in frames]']
         else:
             raise UnsupportedLowering(f'Unsupported Union mode: {mode}')
-        return lines + ['combined = pd.concat(aligned, ignore_index=True)', 'return combined.astype(object).where(pd.notna(combined), None)']
+        stack = compiler.linker.function(stack_union_rows)
+        return lines + [f'return {stack}(frames, columns)']
     if kind == 'Join':
         from alteryx2python.tools.join import join_frames, join_keys
         left, right = arguments['Left'], arguments['Right']
