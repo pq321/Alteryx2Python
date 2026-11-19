@@ -6,6 +6,7 @@
   --border: light-dark(#bdc9d2, #496173);
   --coarse-match: light-dark(#fff1b8, #483900);
   --unmatched: light-dark(#ffdddd, #54292d);
+  --order-mismatch: light-dark(#dfebfb, #264364);
   --ink: light-dark(#17212b, #e2ebf2);
 }
 
@@ -32,6 +33,7 @@ tbody th { background: var(--surface); }
 tbody th small { display: block; font-weight: normal; min-width: 5rem; }
 [data-result="coarse-match"] { background: var(--coarse-match); }
 [data-result="unmatched"] { background: var(--unmatched); }
+[data-result="order-mismatch"] { background: var(--order-mismatch); }
 td[data-result] small { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
 #status[data-result], .legend span { padding: 0.2rem 0.45rem; border-radius: 0.2rem; }
 #status[data-result] { width: fit-content; }

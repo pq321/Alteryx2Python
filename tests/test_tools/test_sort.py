@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from alteryx2python.runtime.context import WorkflowContext
+from alteryx2python.tools import sort
 from alteryx2python.tools.sort import sort_tool
 
 
@@ -40,3 +41,26 @@ def test_sort_tool_rejects_unknown_order():
             {"sort_fields": [{"field": "CustomerID", "order": "Sideways"}]},
             WorkflowContext(),
         )
+
+
+def test_sort_uses_null_precedence_per_field_direction():
+    frame = pd.DataFrame({
+        "Group": ["A", "A", None, "A", None], "Quantity": [None, 3, 1, 3, 2], "Source": range(5),
+    })
+    result = sort_tool(
+        {"Input": frame},
+        {"sort_locale": 0, "sort_fields": [{"field": "Group", "order": "Ascending"},
+                                           {"field": "Quantity", "order": "Descending"}]},
+        WorkflowContext(),
+    )
+    assert result["Output"]["Source"].tolist() == [4, 2, 1, 3, 0]
+
+
+def test_dictionary_sort_numeric_text_needs_no_platform_collation(monkeypatch):
+    def unexpected_lookup(locale):
+        pytest.fail(f"Numeric sort did not need a collation library for {locale}")
+
+    monkeypatch.setattr(sort, "_windows_collation", unexpected_lookup)
+    result = sort.sort_frame(pd.DataFrame({"Value": ["11", None, "05", "5"]}), ["Value"], [True], "en-US")
+    assert pd.isna(result["Value"].iloc[0])
+    assert result["Value"].iloc[1:].tolist() == ["05", "5", "11"]

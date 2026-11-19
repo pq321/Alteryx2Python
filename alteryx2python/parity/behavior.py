@@ -10,6 +10,12 @@ from .snapshot import compare_snapshots
 _ORDER_SENSITIVE_INPUTS = {"MultiRowFormula", "RecordID", "RunningTotal", "Sample"}
 
 
+def _is_row_order_mismatch(result):
+    return result["status"] == "mismatch" and "rows" in result.get("order_differences", ()) and (
+        {item["dimension"] for item in result["differences"]} == {"rows"}
+    )
+
+
 def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, policy):
     ordered = tool_type == "Sort" if direction == "outputs" else tool_type in _ORDER_SENSITIVE_INPUTS
     options = {"align_columns": align, "align_rows": align and not ordered}
@@ -18,6 +24,8 @@ def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, 
         return exact
     protected, group_keys = policy
     display = {"preserve_row_order": ordered}
+    if _is_row_order_mismatch(exact):
+        display["aligned_data_status"] = "match"
     if direction == "outputs" and (keys := group_keys.get(node_id)):
         display["alignment_keys"] = keys
     if exact["status"] != "mismatch" or not (rules := coarse_rules(expected, actual, protected)):
@@ -28,6 +36,8 @@ def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, 
         return {**coarse, **display, "status": "coarse_match", "exact_comparison": exact}
     if coarse.get("order_differences"):
         display["order_differences"] = coarse["order_differences"]
+    if _is_row_order_mismatch(coarse):
+        display.setdefault("aligned_data_status", "coarse_match")
     return {**exact, **display}
 
 

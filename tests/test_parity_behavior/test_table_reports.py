@@ -72,6 +72,34 @@ def test_display_alignment_keeps_explicit_sort_and_order_sensitive_inputs_strict
     assert "duplicates_upstream" not in aligned["comparisons"][2]
 
 
+@pytest.mark.parametrize("price_representation", [False, True])
+def test_sort_report_distinguishes_row_order_from_data_mismatch(tmp_path, price_representation):
+    columns = ["Prod", "Price"]
+    left = snapshot(columns, [["5", Decimal("124.87")], ["11", Decimal("125.00")]])
+    left["schema"] = [{"name": "Prod", "type": "V_WString"}, {"name": "Price", "type": "FixedDecimal", "scale": 2}]
+    price = 124.87 if price_representation else Decimal("124.87")
+    right = snapshot(columns, [["11", Decimal("125.00")], ["5", price]])
+
+    def run(producer, frame):
+        return {"producer": producer, "source_sha256": "source", "runtime_sha256": "runtime", "status": "success",
+                "nodes": {"14": {"tool_type": "Sort", "status": "success", "outputs": {"Output": frame}}}}
+
+    native, python = run("alteryx", left), run("python", right)
+    options = {"align_checkpoints": True, "presentation_policy": (set(), {})}
+    result = compare_behavior_runs(native, python, "runtime", **options)
+    item, = result["comparisons"]
+    aligned = "coarse_match" if price_representation else "match"
+    assert result["status"] == item["status"] == "mismatch"
+    assert item["aligned_data_status"] == aligned
+    write_table_reports(tmp_path, native, python, result, (None, None))
+    html = (tmp_path / item["table_report"]).read_text(encoding="utf-8")
+    assert f'"alignedDataStatus":"{aligned}"' in html
+
+    right["rows"][1][1]["value"] = "999.99" if not price_representation else float(999.99).hex()
+    result = compare_behavior_runs(native, python, "runtime", **options)
+    assert "aligned_data_status" not in result["comparisons"][0]
+
+
 def test_report_reuses_captured_table_and_preserves_html_as_cell_text(tmp_path):
     html = '<p>Notice</p><script>window.unwanted = true;</script>'
     frame = snapshot(["Email", "Note"], [[html, None], ["", ""]])

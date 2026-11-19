@@ -135,6 +135,7 @@ def write_table_reports(destination, native, python, parity, selection, *, dynam
             "orderDifferences": item.get("order_differences", []),
             "alignmentKeys": item.get("alignment_keys", []),
             "preserveRowOrder": item.get("preserve_row_order", False),
+            "alignedDataStatus": item.get("aligned_data_status"),
             "hasCoarseRules": bool(rules),
             "hasReportFields": any(raw for _, raw in sides),
             "tables": [left, right],

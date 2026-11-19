@@ -108,20 +108,23 @@ function sameCell(left, right, coarse, isKey) {
     && a.length === b.length && a.every((value, index) => value === b[index]));
 }
 
-function differencesOnly(tables, columns, pairs, coarse, keys) {
+function differencesOnly(tables, columns, pairs, coarse, keys, moved, compareValues) {
   const changed = new Set(columns.filter((column) => !column[0] || !column[1]));
   const rows = [];
   for (const pair of pairs) {
-    let different = pair.includes(null);
-    for (const column of columns) {
-      if (!sameCell(cellAt(tables[0], pair[0], column[0]), cellAt(tables[1], pair[1], column[1]), coarse, keys.has(column))) {
-        changed.add(column);
-        different = true;
+    let different = pair.includes(null) || moved(pair);
+    if (compareValues(pair)) {
+      for (const column of columns) {
+        if (!sameCell(cellAt(tables[0], pair[0], column[0]), cellAt(tables[1], pair[1], column[1]), coarse, keys.has(column))) {
+          changed.add(column);
+          different = true;
+        }
       }
     }
     if (different) rows.push(pair);
   }
-  return { rows, columns: columns.filter((column) => changed.has(column)) };
+  const differing = columns.filter((column) => changed.has(column));
+  return { rows, columns: rows.length && !changed.size ? columns : differing, count: changed.size };
 }
 
 function writeCell(node, cell) {
@@ -155,7 +158,7 @@ function describeValueDifference(node, cell, other) {
   }
 }
 
-function tableSection(tables, side, columns, pairs, keys) {
+function tableSection(tables, side, columns, pairs, keys, moved, compareValues) {
   const section = element("section");
   section.append(element("h2", `${sideNames[side]} · ${tables[side].available ? tables[side].rows.length + " rows" : "capture unavailable"}`));
   if (!tables[side].available) return section;
@@ -189,6 +192,9 @@ function tableSection(tables, side, columns, pairs, keys) {
     if (unpaired) {
       th.dataset.result = "unmatched";
       th.append(element("small", "Unpaired row"));
+    } else if (moved(pair)) {
+      th.dataset.result = "order-mismatch";
+      th.append(element("small", "Order differs"));
     }
     row.append(th);
     columns.forEach((column) => {
@@ -198,7 +204,7 @@ function tableSection(tables, side, columns, pairs, keys) {
       if (unpaired || !cell || !other) {
         td.dataset.result = "unmatched";
         td.setAttribute("aria-description", "Unmatched");
-      } else if (!sameCell(cell, other, false, keys.has(column))) {
+      } else if (compareValues(pair) && !sameCell(cell, other, false, keys.has(column))) {
         const coarseMatch = sameCell(cell, other, true, keys.has(column));
         td.dataset.result = coarseMatch ? "coarse-match" : "unmatched";
         td.setAttribute("aria-description", coarseMatch ? "Coarse match" : "Different value");
@@ -220,25 +226,35 @@ function tableSection(tables, side, columns, pairs, keys) {
 function showTables(config, tables) {
   const columns = boundColumns(...tables);
   const common = columns.filter((column) => column[0] && column[1]);
-  let view = config.preserveRowOrder ? "original" : "aligned";
+  let view = config.preserveRowOrder && !config.alignedDataStatus ? "original" : "aligned";
   let pairs = [];
-  let filteredColumns = null;
+  let aligned = [];
+  let differences = null;
   let page = 0;
   const configured = config.alignmentKeys ?? [];
   const defaults = common.filter((column) => configured.includes(column[0].name));
   const keys = new Set(defaults.length === configured.length &&
     new Set(defaults.map((column) => column[0].name)).size === configured.length ? defaults : []);
 
+  function moved(pair) {
+    if (!config.alignedDataStatus || pair.includes(null)) return false;
+    return (view === "aligned" ? pair[0] : aligned[pair[0]]?.[1]) !== pair[1];
+  }
+
+  function compareValues(pair) {
+    return view === "aligned" || !moved(pair);
+  }
+
   function render() {
     const totalPages = Math.max(1, Math.ceil(pairs.length / PAGE_SIZE));
     const slice = pairs.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
     const sections = tables.map((_, side) => {
-      const visible = filteredColumns ?? (view === "aligned" ? columns : columns.filter((column) => column[side])
+      const visible = differences?.columns ?? (view === "aligned" ? columns : columns.filter((column) => column[side])
         .sort((left, right) => left[side].index - right[side].index));
-      return tableSection(tables, side, visible, slice, keys);
+      return tableSection(tables, side, visible, slice, keys, moved, compareValues);
     });
     get("tables").replaceChildren(...sections);
-    const fieldCount = filteredColumns ? ` · ${filteredColumns.length} differing columns` : "";
+    const fieldCount = differences ? ` · ${differences.count} differing columns` : "";
     get("page").textContent = `Page ${page + 1} of ${totalPages} · ${pairs.length} row pairs${fieldCount}`;
     get("previous").disabled = page === 0;
     get("next").disabled = page + 1 >= totalPages;
@@ -247,11 +263,13 @@ function showTables(config, tables) {
   function update() {
     const coarse = config.hasCoarseRules && !get("include-representation").checked;
     const [left, right] = tables.map((table) => table.rows);
-    pairs = view === "aligned" ? alignedRows(left, right, common, [...keys], config.hasCoarseRules)
+    aligned = view === "aligned" || config.alignedDataStatus
+      ? alignedRows(left, right, common, [...keys], config.hasCoarseRules) : [];
+    pairs = view === "aligned" ? aligned
       : Array.from({ length: Math.max(left.length, right.length) }, (_, index) =>
         [index < left.length ? index : null, index < right.length ? index : null]);
-    const differences = get("only-differences").checked ? differencesOnly(tables, columns, pairs, coarse, keys) : null;
-    filteredColumns = differences?.columns ?? null;
+    differences = get("only-differences").checked
+      ? differencesOnly(tables, columns, pairs, coarse, keys, moved, compareValues) : null;
     if (differences) pairs = differences.rows;
     get("keys").hidden = view !== "aligned" || !common.length;
     page = 0;
@@ -298,10 +316,16 @@ async function initialize() {
   get("representation").hidden = !config.hasCoarseRules;
   get("legend").hidden = !(config.hasCoarseRules || config.status === "mismatch" || config.status === "incomplete");
   get("coarse-legend").hidden = !config.hasCoarseRules;
+  get("unmatched-legend").hidden = Boolean(config.alignedDataStatus);
+  get("order-legend").hidden = !config.alignedDataStatus;
   if (config.status === "coarse_match") get("status").dataset.result = "coarse-match";
-  if (config.status === "mismatch") get("status").dataset.result = "unmatched";
+  if (config.status === "mismatch") {
+    get("status").dataset.result = config.alignedDataStatus ? "order-mismatch" : "unmatched";
+  }
   const changes = config.orderDifferences.join(" and ");
-  get("status").textContent = config.status === "match" && changes
+  get("status").textContent = config.alignedDataStatus
+    ? `Row order differs. Aligned data ${config.alignedDataStatus === "match" ? "matches" : "matches under the coarse rules"}.`
+    : config.status === "match" && changes
     ? `Match after aligning ${changes}.`
     : ({
       match: "Match.",

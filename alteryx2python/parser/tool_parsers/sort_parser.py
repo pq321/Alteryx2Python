@@ -21,4 +21,5 @@ def parse_sort_config(raw_config: dict[str, Any]) -> ToolParserResult:
     if not sort_fields:
         warnings.append("Sort config contains no fields")
 
-    return ToolParserResult(normalized_config={"sort_fields": sort_fields}, warnings=warnings)
+    locale = attributes(sort_info).get("locale", "0")
+    return ToolParserResult(normalized_config={"sort_fields": sort_fields, "sort_locale": locale}, warnings=warnings)

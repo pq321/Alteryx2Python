@@ -54,14 +54,18 @@ def lower_tabular(compiler, kind, config, frame):
                       'output.attrs["alteryx_schema"] = schema']
         return lines + ['return output']
     if kind == 'Sort':
-        from alteryx2python.tools.sort import _is_ascending
+        from alteryx2python.tools.sort import _is_ascending, sort_frame, sort_locale_name
         fields = config.get('sort_fields', [])
         if not fields:
             raise UnsupportedLowering('Sort requires fields')
         keys = config.get('_shared_group_keys') or repr([field['field'] for field in fields])
         directions = [_is_ascending(field.get('order', 'Ascending')) for field in fields]
-        ascending = directions[0] if all(value == directions[0] for value in directions) else directions
-        return [f'return {frame}.sort_values(by={keys}, ascending={ascending!r}, kind="mergesort").reset_index(drop=True)']
+        try:
+            locale = sort_locale_name(config.get('sort_locale'))
+        except ValueError as error:
+            raise UnsupportedLowering(str(error)) from error
+        sort = compiler.linker.function(sort_frame)
+        return [f'return {sort}({frame}, {keys}, {directions!r}, {locale!r})']
     if kind == 'Unique':
         fields = config.get('unique_fields')
         subset = repr(fields) if fields else f'list({frame}.columns)'

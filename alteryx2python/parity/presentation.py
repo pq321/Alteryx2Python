@@ -412,8 +412,11 @@ def _compare(args, case):
 
     findings = {}
     for label, items in (
-        ("output mismatch", [item for item in mismatches if item.get("direction") == "outputs"]),
-        ("input mismatch", [item for item in mismatches if item.get("direction") == "inputs"]),
+        ("row order mismatch", [item for item in mismatches if item.get("aligned_data_status")]),
+        ("output mismatch", [item for item in mismatches
+                             if item.get("direction") == "outputs" and not item.get("aligned_data_status")]),
+        ("input mismatch", [item for item in mismatches
+                            if item.get("direction") == "inputs" and not item.get("aligned_data_status")]),
         ("execution mismatch", outcomes),
         ("output file mismatch", artifacts),
         ("incomplete evidence", [*incomplete, *missing]),

@@ -1,6 +1,7 @@
 """Synthetic, end-to-end differential coverage for native lowering stages."""
 import ast
 from copy import deepcopy
+import sys
 
 import pandas as pd
 import pytest
@@ -127,6 +128,28 @@ def test_sort_multiple_keys_and_stable_ties(tmp_path, empty, descending):
                              ["b", "3", "second"], [None, "1", "null"]],
            {"sort_fields": [{"field": "category", "order": "Ascending"},
                             {"field": "priority", "order": "Descending" if descending else "Ascending"}]})
+
+
+@pytest.mark.skipif(sys.platform != "win32", reason="Dictionary Sort uses Windows collation")
+def test_sort_reads_saved_dictionary_locale_and_preserves_product_codes_in_both_phases(tmp_path):
+    from alteryx2python.parser.xml_parser import XmlWorkflowParser
+    from alteryx2python.workflow_generator import WorkflowBuilder
+
+    products = ["11", "6", "5", "JGBSLF", "05", "a10", "a2", "A", "a", "-1", "-10"]
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["Prod", "Original"], [[prod, pos] for pos, prod in enumerate(products)])
+    for lcid in (1033, 0):
+        node = builder._node("Sort", f'<SortInfo locale="{lcid}"><Field field="Prod" order="Ascending"/></SortInfo>',
+                             (250, 100 + 100 * (lcid == 0)))
+        builder.connect(source, node)
+    path = tmp_path / "sort.yxmd"
+    path.write_text(builder.render(), encoding="utf-8")
+    workflow = XmlWorkflowParser().parse(path)
+    _, checkpoints = _compare(workflow, tmp_path)
+    dictionary = checkpoints["2"]["Output"]
+    assert dictionary["Prod"].tolist() == ["-10", "-1", "5", "05", "6", "11", "a", "a2", "a10", "A", "JGBSLF"]
+    assert dictionary["Original"].iloc[2:4].tolist() == [2, 4]
+    assert checkpoints["3"]["Output"]["Prod"].tolist() == sorted(products)
 
 
 @pytest.mark.parametrize("mode,n", [("First", 2), ("Last", 2), ("Sample", 2), ("EveryNth", 3),
