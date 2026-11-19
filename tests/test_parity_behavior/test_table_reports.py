@@ -7,9 +7,10 @@ from decimal import Decimal
 from types import SimpleNamespace
 
 import pandas as pd
+import pytest
 
 from alteryx2python.parity.behavior import compare_behavior_runs
-from alteryx2python.parity.checkpoints import checkpoint_policy
+from alteryx2python.parity.checkpoints import checkpoint_policy, coarse_rules, coarse_snapshot
 from alteryx2python.parity.snapshot import compare_snapshots, frame_snapshot
 from alteryx2python.parity.table_reports import write_table_reports
 
@@ -146,3 +147,61 @@ def test_null_checks_protect_source_field_through_a_select_rename():
     ])
     protected, _ = checkpoint_policy(workflow)
     assert protected == {"memo", "display name"}
+
+
+def test_numeric_text_checkpoint_pairs_duplicates_and_embeds_both_original_values(tmp_path):
+    columns = ["Trade ID", "Quantity", "Price", "Instrument Version"]
+    designer = snapshot(columns, [[" 427732107009", "1.0", "6938.10", "2"]] * 2
+                        + [[" 427732107009", "2.0", "6950.125", "3"]])
+    designer["schema"] = [{"name": name, "type": "V_WString"} for name in columns]
+    python = snapshot(columns, [[427732107009, 2, 6950.125, 3]] + [[427732107009, 1, 6938.1, 2]] * 2)
+
+    def run(producer, frame):
+        return {"producer": producer, "source_sha256": "source", "runtime_sha256": "runtime", "status": "success",
+                "nodes": {"5": {"tool_type": "DynamicInput", "status": "success", "outputs": {"Output": frame}}}}
+
+    left, right = run("alteryx", designer), run("python", python)
+    result = compare_behavior_runs(left, right, "runtime", align_checkpoints=True,
+                                   presentation_policy=(set(), {}))
+    finding, = result["comparisons"]
+    assert result["status"] == "coarse_match"
+    assert finding["order_differences"] == ["rows"]
+    assert finding["exact_comparison"]["status"] == "mismatch"
+    write_table_reports(tmp_path, left, right, result, (None, None))
+    rows_by_kind = {}
+    for path in (tmp_path / "tables").glob("*.js"):
+        if path.name != "view.js":
+            data = re.search('= "([^"]+)";', path.read_text(encoding="ascii"))[1]
+            rows = json.loads(gzip.decompress(base64.b64decode(data)))["rows"]
+            rows_by_kind[rows[0][0][0]] = rows
+    expected_id = rows_by_kind["string"][0][0]
+    actual_id = rows_by_kind["int"][1][0]
+    assert expected_id[:2] == ["string", " 427732107009"]
+    assert actual_id[:2] == ["int", "427732107009"]
+    assert expected_id[3] == actual_id[3]
+
+    python["rows"][1] = python["rows"][0].copy()
+    mismatched = compare_behavior_runs(left, right, "runtime", align_checkpoints=True,
+                                       presentation_policy=(set(), {}))
+    assert mismatched["status"] == "mismatch"
+
+
+@pytest.mark.parametrize(("column", "expected", "actual", "match"), [
+    ("Price", ["1.23000000000000000000000000000001"], [Decimal("1.23000000000000000000000000000002")], False),
+    ("Price", ["1.000001"], [1.0], False),
+    ("Price", ["1.20"], ["1.2"], False),
+    ("Price", ["1.20"], [1.2], True),
+    ("Amount", ["00123"], [123], False),
+    ("Trade ID", [" 00123"], [123], False),
+    ("Trade ID", [" 123", "123"], [123, 123], False),
+    ("Trade ID", [" 123", " 123"], [123, 123], True),
+    ("Trade ID", [" 9007199254740993"], [9007199254740993], True),
+    ("Trade ID", [" 9007199254740993"], [9007199254740992.0], False),
+    ("Instrument Version", ["1.0"], [1], False),
+])
+def test_numeric_text_rules_keep_meaningful_digits_and_identifier_variants(column, expected, actual, match):
+    left = snapshot([column], [[value] for value in expected])
+    right = snapshot([column], [[value] for value in actual])
+    rules = coarse_rules(left, right, set())
+    result = compare_snapshots(coarse_snapshot(left, rules), coarse_snapshot(right, rules))
+    assert result["values_match"] is match

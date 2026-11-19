@@ -20,7 +20,7 @@ def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, 
     display = {"preserve_row_order": ordered}
     if direction == "outputs" and (keys := group_keys.get(node_id)):
         display["alignment_keys"] = keys
-    if exact["status"] != "mismatch" or not (rules := coarse_rules(expected, protected)):
+    if exact["status"] != "mismatch" or not (rules := coarse_rules(expected, actual, protected)):
         return {**exact, **display}
     coarse = compare_snapshots(coarse_snapshot(expected, rules), coarse_snapshot(actual, rules), **options)
     display["coarse_rules"] = rules

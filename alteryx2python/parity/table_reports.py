@@ -44,7 +44,7 @@ def _table_data(directory, snapshot, saved, rules):
         return None
     columns = snapshot["columns"]
     column_rules = tuple(rules.get(name) for name in columns)
-    key = (id(snapshot), column_rules)
+    key = (id(snapshot), tuple(tuple(rule) if isinstance(rule, list) else rule for rule in column_rules))
     if key in saved:
         return saved[key]
     schema = snapshot.get("schema") or []

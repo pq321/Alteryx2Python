@@ -9,6 +9,10 @@ from alteryx2python.expressions.lexer import tokenize
 
 
 _TEXT_TYPES = {"String", "WString", "V_String", "V_WString"}
+_NUMERIC_KINDS = {"int", "float", "decimal"}
+_NUMBER_TEXT = re.compile(r"[+-]?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?")
+_IDENTIFIER_TEXT = re.compile(r" *(?:0|[1-9][0-9]*)")
+_IDENTIFIER_WORDS = {"id", "identifier", "code", "version"}
 _DATE_VALUE = re.compile(r"(\d{4}-\d{2}-\d{2})(?:[T ]00:00:00(?:\.0+)?)?")
 _ROW_FIELD = re.compile(r"^Row[+-]\d+:", re.IGNORECASE)
 
@@ -63,7 +67,59 @@ def checkpoint_policy(workflow):
     return protected, group_keys
 
 
-def coarse_rules(snapshot, protected):
+def _column_kind(rows, index):
+    kind = None
+    for row in rows:
+        if index >= len(row) or row[index]["kind"] == "null":
+            continue
+        current = row[index]["kind"]
+        if current in {"decimal", "float"}:
+            current = "number"
+        if kind is None or (kind == "int" and current == "number"):
+            kind = current
+        elif kind != current and (kind, current) != ("number", "int"):
+            return None
+    return kind
+
+
+def _identifier_name(name):
+    words = re.sub(r"(?<=[a-z0-9])(?=[A-Z])", " ", name)
+    return bool(_IDENTIFIER_WORDS.intersection(re.findall(r"[a-z]+", words.casefold())))
+
+
+def _distinct_identifier_padding(rows, index):
+    originals = {}
+    for row in rows:
+        if index >= len(row) or row[index]["kind"] != "string":
+            continue
+        value = row[index]["value"]
+        if _IDENTIFIER_TEXT.fullmatch(value):
+            if originals.setdefault(value.lstrip(" "), value) != value:
+                return False
+    return True
+
+
+def _numeric_text_rules(expected, actual, rules, protected):
+    # Compare only cross-type columns. Numeric-looking text on both sides is still text.
+    counts = [Counter(snapshot["columns"]) for snapshot in (expected, actual)]
+    indexes = {name: index for index, name in enumerate(actual["columns"])}
+    left_rows, right_rows = rows = expected["rows"], actual["rows"]
+    for left, name in enumerate(expected["columns"]):
+        if any(count[name] != 1 for count in counts) or rules.get(name) == "date":
+            continue
+        right = indexes[name]
+        kinds = (_column_kind(left_rows, left), _column_kind(right_rows, right))
+        if "string" not in kinds or not {"int", "number"}.intersection(kinds):
+            continue
+        identifier = _identifier_name(name) or name.casefold() in protected
+        if identifier:
+            text_side = kinds.index("string")
+            if "int" not in kinds or not _distinct_identifier_padding(rows[text_side], (left, right)[text_side]):
+                continue
+        rules[name] = ("identifier_text" if identifier else "numeric_text", rules.get(name))
+
+
+def coarse_rules(snapshot, actual, protected):
     fields = Counter(snapshot["columns"])
     rules = {}
     for field in snapshot.get("schema") or ():
@@ -76,13 +132,52 @@ def coarse_rules(snapshot, protected):
             scale = str(field.get("scale"))
             if scale.isdecimal() and int(scale) < 50:
                 rules[name] = int(scale)
-        elif dtype in _TEXT_TYPES and name.casefold() not in protected:
+        elif dtype in _TEXT_TYPES and name.casefold() not in protected and not _identifier_name(name):
             rules[name] = "empty"
+    _numeric_text_rules(snapshot, actual, rules, protected)
     return rules
+
+
+def _text_number(cell, mode, fallback):
+    kind, value = cell["kind"], cell.get("value")
+    if mode == "identifier_text":
+        if kind in {"int", "string"} and _IDENTIFIER_TEXT.fullmatch(value):
+            return {"kind": "coarse_identifier", "value": value.lstrip(" ")}
+    elif kind in _NUMERIC_KINDS or (kind == "string" and _NUMBER_TEXT.fullmatch(value)):
+        try:
+            number = Decimal(str(float.fromhex(value))) if kind == "float" else Decimal(value)
+        except (InvalidOperation, OverflowError, ValueError):
+            return cell
+        if number.is_finite():
+            if isinstance(fallback, int):
+                return _scaled_number(cell, number, fallback)
+            if number.is_zero():
+                return {"kind": "coarse_number", "value": "0"}
+            # Trim trailing zeros without Decimal's context-dependent rounding.
+            sign, digits, exponent = number.as_tuple()
+            coefficient = "".join(map(str, digits))
+            significant = coefficient.rstrip("0")
+            exponent += len(coefficient) - len(significant)
+            return {"kind": "coarse_number", "value": f"{'-' if sign else ''}{significant}e{exponent}"}
+    return coarse_cell(cell, fallback)
+
+
+def _scaled_number(cell, number, scale):
+    if number.is_finite():
+        try:
+            with localcontext() as context:
+                context.prec = 100
+                rounded = number.quantize(Decimal(1).scaleb(-scale), rounding=ROUND_HALF_UP)
+            return {"kind": "coarse_decimal", "value": format(abs(rounded) if not rounded else rounded, "f")}
+        except InvalidOperation:
+            pass
+    return cell
 
 
 def coarse_cell(cell, rule):
     kind, value = cell["kind"], cell.get("value")
+    if isinstance(rule, (tuple, list)):
+        return _text_number(cell, *rule)
     if rule == "empty" and (kind == "null" or (kind == "string" and value == "")):
         return {"kind": "coarse_empty"}
     if rule == "date" and kind in {"date", "datetime", "string"}:
@@ -93,14 +188,10 @@ def coarse_cell(cell, rule):
             except ValueError:
                 return cell
             return {"kind": "coarse_date", "value": day.isoformat()}
-    if isinstance(rule, int) and kind in {"int", "decimal", "float"}:
+    if isinstance(rule, int) and kind in _NUMERIC_KINDS:
         try:
             number = Decimal(str(float.fromhex(value))) if kind == "float" else Decimal(value)
-            if number.is_finite():
-                with localcontext() as context:
-                    context.prec = 100
-                    rounded = number.quantize(Decimal(1).scaleb(-rule), rounding=ROUND_HALF_UP)
-                return {"kind": "coarse_decimal", "value": format(abs(rounded) if not rounded else rounded, "f")}
+            return _scaled_number(cell, number, rule)
         except (InvalidOperation, OverflowError, ValueError):
             pass
     return cell
