@@ -216,6 +216,10 @@ def _normalize_tool_type(plugin_name: str) -> str:
 def _normalize_macro_tool_type(macro_name: str) -> str | None:
     if not macro_name:
         return None
+    from alteryx2python.tools.wait import is_crew_wait_macro
+
+    if is_crew_wait_macro(macro_name):
+        return "CReWWaitASecond"
     if Path(macro_name).name.lower() == "cleanse.yxmc":
         return "DataCleansing"
     catalog_entry = catalog_entry_for_plugin(macro_name)

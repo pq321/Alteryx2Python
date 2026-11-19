@@ -183,9 +183,15 @@ def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) 
 
 def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[str] | None:
     """Return standalone function-body statements, or None for another tool."""
-    if kind not in {"TextInput", "DbFileInput", "DbFileOutput", "DynamicInput", "DateTimeNow"}:
+    if kind not in {"TextInput", "DbFileInput", "DbFileOutput", "DynamicInput", "DateTimeNow", "BlobInput"}:
         return None
     try:
+        if kind == "BlobInput":
+            from alteryx2python.tools.blobinput import blob_input_options, read_blob_rows
+
+            function = compiler.linker.function(read_blob_rows)
+            parameters = ", ".join(repr(value) for value in blob_input_options(config))
+            return [f"return {function}({frame}, input_dir, {parameters})"]
         if kind == "DateTimeNow":
             from alteryx2python.tools.datetimenow import FORMAT_MAP, date_time_frame
 

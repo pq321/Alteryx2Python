@@ -22,7 +22,7 @@ def runcommand_tool(
     runtime = context.runtime_config or {}
     executed = False
     if runtime.get('execute_commands', bool(runtime.get('allowed_commands'))):
-        from alteryx2python.tools.delivery import run_checked_command
+        from alteryx2python.tools.delivery import command_source_options, run_checked_command
         from pathlib import Path
         base = Path(runtime.get('input_dir') or config.get('base_dir', '.'))
         directory = base / (config.get('working_dir') or '')
@@ -32,7 +32,9 @@ def runcommand_tool(
         output = run_checked_command(program, config.get('arguments', ''),
             runtime.get('command_working_dir') or directory,
             input_frame, config.get('input_file', ''), config.get('output_file', ''),
-            runtime.get('allowed_commands', ()), runtime.get('command_timeout', 30))
+            runtime.get('allowed_commands', ()), runtime.get('command_timeout', 30),
+            write_source_options=command_source_options(config.get('input_file', ''), config.get('write_source_options')),
+            isolate_write_source=bool(runtime.get('command_working_dir')))
         executed = True
     outputs = {"Output": output}
     context.record_node(

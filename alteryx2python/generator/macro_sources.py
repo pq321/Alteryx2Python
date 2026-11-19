@@ -47,9 +47,13 @@ def attach_macro_ordering(workflow, embedded, *, tolerate_unreadable=False):
 
 
 def collect_macro_sources(workflow):
+    from alteryx2python.tools.wait import is_crew_wait_macro
+
     sources, missing = {}, []
 
     def visit(raw, base):
+        if is_crew_wait_macro(raw):
+            return
         selected = resolve_macro_path(raw, base)
         if selected is None:
             missing.append(str(base / raw))

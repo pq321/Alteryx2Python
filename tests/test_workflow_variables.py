@@ -176,3 +176,79 @@ def test_record_field_precedence_over_unwrapped_constant_is_preserved(tmp_path):
     namespace['run_workflow'](output_dir=tmp_path / 'out', checkpoints=captured)
     assert expected['answer'].tolist() == [7]
     pd.testing.assert_frame_equal(expected, captured[str(formula)]['Output'])
+
+
+def test_phase_one_and_two_convert_saved_path_and_delay_tools(tmp_path, monkeypatch):
+    from alteryx2python.generator.python_generator import PythonGenerator
+    from alteryx2python.generator.readable import read_phase_one
+    from alteryx2python.tools import delivery, wait
+
+    root_path = str(tmp_path) + "\\"
+    (tmp_path / "payload.xlsm").write_bytes(b"\x00\xffmacro bytes")
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["SourcePath"], [["payload.xlsm"], ["payload.xlsm"]])
+    formula = builder.add_formula([
+        ("FilePath_Output", "V_WString", "1073741823",
+         r'[User.FilePath] + "Output\Report_" + datetimeformat(DateTimeNow(), "%d%m%Y") + ".xlsm"'),
+    ])
+    blob = builder._node(
+        "BlobInput", '<FileName/><ModifyMethod>Path</ModifyMethod><ModifyFilename_Field>SourcePath</ModifyFilename_Field>'
+        '<ModifyFilename_StopOnError value="True"/><SplitBlobs value="False"/>', (250, 0),
+    )
+    crew = builder._tool_id()
+    builder.nodes_xml.append(
+        f'<Node ToolID="{crew}"><GuiSettings/><Properties><Configuration>'
+        '<Value name="Numeric Up Down (12)">30</Value>'
+        '</Configuration></Properties><EngineSettings Macro="CReW\\CReW_WaitASecond.yxmc"/></Node>'
+    )
+    command = builder._node(
+        "RunCommand", r'<OutputConfiguration><Configuration><File FileFormat="0">%user.FilePath%Static\test.txt</File>'
+        '<FormatSpecificOptions><HeaderRow>False</HeaderRow><CodePage>65001</CodePage></FormatSpecificOptions>'
+        '</Configuration></OutputConfiguration><ProgramName>cmd</ProgramName>'
+        '<Arguments>/c timeout /t 20 /nobreak</Arguments><WorkingDir/>', (250, 300),
+    )
+    builder.connect(source, formula)
+    builder.connect(formula, blob)
+    builder.connect(blob, crew, target_anchor="Input7")
+    builder.connect(formula, command)
+    workflow = XmlWorkflowParser().parse_xml(
+        with_constants(builder.render(), [("User", "FilePath", root_path, False)]), tmp_path / "migration.yxmd",
+    )
+    phase_one_dir, phase_two_dir = tmp_path / "p1", tmp_path / "p2"
+    phase_one = tmp_path / "phase_one.py"
+    phase_one.write_text(PythonGenerator().generate(workflow), encoding="utf-8")
+    phase_one_ns = {"__file__": str(phase_one)}
+    exec(phase_one.read_text(encoding="utf-8"), phase_one_ns)
+    checkpoint_time = "2026-10-13 09:15:00"
+    observed = []
+
+    def sleep(seconds):
+        if seconds == 20:
+            assert (phase_two_dir if observed.count(20) else phase_one_dir).joinpath("test.txt").is_file()
+        observed.append(seconds)
+
+    monkeypatch.setattr(wait.time, "sleep", sleep)
+    monkeypatch.setattr(delivery.subprocess, "run", lambda *args, **kwargs: pytest.fail("Delay invoked a shell"))
+    phase_one_result, _ = phase_one_ns["run_with_context"](
+        WorkflowContext(runtime_config={"command_working_dir": phase_one_dir, "as_of": checkpoint_time}),
+    )
+    package = ReadablePythonGenerator().generate(read_phase_one(phase_one))
+    phase_two_ns = {"__file__": str(tmp_path / "phase_two.py")}
+    exec(package.verification_source, phase_two_ns)
+    checkpoints = {}
+    phase_two_ns["run_workflow"](
+        input_dir=tmp_path, output_dir=phase_two_dir, command_working_dir=phase_two_dir,
+        as_of=checkpoint_time, checkpoints=checkpoints,
+    )
+    for tool, port in [(formula, "Output"), (blob, "Output"), (crew, "Output8")]:
+        pd.testing.assert_frame_equal(
+            phase_one_result.node_results[str(tool)].outputs[port], checkpoints[str(tool)][port], check_exact=True,
+        )
+    expected_name = root_path + r"Output\Report_13102026.xlsm"
+    assert checkpoints[str(formula)]["Output"]["FilePath_Output"].tolist() == [expected_name] * 2
+    assert checkpoints[str(blob)]["Output"].columns.tolist() == ["SourcePath", "FilePath_Output", "Blob"]
+    assert checkpoints[str(crew)]["Output8"]["Blob"].tolist() == [b"\x00\xffmacro bytes"] * 2
+    assert observed.count(30) == 4 and observed.count(20) == 2
+    first, second = ((directory / "test.txt").read_bytes() for directory in (phase_one_dir, phase_two_dir))
+    assert first == second and b"Report_13102026.xlsm" in first and b"FilePath_Output" not in first
+    assert not (tmp_path / "Static" / "test.txt").exists()

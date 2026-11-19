@@ -101,13 +101,16 @@ def _date_columns(frame: pd.DataFrame) -> set[str]:
     }
 
 
-def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[str, Any]) -> None:
+def delimited_output_options(config):
     header = _format_option(config, "HeaderRow", "True").lower() == "true"
     delimiter = _format_option(config, "Delimeter", ",") or ","
     line_ending = _line_ending(config)
     code_page = _format_option(config, "CodePage", "28591")
     encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
+    return header, delimiter, line_ending, encoding
 
+
+def write_delimited_frame(path, output_frame, header, delimiter, line_ending, encoding):
     date_columns = _date_columns(output_frame)
     ensure_output_directory(path.parent)
     if not header and len(output_frame.columns) == 1:
@@ -120,6 +123,10 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
     for index, column in enumerate(rendered.columns):
         rendered.iloc[:, index] = [_format_cell(value, column in date_columns) for value in rendered.iloc[:, index]]
     rendered.to_csv(path, index=False, header=header, sep=delimiter, lineterminator=line_ending, encoding=encoding)
+
+
+def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[str, Any]) -> None:
+    write_delimited_frame(path, output_frame, *delimited_output_options(config))
 
 
 def write_xlsx(path, frame, sheet="Sheet1", *, header=True):
@@ -166,7 +173,6 @@ def dbfileoutput_tool(
     file_value = str(config.get("file", ""))
     if not file_value:
         raise ValueError("DbFileOutput config requires file")
-
     raw_path, selector = _split_alteryx_file_reference(file_value)
     runtime = context.runtime_config or {}
     base = runtime.get('input_dir') if runtime.get('use_workflow_output_paths') else None
@@ -174,7 +180,6 @@ def dbfileoutput_tool(
     file_format = _file_attribute(config, "FileFormat")
     max_records = _max_records(config)
     output_frame = input_frame.head(max_records) if max_records is not None else input_frame
-
     if file_format == "0" or path.suffix.lower() in {".csv", ".eml", ".txt"}:
         _write_delimited_text(path, output_frame, config)
     elif path.suffix.lower() == ".xlsx":
@@ -182,7 +187,6 @@ def dbfileoutput_tool(
         write_xlsx(path, output_frame, sheet, header=header)
     else:
         raise NotImplementedError(f"Unsupported DbFileOutput FileFormat: {file_format or path.suffix}")
-
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
         tool_type="DbFileOutput",

@@ -6,17 +6,22 @@ import html
 import json
 import mimetypes
 import os
+import re
 import shlex
 import shutil
 import subprocess
 import smtplib
 import ssl
+import time
 from email.message import EmailMessage
 from email.policy import SMTP
 from pathlib import Path, PureWindowsPath
 
 import pandas as pd
-from alteryx2python.tools.dbfileoutput import delivery_output_path, ensure_output_directory
+from alteryx2python.tools.dbfileoutput import (
+    _file_attribute, _max_records, delimited_output_options, delivery_output_path,
+    ensure_output_directory, write_delimited_frame, write_xlsx, xlsx_output_options,
+)
 
 
 PROFILE = 'html-draft-v1'
@@ -317,28 +322,75 @@ def command_arguments(arguments):
         release(pointer)
 
 
-def run_checked_command(program, arguments, working_dir, input_frame, input_file, output_file, allowed_programs, timeout=30):
+def command_delay_seconds(program, arguments):
+    if str(program).casefold() not in {'cmd', 'cmd.exe'} or not isinstance(arguments, str):
+        return None
+    match = re.fullmatch(r'\s*/c\s+timeout(?:\.exe)?\s+/t\s+([0-9]{1,5})\s+/nobreak\s*', arguments, re.IGNORECASE)
+    return int(match.group(1)) if match else None
+
+
+def command_source_options(filename, options):
+    if not filename or not options:
+        return None
+    raw, _, selector = filename.partition('|||')
+    suffix = PureWindowsPath(raw).suffix.lower()
+    file_format = _file_attribute(options, "FileFormat")
+    limit = _max_records(options)
+    if file_format == "0" or suffix in {".csv", ".eml", ".txt"}:
+        return "delimited", limit, delimited_output_options(options)
+    if suffix == ".xlsx":
+        return "xlsx", limit, xlsx_output_options(options, selector)
+    raise NotImplementedError(f"Unsupported Run Command Write Source format: {file_format or suffix}")
+
+
+def run_checked_command(program, arguments, working_dir, input_frame, input_file, output_file, allowed_programs,
+                        timeout=30, *, write_source_options=None, isolate_write_source=False):
     candidate = Path(working_dir) / program
     if not Path(program).is_absolute() and candidate.is_file():
         program = str(candidate.resolve())
-    executable = shutil.which(program) or program
-    resolved = Path(executable).resolve()
-    allowed = {Path(shutil.which(value) or value).resolve() for value in allowed_programs}
-    if resolved not in allowed:
-        raise PermissionError(f'Command is not explicitly allowed: {program}')
+    seconds = command_delay_seconds(program, arguments)
+    if seconds is None:
+        executable = shutil.which(program) or program
+        resolved = Path(executable).resolve()
+        allowed = {Path(shutil.which(value) or value).resolve() for value in allowed_programs}
+        if resolved not in allowed:
+            raise PermissionError(f'Command is not explicitly allowed: {program}')
     directory = Path(working_dir)
     directory.mkdir(parents=True, exist_ok=True)
     if input_file:
-        input_frame.to_csv(directory / input_file, index=False)
-    argv = command_arguments(arguments)
-    command = [str(resolved), *argv]
-    if os.name == 'nt' and resolved.suffix.lower() in {'.bat', '.cmd'}:
-        if any(any(char in value for char in '&|<>^%\r\n') for value in [str(resolved), *argv]):
-            raise ValueError('Batch command arguments contain unsupported shell metacharacters')
-        command = subprocess.list2cmdline([os.environ.get('COMSPEC', 'cmd.exe'), '/d', '/s', '/c']) + ' "' + subprocess.list2cmdline([str(resolved), *argv]) + '"'
-    subprocess.run(command, cwd=directory, check=True, timeout=timeout,
-                   capture_output=True, text=True,
-                   creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
+        if input_frame is None:
+            raise KeyError('Run Command Write Source requires Input')
+        location = input_file.partition('|||')[0]
+        path = PureWindowsPath(location)
+        if seconds is not None and isolate_write_source and (path.anchor or '..' in path.parts):
+            location = path.name
+        destination = directory / location
+        if write_source_options:
+            file_kind, limit, options = write_source_options
+            output_frame = input_frame if limit is None else input_frame.head(limit)
+            if file_kind == "delimited":
+                write_delimited_frame(destination, output_frame, *options)
+            else:
+                sheet, header = options
+                write_xlsx(destination, output_frame, sheet, header=header)
+        else:
+            ensure_output_directory(destination.parent)
+            input_frame.to_csv(destination, index=False)
+    if seconds is not None:
+        if timeout is not None and seconds > timeout:
+            raise subprocess.TimeoutExpired([program, arguments], timeout)
+        if seconds:
+            time.sleep(seconds)
+    else:
+        argv = command_arguments(arguments)
+        command = [str(resolved), *argv]
+        if os.name == 'nt' and resolved.suffix.lower() in {'.bat', '.cmd'}:
+            if any(any(char in value for char in '&|<>^%\r\n') for value in [str(resolved), *argv]):
+                raise ValueError('Batch command arguments contain unsupported shell metacharacters')
+            command = subprocess.list2cmdline([os.environ.get('COMSPEC', 'cmd.exe'), '/d', '/s', '/c']) + ' "' + subprocess.list2cmdline([str(resolved), *argv]) + '"'
+        subprocess.run(command, cwd=directory, check=True, timeout=timeout,
+                       capture_output=True, text=True,
+                       creationflags=subprocess.CREATE_NO_WINDOW if os.name == 'nt' else 0)
     if output_file:
         return pd.read_csv(directory / output_file)
     return input_frame.copy() if input_frame is not None else pd.DataFrame()

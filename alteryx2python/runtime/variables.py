@@ -12,7 +12,7 @@ from alteryx2python.engine_variables import engine_constants, TEMP_TOKEN
 
 
 ACTIVE_VARIABLES = ContextVar('alteryx_workflow_variables', default={})
-TOKEN = re.compile(r'(?<!\[)%(Engine|User|Global|Question)\.([^%]+)%')
+TOKEN = re.compile(r'(?<!\[)%((?i:Engine|User|Global|Question))\.([^%]+)%')
 
 
 def workflow_variables(workflow, overrides=None):
@@ -50,7 +50,7 @@ def workflow_variables(workflow, overrides=None):
 def resolve_variable_tokens(value, variables):
     if isinstance(value, str):
         def replace(match):
-            name = match.group(1) + '.' + match.group(2)
+            name = match.group(1).title() + '.' + match.group(2)
             if name not in variables:
                 raise ValueError(f'Unresolved workflow variable: {name}')
             return str(variables[name])

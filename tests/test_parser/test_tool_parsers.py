@@ -1535,8 +1535,8 @@ def test_runcommand_parser_normalizes_external_command_config():
         "working_dir": "%temp%",
         "run_minimized": True,
         "run_silent": False,
-        "input_file": "input.yxdb",
-        "output_file": "output.csv",
+        "input_file": "output.csv",
+        "output_file": "input.yxdb",
     }
 
 
@@ -1702,6 +1702,7 @@ def test_blobinput_parser_normalizes_file_options():
         "stop_on_error": False,
         "split_blobs": True,
         "blob_chunk_size": "10",
+        "native_output": True,
     }
 
 

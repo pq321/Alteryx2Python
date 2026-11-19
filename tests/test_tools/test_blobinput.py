@@ -1,4 +1,5 @@
 import pandas as pd
+import pytest
 
 from alteryx2python.tools.blobinput import BlobInputTool, blobinput_tool
 
@@ -39,3 +40,17 @@ def test_blobinput_uses_filename_field_from_input(tmp_path, workflow_context):
     )["Output"]
 
     assert output["Blob"].tolist() == [b"x"]
+
+
+def test_blobinput_entire_path_does_not_fall_back_to_template(tmp_path, workflow_context):
+    template = tmp_path / "template.xlsm"
+    template.write_bytes(b"template")
+    missing = tmp_path / "missing.xlsm"
+    with pytest.raises(FileNotFoundError) as failure:
+        blobinput_tool(
+            {"Input": pd.DataFrame({"SourcePath": [str(missing)]})},
+            {"file_name": str(template), "modify_method": "Path", "modify_filename_field": "SourcePath",
+             "stop_on_error": True, "native_output": True},
+            workflow_context,
+        )
+    assert failure.value.filename == str(missing)

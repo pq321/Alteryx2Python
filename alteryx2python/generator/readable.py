@@ -32,7 +32,8 @@ SPECIAL_TEMPLATES = frozenset({'Formula', 'Filter', 'BlockUntilDone', 'ToolConta
     'GenerateRows', 'MultiFieldFormula', 'MultiRowFormula',
     'TextBox', 'HtmlBox', 'BrowseV2', 'Message', 'RunCommand', 'Email', 'PortfolioComposerText',
     'PortfolioComposerTable', 'PortfolioComposerLayout', 'PortfolioComposerRender',
-    'MacroBoundaryInput', 'MacroOutput', 'MacroResult', 'ControlContainer', 'JupyterCode', 'WaitASecond', 'WaitSeconds'})
+    'MacroBoundaryInput', 'MacroOutput', 'MacroResult', 'ControlContainer', 'JupyterCode',
+    'WaitASecond', 'WaitSeconds', 'CReWWaitASecond'})
 
 
 def identifier(value):
@@ -424,13 +425,17 @@ class ReadablePythonGenerator:
         from alteryx2python.expressions.parser import parse_expression
         from alteryx2python.tools import delivery
         kind = node.tool_type
-        if kind in {'WaitASecond', 'WaitSeconds'}:
+        if kind in {'WaitASecond', 'WaitSeconds', 'CReWWaitASecond'}:
             import math
+            from alteryx2python.tools.wait import wait_for_frame
+
             seconds = float(config.get('seconds', 1))
             if not math.isfinite(seconds) or seconds < 0:
                 raise UnsupportedLowering('Wait duration must be finite and nonnegative')
-            self.linker.imports.add('import time')
-            return [f'time.sleep({seconds!r})', f'return {next(iter(arguments.values()))}.copy()']
+            if len(arguments) != 1:
+                raise UnsupportedLowering('Wait tool requires a single Input frame')
+            function = self.linker.function(wait_for_frame)
+            return [f'return {function}({next(iter(arguments.values()))}, {seconds!r}, {config.get("per_record", False)!r})']
         frame = next(iter(arguments.values()), None)
         if kind == 'Message':
             when = (config.get('when') or 'First').lower()
@@ -575,13 +580,19 @@ class ReadablePythonGenerator:
             return ['return None']
         if kind == 'RunCommand':
             function = self.linker.function(delivery.run_checked_command)
+            try:
+                write_options = delivery.command_source_options(config.get('input_file', ''), config.get('write_source_options'))
+            except (ValueError, NotImplementedError) as exc:
+                raise UnsupportedLowering(str(exc)) from exc
             parameters = config.get('_command_parameters', {})
             program, arguments, directory = [parameters.get(key, repr(config.get(key, ''))) for key in ('program_name', 'arguments', 'working_dir')]
             return [f'program = {program}',
                     'if not Path(program).is_absolute() and (input_dir / program).is_file():',
                     '    program = str((input_dir / program).resolve())',
                     f'return {function}(program, {arguments}, command_working_dir or input_dir / ({directory}), '
-                    f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands)']
+                    f'{frame}, {config.get("input_file", "")!r}, {config.get("output_file", "")!r}, allowed_commands, '
+                    f'write_source_options={write_options!r}, '
+                    'isolate_write_source=bool(command_working_dir))']
         if kind.startswith('PortfolioComposer') or kind == 'Email':
             if self.profile == delivery.XLSX_PROFILE:
                 if kind == 'PortfolioComposerLayout':
@@ -791,7 +802,7 @@ class ReadablePythonGenerator:
                 outputs = tuple(anchor.name for anchor in node.output_anchors) if node.tool_type in {'MacroResult', 'ControlContainer', 'DateTimeNow'} else (
                     ('Output',) if node.tool_type == 'MacroBoundaryInput' else metadata.output_anchors)
                 runtime_arguments = (['as_of'] if node.tool_type in {'DateTimeNow', 'Formula', 'Filter', 'GenerateRows', 'MultiFieldFormula', 'MultiRowFormula', 'Message'} else
-                    ['input_dir'] if node.tool_type in {'DbFileInput', 'DynamicInput'} else
+                    ['input_dir'] if node.tool_type in {'DbFileInput', 'DynamicInput', 'BlobInput'} else
                     ['input_dir', 'command_working_dir', 'allowed_commands'] if node.tool_type == 'RunCommand' else
                     ['output_dir'] if node.tool_type in {'DbFileOutput', 'Email', 'PortfolioComposerRender'} else [])
                 if node.tool_type == 'DbFileOutput' or (node.tool_type == 'PortfolioComposerRender' and self.profile == 'xlsx-table-v1'):
@@ -1023,7 +1034,7 @@ class ReadablePythonGenerator:
             def event_value(value):
                 pieces, start = [], 0
                 for match in TOKEN.finditer(value):
-                    question = match.group(2) if match.group(1) == 'Question' else None
+                    question = match.group(2) if match.group(1).casefold() == 'question' else None
                     if question not in self.parameter_names:
                         continue
                     pieces.extend([repr(resolve_variable_tokens(value[start:match.start()], event_constants)),
@@ -1055,7 +1066,8 @@ class ReadablePythonGenerator:
                         for item in event['attachments']:
                             resolved = resolve_variable_tokens(item, event_constants)
                             produced = attachment_output(resolved, event_outputs)
-                            dynamic = any(match.group(1) == 'Question' and match.group(2) in self.parameter_names for match in TOKEN.finditer(item))
+                            dynamic = any(match.group(1).casefold() == 'question' and match.group(2) in self.parameter_names
+                                          for match in TOKEN.finditer(item))
                             value = event_value(item)
                             path = 'input_dir / (' + value + ')'
                             if dynamic:

@@ -3,10 +3,15 @@
 - Input anchor: `Input`
 - Output anchor: `Output`
 
-Workflow execution uses an explicit executable allowlist. The workflow CLI
+External program execution uses an explicit executable allowlist. The workflow CLI
 and both generated scripts accept `--allow-command`. Phase One API callers
 can set `allowed_commands` in the runtime configuration and can explicitly
 request a dry run with `execute_commands: false`.
+
+Designer saves Write Source under `OutputConfiguration` and Read Results under
+`InputConfiguration`. The Python phases write the configured source before
+the program runs. The exact Windows `cmd /c timeout /t N /nobreak` form is a
+bounded Python delay and uses no external executable.
 
 App Actions can bind an entire program, argument string, or working directory
 to a text answer in a parameterized Phase Two export. Bound executables still

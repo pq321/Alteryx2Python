@@ -18,6 +18,12 @@ are hashed; changed macro files invalidate prepared evidence. External data/mode
 dependencies remain real. Recursive macro file inclusion remains unsupported;
 the explicit native IterativeMacro feedback profile is a separate mechanism.
 
+The inspected CReW `CReW_WaitASecond.yxmc` form is lowered directly in both
+Python phases. Its saved `Numeric Up Down (12)` setting is the delay per
+incoming record. The generated tool keeps the `Input7` and `Output8` anchors
+and forwards the frame after the configured waits. Conversion does not need
+the nested batch macro. Designer execution still uses the original macro.
+
 These are configuration-specific local profiles, not proof of every native macro
 mode, field map, iteration constant or output schema behavior. Native inner-macro
 checkpoints are not automatically exported by outer graph probes. See

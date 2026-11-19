@@ -79,7 +79,7 @@ def test_command_action_controls_execution_and_failure_events(tmp_path, cancel_o
 
     builder = WorkflowBuilder()
     command = builder._node('RunCommand', f'<ProgramName>{escape(sys.executable)}</ProgramName><Arguments />'
-                            '<OutputConfiguration><Configuration><File>read.csv</File></Configuration></OutputConfiguration>', (100, 100))
+                            '<InputConfiguration><Configuration><File>read.csv</File></Configuration></InputConfiguration>', (100, 100))
     command_output = builder.add_csv_output('command.csv')
     builder.connect(command, command_output)
     source = builder.add_text_input(['x'], [['2']])
