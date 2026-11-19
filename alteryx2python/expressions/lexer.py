@@ -16,7 +16,7 @@ def tokenize(expression: str) -> list[str]:
             while end < len(expression):
                 if expression[end] == quote and not escaped:
                     break
-                escaped = expression[end] == "\\" and not escaped
+                escaped = quote == '"' and expression[end] == "\\" and not escaped
                 if expression[end] != "\\":
                     escaped = False
                 end += 1

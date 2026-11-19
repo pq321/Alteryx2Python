@@ -18,6 +18,43 @@ from alteryx2python.workflow_events import workflow_events
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 
+def test_local_formula_compatibility_reaches_both_generated_phases(tmp_path):
+    import pandas as pd
+
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["Name"], [["APAC"]])
+    formula = builder.add_formula([
+        ("path", "V_WString", "100", r"""'C:\Reports\' + LowerCase([Name])"""),
+        ("signed", "Int64", "8", "2 * -(3 + 4)"),
+        ("compact", "DateTime", "19", """DateTimeParse("20261013", "%Y%m%d")"""),
+        ("formatted", "DateTime", "19", """DateTimeParse("2026-10- 3 08:09:10", "%Y-%m-%e %T")"""),
+    ])
+    builder.connect(source, formula)
+    builder.connect(formula, builder.add_csv_output("result.csv"))
+    workflow = tmp_path / "formula.yxmd"
+    workflow.write_text(builder.render(), encoding="utf-8")
+    case = tmp_path / "case"
+    prepare_migration(workflow, case)
+    result = resume_migration(case)
+    assert result["phase_one_vs_phase_two"] == result["standalone_execution"] == "match", result
+    row = pd.read_csv(case / "delivery/delivery-output/result.csv").iloc[0]
+    assert row["path"] == r"C:\Reports\apac"
+    assert row["signed"] == -14
+    assert row["compact"] == "2026-10-13 00:00:00"
+    assert row["formatted"] == "2026-10-03 08:09:10"
+
+
+def test_stripping_tracing_preserves_empty_class_syntax():
+    import ast
+
+    from alteryx2python.generator.source_linker import RemoveTracing
+
+    tree = ast.parse("class Marker:\n    context.record_node(name)\n")
+    transformed = RemoveTracing().visit(tree)
+    assert isinstance(transformed.body[0].body[0], ast.Pass)
+    compile(ast.fix_missing_locations(transformed), "<generated>", "exec")
+
+
 def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     workbook = Workbook()
     workbook.active.append(["Wrong worksheet"])

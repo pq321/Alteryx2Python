@@ -87,9 +87,8 @@ class _ExpressionParser:
         return node
 
     def _parse_unary(self, stop_keywords: set[str] | None = None):
-        if self._peek() == "!":
-            self._advance()
-            return UnaryExpression("!", self._parse_unary(stop_keywords))
+        if self._peek() in {"!", "-"}:
+            return UnaryExpression(self._advance(), self._parse_unary(stop_keywords))
         return self._parse_primary(stop_keywords)
 
     def _parse_primary(self, stop_keywords: set[str] | None = None):
@@ -108,7 +107,8 @@ class _ExpressionParser:
             return FieldReference(token[1:-1])
         if (token.startswith('"') and token.endswith('"')) or (token.startswith("'") and token.endswith("'")):
             self._advance()
-            return LiteralExpression(token[1:-1].replace('\\"', '"'))
+            content = token[1:-1]
+            return LiteralExpression(content.replace('\\"', '"') if token.startswith('"') else content)
         if token.upper() in {'TRUE', 'FALSE'} and not self._looks_like_function():
             self._advance()
             return LiteralExpression(token.upper() == 'TRUE')

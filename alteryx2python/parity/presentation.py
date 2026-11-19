@@ -12,7 +12,9 @@ import sys
 from uuid import uuid4
 
 from .amp_export import EXPORT_DIR, _is_amp, native_probe_path, prepare_amp_export
+from .designer_evidence import record_designer_evidence
 from .migration import launch_designer, launch_designer_plan, prepare_migration, resume_migration
+from .output_comparison import build_output_comparison
 from .runner import file_hash, verify_manifest, write_json
 
 
@@ -30,7 +32,7 @@ def add_parser(subparsers, handler):
     designer.add_argument("--app-launch", choices=["auto", "wand", "options"], default="auto")
     designer.add_argument("--prepare-only", action="store_true")
     designer.add_argument("--case", type=Path, help="Launch an already prepared case")
-    compare = steps.add_parser("compare", help="Confirm Designer's outcome, compare Phase 1, and verify Phase 2")
+    compare = steps.add_parser("compare", help="Collect Designer evidence, compare Phase 1, and verify Phase 2")
     compare.add_argument("node", nargs="?", help="Node ID to highlight")
     compare.add_argument("--anchor", help="Anchor to highlight for the selected node")
     compare.add_argument("--outcome", choices=["success", "failed"])
@@ -133,13 +135,14 @@ def _designer(args, state_file, state):
         lines.append(f'Alteryx One prompts dismissed: {receipt["dismissed_alteryx_one"]}')
     if receipt.get("screenshot"):
         lines.append(f'Results screenshot: {receipt["screenshot"]}')
-    if manifest["engine_mode"] == "amp" and receipt["status"] in {"outputs_ready", "app_failed"}:
+    completed = receipt["status"] in {"outputs_ready", "app_failed"} or receipt.get("app_outcome") in {"success", "failed"}
+    if manifest["engine_mode"] == "amp" and completed:
         lines.append("AMP probes will be exported during compare.")
     if receipt.get("detail"):
         lines.append(receipt["detail"])
-    if receipt["status"] in {"outputs_ready", "app_failed"}:
-        lines.append("Next: verify the Designer Results and run demo compare.")
-    return {**result, "display": "\n".join(lines)}, 0 if receipt["status"] in {"outputs_ready", "app_failed"} else 1
+    if completed:
+        lines.append("Next: demo compare")
+    return {**result, "display": "\n".join(lines)}, 0 if completed else 1
 
 
 def _choose_logging_events(source):
@@ -205,17 +208,27 @@ def _compare(args, case):
     outcome = args.outcome
     failed = args.failed_node
     skipped = args.skipped_node
-    if outcome is None and not (native / "manual-review.json").is_file():
-        outcome = _prompt("Observed Designer outcome (success/failed): ").lower()
-        if outcome == "failed" and not failed:
-            failed = _prompt("Failed node IDs (comma-separated): ").replace(",", " ").split()
-        if any(node.get("may_skip") for node in manifest["nodes"]) and not skipped:
-            skipped = _prompt("Observed skipped node IDs (Enter for none): ").replace(",", " ").split()
-    if outcome not in {None, "success", "failed"}:
-        raise ValueError("Enter success or failed after reviewing Designer Results.")
     if (failed or skipped) and outcome is None:
         raise ValueError("Node attestations require --outcome.")
-    _export_amp_probes(case, manifest, migration, set(skipped))
+    receipt_path = case / "designer-run.json"
+    manual = (native / "manual-review.json").is_file()
+    existing = manual or (native / "native-run.json").is_file()
+    if outcome is None and not existing and not receipt_path.is_file():
+        raise ValueError("No Designer run evidence. Run demo designer or supply an observed outcome explicitly.")
+    export_issue = None
+    try:
+        _export_amp_probes(case, manifest, migration, set(skipped))
+    except (OSError, ValueError) as error:
+        if outcome is not None or manual:
+            raise
+        export_issue = str(error)
+    evidence_path = native / "designer-evidence.json"
+    evidence = None
+    if outcome is None and not existing:
+        receipts = _read(receipt_path)
+        if not isinstance(receipts, list) or len(receipts) != 1:
+            raise ValueError("Expected one Designer run receipt for the prepared case")
+        evidence = record_designer_evidence(native, manifest, receipts[0], receipt_path=receipt_path)
     result = resume_migration(case, native_outcome=outcome, failed_nodes=failed, skipped_nodes=skipped)
     delivery = Path(result["report"]).parent
     native_report = delivery / "native-vs-phase-one.json"
@@ -232,6 +245,11 @@ def _compare(args, case):
              and (not args.anchor or item.get("anchor") == args.anchor)]
     lines = [f'Overall: {result["status"]} | Designer / Phase 1: {result["native_vs_phase_one"]}',
              f'Phase 1 / Phase 2: {result["phase_one_vs_phase_two"]} | Standalone: {result["standalone_execution"]}']
+    if evidence:
+        lines.append(f'Designer outcome: {evidence["status"]} | Confirmed skipped nodes: {len(evidence["skipped_nodes"])}')
+        lines.append(f'Designer evidence: {evidence_path}')
+    if export_issue:
+        lines.append(f"AMP export evidence incomplete: {export_issue}")
     for item in shown[:6]:
         lines.append(f'Node {node_id} {item.get("direction", "")}/{item.get("anchor", "")}: {item["status"]}')
     if node_id and not shown:
@@ -270,10 +288,9 @@ def _deliver(args, case):
     directory = report_path.parent
     script = directory / "phase_two.py"
     manifest_path = directory / "phase_two.manifest.json"
-    if not script.is_file() or not manifest_path.is_file():
-        raise ValueError(f"Phase 2 code is unavailable. See {report_path}.")
+    has_script = script.is_file() and manifest_path.is_file()
     node_id = args.node or selection.get("node")
-    nodes = _read(manifest_path)["nodes"]
+    nodes = _read(manifest_path)["nodes"] if has_script else []
     entry = next((item for item in nodes if item["node_id"] == node_id and item.get("line")), None)
     line = entry["line"] if entry else None
     output_dir = directory / "delivery-output"
@@ -281,31 +298,47 @@ def _deliver(args, case):
                      key=lambda path: (len(path.relative_to(output_dir).parts), path))
     preview = next((path for path in outputs if path.suffix.lower() in {".xlsx", ".csv", ".tsv", ".txt"}), None)
     output = preview or (outputs[0] if outputs else None)
+    native = case / "native"
+    pairs = build_output_comparison(native, directory) if (native / "manifest.json").is_file() else []
     lines = [
         f'Overall: {result["status"]} | Standalone: {result["standalone_execution"]}',
-        f'Phase 2: {script}' + (f':{line} (node {node_id})' if line else ""),
-        f'Output: {output or "none recorded"}',
+        (f'Phase 2: {script}' + (f':{line} (node {node_id})' if line else "")) if has_script else 'Phase 2 code unavailable.',
         f'Acceptance report: {report_path}',
     ]
+    if pairs:
+        lines.append(f'Side-by-side outputs: {directory / "side-by-side"}')
+        for pair in pairs:
+            python_label = f'Python Phase {pair["python_phase"]}' if pair["python"] else "Python"
+            lines.extend((f'  Alteryx: {pair["alteryx"] or "no corresponding artifact"}',
+                          f'  {python_label}: {pair["python"] or "no corresponding artifact"}'))
+    else:
+        lines.append(f'Output: {output or "none recorded"}')
     if result.get("phase_two_bindings"):
         lines.append(f'Runtime bindings: {result["phase_two_bindings"]}')
     elif result.get("phase_two_reuse_blocker"):
-        lines.append(f'Phase 2 mode: {result["phase_two_mode"]}. {result["phase_two_reuse_blocker"]}')
-    if node_id and not entry:
+        lines.append(f'Phase 2 mode: {result["phase_two_mode"]} (case replay)')
+        lines.append(f'Reusable compilation: {result["phase_two_reuse_blocker"]}')
+    if result.get("logging_events"):
+        lines.append("Selected After Run events use local Python JSONL logging for this case.")
+    if node_id and not entry and has_script:
         lines.append(f"Node {node_id} has no dedicated source location in this build.")
-    if not args.paths_only and os.name == "nt" and result["status"] == "match":
+    if not args.paths_only and os.name == "nt":
         try:
-            editor = shutil.which("code.exe")
-            launcher = shutil.which("code.cmd")
-            if not editor and launcher:
-                candidate = Path(launcher).parent.parent / "Code.exe"
-                editor = str(candidate) if candidate.is_file() else None
-            if editor:
-                subprocess.Popen([editor, "--goto", f"{script}:{line or 1}"])
-            else:
-                subprocess.Popen(["notepad.exe", str(script)])
-            if preview:
-                os.startfile(str(preview))
+            if has_script:
+                editor = shutil.which("code.exe")
+                launcher = shutil.which("code.cmd")
+                if not editor and launcher:
+                    candidate = Path(launcher).parent.parent / "Code.exe"
+                    editor = str(candidate) if candidate.is_file() else None
+                if editor:
+                    subprocess.Popen([editor, "--goto", f"{script}:{line or 1}"])
+                else:
+                    subprocess.Popen(["notepad.exe", str(script)])
+            pair = next((entry for entry in pairs if entry["alteryx"] and entry["python"]), pairs[0] if pairs else None)
+            candidates = (pair["alteryx"], pair["python"]) if pair else (preview,)
+            for candidate in candidates:
+                if candidate and candidate.suffix.lower() in {".xlsx", ".csv", ".tsv", ".txt"}:
+                    os.startfile(str(candidate))
         except OSError as exc:
             lines.append(f"Could not open a preview: {exc}")
     return {**result, "display": "\n".join(lines)}, 0 if result["status"] == "match" else 1

@@ -78,8 +78,10 @@ def round_multiple(value, multiple):
 def datetime_parse(value, mask):
     if pd.isna(value) or pd.isna(mask):
         return None
+    aliases = {'%e': '%d', '%h': '%b', '%k': '%H', '%P': '%p', '%T': '%H:%M:%S'}
+    pattern = re.sub(r'%%|%[ehkPT]', lambda match: aliases.get(match[0], match[0]), str(mask))
     try:
-        parsed = datetime.strptime(str(value), str(mask))
+        parsed = datetime.strptime(str(value), pattern)
     except ValueError:
         return None
     return parsed.isoformat(sep=' ')

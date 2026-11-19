@@ -1428,26 +1428,14 @@ function Run-AnalyticApp($Case) {
     [DesignerMouse]::Save($result.handle, $capture)
     $ok = $result.name -eq 'App Results'
     [DesignerMouse]::CloseModal($result.handle, $script:sessionId)
+    Set-DesignerStage 'close the completed Analytic App' 20
     $remainingApp = Wait-For {
         $dialog = [DesignerMouse]::FindDialog($script:sessionId, $appName)
         if ($dialog -ne [IntPtr]::Zero) { $dialog }
         elseif ([DesignerMouse]::IsWindowEnabled($script:sessionHandle)) { 'closed' }
     } 8
     if ($remainingApp -is [IntPtr]) {
-        $form = [System.Windows.Automation.AutomationElement]::FromHandle($remainingApp)
-        $buttons = @(Find-EnabledDialogControls $form @('Close', 'Exit') | Where-Object {
-            -not $_.Current.IsOffscreen -and $_.Current.NativeWindowHandle
-        })
-        if ($buttons.Count -eq 1) {
-            try {
-                [DesignerMouse]::ClickFocusedButton(
-                    $remainingApp, [IntPtr]$buttons[0].Current.NativeWindowHandle, $script:sessionId)
-            } catch {
-                [DesignerMouse]::CloseModal($remainingApp, $script:sessionId)
-            }
-        } else {
-            [DesignerMouse]::CloseModal($remainingApp, $script:sessionId)
-        }
+        [DesignerMouse]::CloseModal($remainingApp, $script:sessionId)
     }
     if (-not (Wait-For { [DesignerMouse]::IsWindowEnabled($script:sessionHandle) } ([Math]::Min(20, $TimeoutSeconds)))) {
         throw 'The managed Analytic App remained open.'
@@ -1457,6 +1445,7 @@ function Run-AnalyticApp($Case) {
     $workbooks = @(Get-RenderWorkbooks $Case | ForEach-Object FullName)
     return @{
         status = if (-not $ok) { 'app_failed' } elseif ($files.Count -ne $Case.artifacts.Count -or -not (Test-RenderFolders $Case)) { 'output_timeout' } else { 'outputs_ready' }
+        app_outcome = if ($ok) { 'success' } else { 'failed' }
         workflow = $Case.path
         designer_pid = $script:sessionId
         expected_output_count = $Case.artifacts.Count

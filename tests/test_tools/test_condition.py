@@ -30,7 +30,7 @@ def test_condition_tool_supports_negated_question_expression(workflow_context):
 def test_condition_tool_preserves_unsupported_expression_as_warning(workflow_context):
     result = condition_tool(
         {"Question": pd.DataFrame([{"value": "abc"}])},
-        {"expression": 'FindString([#1], "a")>-1'},
+        {"expression": 'UnsupportedTestFunction([#1])'},
         workflow_context,
     )
 

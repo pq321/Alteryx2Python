@@ -276,6 +276,10 @@ def _capture_python(
             isolated_workbook_name(destinations[name]) if destinations.get(name) is not None else name: digest
             for name, digest in workbooks.items()
         }
+        render_output_names = {
+            isolated_workbook_name(destinations[name]) if destinations.get(name) is not None else name: name
+            for name in workbooks
+        }
     return {
         "source_sha256": file_hash(workflow_path),
         "producer": "python",
@@ -293,7 +297,8 @@ def _capture_python(
             if path.is_file()
         },
         **({"event_artifacts": file_artifacts(events_dir)} if event_commands else {}),
-        **({"workbooks": workbooks, "render_digests": render_digests} if render_folders else {}),
+        **({"workbooks": workbooks, "render_digests": render_digests,
+            "render_output_names": render_output_names} if render_folders else {}),
         **({"workflow_logs": [item["record"] for item in context.diagnostics if item.get("kind") == "workflow_log"]}
            if log_event_ids else {}),
         "environment": {
@@ -743,10 +748,11 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
     manifest = verify_manifest(directory)
     run_path = directory / "native-run.json"
     review_path = directory / "manual-review.json"
+    automatic_path = directory / "designer-evidence.json"
     review = (
         json.loads(review_path.read_text(encoding="utf-8"))
         if review_path.exists()
-        else None
+        else json.loads(automatic_path.read_text(encoding="utf-8")) if automatic_path.exists() else None
     )
     if review is not None:
         if (
@@ -754,10 +760,10 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
             or review["instrumented_sha256"] != manifest["instrumented_sha256"]
             or review.get("answers") != manifest.get("answers")
         ):
-            raise ValueError("Manual review references another workflow")
+            raise ValueError("Designer evidence references another workflow")
         for filename, digest in review["output_sha256"].items():
             if file_hash(directory / filename) != digest:
-                raise ValueError("Native output changed after manual review")
+                raise ValueError("Native output changed after Designer evidence was recorded")
         run = review
     elif run_path.exists():
         run = json.loads(run_path.read_text(encoding="utf-8"))
@@ -868,7 +874,8 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
                 node["status"] = "success"
         # A failed workflow never wrote these probes: the node demonstrably
         # produced no output, which is itself the behaviour to compare.
-        if workflow_failed and node["status"] in {"unknown"} and not node["outputs"]:
+        if (workflow_failed and not (review and review.get("method") == "designer_automation")
+                and node["status"] == "unknown" and not node["outputs"]):
             node["status"] = "failed"
             node["failure_source"] = "no_probe_written"
         if not node["outputs"] and node["status"] == "success" and not (

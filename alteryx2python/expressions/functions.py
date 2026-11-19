@@ -79,6 +79,12 @@ def _uppercase(value: Any) -> str | None:
     return str(value).upper()
 
 
+def _lowercase(value: Any) -> str | None:
+    if value is None:
+        return None
+    return str(value).lower()
+
+
 def _datetime_add(value: Any, amount: Any, unit: Any) -> str:
     parsed = pd.to_datetime(value)
     normalized_unit = str(unit).lower()
@@ -186,6 +192,7 @@ FUNCTION_REGISTRY = {
     "ISEMPTY": _is_empty,
     "ISNULL": _is_null,
     "LEFT": _left,
+    "LOWERCASE": _lowercase,
     "PADLEFT": _pad_left,
     "REPLACE": _replace,
     "REGEX_MATCH": _regex_match,

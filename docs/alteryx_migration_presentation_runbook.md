@@ -114,7 +114,7 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 .\scripts\presentation.ps1 compare
 ```
 
-按提示确认实际看到的结果，失败时填写节点 ID，有跳过节点时也如实记录。命令运行 Phase 1 和独立 Phase 2，显示总状态、节点与 anchor、第一处差异或缺失证据，以及报告路径。可在 compare 后加一个节点 ID，例如 138。已有确认记录的案例可以直接重放。
+命令直接读取 Step 2 的 Designer 结果和探针，自动确认有证据的跳过节点。零行探针可继续对照。缺少探针时，报告会显示证据不足的位置。命令运行 Phase 1 和独立 Phase 2，显示总状态、节点与 anchor、第一处差异或缺失证据，以及报告路径。可在 compare 后加一个节点 ID，例如 138。独立手动运行的案例可用 `--outcome` 记录观察结果。
 
 ### 第 4 步 · 展示 Phase 2 交付
 
@@ -122,7 +122,7 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 .\scripts\presentation.ps1 deliver
 ```
 
-沿用第 3 步选择的节点，显示生成脚本位置和实际产物路径。在 Windows 上，验收通过时打开 Python 和一个可预览的输出文件。终端可找到 VS Code 时跳到对应行。只想显示路径可加 --paths-only。现场演示业务规则变更时，才运行另存的脚本副本。
+沿用第 3 步选择的节点，显示生成脚本位置。命令将同一案例的 Alteryx 和 Python 产物复制到 `side-by-side`，在 Windows 上打开首对可预览文件，方便查看差异。若独立 Phase 2 产物缺失，报告会注明可用的 Phase 1 副本。终端可找到 VS Code 时跳到对应行。只想生成和显示路径可加 --paths-only。现场演示业务规则变更时，才运行另存的脚本副本。
 
 可复用交付会同时显示运行参数文件 `phase-two-bindings.json`。展示如何换一组输入时，只需换这份 JSON，再用 `phase_two.py --bindings <参数文件>` 运行同一脚本。核心 `transform` 直接接收数据表和业务参数。需要其他 I/O 适配的案例会在验收报告中注明交付模式。
 

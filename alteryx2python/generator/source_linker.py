@@ -201,6 +201,12 @@ class _Rename(_Lexical):
 
 
 class RemoveTracing(ast.NodeTransformer):
+    def visit_ClassDef(self, node):
+        node = self.generic_visit(node)
+        if not node.body:
+            node.body.append(ast.copy_location(ast.Pass(), node))
+        return node
+
     def visit_Expr(self, node):
         if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute):
             owner = node.value.func.value

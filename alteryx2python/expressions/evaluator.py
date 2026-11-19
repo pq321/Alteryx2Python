@@ -42,6 +42,8 @@ def evaluate_expression(node, row: dict[str, Any], constants: dict[str, Any] | N
         value = evaluate_expression(node.operand, row, constants)
         if node.operator == "!":
             return not bool(value)
+        if node.operator == "-":
+            return -arithmetic_operand(value)
         raise UnsupportedExpressionError(f"Unsupported unary operator: {node.operator}")
     if isinstance(node, BinaryExpression):
         return _evaluate_binary(node, row, constants)

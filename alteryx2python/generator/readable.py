@@ -64,7 +64,8 @@ def _series_predicate(expression, frame, string_parameters=None):
             return field_series(value, string_types)
         if not isinstance(value, FunctionExpression) or len(value.args) != 1:
             return None
-        method = {'TRIM': '.fillna("").str.strip()', 'UPPERCASE': '.str.upper()'}.get(value.name.upper())
+        method = {'TRIM': '.fillna("").str.strip()', 'UPPERCASE': '.str.upper()',
+                  'LOWERCASE': '.str.lower()'}.get(value.name.upper())
         base = text_series(value.args[0]) if method else None
         if base is not None and isinstance(value.args[0], FieldReference):
             # Match Python Unicode case conversion even with Arrow-backed strings.
@@ -291,6 +292,8 @@ class ReadablePythonGenerator:
             return f'({render(expression.true_value)} if bool({render(expression.condition)}) else {render(expression.false_value)})'
         if isinstance(expression, UnaryExpression) and expression.operator == '!':
             return f'(not bool({render(expression.operand)}))'
+        if isinstance(expression, UnaryExpression) and expression.operator == '-':
+            return f'(-{self.linker.function(arithmetic_operand)}({render(expression.operand)}))'
         if isinstance(expression, FunctionExpression):
             function = FUNCTION_REGISTRY.get(expression.name.upper())
             if function is None:
@@ -344,6 +347,7 @@ class ReadablePythonGenerator:
         raise UnsupportedLowering(f'Unsupported expression AST: {type(expression).__name__}')
 
     def _expand_macros(self, workflow, stack=()):
+        from alteryx2python.generator.macro_sources import resolve_macro_path
         from alteryx2python.parser.xml_parser import XmlWorkflowParser
         from alteryx2python.runtime.app_config import prepare_workflow
         result = deepcopy(workflow)
@@ -351,10 +355,9 @@ class ReadablePythonGenerator:
             if not parent.tool_type.startswith('Macro_'):
                 continue
             config = parent.config.get('normalized', parent.config)
-            raw = Path(config.get('macro_path', ''))
-            candidates = [raw] if raw.is_absolute() else [Path(config.get('base_dir', '.')) / raw, Path('D:/Alteryx/bin/RuntimeData/Macros') / raw]
+            raw = config.get('macro_path', '')
             embedded = workflow.metadata.get('embedded_macros', {})
-            path = next((item.resolve() for item in candidates if item.is_file() or str(item.resolve()) in embedded), None)
+            path = resolve_macro_path(raw, config.get('base_dir', '.'), embedded)
             if path is None or str(path) in stack:
                 raise UnsupportedLowering(f'Unresolved or recursive macro: {raw}')
             xml = embedded.get(str(path)) or path.read_text(encoding='utf-8-sig')
