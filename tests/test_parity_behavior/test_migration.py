@@ -435,6 +435,68 @@ def test_migration_identifies_missing_user_constant_at_input_node(tmp_path):
     assert not (directory / "designer-plan.json").exists()
 
 
+@pytest.mark.parametrize("blocked", [False, True])
+def test_unavailable_source_names_input_tool_and_exact_path(tmp_path, monkeypatch, blocked):
+    from alteryx2python.parity import migration
+    from alteryx2python.parity.path_access import PathAccessError
+
+    config = tmp_path / "business config.csv"
+    source, node_id = constant_input_fixture(tmp_path, "yxmd", config)
+    if blocked:
+        config.write_bytes(b"x\n1\n")
+
+        def read(path):
+            if path == config:
+                raise PermissionError(13, "Access denied", str(config))
+            return file_hash(path)
+
+        monkeypatch.setattr(migration, "file_hash", read)
+    case = tmp_path / "case"
+    with pytest.raises(PathAccessError) as caught:
+        prepare_migration(source, case)
+    assert f"Input Data (Tool ID {node_id})" in str(caught.value)
+    assert str(config) in str(caught.value)
+    issue, = json.loads((case / "path-issues.json").read_text(encoding="utf-8"))
+    assert issue["operation"] == "Read source input"
+    assert issue["path"] == str(config)
+    assert issue["consumers"] == [{"tool": "Input Data", "node_id": node_id}]
+    assert not (case / "designer-plan.json").exists()
+
+
+def test_step_two_recheck_reports_original_path_and_snapshot_owner(tmp_path, monkeypatch, capsys):
+    from pathlib import Path
+
+    from alteryx2python.cli import main
+
+    config = tmp_path / "business config.csv"
+    config.write_bytes(b"x\n1\n")
+    source, node_id = constant_input_fixture(tmp_path, "yxmd", config)
+    case = tmp_path / "case"
+    prepare_migration(source, case)
+    snapshot, = json.loads((case / "inputs.json").read_text(encoding="utf-8"))
+    Path(snapshot["snapshot"]).unlink()
+    monkeypatch.chdir(tmp_path)
+    assert main(["demo", "designer", "--case", str(case)]) == 2
+    output = capsys.readouterr().out
+    assert snapshot["snapshot"] in output
+    assert str(config) in output
+    assert f"Input Data (Tool ID {node_id})" in output
+    assert (case / "path-issues.json").is_file()
+
+
+def test_dynamic_input_missing_file_warning_names_path_field(tmp_path, monkeypatch, capsys):
+    from alteryx2python.cli import main
+
+    case = tmp_path / "case"
+    prepare_migration(dynamic_render_fixture(tmp_path), case)
+    monkeypatch.chdir(tmp_path)
+    assert main(["demo", "designer", "--case", str(case), "--prepare-only"]) == 0
+    captured = capsys.readouterr()
+    assert "Dynamic Input (Tool ID 2) [field InputPath]" in captured.err
+    assert str(tmp_path / "missing.csv") in captured.err
+    assert "path-issues.json" in captured.out
+
+
 def test_inspect_preflights_external_user_input_using_staging_paths(tmp_path, capsys):
     from alteryx2python.cli import main
     from alteryx2python.parser.xml_parser import XmlWorkflowParser

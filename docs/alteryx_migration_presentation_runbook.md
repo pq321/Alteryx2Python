@@ -108,6 +108,8 @@ Designer 完成后看实际 Results。命令会给出结果截图、案例目录
 
 用案例中的 `inputs.json` 核对原始输入路径 `source` 和用于重放的缓存路径 `snapshot`。Dynamic Input 的模板来源在 `native/manifest.json` 的 `dynamic_inputs` 中。
 
+输入路径打不开时，终端会显示完整路径、工具名和 Tool ID。Dynamic Input 还会列出路径字段。详情保存在案例的 `path-issues.json`。Designer 进度或结果报告写入失败时，终端会显示写入操作及报告路径。
+
 ### 第 3 步 · Phase 1 对照
 
 ```powershell

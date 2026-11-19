@@ -459,7 +459,10 @@ def prepare(
         if macro:
             resolved = resolve_macro_path(macro, workflow_path.parent)
             if resolved is None and node.node_id not in static_skips:
-                raise ValueError("Macro dependency is unavailable for native capture")
+                raise ValueError(
+                    f"Macro dependency is unavailable for native capture for {node.tool_type} "
+                    f"(Tool ID {node.node_id}): {workflow_path.parent / macro}"
+                )
             if resolved is not None:
                 settings = original_node.find("EngineSettings")
                 if settings is None:
@@ -661,6 +664,8 @@ def read_yxdb(path: Path) -> dict:
 
 
 def verify_manifest(directory: Path) -> dict:
+    from .path_access import PathAccessError
+
     manifest = json.loads((directory / "manifest.json").read_text(encoding="utf-8"))
     if file_hash(Path(manifest["source"])) != manifest["source_sha256"]:
         raise ValueError("Source workflow changed after preparation")
@@ -673,9 +678,16 @@ def verify_manifest(directory: Path) -> dict:
         if not Path(path).is_file() or file_hash(Path(path)) != digest:
             raise ValueError(f"Event executable changed after preparation: {path}")
     for path, digest in manifest.get("inputs_sha256", {}).items():
-        if digest is None and not Path(path).exists():
-            continue
-        if not Path(path).is_file() or file_hash(Path(path)) != digest:
+        origin = manifest.get("input_origins", {}).get(path, {})
+        snapshot = Path(path)
+        try:
+            if digest is None and not snapshot.exists():
+                continue
+            actual = file_hash(snapshot)
+        except OSError as error:
+            raise PathAccessError("Read input snapshot", snapshot, error,
+                                  consumers=origin.get("consumers", []), source=origin.get("source")) from error
+        if actual != digest:
             raise ValueError(f"Input file changed after preparation: {path}")
     return manifest
 

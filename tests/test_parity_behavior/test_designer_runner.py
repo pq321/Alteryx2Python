@@ -16,6 +16,58 @@ from test_migration import app_fixture
 RUNNER = Path(__file__).resolve().parents[2] / "scripts" / "designer_click_run.ps1"
 
 
+def test_designer_does_not_reuse_report_when_publication_failed(tmp_path, monkeypatch):
+    from alteryx2python.parity import migration
+
+    report = tmp_path / "designer-run.json"
+    previous = '[{"status":"outputs_ready"}]'
+    report.write_text(previous, encoding="utf-8")
+    monkeypatch.setattr(migration.shutil, "which", lambda _: "pwsh")
+    monkeypatch.setattr(migration.subprocess, "run", lambda command, **_: subprocess.CompletedProcess(command, 1))
+    receipt = migration.launch_designer_plan(tmp_path / "plan.json", report, "auto")
+    assert receipt["status"] == "blocked"
+    assert receipt["reason"] == "designer_report_unavailable"
+    assert str(report) in receipt["detail"]
+    assert report.read_text(encoding="utf-8") == previous
+
+
+@pytest.mark.skipif(sys.platform != "win32" or shutil.which("pwsh") is None, reason="Windows PowerShell 7 is required")
+def test_locked_designer_report_names_source_and_destination(tmp_path):
+    script = tmp_path / "test locked report.ps1"
+    script.write_text(
+        """
+$ErrorActionPreference = 'Stop'
+$runner, $destination = $args
+$ast = [System.Management.Automation.Language.Parser]::ParseFile($runner, [ref]$null, [ref]$null)
+foreach ($name in @('Move-DesignerReport', 'Write-DesignerJson')) {
+    $definition = $ast.Find({
+        param($node)
+        $node -is [System.Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq $name
+    }, $false)
+    Invoke-Expression $definition.Extent.Text
+}
+[IO.File]::WriteAllText($destination, 'old report')
+$lock = [IO.File]::Open($destination, 'Open', 'Read', 'Read')
+try {
+    $errorMessage = try { Write-DesignerJson @{ test = 'new report' } $destination }
+        catch { $_.Exception.Message }
+} finally {
+    $lock.Dispose()
+}
+@{ message = $errorMessage; report = [IO.File]::ReadAllText($destination) } | ConvertTo-Json
+""",
+        encoding="utf-8",
+    )
+    destination = tmp_path / "designer report.json.progress"
+    result = subprocess.run(["pwsh", "-NoProfile", "-File", str(script), str(RUNNER), str(destination)],
+                            capture_output=True, text=True, check=True, timeout=10)
+    observed = json.loads(result.stdout)
+    assert "Publish Designer progress failed." in observed["message"]
+    assert f"Source: '{destination}.tmp'" in observed["message"]
+    assert f"Destination: '{destination}'" in observed["message"]
+    assert observed["report"] == "old report"
+
+
 @pytest.mark.skipif(shutil.which("pwsh") is None, reason="PowerShell 7 is required")
 def test_designer_preparation_uses_recorded_date_and_calendar_positions(tmp_path):
     source = app_fixture(tmp_path)
@@ -85,7 +137,7 @@ Start-Sleep -Seconds 40
 $ErrorActionPreference = 'Stop'
 $runner, $worker, $report, $kind = $args
 $ast = [System.Management.Automation.Language.Parser]::ParseFile($runner, [ref]$null, [ref]$null)
-$functions = @('Write-DesignerJson', 'New-DesignerBlocked', 'Read-DesignerProgress', 'Invoke-DesignerSupervisor')
+$functions = @('Move-DesignerReport', 'Write-DesignerJson', 'New-DesignerBlocked', 'Read-DesignerProgress', 'Invoke-DesignerSupervisor')
 foreach ($name in $functions) {
     $function = $ast.Find({
         param($node)

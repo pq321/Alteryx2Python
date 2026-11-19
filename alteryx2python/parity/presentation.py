@@ -15,6 +15,7 @@ from .amp_export import EXPORT_DIR, _is_amp, native_probe_path, prepare_amp_expo
 from .designer_evidence import record_designer_evidence
 from .migration import launch_designer, launch_designer_plan, prepare_migration, resume_migration
 from .output_comparison import build_output_comparison
+from .path_access import PathAccessError, format_path_issue, record_path_issue
 from .runner import file_hash, verify_manifest, write_json
 
 
@@ -85,6 +86,15 @@ def run(args, inspect_workflow, format_inspect):
     return _deliver(args, case)
 
 
+def _show_path_warnings(case):
+    report = case / "path-issues.json"
+    if report.is_file():
+        for issue in _read(report):
+            if issue["severity"] == "warning":
+                print("Path warning: " + format_path_issue(issue), file=sys.stderr, flush=True)
+    return report
+
+
 def _designer(args, state_file, state):
     if args.case is not None:
         case = args.case.resolve()
@@ -104,20 +114,37 @@ def _designer(args, state_file, state):
         saved = _read(inspection / "inspect.json")
         is_app = source.suffix.lower() == ".yxwz"
         event_ids = args.log_event or _choose_logging_events(source)
-        result = prepare_migration(
-            source, case, supplied=_read(args.answers) if args.answers else None,
-            interactive=is_app and bool(saved.get("questions")) and not args.answers,
-            event_commands=tuple(args.allow_event_command), log_event_ids=event_ids,
-        )
-    manifest = verify_manifest(case / "native")
+        try:
+            result = prepare_migration(
+                source, case, supplied=_read(args.answers) if args.answers else None,
+                interactive=is_app and bool(saved.get("questions")) and not args.answers,
+                event_commands=tuple(args.allow_event_command), log_event_ids=event_ids,
+            )
+        except (OSError, ValueError):
+            report = _show_path_warnings(case)
+            if report.is_file():
+                print(f"Path diagnostics: {report}", file=sys.stderr, flush=True)
+            raise
+    try:
+        manifest = verify_manifest(case / "native")
+    except PathAccessError as error:
+        record_path_issue(case, error.issue)
+        raise
     lines = [f"Case: {case}", f'Inputs: {case / "inputs.json"}', f'Events: {case / "events.json"}',
              f'Engine: {manifest["engine_mode"]}', f'Designer workflow: {result["native_workflow"]}']
+    path_report = _show_path_warnings(case)
+    if path_report.is_file():
+        lines.append(f"Path diagnostics: {path_report}")
     if result.get("answers"):
         lines.append(f'App answers: {result["answers"]}')
     if args.prepare_only:
         lines.append(f'Next: demo designer --case "{case}"')
         return {**result, "display": "\n".join(lines)}, 0
-    receipt = launch_designer(case, args.app_launch, args.designer_pid, args.designer_launcher)
+    try:
+        receipt = launch_designer(case, args.app_launch, args.designer_pid, args.designer_launcher)
+    except PathAccessError as error:
+        record_path_issue(case, error.issue)
+        raise
     result["designer"] = receipt
     if args.designer_pid is not None:
         result["designer_requested_pid"] = args.designer_pid
@@ -140,6 +167,16 @@ def _designer(args, state_file, state):
         lines.append("AMP probes will be exported during compare.")
     if receipt.get("detail"):
         lines.append(receipt["detail"])
+        if receipt.get("status") == "app_failed":
+            detail = receipt["detail"].replace("\\", "/").casefold()
+            for path, origin in manifest.get("input_origins", {}).items():
+                if path.replace("\\", "/").casefold() in detail:
+                    issue = PathAccessError("Designer reported an error for the input snapshot", path, receipt["detail"],
+                                            consumers=origin.get("consumers", []), source=origin.get("source"))
+                    record_path_issue(case, issue.issue)
+                    lines.append(str(issue))
+            if path_report.is_file() and f"Path diagnostics: {path_report}" not in lines:
+                lines.append(f"Path diagnostics: {path_report}")
     if completed:
         lines.append("Next: demo compare")
     return {**result, "display": "\n".join(lines)}, 0 if completed else 1
@@ -213,6 +250,8 @@ def _compare(args, case):
     receipt_path = case / "designer-run.json"
     manual = (native / "manual-review.json").is_file()
     existing = manual or (native / "native-run.json").is_file()
+    if outcome is None and not existing and migration.get("designer", {}).get("reason") == "designer_report_unavailable":
+        raise ValueError(migration["designer"]["detail"])
     if outcome is None and not existing and not receipt_path.is_file():
         raise ValueError("No Designer run evidence. Run demo designer or supply an observed outcome explicitly.")
     export_issue = None

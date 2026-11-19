@@ -6,6 +6,7 @@ from hashlib import sha256
 import json
 from pathlib import Path
 import shutil
+from stat import S_ISDIR
 import subprocess
 import sys
 from xml.etree import ElementTree as ET
@@ -26,6 +27,7 @@ from alteryx2python.workflow_events import bind_logging_events, workflow_events
 from .delivery import verify_delivery
 from .local_adapters import field_reference, formula_text, insert_input_formula
 from .manual import attest_native
+from .path_access import PathAccessError, record_path_issue
 from .runner import _dynamic_local_tools, file_hash, prepare, verify_manifest, write_json
 
 
@@ -53,24 +55,47 @@ def prompt_answers(questions, read=None, display=None):
     return answers
 
 
-def _stage_input(root, source_dir, value, entries, allow_missing, *, folder="inputs"):
+def _stage_input(root, source_dir, value, entries, allow_missing, *, consumer, folder="inputs"):
     raw, separator, selection = value.partition("|||")
-    source = (source_dir / raw).resolve()
-    if source.suffix.lower() not in STAGEABLE_INPUT_SUFFIXES or "://" in raw:
-        raise ValueError(f"Expected a local input file: {raw}")
-    entry = entries.get(str(source))
-    if entry is None:
-        target = root / folder / str(len(entries) + 1) / source.name
-        digest = None
-        if source.is_file():
-            digest = file_hash(source)
-            target.parent.mkdir(parents=True)
-            shutil.copyfile(source, target)
-            if file_hash(target) != digest:
-                raise ValueError(f"Input changed while being copied: {source}")
-        elif not allow_missing or source.exists():
-            raise FileNotFoundError(f"Required input is unavailable: {source}")
-        entry = entries[str(source)] = {"source": str(source), "snapshot": str(target), "sha256": digest}
+    source = source_dir / raw
+    operation = "Resolve input path"
+    path = source
+    try:
+        source = source.resolve()
+        if source.suffix.lower() not in STAGEABLE_INPUT_SUFFIXES or "://" in raw:
+            raise ValueError(f"Expected a local input file for {consumer['tool']} (Tool ID {consumer['node_id']}): {raw}")
+        entry = entries.get(str(source))
+        if entry is None:
+            operation, path = "Read source input", source
+            target = root / folder / str(len(entries) + 1) / source.name
+            try:
+                digest = file_hash(source)
+            except FileNotFoundError:
+                if not allow_missing:
+                    raise
+                digest = None
+            if digest is not None:
+                operation, path = "Create input snapshot directory", target.parent
+                target.parent.mkdir(parents=True)
+                operation, path = "Copy input snapshot", target
+                shutil.copyfile(source, target)
+                operation = "Verify input snapshot"
+                if file_hash(target) != digest:
+                    raise OSError("Input changed while being copied")
+            entry = entries[str(source)] = {
+                "source": str(source), "snapshot": str(target), "sha256": digest, "consumers": [],
+            }
+    except OSError as error:
+        issue = PathAccessError(operation, getattr(error, "filename", None) or path, error,
+                                consumers=[consumer], source=source)
+        record_path_issue(root, issue.issue)
+        raise issue from error
+    if consumer not in entry["consumers"]:
+        entry["consumers"].append(consumer)
+        if entry["sha256"] is None:
+            warning = PathAccessError("Read source input", source, "File is missing; this input allows missing files",
+                                      consumers=[consumer])
+            record_path_issue(root, {**warning.issue, "severity": "warning"})
     return Path(entry["snapshot"]).relative_to(root).as_posix() + separator + selection
 
 
@@ -97,7 +122,8 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
             file = config.find("File")
             if file is not None and file.text:
                 path = _resolve_path(file.text, variables, f"Input Data {node.node_id}")
-                file.text = _stage_input(root, source_dir, path, entries, allow_missing)
+                file.text = _stage_input(root, source_dir, path, entries, allow_missing,
+                                        consumer={"tool": "Input Data", "node_id": node.node_id})
         if node.tool_type.startswith("Macro_"):
             settings = element.find("EngineSettings")
             if settings is None:
@@ -112,14 +138,22 @@ def _stage_workflow(workflow, root, document, answers, questions, allow_missing)
             if not value or question.kind not in {"FileBrowse", "QuestionFileBrowse", "FolderBrowse"}:
                 continue
             value = _resolve_path(str(value), variables, f"{question.kind} {question.name}")
+            consumer = {"tool": "Folder Browse" if question.kind == "FolderBrowse" else "File Browse",
+                        "node_id": question.node_id, "question": question.name}
             if question.kind in {"FileBrowse", "QuestionFileBrowse"}:
-                staged = _stage_input(root, source_dir, value, entries, allow_missing)
+                staged = _stage_input(root, source_dir, value, entries, allow_missing, consumer=consumer)
                 filename, separator, selection = staged.partition("|||")
                 answers[question.name] = str(root / filename) + separator + selection
             if question.kind == "FolderBrowse":
-                folder = (source_dir / value).resolve()
-                if not folder.is_dir():
-                    raise ValueError(f"Folder Browse requires an existing directory: {folder}")
+                folder = source_dir / value
+                try:
+                    folder = folder.resolve()
+                    if not S_ISDIR(folder.stat().st_mode):
+                        raise NotADirectoryError("Expected a directory")
+                except OSError as error:
+                    issue = PathAccessError("Read input folder", folder, error, consumers=[consumer])
+                    record_path_issue(root, issue.issue)
+                    raise issue from error
                 answers[question.name] = str(folder)
     return entries
 
@@ -175,24 +209,38 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, templa
         if frame is None or field not in frame:
             raise ValueError(f"Dynamic Input {node_id} preflight could not read path field {field!r}")
         frozen = {}
+        consumer = {"tool": "Dynamic Input", "node_id": node_id, "field": field}
         for value in sorted({value for value in frame[field] if isinstance(value, str) and value.strip()}):
             path = _resolve_path(value, variables, f"Dynamic Input {node_id}")
-            snapshot = _stage_input(staged.parent, source_dir, path, entries, allow_missing or behaviour == "warning")
+            snapshot = _stage_input(staged.parent, source_dir, path, entries, allow_missing or behaviour == "warning",
+                                    consumer=consumer)
             frozen[value] = (staged.parent / snapshot).as_posix()
         configured_template = reference
         reference = _resolve_path(reference, variables, f"Dynamic Input {node_id} template")
         raw, _, sheet = reference.partition("|||")
-        if (source_dir / raw).is_file():
-            source = (source_dir / raw).resolve()
+        template_consumer = {**consumer, "field": "Input Data Source Template"}
+        source = source_dir / raw
+        try:
+            source = source.resolve()
+            has_template = source.is_file()
+        except OSError as error:
+            issue = PathAccessError("Read Dynamic Input template", source, error, consumers=[template_consumer])
+            record_path_issue(staged.parent, issue.issue)
+            raise issue from error
+        if has_template:
             if str(source) in entries:
-                template = _stage_input(staged.parent, source_dir, reference, entries, False)
+                template = _stage_input(staged.parent, source_dir, reference, entries, False, consumer=template_consumer)
             else:
-                template = _stage_input(staged.parent, source_dir, reference, templates, False, folder="templates")
+                template = _stage_input(staged.parent, source_dir, reference, templates, False,
+                                        consumer=template_consumer, folder="templates")
             template_origin = str(source)
         else:
             available = next((path for path in frozen.values() if Path(path.partition("|||")[0]).is_file()), None)
             if available is None:
-                raise FileNotFoundError(f"Dynamic Input {node_id} has no available template or source file")
+                issue = PathAccessError("Read Dynamic Input template", source, "No accessible template or runtime source file",
+                                        consumers=[template_consumer])
+                record_path_issue(staged.parent, issue.issue)
+                raise issue
             filename, _, available_sheet = available.partition("|||")
             selector = available_sheet or sheet
             template = filename + ("|||" + selector if selector else "")
@@ -270,7 +318,7 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
             if node.get("ToolID") in input_ids:
                 target = node.findtext("Properties/Configuration/File", "").partition("|||")[0]
                 if (directory / target).resolve() not in frozen:
-                    raise ValueError(f"App Action resolves Input Data {node.get('ToolID')} outside the staged inputs")
+                    raise ValueError(f"App Action resolves Input Data {node.get('ToolID')} outside the staged inputs: {directory / target}")
         document, _ = configure_workflow(document, answers, apply=False)
     if event_commands:
         _resolve_event_commands(document, source.parent, log_event_ids)
@@ -320,6 +368,10 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
     # Verify all snapshots, including design-time templates and paths selected by app answers.
     for snapshots in (entries, templates):
         manifest["inputs_sha256"].update({item["snapshot"]: item["sha256"] for item in snapshots.values()})
+    manifest["input_origins"] = {
+        item["snapshot"]: {"source": item["source"], "consumers": item["consumers"]}
+        for snapshots in (entries, templates) for item in snapshots.values()
+    }
     write_json(native / "manifest.json", manifest)
     plan = directory / "designer-plan.json"
     write_json(plan, [{"status": "ready", "workflow": str(staged), "run_dir": str(native)}])
@@ -387,7 +439,18 @@ def launch_designer_plan(plan, report, mode, pid=None, launcher=None):
         command.extend(["-DesignerProcessId", str(pid)])
     if launcher:
         command.extend(["-DesignerLauncher", str(launcher.resolve(strict=True))])
+    previous = _report_signature(report)
     result = subprocess.run(command, stdout=sys.stderr, check=False)
-    if not report.is_file():
-        return {"status": "blocked", "returncode": result.returncode}
+    current = _report_signature(report)
+    if current is None or current == previous:
+        return {"status": "blocked", "returncode": result.returncode, "reason": "designer_report_unavailable",
+                "detail": f"Designer did not publish a new run report: {report}"}
     return json.loads(report.read_text(encoding="utf-8-sig"))[0]
+
+
+def _report_signature(report):
+    try:
+        stat = report.stat()
+    except FileNotFoundError:
+        return None
+    return stat.st_ino, stat.st_mtime_ns, stat.st_ctime_ns, stat.st_size

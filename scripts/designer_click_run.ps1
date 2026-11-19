@@ -15,10 +15,30 @@ param(
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'This runner requires Windows Designer.' }
 
+function Move-DesignerReport([string]$Source, [string]$Destination, [string]$Operation) {
+    for ($attempt = 0; $attempt -lt 3; $attempt++) {
+        try {
+            [IO.File]::Move($Source, $Destination, $true)
+            return
+        } catch {
+            $cause = $_.Exception.InnerException ?? $_.Exception
+            if ($attempt -eq 2 -or ($cause -isnot [IO.IOException] -and $cause -isnot [UnauthorizedAccessException])) {
+                throw "$Operation failed. Source: '$Source'. Destination: '$Destination'. $($cause.Message)"
+            }
+            Start-Sleep -Milliseconds (75 * ($attempt + 1))
+        }
+    }
+}
+
 function Write-DesignerJson($Value, [string]$Path) {
     $temporary = "$Path.tmp"
-    ConvertTo-Json -InputObject $Value -Depth 6 | Set-Content -LiteralPath $temporary -Encoding utf8
-    [IO.File]::Move($temporary, $Path, $true)
+    try {
+        ConvertTo-Json -InputObject $Value -Depth 6 | Set-Content -LiteralPath $temporary -Encoding utf8 -ErrorAction Stop
+    } catch {
+        throw "Write Designer report data failed at '$temporary' for destination '$Path'. $($_.Exception.Message)"
+    }
+    $operation = if ($Path.EndsWith('.progress')) { 'Publish Designer progress' } else { 'Publish Designer report' }
+    Move-DesignerReport $temporary $Path $operation
 }
 
 function Set-DesignerStage([string]$Stage, [int]$Seconds = 20) {
@@ -53,6 +73,7 @@ function Invoke-DesignerSupervisor([string]$ScriptPath, [string]$ReportPath, $Ar
     $scratch = "$ReportPath.$([guid]::NewGuid().ToString('N'))"
     $progress = @{ stage = 'start automation'; case_index = 0 }
     $process = $null
+    $preserveScratch = $false
     $mutex = [Threading.Mutex]::new($false, 'Local\Alteryx2Python.DesignerBatch')
     $hasLock = $false
     try {
@@ -89,12 +110,21 @@ function Invoke-DesignerSupervisor([string]$ScriptPath, [string]$ReportPath, $Ar
             if ($latest) { $progress = $latest }
             throw "Designer automation exited during '$($progress.stage)' (code $($process.ExitCode))."
         }
-        [IO.File]::Move($scratch, $ReportPath, $true)
+        try {
+            Move-DesignerReport $scratch $ReportPath 'Publish the final Designer run report'
+        } catch {
+            $preserveScratch = $true
+            throw
+        }
         return $process.ExitCode
     } catch {
         $detail = $_.Exception.Message
-        Write-DesignerJson @((New-DesignerBlocked $progress $detail 'automation_blocked')) $ReportPath
         Write-Host $detail
+        try {
+            Write-DesignerJson @((New-DesignerBlocked $progress $detail 'automation_blocked')) $ReportPath
+        } catch {
+            Write-Host "Could not save the blocked run report. $($_.Exception.Message)"
+        }
         return 1
     } finally {
         if ($process) {
@@ -104,7 +134,9 @@ function Invoke-DesignerSupervisor([string]$ScriptPath, [string]$ReportPath, $Ar
         if ($hasLock) { $mutex.ReleaseMutex() }
         $mutex.Dispose()
         foreach ($path in @($scratch, "$scratch.tmp", "$scratch.progress", "$scratch.progress.tmp")) {
-            [IO.File]::Delete($path)
+            if ($preserveScratch -and $path -eq $scratch) { continue }
+            try { [IO.File]::Delete($path) }
+            catch { Write-Host "Could not remove Designer scratch file '$path'. $($_.Exception.Message)" }
         }
     }
 }
@@ -544,6 +576,33 @@ public static class DesignerMouse {
         RequireVisibleWindow(app, expectedProcess);
         return FindCaptionedControl(app, expectedProcess, new[] { "Finish", "&Finish" },
                                     "WindowsForms10.Window.", "WindowsForms10.BUTTON.");
+    }
+
+    public static string ReadAppErrorText(IntPtr dialog, uint expectedProcess) {
+        RequireVisibleWindow(dialog, expectedProcess);
+        DateTime deadline = DateTime.UtcNow.AddMilliseconds(1500);
+        var details = new StringBuilder();
+        EnumChildWindows(dialog, (child, state) => {
+            if (DateTime.UtcNow >= deadline || details.Length >= 8000) return false;
+            uint pid;
+            GetWindowThreadProcessId(child, out pid);
+            if (pid != expectedProcess || !IsWindowVisible(child)) return true;
+            var name = new StringBuilder(100);
+            GetClassName(child, name, name.Capacity);
+            string type = name.ToString();
+            if (!type.StartsWith("WindowsForms10.", StringComparison.Ordinal) &&
+                !type.StartsWith("RichEdit", StringComparison.OrdinalIgnoreCase) &&
+                type != "Static" && type != "Edit") return true;
+            var message = new StringBuilder(4096);
+            IntPtr length;
+            if (SendMessageTimeout(child, 0x000D, new IntPtr(message.Capacity), message, 2, 150, out length) != IntPtr.Zero) {
+                string text = message.ToString().Trim();
+                if (text.Length > 0 && text != "&OK" && text != "OK" && text != "Close" && text != "&Close")
+                    details.AppendLine(text);
+            }
+            return true;
+        }, IntPtr.Zero);
+        return details.ToString().Trim();
     }
 
     private static bool CalendarBlue(Color pixel) {
@@ -1427,6 +1486,10 @@ function Run-AnalyticApp($Case) {
     $capture = Join-Path $Case.folder 'designer-result.png'
     [DesignerMouse]::Save($result.handle, $capture)
     $ok = $result.name -eq 'App Results'
+    $detail = if (-not $ok) {
+        try { [DesignerMouse]::ReadAppErrorText($result.handle, $script:sessionId) }
+        catch { "Could not read the Designer error dialog. See screenshot: $capture" }
+    }
     [DesignerMouse]::CloseModal($result.handle, $script:sessionId)
     Set-DesignerStage 'close the completed Analytic App' 20
     $remainingApp = Wait-For {
@@ -1446,6 +1509,7 @@ function Run-AnalyticApp($Case) {
     return @{
         status = if (-not $ok) { 'app_failed' } elseif ($files.Count -ne $Case.artifacts.Count -or -not (Test-RenderFolders $Case)) { 'output_timeout' } else { 'outputs_ready' }
         app_outcome = if ($ok) { 'success' } else { 'failed' }
+        detail = $detail
         workflow = $Case.path
         designer_pid = $script:sessionId
         expected_output_count = $Case.artifacts.Count
