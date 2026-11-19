@@ -160,13 +160,19 @@ def test_numeric_text_checkpoint_pairs_duplicates_and_embeds_both_original_value
         return {"producer": producer, "source_sha256": "source", "runtime_sha256": "runtime", "status": "success",
                 "nodes": {"5": {"tool_type": "DynamicInput", "status": "success", "outputs": {"Output": frame}}}}
 
+    workflow = SimpleNamespace(nodes=[
+        SimpleNamespace(node_id=tool_id, config={"normalized": {"joins": [{"field": "Price"}]}})
+        for tool_id in ("47", "58")
+    ])
+    policy = checkpoint_policy(workflow)
+    assert "price" in policy[0]
     left, right = run("alteryx", designer), run("python", python)
-    result = compare_behavior_runs(left, right, "runtime", align_checkpoints=True,
-                                   presentation_policy=(set(), {}))
+    result = compare_behavior_runs(left, right, "runtime", align_checkpoints=True, presentation_policy=policy)
     finding, = result["comparisons"]
     assert result["status"] == "coarse_match"
     assert finding["order_differences"] == ["rows"]
     assert finding["exact_comparison"]["status"] == "mismatch"
+    assert finding["coarse_rules"]["Price"] == ("numeric_text", None)
     write_table_reports(tmp_path, left, right, result, (None, None))
     rows_by_kind = {}
     for path in (tmp_path / "tables").glob("*.js"):
@@ -181,8 +187,7 @@ def test_numeric_text_checkpoint_pairs_duplicates_and_embeds_both_original_value
     assert expected_id[3] == actual_id[3]
 
     python["rows"][1] = python["rows"][0].copy()
-    mismatched = compare_behavior_runs(left, right, "runtime", align_checkpoints=True,
-                                       presentation_policy=(set(), {}))
+    mismatched = compare_behavior_runs(left, right, "runtime", align_checkpoints=True, presentation_policy=policy)
     assert mismatched["status"] == "mismatch"
 
 
@@ -191,6 +196,7 @@ def test_numeric_text_checkpoint_pairs_duplicates_and_embeds_both_original_value
     ("Price", ["1.000001"], [1.0], False),
     ("Price", ["1.20"], ["1.2"], False),
     ("Price", ["1.20"], [1.2], True),
+    ("Price", ["1.20"], [Decimal("1.2")], True),
     ("Amount", ["00123"], [123], False),
     ("Trade ID", [" 00123"], [123], False),
     ("Trade ID", [" 123", "123"], [123, 123], False),
@@ -198,10 +204,22 @@ def test_numeric_text_checkpoint_pairs_duplicates_and_embeds_both_original_value
     ("Trade ID", [" 9007199254740993"], [9007199254740993], True),
     ("Trade ID", [" 9007199254740993"], [9007199254740992.0], False),
     ("Instrument Version", ["1.0"], [1], False),
+    ("Product", ["1.0"], [1], False),
 ])
 def test_numeric_text_rules_keep_meaningful_digits_and_identifier_variants(column, expected, actual, match):
     left = snapshot([column], [[value] for value in expected])
     right = snapshot([column], [[value] for value in actual])
-    rules = coarse_rules(left, right, set())
+    rules = coarse_rules(left, right, {column.casefold()})
     result = compare_snapshots(coarse_snapshot(left, rules), coarse_snapshot(right, rules))
     assert result["values_match"] is match
+
+
+def test_price_join_preserves_null_and_empty_text():
+    left = snapshot(["Price"], [["124.500"], [""]])
+    left["schema"] = [{"name": "Price", "type": "V_WString"}]
+    right = snapshot(["Price"], [[124.5], [None]])
+    rules = coarse_rules(left, right, {"price"})
+    result = compare_snapshots(coarse_snapshot(left, rules), coarse_snapshot(right, rules))
+    difference, = result["value_differences"]
+    assert difference["expected"] == {"kind": "string", "value": ""}
+    assert difference["actual"] == {"kind": "null"}

@@ -111,7 +111,9 @@ def _numeric_text_rules(expected, actual, rules, protected):
         kinds = (_column_kind(left_rows, left), _column_kind(right_rows, right))
         if "string" not in kinds or not {"int", "number"}.intersection(kinds):
             continue
-        identifier = _identifier_name(name) or name.casefold() in protected
+        # A protected integer may be an identifier. A protected float or decimal can
+        # represent a numeric join key while still requiring distinct nulls and blanks.
+        identifier = _identifier_name(name) or ("int" in kinds and name.casefold() in protected)
         if identifier:
             text_side = kinds.index("string")
             if "int" not in kinds or not _distinct_identifier_padding(rows[text_side], (left, right)[text_side]):
