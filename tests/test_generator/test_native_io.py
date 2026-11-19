@@ -321,5 +321,25 @@ def test_windows_paths_are_portable(tmp_path):
     assert (tmp_path / "output.csv").is_file()
 
 
+def test_csv_quoted_empty_fields_preserve_headers_and_multiline_text(tmp_path):
+    path = tmp_path / "input.csv"
+    path.write_bytes(
+        b'ignored row\r\n"";Name;Note\r\n'
+        b'"";NA;"line one;""\r\nline two"\r\n'
+        b';NULL;""\r\n'
+        b'__a2p_quoted_empty__;" ";end\r\n'
+    )
+    config = {"file": path.name, "base_dir": str(tmp_path), "file_attributes": {"FileFormat": "0"},
+              "format_specific_options": {"Delimeter": ";", "ImportLine": "2"}}
+    first = dbfileinput_tool({}, config, WorkflowContext())["Output"]
+    second = _compile("DbFileInput", config)(input_dir=tmp_path, output_dir=tmp_path)
+    pd.testing.assert_frame_equal(first, second)
+    assert list(second.columns) == ["Unnamed: 0", "Name", "Note"]
+    assert second.iloc[0].tolist() == ["", "NA", 'line one;"\r\nline two']
+    assert pd.isna(second.iloc[1, 0])
+    assert second.iloc[1, 1:].tolist() == ["NULL", ""]
+    assert second.iloc[2].tolist() == ["__a2p_quoted_empty__", " ", "end"]
+
+
 def test_other_tools_are_not_claimed():
     assert lower_io("Filter", {}, "source_frame") is None

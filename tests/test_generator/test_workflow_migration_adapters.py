@@ -202,7 +202,8 @@ def test_dynamic_input_uses_template_schema_when_all_paths_are_skipped(tmp_path)
 def test_japanese_csv_and_excel_selectors_in_both_phases(tmp_path):
     from xml.sax.saxutils import escape
 
-    (tmp_path / 'data.csv').write_text('部店コード,取引番号\n0010,T001\n0050,T002\n', encoding='cp932')
+    (tmp_path / 'data.csv').write_text(
+        '部店コード,取引番号,備考\n0010,T001,""\n0050,T002,\n0060,T003,NULL\n', encoding='cp932')
     with pd.ExcelWriter(tmp_path / 'data.xlsx', engine='openpyxl') as writer:
         pd.DataFrame({'項目': ['検証']}).to_excel(writer, sheet_name='設定', index=False, startrow=1, startcol=1)
     builder = WorkflowBuilder()
@@ -235,7 +236,11 @@ def test_japanese_csv_and_excel_selectors_in_both_phases(tmp_path):
     for node in [*inputs, direct]:
         pd.testing.assert_frame_equal(baseline.node_results[str(node)].outputs['Output'], checkpoints[str(node)]['Output'])
     for node in [*inputs[:2], direct]:
-        assert checkpoints[str(node)]['Output']['部店コード'].tolist() == ['0010', '0050']
+        output = checkpoints[str(node)]['Output']
+        assert output['部店コード'].tolist() == ['0010', '0050', '0060']
+        assert output['備考'].iloc[0] == ''
+        assert pd.isna(output['備考'].iloc[1])
+        assert output['備考'].iloc[2] == 'NULL'
     assert checkpoints[str(inputs[-1])]['Output']['項目'].tolist() == ['検証']
 
 
