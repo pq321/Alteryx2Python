@@ -497,6 +497,54 @@ def test_dynamic_input_missing_file_warning_names_path_field(tmp_path, monkeypat
     assert "path-issues.json" in captured.out
 
 
+@pytest.mark.parametrize(("action", "value", "filename", "worksheet"), [
+    ("Prefix", "east-", "east-base.csv", None),
+    ("Suffix", "-east", "base-east.csv", None),
+    ("FileName", "east.csv", "east.csv.csv", None),
+    ("Prefix", "east-", "base.xlsx", "east-Data"),
+    ("Suffix", "-east", "base.xlsx", "Data$-east"),
+    ("FileName", "east", "base.xlsx", "east"),
+])
+def test_dynamic_input_name_actions_survive_step_two_staging(tmp_path, action, value, filename, worksheet):
+    from pathlib import Path
+
+    if worksheet is None:
+        template = "base.csv"
+        (tmp_path / template).write_text("Value\nwrong\n", encoding="utf-8")
+        (tmp_path / filename).write_text("Value\nselected\n", encoding="utf-8")
+        format_code = 0
+    else:
+        book = Workbook()
+        book.active.title = "Data"
+        for sheet, cell in [(book.active, "wrong"), (book.create_sheet(worksheet), "selected")]:
+            sheet.append(["Value"])
+            sheet.append([cell])
+        book.save(tmp_path / filename)
+        template = filename + "|||Data$"
+        format_code = 25
+    builder = WorkflowBuilder()
+    source_node = builder.add_text_input(["Token"], [[value]])
+    dynamic = builder._node("DynamicInput", f"""
+        <Mode>ReadList</Mode><ReadList_Field>Token</ReadList_Field><ReadList_Type>{action}</ReadList_Type>
+        <InputConfiguration><Configuration><File FileFormat="{format_code}">{template}</File>
+        <FormatSpecificOptions><HeaderRow>True</HeaderRow></FormatSpecificOptions>
+        </Configuration></InputConfiguration>
+    """, (250, 130))
+    builder.connect(source_node, dynamic)
+    builder.connect(dynamic, builder.add_csv_output("result.csv"))
+    workflow = tmp_path / "dynamic-name.yxmd"
+    workflow.write_text(builder.render(), encoding="utf-8")
+    case = tmp_path / "case"
+
+    prepare_migration(workflow, case)
+    inputs = json.loads((case / "inputs.json").read_text(encoding="utf-8"))
+    assert any(Path(entry["source"]) == tmp_path / filename for entry in inputs)
+    result = resume_migration(case)
+    assert result["phase_one_vs_phase_two"] == result["standalone_execution"] == "match", result
+    output = case / "delivery/delivery-output/result.csv"
+    assert output.read_text(encoding="latin-1").splitlines() == ["Value", "selected"]
+
+
 def test_inspect_preflights_external_user_input_using_staging_paths(tmp_path, capsys):
     from alteryx2python.cli import main
     from alteryx2python.parser.xml_parser import XmlWorkflowParser

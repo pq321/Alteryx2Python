@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
 import pandas as pd
 
 from alteryx2python.comparison.schema_diff import snapshot_schema
@@ -15,28 +16,33 @@ def _apply_grouped(frame: pd.DataFrame, group_fields: list[str], sampler) -> pd.
     missing = [field for field in group_fields if field not in frame.columns]
     if missing:
         raise KeyError(f"Missing Sample group fields: {', '.join(missing)}")
-    pieces = [sampler(group) for _, group in frame.groupby(group_fields, sort=False, dropna=False)]
+    ordered = frame.sort_values(group_fields, kind="stable", na_position="first")
+    pieces = [sampler(group) for _, group in ordered.groupby(group_fields, sort=False, dropna=False)]
     if not pieces:
         return frame.iloc[0:0].copy()
     return pd.concat(pieces, ignore_index=True)
 
 
+def sample_by_chance(frame, n, rng):
+    if n == 0:
+        return frame.iloc[:0].copy()
+    return frame.iloc[rng.random(len(frame)) < 1 / n].copy()
+
+
 def _sample_frame(frame: pd.DataFrame, mode: str, n: int) -> pd.DataFrame:
-    if n < 0:
-        raise ValueError("Sample N must be non-negative")
     normalized = mode.lower()
     if normalized == "first":
         return frame.head(n).copy()
     if normalized == "last":
         return frame.tail(n).copy()
+    if normalized == "skip":
+        return frame.iloc[n:].copy()
     if normalized in {"sample", "everynth"}:
         if n == 0:
             return frame.iloc[0:0].copy()
         return frame.iloc[::n].copy()
-    if normalized == "random":
-        return frame.sample(n=min(n, len(frame.index)), random_state=0).sort_index().copy()
     if normalized == "npercent":
-        count = int(len(frame.index) * (n / 100))
+        count = (len(frame.index) * n + 50) // 100
         return frame.head(count).copy()
     raise NotImplementedError(f"Sample mode is not supported: {mode}")
 
@@ -55,7 +61,13 @@ def sample_tool(
     n = int(config.get("n", 0))
     group_fields = [str(field) for field in config.get("group_fields", [])]
 
-    output = _apply_grouped(input_frame, group_fields, lambda frame: _sample_frame(frame, mode, n))
+    if n < 0:
+        raise ValueError("Sample N must be non-negative")
+    if mode.lower() == "random":
+        rng = np.random.default_rng(0)
+        output = _apply_grouped(input_frame, group_fields, lambda frame: sample_by_chance(frame, n, rng))
+    else:
+        output = _apply_grouped(input_frame, group_fields, lambda frame: _sample_frame(frame, mode, n))
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

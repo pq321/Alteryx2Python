@@ -1,0 +1,15 @@
+{
+  "status": "match",
+  "source": "amp-dynamic-excel-sink.yxmd",
+  "source_sha256": "19c9bb96c34bcf5af33ec344d64abd2cd102ee171f6dc1afb420e18f3daa59ef",
+  "answers": null,
+  "phase_one_sha256": "2034a37b704ff61040497294203808071c2c2701326fee486dbabb18b59d8963",
+  "native_vs_phase_one": "match",
+  "phase_one_outcome": "success",
+  "phase_one_vs_phase_two": "match",
+  "standalone_execution": "match",
+  "as_of": "2026-11-19 16:43:43",
+  "phase_two_reuse_blocker": "Reusable delivery needs a transform boundary for DynamicInput (node 234)",
+  "phase_two_mode": "specialized",
+  "phase_two_sha256": "6f5e6c4cb68ab3c87526ca7f2af0ad7ce4a98966e3fe764056e1e9404f5a8934"
+}

@@ -39,6 +39,10 @@ def _concat(series: pd.Series, field_config: dict[str, Any]) -> str:
     return f"{field_config.get('concat_start', '')}{field_config.get('separator', '').join(values)}{field_config.get('concat_end', '')}"
 
 
+def _count_distinct(series, include_null):
+    return int(series.nunique(dropna=True)) + int(include_null and series.isna().any())
+
+
 def _aggregate(series: pd.Series, field_config: dict[str, Any]) -> Any:
     action = str(field_config.get("action", ""))
     if action in SPATIAL_ACTIONS:
@@ -47,6 +51,12 @@ def _aggregate(series: pd.Series, field_config: dict[str, Any]) -> Any:
         return pd.to_numeric(series, errors="coerce").sum()
     if action == "Count":
         return int(len(series.index))
+    if action == "CountNonNull":
+        return int(series.count())
+    if action == "CountNull":
+        return int(series.isna().sum())
+    if action in {"CountDistinct", "CountDistinctNonNull"}:
+        return _count_distinct(series, action == "CountDistinct")
     if action == "CountNonBlank":
         return int((~series.map(_is_blank)).sum())
     if action == "CountBlank":

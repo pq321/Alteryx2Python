@@ -1,0 +1,136 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2025.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="20" />
+          <Fields>
+            <Field name="Units Sold" />
+          </Fields>
+          <Data>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>22</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>21</c>
+            </r>
+            <r>
+              <c>20</c>
+            </r>
+            <r>
+              <c>20</c>
+            </r>
+            <r>
+              <c>20</c>
+            </r>
+            <r>
+              <c>19</c>
+            </r>
+            <r>
+              <c>19</c>
+            </r>
+            <r>
+              <c>19</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Rank.Rank">
+        <Position x="282" y="378" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <RankingModes>
+            <Mode value="Fractional" />
+            <Mode value="Competition" />
+            <Mode value="Standard" />
+            <Mode value="Dense" />
+            <Mode value="Ordinal" />
+          </RankingModes>
+          <SortInfo locale="0">
+            <Field field="Units Sold" order="Descending" />
+          </SortInfo>
+          <GroupFields />
+        </Configuration>
+        <Annotation DisplayMode="0">
+          <Name />
+          <DefaultAnnotationText>Units Sold - Descending</DefaultAnnotationText>
+          <Left value="False" />
+        </Annotation>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxRank" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="0" MaxRecords="">replay-rank-all.csv</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="True" />
+    </RuntimeProperties>
+    <RunWithE2 value="True" />
+  </Properties>
+</AlteryxDocument>

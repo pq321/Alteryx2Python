@@ -818,7 +818,7 @@ def test_rank_sample_config_executes_against_embedded_text_input():
 
     output = rank_tool({"Input": frame}, config, WorkflowContext())["Output"]
 
-    assert output["Rank"].head(3).tolist() == [1, 2, 3]
+    assert output["OrdinalRanking"].head(3).tolist() == [1, 2, 3]
 
 
 def test_datetime_sample_config_executes_against_embedded_text_input():

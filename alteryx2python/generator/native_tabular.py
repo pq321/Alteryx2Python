@@ -91,21 +91,34 @@ def lower_tabular(compiler, kind, config, frame):
         mode, n = str(config.get('mode', 'First')).lower(), int(config.get('n', 0))
         if n < 0:
             raise UnsupportedLowering('Sample N must be non-negative')
+        lines = []
+        if mode == 'random':
+            from alteryx2python.tools.sample import sample_by_chance
+
+            chance = compiler.linker.function(sample_by_chance)
+            compiler.linker.imports.add('import numpy as np')
+            lines.append('rng = np.random.default_rng(0)')
+
         def sample(value):
             if mode in {'first', 'last'}:
                 return f'{value}.{"head" if mode == "first" else "tail"}({n}).copy()'
+            if mode == 'skip':
+                return f'{value}.iloc[{n}:].copy()'
             if mode in {'sample', 'everynth'}:
                 return f'{value}.iloc[::{n}].copy()' if n else f'{value}.iloc[:0].copy()'
             if mode == 'npercent':
-                return f'{value}.head(int(len({value}) * ({n} / 100))).copy()'
+                return f'{value}.head((len({value}) * {n} + 50) // 100).copy()'
             if mode == 'random':
-                return f'{value}.sample(n=min({n}, len({value})), random_state=0).sort_index().copy()'
+                return f'{chance}({value}, {n}, rng)'
             raise UnsupportedLowering(f'Unsupported Sample mode: {mode}')
         groups = config.get('group_fields', [])
         if not groups:
-            return ['return ' + sample(frame)]
-        return [f'pieces = [{sample("group")} for _, group in {frame}.groupby({groups!r}, sort=False, dropna=False)]',
-                f'return pd.concat(pieces, ignore_index=True) if pieces else {frame}.iloc[:0].copy()']
+            return lines + ['return ' + sample(frame)]
+        return lines + [
+            f'ordered = {frame}.sort_values({groups!r}, kind="stable", na_position="first")',
+            f'pieces = [{sample("group")} for _, group in ordered.groupby({groups!r}, sort=False, dropna=False)]',
+            f'return pd.concat(pieces, ignore_index=True) if pieces else {frame}.iloc[:0].copy()',
+        ]
     if kind in {'RunningTotal', 'Rank'}:
         groups = config.get('group_by_fields' if kind == 'RunningTotal' else 'group_fields', [])
         if kind == 'RunningTotal':
@@ -122,7 +135,7 @@ def lower_tabular(compiler, kind, config, frame):
                     expression = f'list(accumulate({numeric}))'
                 lines += [f'output[{prefix + field!r}] = {expression}']
         else:
-            from alteryx2python.tools.rank import RANK_METHODS
+            from alteryx2python.tools.rank import RANK_METHODS, rank_output_column
             fields, modes = config.get('sort_fields', []), config.get('ranking_modes', ['Ordinal'])
             if not fields:
                 raise UnsupportedLowering('Rank requires sort fields')
@@ -130,7 +143,7 @@ def lower_tabular(compiler, kind, config, frame):
             ascending = [field.get('order', 'Ascending').lower() != 'descending' for field in fields]
             lines = [f'output = {frame}.sort_values(by={by!r}, ascending={ascending!r}, kind="mergesort").reset_index(drop=True)']
             for mode in modes:
-                column = 'Rank' if len(modes) == 1 else 'Rank_' + mode
+                column = rank_output_column(mode, modes, config.get('native_output', False))
                 grouped = f'.groupby([output[field] for field in {groups!r}], sort=False)' if groups else ''
                 lines += [f'output[{column!r}] = pd.to_numeric(output[{by[0]!r}], errors="coerce"){grouped}.rank(method={RANK_METHODS.get(mode, "first")!r}, ascending={ascending[0]!r}).astype("Float64")']
                 if mode in {'Ordinal', 'Dense', 'Standard', 'Competition'}:
@@ -153,10 +166,14 @@ def lower_tabular(compiler, kind, config, frame):
             numeric = f'pd.to_numeric({values}, errors="coerce")'
             operations = {'Sum': numeric + '.sum()', 'Avg': numeric + '.mean()', 'Median': numeric + '.median()',
                           'StdDev': numeric + '.std()', 'Variance': numeric + '.var()', 'Count': f'int(len({values}))',
+                          'CountNonNull': f'int({values}.count())', 'CountNull': f'int({values}.isna().sum())',
                           'Min': values + '.min()', 'Max': values + '.max()', 'GroupBy': f'group.iloc[0][{column!r}]',
                           'First': f'({values}.iloc[0] if len({values}) else None)', 'Last': f'({values}.iloc[-1] if len({values}) else None)'}
             if action in operations:
                 expression = operations[action]
+            elif action in {'CountDistinct', 'CountDistinctNonNull'}:
+                count_distinct = compiler.linker.function(summarize._count_distinct)
+                expression = f'{count_distinct}({values}, {action == "CountDistinct"})'
             elif action in {'Mode', 'Longest', 'Shortest'}:
                 expression = f'{compiler.linker.function(getattr(summarize, "_" + action.lower()))}({values})'
             elif action in {'CountBlank', 'CountNonBlank', 'Concat'}:
@@ -203,7 +220,16 @@ def lower_tabular(compiler, kind, config, frame):
             return [f'return pd.DataFrame([{row} for _, group in {frame}.groupby({groups!r}, sort=False, dropna=False)], columns={names!r})']
         return [f'group = {frame}', f'return pd.DataFrame([{row}])']
     if kind == 'TextToColumns':
-        from alteryx2python.tools.texttocolumns import _delimiter_pattern
+        from alteryx2python.tools.texttocolumns import _delimiter_pattern, imported_split_options, split_imported_field
+
+        if 'split_to_rows' in config:
+            try:
+                options = imported_split_options(config)
+            except (NotImplementedError, ValueError) as exc:
+                raise UnsupportedLowering(str(exc)) from exc
+            split_field = compiler.linker.function(split_imported_field)
+            args = ', '.join(repr(value) for value in options)
+            return [f'return {split_field}({frame}, {args})']
         field, delimiters = config.get('field', ''), str(config.get('delimiters', ''))
         compiler.linker.imports.add('import re')
         split = f're.split({_delimiter_pattern(delimiters)!r}, text)' if delimiters else '[text]'

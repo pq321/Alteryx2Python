@@ -28,5 +28,6 @@ def parse_rank_config(raw_config: dict[str, Any]) -> ToolParserResult:
             "ranking_modes": modes,
             "sort_fields": sort_fields,
             "group_fields": group_fields,
+            "native_output": True,
         }
     )

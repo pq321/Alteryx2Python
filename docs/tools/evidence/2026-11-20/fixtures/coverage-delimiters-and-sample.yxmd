@@ -1,0 +1,605 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2022.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="12" />
+          <Fields>
+            <Field name="ID" />
+            <Field name="Value" />
+          </Fields>
+          <Data>
+            <r>
+              <c>0</c>
+              <c>a,,b</c>
+            </r>
+            <r>
+              <c>1</c>
+              <c>a,,b;c</c>
+            </r>
+            <r>
+              <c>2</c>
+              <c>x,(y,z),w</c>
+            </r>
+            <r>
+              <c>3</c>
+              <c>x,[y,z],w</c>
+            </r>
+            <r>
+              <c>4</c>
+              <c>x,"y,z",w</c>
+            </r>
+            <r>
+              <c>5</c>
+              <c>x,'y,z',w</c>
+            </r>
+            <r>
+              <c>6</c>
+              <c>x,{y,z},w</c>
+            </r>
+            <r>
+              <c>7</c>
+              <c>a,;b</c>
+            </r>
+            <r>
+              <c>8</c>
+              <c />
+            </r>
+            <r>
+              <c>9</c>
+              <c>solo</c>
+            </r>
+            <r>
+              <c>10</c>
+              <c>,,</c>
+            </r>
+            <r>
+              <c>11</c>
+              <c>a;b,,c</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="10">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="1500" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="0" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="110">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-0.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="11">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="1650" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="1" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="111">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-1.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="12">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="1800" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="2" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="112">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-2.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="13">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="1950" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="4" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="113">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-4.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="14">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2100" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="8" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="114">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-8.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="15">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2250" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="16" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="115">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-16.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="16">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2400" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="32" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="116">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-32.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="17">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2550" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="64" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="117">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-64.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="18">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2700" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="128" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="118">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-128.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="19">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextToColumns.TextToColumns">
+        <Position x="2850" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Field>Value</Field>
+          <ErrorHandling>Last</ErrorHandling>
+          <RootName>Part</RootName>
+          <Delimeters value=",;" />
+          <NumFields value="3" />
+          <Flags value="256" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextToColumns" />
+    </Node>
+    <Node ToolID="119">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-text-columns-256.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="40">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="108" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="9" />
+          <Fields>
+            <Field name="ID" />
+            <Field name="Group" />
+          </Fields>
+          <Data>
+            <r>
+              <c>1</c>
+              <c>B</c>
+            </r>
+            <r>
+              <c>2</c>
+              <c />
+            </r>
+            <r>
+              <c>3</c>
+              <c>B</c>
+            </r>
+            <r>
+              <c>4</c>
+              <c>A</c>
+            </r>
+            <r>
+              <c>5</c>
+              <c>B</c>
+            </r>
+            <r>
+              <c>6</c>
+              <c>A</c>
+            </r>
+            <r>
+              <c>7</c>
+              <c>B</c>
+            </r>
+            <r>
+              <c>8</c>
+              <c />
+            </r>
+            <r>
+              <c>9</c>
+              <c>B</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="41">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Sample.Sample">
+        <Position x="6150" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>First</Mode>
+          <N>1</N>
+          <GroupFields>
+            <Field name="Group" />
+          </GroupFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSample" />
+    </Node>
+    <Node ToolID="141">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-sample-41.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="42">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Sample.Sample">
+        <Position x="6300" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>NPercent</Mode>
+          <N>49</N>
+          <GroupFields />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSample" />
+    </Node>
+    <Node ToolID="142">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-sample-42.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="43">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Sample.Sample">
+        <Position x="6450" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>NPercent</Mode>
+          <N>23</N>
+          <GroupFields />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSample" />
+    </Node>
+    <Node ToolID="143">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="18" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-sample-43.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="10" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="10" Connection="Output" />
+      <Destination ToolID="110" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="11" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="11" Connection="Output" />
+      <Destination ToolID="111" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="12" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="12" Connection="Output" />
+      <Destination ToolID="112" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="13" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="13" Connection="Output" />
+      <Destination ToolID="113" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="14" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="14" Connection="Output" />
+      <Destination ToolID="114" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="15" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="15" Connection="Output" />
+      <Destination ToolID="115" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="16" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="16" Connection="Output" />
+      <Destination ToolID="116" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="17" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="17" Connection="Output" />
+      <Destination ToolID="117" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="18" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="18" Connection="Output" />
+      <Destination ToolID="118" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="19" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="19" Connection="Output" />
+      <Destination ToolID="119" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="40" Connection="Output" />
+      <Destination ToolID="41" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="41" Connection="Output" />
+      <Destination ToolID="141" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="40" Connection="Output" />
+      <Destination ToolID="42" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="42" Connection="Output" />
+      <Destination ToolID="142" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="40" Connection="Output" />
+      <Destination ToolID="43" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="43" Connection="Output" />
+      <Destination ToolID="143" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+    </RuntimeProperties>
+    <RunWithE2 value="False" />
+  </Properties>
+</AlteryxDocument>

@@ -1,0 +1,5362 @@
+{
+  "designer": "2025.1.2.165",
+  "comparison_scope": "column names and ordered values at selected output anchors",
+  "runs": [
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/sample-and-summarize-coverage.yxmd",
+      "cases": {
+        "sample-skip": {
+          "tool_id": 2,
+          "anchor": "Output",
+          "native_probe": "sample-skip.yxdb",
+          "native_sha256": "2fac4f0b79851ae27f98f12f35269268113538ca9d3e0ba2f025103336320c76",
+          "native_columns": [
+            "ID",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              3,
+              null
+            ],
+            [
+              4,
+              null
+            ],
+            [
+              5,
+              "b"
+            ],
+            [
+              6,
+              "a"
+            ],
+            [
+              7,
+              null
+            ],
+            [
+              8,
+              "a"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              3,
+              null
+            ],
+            [
+              4,
+              null
+            ],
+            [
+              5,
+              "b"
+            ],
+            [
+              6,
+              "a"
+            ],
+            [
+              7,
+              null
+            ],
+            [
+              8,
+              "a"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "summary-counts": {
+          "tool_id": 12,
+          "anchor": "Output",
+          "native_probe": "summary-counts.yxdb",
+          "native_sha256": "e56edddbc4e86ffe755cc0d534fb1ae7f9e00e13350c63824a4da7b1af8f254d",
+          "native_columns": [
+            "Count",
+            "CountNull",
+            "CountNonNull",
+            "CountDistinct",
+            "CountDistinctNonNull"
+          ],
+          "native_schema": [
+            {
+              "name": "Count",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "CountNull",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "CountNonNull",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "CountDistinct",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "CountDistinctNonNull",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              8,
+              2,
+              6,
+              4,
+              3
+            ]
+          ],
+          "python_columns": [
+            "Count",
+            "CountNull",
+            "CountNonNull",
+            "CountDistinct",
+            "CountDistinctNonNull"
+          ],
+          "python_rows": [
+            [
+              8,
+              2,
+              6,
+              4,
+              3
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-random": {
+          "tool_id": 22,
+          "anchor": "Output",
+          "native_probe": "sample-random.yxdb",
+          "native_sha256": "0064e221e8263e1afd15c1f54f3a60a58657a4140db9f698e5440bff1d443cfd",
+          "native_columns": [
+            "ID",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              3,
+              null
+            ],
+            [
+              5,
+              "b"
+            ],
+            [
+              8,
+              "a"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              2,
+              "a"
+            ],
+            [
+              3,
+              null
+            ],
+            [
+              4,
+              null
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "values_differ"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "9a44586a358aa7f9b20868b11cebffd5167b340f518af76271f5a5691e4519b4",
+      "portable_workflow": "fixtures/sample-and-summarize-coverage.yxmd",
+      "portable_workflow_sha256": "6f3c7f33db74a22400ef68a4f832ed09bd66fa2f57458607d5d3e782c90686fd"
+    },
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/coverage-batch-classic.yxmd",
+      "cases": {
+        "text-whitespace": {
+          "tool_id": 1,
+          "anchor": "Output",
+          "native_probe": "text-whitespace.yxdb",
+          "native_sha256": "11402e7f3bebfc087638b3843de72a2dfc718df101700652e22358d7ab00fd62",
+          "native_columns": [
+            "Row",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "Row",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "WString",
+              "size": "3",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              1,
+              null
+            ],
+            [
+              2,
+              null
+            ],
+            [
+              3,
+              null
+            ],
+            [
+              4,
+              null
+            ],
+            [
+              5,
+              null
+            ],
+            [
+              6,
+              null
+            ],
+            [
+              7,
+              "　"
+            ],
+            [
+              8,
+              " "
+            ],
+            [
+              9,
+              " x"
+            ],
+            [
+              10,
+              "x "
+            ],
+            [
+              11,
+              " x "
+            ],
+            [
+              12,
+              "x\ty"
+            ],
+            [
+              13,
+              "　x"
+            ],
+            [
+              14,
+              "0"
+            ]
+          ],
+          "python_columns": [
+            "Row",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              1,
+              null
+            ],
+            [
+              2,
+              null
+            ],
+            [
+              3,
+              null
+            ],
+            [
+              4,
+              null
+            ],
+            [
+              5,
+              null
+            ],
+            [
+              6,
+              null
+            ],
+            [
+              7,
+              "　"
+            ],
+            [
+              8,
+              " "
+            ],
+            [
+              9,
+              " x"
+            ],
+            [
+              10,
+              "x "
+            ],
+            [
+              11,
+              " x "
+            ],
+            [
+              12,
+              "x\ty"
+            ],
+            [
+              13,
+              "　x"
+            ],
+            [
+              14,
+              "0"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-7": {
+          "tool_id": 7,
+          "anchor": "Output",
+          "native_probe": "sample-7.yxdb",
+          "native_sha256": "2fac03fb43629e0825f0fbcedb1272315e872676ce17bbd296b00aa863eb0cdb",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              4,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              4,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-8": {
+          "tool_id": 8,
+          "anchor": "Output",
+          "native_probe": "sample-8.yxdb",
+          "native_sha256": "4727c277ffc42a33a43de9475387ddfad8b89d25057a73af249fdf28c232838e",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              "A"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              5,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              "A"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              5,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-9": {
+          "tool_id": 9,
+          "anchor": "Output",
+          "native_probe": "sample-9.yxdb",
+          "native_sha256": "590332a4a70e9f1878ebb2f770ff1556ce6f0ffa4c6a312101b3bcdaa3387675",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-10": {
+          "tool_id": 10,
+          "anchor": "Output",
+          "native_probe": "sample-10.yxdb",
+          "native_sha256": "f29f0342a2e25832193f2e7523c35f75b497bdac2f828743e0923121adc95d8c",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-11": {
+          "tool_id": 11,
+          "anchor": "Output",
+          "native_probe": "sample-11.yxdb",
+          "native_sha256": "90a6d6f40ac1451cbc6e32375c3eb28e1f4ce7c07e8fefda9f847435ce94bc34",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-12": {
+          "tool_id": 12,
+          "anchor": "Output",
+          "native_probe": "sample-12.yxdb",
+          "native_sha256": "82f6ff0b0b353b5de63f8a63af79edbc9ef18a9acf3a2a8e76c4ff06b6d72cc3",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-13": {
+          "tool_id": 13,
+          "anchor": "Output",
+          "native_probe": "sample-13.yxdb",
+          "native_sha256": "14677eeefaa3cd57a8e8860aec148388ca35e26675b6193b04df4754926e5433",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              2,
+              "A"
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              6,
+              "A"
+            ],
+            [
+              8,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              5,
+              "B"
+            ],
+            [
+              7,
+              "B"
+            ],
+            [
+              9,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-22": {
+          "tool_id": 22,
+          "anchor": "Output",
+          "native_probe": "cross-22.yxdb",
+          "native_sha256": "1f81a0170b7731409b0913522fd0a14da7ba287e092948ab3a77cf8f024281ef",
+          "native_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Avg_a_b",
+            "Sum_Z_Top",
+            "Avg_Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Sum_a_b",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Avg_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Sum_Z_Top",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Avg_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              4,
+              2.0,
+              2,
+              2.0
+            ],
+            [
+              "b",
+              8,
+              8.0,
+              7,
+              3.5
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Avg_a_b",
+            "Sum_Z_Top",
+            "Avg_Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              4,
+              2.0,
+              2.0,
+              2.0
+            ],
+            [
+              "b",
+              8,
+              8.0,
+              7,
+              3.5
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-23": {
+          "tool_id": 23,
+          "anchor": "Output",
+          "native_probe": "cross-23.yxdb",
+          "native_sha256": "ab0aff608a6ed11d96190bca78fabd77e6cc4fcebb0c00b048bd3108c1f531b0",
+          "native_columns": [
+            "Batch",
+            "Count_a_b",
+            "Count_Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Count_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              2.0,
+              1.0
+            ],
+            [
+              "b",
+              1.0,
+              2.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Count_a_b",
+            "Count_Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              2.0,
+              1.0
+            ],
+            [
+              "b",
+              1.0,
+              2.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-24": {
+          "tool_id": 24,
+          "anchor": "Output",
+          "native_probe": "cross-24.yxdb",
+          "native_sha256": "e26e409927d4c3d7f224060d340215640459fcb9003a47c1f8da03a3a7f76656",
+          "native_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Count_a_b",
+            "Sum_Z_Top",
+            "Count_Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Sum_a_b",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Sum_Z_Top",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              4,
+              2.0,
+              2,
+              1.0
+            ],
+            [
+              "b",
+              8,
+              1.0,
+              7,
+              2.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Count_a_b",
+            "Sum_Z_Top",
+            "Count_Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              4,
+              2.0,
+              2.0,
+              1.0
+            ],
+            [
+              "b",
+              8,
+              1.0,
+              7,
+              2.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-25": {
+          "tool_id": 25,
+          "anchor": "Output",
+          "native_probe": "cross-25.yxdb",
+          "native_sha256": "5f3dcedd5958143e302c4463a7445713ecf5381f93312aafcea2bd584e08f50c",
+          "native_columns": [
+            "Batch",
+            "a_b",
+            "Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "a_b",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Z_Top",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              1,
+              2
+            ],
+            [
+              "b",
+              8,
+              4
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "a_b",
+            "Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              1,
+              2
+            ],
+            [
+              "b",
+              8,
+              4
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "8dafbd91568c5ef5016a8554b4a1b2111d5f874b98d23137f4f7d9b7da50e6f0",
+      "portable_workflow": "fixtures/coverage-batch-classic.yxmd",
+      "portable_workflow_sha256": "aaa1098bb1d2508dcc55b366bcb844556abf16120a41cca0d0e5398005859022"
+    },
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/coverage-delimiters-and-sample.yxmd",
+      "cases": {
+        "text-columns-0": {
+          "tool_id": 10,
+          "anchor": "Output",
+          "native_probe": "text-columns-0.yxdb",
+          "native_sha256": "80b9a3b889c4764912e130df92fafaf8580b2cc2a27ba15983ca28763759f430",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-columns-1": {
+          "tool_id": 11,
+          "anchor": "Output",
+          "native_probe": "text-columns-1.yxdb",
+          "native_sha256": "b19376e4c924c1bb236a0bfb4a10e0f3c5981801c5da99c3398ff135c32903a1",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y,z\"",
+              "w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y,z\"",
+              "w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-columns-2": {
+          "tool_id": 12,
+          "anchor": "Output",
+          "native_probe": "text-columns-2.yxdb",
+          "native_sha256": "5515354b54dd5e5bbc10c4ade1057a9127e92f1e52b2ea906223ca0a727b975e",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y,z)",
+              "w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y,z)",
+              "w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-columns-8": {
+          "tool_id": 14,
+          "anchor": "Output",
+          "native_probe": "text-columns-8.yxdb",
+          "native_sha256": "e32a4ee2575e4633bdc68d152e88abe3e5e3e9116bb35b1c8177521df7654853",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y,z'",
+              "w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y,z'",
+              "w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-columns-16": {
+          "tool_id": 15,
+          "anchor": "Output",
+          "native_probe": "text-columns-16.yxdb",
+          "native_sha256": "0c060b666b742c2848bbdfcd8fc486b9970f27927313ec495338bc8418576a7a",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "b",
+              null
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "b",
+              null
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              null,
+              null,
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "b",
+              null
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "b",
+              "c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y",
+              "z],w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "b",
+              null
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              null,
+              null,
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-columns-32": {
+          "tool_id": 16,
+          "anchor": "Output",
+          "native_probe": "text-columns-32.yxdb",
+          "native_sha256": "52b4be95990e232dbd66f0ff20f88577e1b5a027db94663e5b605d8f58906e3b",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part3",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y,z]",
+              "w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2",
+            "Part3"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              "",
+              "b;c"
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y",
+              "z),w"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y,z]",
+              "w"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y",
+              "z\",w"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y",
+              "z',w"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y",
+              "z},w"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              "",
+              "b"
+            ],
+            [
+              8,
+              null,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null,
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              "",
+              null
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b",
+              ",c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-41": {
+          "tool_id": 41,
+          "anchor": "Output",
+          "native_probe": "sample-41.yxdb",
+          "native_sha256": "2ac50770a9281bbc8f375e12e9ed862ed7724fe5df8f3091ca516e7b80a0e919",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              2,
+              null
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              2,
+              null
+            ],
+            [
+              4,
+              "A"
+            ],
+            [
+              1,
+              "B"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-42": {
+          "tool_id": 42,
+          "anchor": "Output",
+          "native_probe": "sample-42.yxdb",
+          "native_sha256": "f874b79d9af4779a9eb4c4364a6e6330c555ead3e1a908e299b677d353353e99",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              null
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              4,
+              "A"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              null
+            ],
+            [
+              3,
+              "B"
+            ],
+            [
+              4,
+              "A"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "sample-43": {
+          "tool_id": 43,
+          "anchor": "Output",
+          "native_probe": "sample-43.yxdb",
+          "native_sha256": "9bbf0f1d392817e80a6263e5b71c4ca492924813a5e0bea5468a5038c63b9f39",
+          "native_columns": [
+            "ID",
+            "Group"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Group",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              null
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Group"
+          ],
+          "python_rows": [
+            [
+              1,
+              "B"
+            ],
+            [
+              2,
+              null
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "b59935d17a2b256417ff84901571ed137c0a55db0cecd01f361ebda815f067f8",
+      "portable_workflow": "fixtures/coverage-delimiters-and-sample.yxmd",
+      "portable_workflow_sha256": "a6216d828683ca876fa8f4dbbeb1bc480362f98a02cbe854e6c72857923868d2"
+    },
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/coverage-text-variants.yxmd",
+      "cases": {
+        "text-variant-10": {
+          "tool_id": 10,
+          "anchor": "Output",
+          "native_probe": "text-variant-10.yxdb",
+          "native_sha256": "b68fa6ef3a35c6fed1a45a97d35e17d1c72d531e5d47499e626a84ff08d73de6",
+          "native_columns": [
+            "ID",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              ""
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              ""
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              ""
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              ""
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              ""
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              ""
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-variant-11": {
+          "tool_id": 11,
+          "anchor": "Output",
+          "native_probe": "text-variant-11.yxdb",
+          "native_sha256": "c855f3cafd9e95600803e53b4f09c41d4dd9738a85991d891254f76af9155d31",
+          "native_columns": [
+            "ID",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-variant-12": {
+          "tool_id": 12,
+          "anchor": "Output",
+          "native_probe": "text-variant-12.yxdb",
+          "native_sha256": "c649f9802c45688c019e5998acb6bf92043f556e62316341e2f95081c77ccb8c",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              ""
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              ""
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              ""
+            ],
+            [
+              8,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              ""
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              ""
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              ""
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              ""
+            ],
+            [
+              8,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              ""
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-variant-13": {
+          "tool_id": 13,
+          "anchor": "Output",
+          "native_probe": "text-variant-13.yxdb",
+          "native_sha256": "cebc18d16b34bf2696f2d5bd1839358d277f4e16d4f71ef63d3cb509d53c66ae",
+          "native_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part1",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            },
+            {
+              "name": "Part2",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              ""
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              ""
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              ""
+            ],
+            [
+              8,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              ""
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value",
+            "Part1",
+            "Part2"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a,,b",
+              "a",
+              ""
+            ],
+            [
+              1,
+              "a,,b;c",
+              "a",
+              ""
+            ],
+            [
+              2,
+              "x,(y,z),w",
+              "x",
+              "(y"
+            ],
+            [
+              3,
+              "x,[y,z],w",
+              "x",
+              "[y"
+            ],
+            [
+              4,
+              "x,\"y,z\",w",
+              "x",
+              "\"y"
+            ],
+            [
+              5,
+              "x,'y,z',w",
+              "x",
+              "'y"
+            ],
+            [
+              6,
+              "x,{y,z},w",
+              "x",
+              "{y"
+            ],
+            [
+              7,
+              "a,;b",
+              "a",
+              ""
+            ],
+            [
+              8,
+              null,
+              null,
+              null
+            ],
+            [
+              9,
+              "solo",
+              "solo",
+              null
+            ],
+            [
+              10,
+              ",,",
+              "",
+              ""
+            ],
+            [
+              11,
+              "a;b,,c",
+              "a",
+              "b"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "text-variant-14": {
+          "tool_id": 14,
+          "anchor": "Output",
+          "native_probe": "text-variant-14.yxdb",
+          "native_sha256": "b68fa6ef3a35c6fed1a45a97d35e17d1c72d531e5d47499e626a84ff08d73de6",
+          "native_columns": [
+            "ID",
+            "Value"
+          ],
+          "native_schema": [
+            {
+              "name": "ID",
+              "type": "Byte",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Value",
+              "type": "String",
+              "size": "9",
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              ""
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              ""
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              ""
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "python_columns": [
+            "ID",
+            "Value"
+          ],
+          "python_rows": [
+            [
+              0,
+              "a"
+            ],
+            [
+              0,
+              ""
+            ],
+            [
+              0,
+              "b"
+            ],
+            [
+              1,
+              "a"
+            ],
+            [
+              1,
+              ""
+            ],
+            [
+              1,
+              "b"
+            ],
+            [
+              1,
+              "c"
+            ],
+            [
+              2,
+              "x"
+            ],
+            [
+              2,
+              "(y"
+            ],
+            [
+              2,
+              "z)"
+            ],
+            [
+              2,
+              "w"
+            ],
+            [
+              3,
+              "x"
+            ],
+            [
+              3,
+              "[y"
+            ],
+            [
+              3,
+              "z]"
+            ],
+            [
+              3,
+              "w"
+            ],
+            [
+              4,
+              "x"
+            ],
+            [
+              4,
+              "\"y"
+            ],
+            [
+              4,
+              "z\""
+            ],
+            [
+              4,
+              "w"
+            ],
+            [
+              5,
+              "x"
+            ],
+            [
+              5,
+              "'y"
+            ],
+            [
+              5,
+              "z'"
+            ],
+            [
+              5,
+              "w"
+            ],
+            [
+              6,
+              "x"
+            ],
+            [
+              6,
+              "{y"
+            ],
+            [
+              6,
+              "z}"
+            ],
+            [
+              6,
+              "w"
+            ],
+            [
+              7,
+              "a"
+            ],
+            [
+              7,
+              ""
+            ],
+            [
+              7,
+              "b"
+            ],
+            [
+              8,
+              null
+            ],
+            [
+              9,
+              "solo"
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              10,
+              ""
+            ],
+            [
+              11,
+              "a"
+            ],
+            [
+              11,
+              "b"
+            ],
+            [
+              11,
+              ""
+            ],
+            [
+              11,
+              "c"
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [
+        "Text To Columns found excess delimiters in 'Value'"
+      ],
+      "recorded_workflow_sha256": "3d34127a970e491e52392c160636098f55dc042b99ce442c1aea0e228458609a",
+      "portable_workflow": "fixtures/coverage-text-variants.yxmd",
+      "portable_workflow_sha256": "ff044ba4c8f0ea3973179cde904e40165356059a45e9f311e2dbd7a98bd4b625"
+    },
+    {
+      "engine": "AMP",
+      "workflow": "fixtures/coverage-rank-amp.yxmd",
+      "cases": {
+        "rank-competition": {
+          "tool_id": 2,
+          "anchor": "Output",
+          "native_probe": "rank-competition.csv",
+          "native_sha256": "44f3db8277b3af0f204164f4984831dbc396c0800817a96594977a70864e40a4",
+          "native_columns": [
+            "Units Sold",
+            "ModifiedCompetitionRanking"
+          ],
+          "native_schema": null,
+          "native_rows": [
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              22.0,
+              7.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              21.0,
+              14.0
+            ],
+            [
+              20.0,
+              17.0
+            ],
+            [
+              20.0,
+              17.0
+            ],
+            [
+              20.0,
+              17.0
+            ],
+            [
+              19.0,
+              20.0
+            ],
+            [
+              19.0,
+              20.0
+            ],
+            [
+              19.0,
+              20.0
+            ]
+          ],
+          "python_columns": [
+            "Units Sold",
+            "ModifiedCompetitionRanking"
+          ],
+          "python_rows": [
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              22,
+              7
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              21,
+              14
+            ],
+            [
+              20,
+              17
+            ],
+            [
+              20,
+              17
+            ],
+            [
+              20,
+              17
+            ],
+            [
+              19,
+              20
+            ],
+            [
+              19,
+              20
+            ],
+            [
+              19,
+              20
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "1530640e7e84fac6dea97f30efa862062fc29f8f7a428fec5af53ee67bd08139",
+      "portable_workflow": "fixtures/coverage-rank-amp.yxmd",
+      "portable_workflow_sha256": "079de83d223d6c515216aeb5344667121e8889f1156cb2c2d1a7d0f5d555d618"
+    },
+    {
+      "engine": "AMP",
+      "workflow": "fixtures/coverage-rank-all-amp.yxmd",
+      "cases": {
+        "rank-all": {
+          "tool_id": 2,
+          "anchor": "Output",
+          "native_probe": "rank-all.csv",
+          "native_sha256": "4de768fb939133b0a650ab47b70888f1d14b30697d07a0c5320b7e8e0ea33d59",
+          "native_columns": [
+            "Units Sold",
+            "FractionalRanking",
+            "ModifiedCompetitionRanking",
+            "StandardRanking",
+            "DenseRanking",
+            "OrdinalRanking"
+          ],
+          "native_schema": null,
+          "native_rows": [
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              2.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              3.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              4.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              5.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              6.0
+            ],
+            [
+              22.0,
+              4.0,
+              7.0,
+              1.0,
+              1.0,
+              7.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              8.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              9.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              10.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              11.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              12.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              13.0
+            ],
+            [
+              21.0,
+              11.0,
+              14.0,
+              8.0,
+              2.0,
+              14.0
+            ],
+            [
+              20.0,
+              16.0,
+              17.0,
+              15.0,
+              3.0,
+              15.0
+            ],
+            [
+              20.0,
+              16.0,
+              17.0,
+              15.0,
+              3.0,
+              16.0
+            ],
+            [
+              20.0,
+              16.0,
+              17.0,
+              15.0,
+              3.0,
+              17.0
+            ],
+            [
+              19.0,
+              19.0,
+              20.0,
+              18.0,
+              4.0,
+              18.0
+            ],
+            [
+              19.0,
+              19.0,
+              20.0,
+              18.0,
+              4.0,
+              19.0
+            ],
+            [
+              19.0,
+              19.0,
+              20.0,
+              18.0,
+              4.0,
+              20.0
+            ]
+          ],
+          "python_columns": [
+            "Units Sold",
+            "FractionalRanking",
+            "ModifiedCompetitionRanking",
+            "StandardRanking",
+            "DenseRanking",
+            "OrdinalRanking"
+          ],
+          "python_rows": [
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              1
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              2
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              3
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              4
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              5
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              6
+            ],
+            [
+              22,
+              4.0,
+              7,
+              1,
+              1,
+              7
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              8
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              9
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              10
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              11
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              12
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              13
+            ],
+            [
+              21,
+              11.0,
+              14,
+              8,
+              2,
+              14
+            ],
+            [
+              20,
+              16.0,
+              17,
+              15,
+              3,
+              15
+            ],
+            [
+              20,
+              16.0,
+              17,
+              15,
+              3,
+              16
+            ],
+            [
+              20,
+              16.0,
+              17,
+              15,
+              3,
+              17
+            ],
+            [
+              19,
+              19.0,
+              20,
+              18,
+              4,
+              18
+            ],
+            [
+              19,
+              19.0,
+              20,
+              18,
+              4,
+              19
+            ],
+            [
+              19,
+              19.0,
+              20,
+              18,
+              4,
+              20
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "cabe114f2457f1f87b49764c866b519e539f1a3c233af31796c33bfaa8001820",
+      "portable_workflow": "fixtures/coverage-rank-all-amp.yxmd",
+      "portable_workflow_sha256": "6f2a898fcaa8c4c85f5f5c3426f33c3424821d972b78b67b190a5bf50c867ceb"
+    },
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/coverage-cross-percent-totals.yxmd",
+      "cases": {
+        "cross-31": {
+          "tool_id": 31,
+          "anchor": "Output",
+          "native_probe": "cross-31.yxdb",
+          "native_sha256": "524d734bd18b23110883995171fb3a4d58919bac1a7229d681352e7393356a70",
+          "native_columns": [
+            "Batch",
+            "XRow_a_b",
+            "XRow_Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "XRow_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XRow_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              66.66666666666667,
+              33.333333333333336
+            ],
+            [
+              "b",
+              53.333333333333336,
+              46.666666666666664
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "XRow_a_b",
+            "XRow_Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              66.66666666666667,
+              33.333333333333336
+            ],
+            [
+              "b",
+              53.333333333333336,
+              46.666666666666664
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-32": {
+          "tool_id": 32,
+          "anchor": "Output",
+          "native_probe": "cross-32.yxdb",
+          "native_sha256": "42b985fbb548ec8f9ded9fce939678215413149d424da19f14a9e50f157e01fd",
+          "native_columns": [
+            "Batch",
+            "XCol_a_b",
+            "XCol_Z_Top"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "XCol_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XCol_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              33.333333333333336,
+              22.22222222222222
+            ],
+            [
+              "b",
+              66.66666666666667,
+              77.77777777777777
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "XCol_a_b",
+            "XCol_Z_Top"
+          ],
+          "python_rows": [
+            [
+              "a",
+              33.333333333333336,
+              22.22222222222222
+            ],
+            [
+              "b",
+              66.66666666666667,
+              77.77777777777777
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-34": {
+          "tool_id": 34,
+          "anchor": "Output",
+          "native_probe": "cross-34.yxdb",
+          "native_sha256": "622e9c8258f56937c106a04094506c2eed3e708bf7dcae39fcad4b3a8532a94b",
+          "native_columns": [
+            "Batch",
+            "Total"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Total",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              6.0
+            ],
+            [
+              "b",
+              15.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Total"
+          ],
+          "python_rows": [
+            [
+              "a",
+              6.0
+            ],
+            [
+              "b",
+              15.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-35": {
+          "tool_id": 35,
+          "anchor": "Output",
+          "native_probe": "cross-35.yxdb",
+          "native_sha256": "0d3a5f1da8fd01522bea9758250fa2f598387cad45cfa34f3179764c29d1a805",
+          "native_columns": [
+            "Batch",
+            "Avg_a_b",
+            "XRow_a_b",
+            "XCol_a_b",
+            "Count_a_b",
+            "Avg_Z_Top",
+            "XRow_Z_Top",
+            "XCol_Z_Top",
+            "Count_Z_Top",
+            "Total"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Avg_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XRow_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XCol_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Avg_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XRow_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XCol_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Total",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              2.0,
+              66.66666666666667,
+              33.333333333333336,
+              2.0,
+              2.0,
+              33.333333333333336,
+              22.22222222222222,
+              1.0,
+              6.0
+            ],
+            [
+              "b",
+              8.0,
+              53.333333333333336,
+              66.66666666666667,
+              1.0,
+              3.5,
+              46.666666666666664,
+              77.77777777777777,
+              2.0,
+              15.0
+            ],
+            [
+              null,
+              4.0,
+              57.142857142857146,
+              100.0,
+              3.0,
+              3.0,
+              42.857142857142854,
+              100.0,
+              3.0,
+              21.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Avg_a_b",
+            "XRow_a_b",
+            "XCol_a_b",
+            "Count_a_b",
+            "Avg_Z_Top",
+            "XRow_Z_Top",
+            "XCol_Z_Top",
+            "Count_Z_Top",
+            "Total"
+          ],
+          "python_rows": [
+            [
+              "a",
+              2.0,
+              66.66666666666667,
+              33.333333333333336,
+              2.0,
+              2.0,
+              33.333333333333336,
+              22.22222222222222,
+              1.0,
+              6.0
+            ],
+            [
+              "b",
+              8.0,
+              53.333333333333336,
+              66.66666666666667,
+              1.0,
+              3.5,
+              46.666666666666664,
+              77.77777777777777,
+              2.0,
+              15.0
+            ],
+            [
+              null,
+              4.0,
+              57.142857142857146,
+              100.0,
+              3.0,
+              3.0,
+              42.857142857142854,
+              100.0,
+              3.0,
+              21.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        },
+        "cross-36": {
+          "tool_id": 36,
+          "anchor": "Output",
+          "native_probe": "cross-36.yxdb",
+          "native_sha256": "639c0bcfeba4be1a03467136f0a356c4b16928a122242523fdbedbbf1c8f77bd",
+          "native_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Sum_Z_Top",
+            "Total"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Sum_a_b",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Sum_Z_Top",
+              "type": "Int64",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Total",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              4,
+              2,
+              6.0
+            ],
+            [
+              "b",
+              8,
+              7,
+              15.0
+            ],
+            [
+              null,
+              12,
+              9,
+              21.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Sum_a_b",
+            "Sum_Z_Top",
+            "Total"
+          ],
+          "python_rows": [
+            [
+              "a",
+              4,
+              2.0,
+              6.0
+            ],
+            [
+              "b",
+              8,
+              7,
+              15.0
+            ],
+            [
+              null,
+              12,
+              9.0,
+              21.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "505abf539dd4a2189ae5a369816bdfb8c3c988003736eb405bac66ada5e069c0",
+      "portable_workflow": "fixtures/coverage-cross-percent-totals.yxmd",
+      "portable_workflow_sha256": "c0dcbfadd8dac6837d2fa356105ab3b3dde51b385dfc8cab243c7367ea4246e8"
+    },
+    {
+      "engine": "Classic",
+      "workflow": "fixtures/coverage-cross-edge.yxmd",
+      "cases": {
+        "cross-edge": {
+          "tool_id": 35,
+          "anchor": "Output",
+          "native_probe": "cross-edge.yxdb",
+          "native_sha256": "4f835261f143996a5a76ad16f7991f7c4956290070f769136c74b6776f4cdc33",
+          "native_columns": [
+            "Batch",
+            "Avg_a_b",
+            "XRow_a_b",
+            "XCol_a_b",
+            "Count_a_b",
+            "Avg_Z_Top",
+            "XRow_Z_Top",
+            "XCol_Z_Top",
+            "Count_Z_Top",
+            "Total"
+          ],
+          "native_schema": [
+            {
+              "name": "Batch",
+              "type": "String",
+              "size": "1",
+              "scale": null
+            },
+            {
+              "name": "Avg_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XRow_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XCol_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_a_b",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Avg_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XRow_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "XCol_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Count_Z_Top",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            },
+            {
+              "name": "Total",
+              "type": "Double",
+              "size": null,
+              "scale": null
+            }
+          ],
+          "native_rows": [
+            [
+              "a",
+              2.0,
+              66.66666666666667,
+              100.0,
+              2.0,
+              2.0,
+              33.333333333333336,
+              11.764705882352942,
+              1.0,
+              6.0
+            ],
+            [
+              "b",
+              8.0,
+              53.333333333333336,
+              200.0,
+              1.0,
+              3.5,
+              46.666666666666664,
+              41.1764705882353,
+              2.0,
+              15.0
+            ],
+            [
+              "c",
+              null,
+              null,
+              null,
+              null,
+              0.0,
+              null,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              "d",
+              -8.0,
+              null,
+              -200.0,
+              1.0,
+              8.0,
+              null,
+              47.05882352941177,
+              1.0,
+              0.0
+            ],
+            [
+              null,
+              1.0,
+              19.047619047619047,
+              100.0,
+              4.0,
+              3.4,
+              80.95238095238095,
+              100.0,
+              5.0,
+              21.0
+            ]
+          ],
+          "python_columns": [
+            "Batch",
+            "Avg_a_b",
+            "XRow_a_b",
+            "XCol_a_b",
+            "Count_a_b",
+            "Avg_Z_Top",
+            "XRow_Z_Top",
+            "XCol_Z_Top",
+            "Count_Z_Top",
+            "Total"
+          ],
+          "python_rows": [
+            [
+              "a",
+              2.0,
+              66.66666666666667,
+              100.0,
+              2.0,
+              2.0,
+              33.333333333333336,
+              11.764705882352942,
+              1.0,
+              6.0
+            ],
+            [
+              "b",
+              8.0,
+              53.333333333333336,
+              200.0,
+              1.0,
+              3.5,
+              46.666666666666664,
+              41.1764705882353,
+              2.0,
+              15.0
+            ],
+            [
+              "c",
+              null,
+              null,
+              null,
+              null,
+              0.0,
+              null,
+              0.0,
+              1.0,
+              0.0
+            ],
+            [
+              "d",
+              -8.0,
+              null,
+              -200.0,
+              1.0,
+              8.0,
+              null,
+              47.05882352941177,
+              1.0,
+              0.0
+            ],
+            [
+              null,
+              1.0,
+              19.047619047619047,
+              100.0,
+              4.0,
+              3.4,
+              80.95238095238095,
+              100.0,
+              5.0,
+              21.0
+            ]
+          ],
+          "phase_one_vs_phase_two": "exact_frame_match",
+          "designer_vs_python": "ordered_values_match"
+        }
+      },
+      "phase_two_standalone_executed": true,
+      "phase_one_warnings": [],
+      "recorded_workflow_sha256": "d48e99dcccccb0e6187d1a3b604926df99a51f94f1f409fc22c7e1b5762bcd3f",
+      "portable_workflow": "fixtures/coverage-cross-edge.yxmd",
+      "portable_workflow_sha256": "b7dbfab16859aab0cfac81b9707082c28b7e6b7f97d206560770b68b7b1a0077"
+    }
+  ]
+}

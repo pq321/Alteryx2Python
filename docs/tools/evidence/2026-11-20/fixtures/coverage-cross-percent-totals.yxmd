@@ -1,0 +1,307 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2022.1">
+  <Nodes>
+    <Node ToolID="21">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="378" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="7" />
+          <Fields>
+            <Field name="Batch" />
+            <Field name="Header" />
+            <Field name="Value" />
+          </Fields>
+          <Data>
+            <r>
+              <c>b</c>
+              <c>Z Top</c>
+              <c>4</c>
+            </r>
+            <r>
+              <c>a</c>
+              <c>a/b</c>
+              <c>1</c>
+            </r>
+            <r>
+              <c>a</c>
+              <c>Z Top</c>
+              <c>2</c>
+            </r>
+            <r>
+              <c>a</c>
+              <c>a/b</c>
+              <c>3</c>
+            </r>
+            <r>
+              <c>a</c>
+              <c>Z Top</c>
+              <c />
+            </r>
+            <r>
+              <c>b</c>
+              <c>a/b</c>
+              <c>8</c>
+            </r>
+            <r>
+              <c>b</c>
+              <c>z top</c>
+              <c>3</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="31">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="XRow" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="131">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-31.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="32">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="XCol" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="132">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-32.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="33">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="TotRow" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="133">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-33.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="34">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="TotCol" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="134">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-34.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="35">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="Avg" />
+            <Method method="Count" />
+            <Method method="XRow" />
+            <Method method="XCol" />
+            <Method method="TotCol" />
+            <Method method="TotRow" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="135">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-35.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="36">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.CrossTab.CrossTab">
+        <Position x="300" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <GroupFields>
+            <Field field="Batch" />
+          </GroupFields>
+          <HeaderField field="Header" />
+          <DataField field="Value" />
+          <Methods>
+            <Method method="Sum" />
+            <Method method="TotCol" />
+            <Method method="TotRow" />
+          </Methods>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxCrossTab" />
+    </Node>
+    <Node ToolID="136">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="500" y="396" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-cross-36.yxdb</File>
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="31" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="31" Connection="Output" />
+      <Destination ToolID="131" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="32" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="32" Connection="Output" />
+      <Destination ToolID="132" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="33" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="33" Connection="Output" />
+      <Destination ToolID="133" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="34" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="34" Connection="Output" />
+      <Destination ToolID="134" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="35" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="35" Connection="Output" />
+      <Destination ToolID="135" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="36" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="36" Connection="Output" />
+      <Destination ToolID="136" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+    </RuntimeProperties>
+    <RunWithE2 value="False" />
+  </Properties>
+</AlteryxDocument>

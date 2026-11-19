@@ -14,15 +14,20 @@ from alteryx2python.tools.csv_input import read_delimited_file
 from alteryx2python.tools.dbfileinput import _delimiter, _encoding, _header_row, _import_line, _record_limit, read_excel_selection
 
 
+READ_LIST_ACTIONS = {"Path", "Prefix", "Suffix", "FileName"}
+
+
 def read_list_options(config):
     mode, action = config.get("mode"), config.get("read_list_type")
-    if mode != "ReadList" or action != "Path":
-        raise NotImplementedError(f"Dynamic Input requires ReadList / Path, got {mode!r} / {action!r}")
+    if mode != "ReadList" or action not in READ_LIST_ACTIONS:
+        raise NotImplementedError(f"Dynamic Input requires a supported ReadList action, got {mode!r} / {action!r}")
     template = config.get("input_configuration", {})
     reference = template.get("file", "")
     suffix = Path(reference.partition("|||")[0]).suffix.lower()
     if suffix not in {".csv", ".xlsx"}:
         raise NotImplementedError(f"Dynamic Input template format is unsupported: {suffix or 'unspecified'}")
+    if suffix == ".xlsx" and action != "Path" and not reference.partition("|||")[2]:
+        raise NotImplementedError("Dynamic Input workbook name actions require a saved worksheet selector")
     attributes = template.get("file_attributes", {})
     if attributes.get("OutputFileName") not in {None, "", "None"}:
         raise NotImplementedError("Dynamic Input template uses an unsupported filename output field")
@@ -40,7 +45,25 @@ def read_list_options(config):
     }
 
 
-def read_file_list(frame, field, template, read_options, input_dir, behaviour="error", on_warning=None):
+def dynamic_source_reference(value, template, action):
+    if action == "Path":
+        return value
+    filename, separator, sheet = template.partition("|||")
+    path = Path(filename)
+    workbook = path.suffix.lower() == ".xlsx"
+    name = sheet.strip("'\x60") if workbook else path.stem
+    if action == "Prefix":
+        name = value + name
+    elif action == "Suffix":
+        name += value
+    elif action == "FileName":
+        name = value
+    else:
+        raise NotImplementedError(f"Dynamic Input action is unsupported: {action!r}")
+    return filename + separator + name if workbook else str(path.with_name(name + path.suffix))
+
+
+def read_file_list(frame, field, template, read_options, input_dir, behaviour="error", on_warning=None, *, action="Path"):
     template_path, _, template_sheet = template.partition("|||")
     suffix = Path(template_path).suffix.lower()
     if field not in frame:
@@ -81,7 +104,8 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
     first_failure = None
     for reference in references:
         try:
-            data = read_one(reference, read_options)
+            actual_reference = dynamic_source_reference(reference, template, action) if reference is not None else None
+            data = read_one(actual_reference, read_options)
             if expected_columns is not None and list(data.columns) != expected_columns:
                 raise ValueError("column names differ from the Dynamic Input schema")
         except (OSError, ValueError, BadZipFile) as error:
@@ -119,7 +143,8 @@ def dynamicinput_tool(
     if not isinstance(input_frame, pd.DataFrame):
         raise TypeError("Input anchor must contain a pandas DataFrame")
     base = (context.runtime_config or {}).get("input_dir") or config.get("base_dir") or "."
-    output = read_file_list(input_frame, field, template, options, base, behaviour, context.record_warning)
+    output = read_file_list(input_frame, field, template, options, base, behaviour, context.record_warning,
+                            action=config["read_list_type"])
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

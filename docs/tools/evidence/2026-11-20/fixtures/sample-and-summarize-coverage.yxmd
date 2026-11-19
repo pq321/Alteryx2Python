@@ -1,0 +1,286 @@
+<?xml version='1.0' encoding='utf-8'?>
+<AlteryxDocument yxmdVer="2022.1">
+  <Nodes>
+    <Node ToolID="1">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="8" />
+          <Fields>
+            <Field name="ID" />
+            <Field name="Value" />
+          </Fields>
+          <Data>
+            <r>
+              <c>1</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>2</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>3</c>
+              <c />
+            </r>
+            <r>
+              <c>4</c>
+              <c />
+            </r>
+            <r>
+              <c>5</c>
+              <c>b</c>
+            </r>
+            <r>
+              <c>6</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>7</c>
+              <c> </c>
+            </r>
+            <r>
+              <c>8</c>
+              <c>a</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="2">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Sample.Sample">
+        <Position x="300" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>Skip</Mode>
+          <N>2</N>
+          <GroupFields />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSample" />
+    </Node>
+    <Node ToolID="3">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="450" y="100" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-sample-skip.yxdb</File>
+          <Passwords />
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="11">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="200" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="8" />
+          <Fields>
+            <Field name="ID" />
+            <Field name="Value" />
+          </Fields>
+          <Data>
+            <r>
+              <c>1</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>2</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>3</c>
+              <c />
+            </r>
+            <r>
+              <c>4</c>
+              <c />
+            </r>
+            <r>
+              <c>5</c>
+              <c>b</c>
+            </r>
+            <r>
+              <c>6</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>7</c>
+              <c> </c>
+            </r>
+            <r>
+              <c>8</c>
+              <c>a</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="12">
+      <GuiSettings Plugin="AlteryxSpatialPluginsGui.Summarize.Summarize">
+        <Position x="300" y="200" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <SummarizeFields>
+            <SummarizeField field="Value" action="Count" rename="Count" />
+            <SummarizeField field="Value" action="CountNull" rename="CountNull" />
+            <SummarizeField field="Value" action="CountNonNull" rename="CountNonNull" />
+            <SummarizeField field="Value" action="CountDistinct" rename="CountDistinct" />
+            <SummarizeField field="Value" action="CountDistinctNonNull" rename="CountDistinctNonNull" />
+          </SummarizeFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxSpatialPluginsEngine.dll" EngineDllEntryPoint="AlteryxSummarize" />
+    </Node>
+    <Node ToolID="14">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Formula.Formula">
+        <Position x="200" y="200" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <FormulaFields>
+            <FormulaField expression="IF [ID] = 3 THEN &quot;&quot; ELSE [Value] ENDIF" field="Value" type="V_WString" size="8" />
+          </FormulaFields>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxFormula" />
+    </Node>
+    <Node ToolID="13">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="450" y="200" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-summary-counts.yxdb</File>
+          <Passwords />
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+    <Node ToolID="21">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.TextInput.TextInput">
+        <Position x="100" y="300" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <NumRows value="8" />
+          <Fields>
+            <Field name="ID" />
+            <Field name="Value" />
+          </Fields>
+          <Data>
+            <r>
+              <c>1</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>2</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>3</c>
+              <c />
+            </r>
+            <r>
+              <c>4</c>
+              <c />
+            </r>
+            <r>
+              <c>5</c>
+              <c>b</c>
+            </r>
+            <r>
+              <c>6</c>
+              <c>a</c>
+            </r>
+            <r>
+              <c>7</c>
+              <c> </c>
+            </r>
+            <r>
+              <c>8</c>
+              <c>a</c>
+            </r>
+          </Data>
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxTextInput" />
+    </Node>
+    <Node ToolID="22">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.Sample.Sample">
+        <Position x="300" y="300" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <Mode>Random</Mode>
+          <N>2</N>
+          <GroupFields />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxSample" />
+    </Node>
+    <Node ToolID="23">
+      <GuiSettings Plugin="AlteryxBasePluginsGui.DbFileOutput.DbFileOutput">
+        <Position x="450" y="300" />
+      </GuiSettings>
+      <Properties>
+        <Configuration>
+          <File FileFormat="19" MaxRecords="">replay-sample-random.yxdb</File>
+          <Passwords />
+          <FormatSpecificOptions />
+          <MultiFile value="False" />
+        </Configuration>
+      </Properties>
+      <EngineSettings EngineDll="AlteryxBasePluginsEngine.dll" EngineDllEntryPoint="AlteryxDbFileOutput" />
+    </Node>
+  </Nodes>
+  <Connections>
+    <Connection>
+      <Origin ToolID="1" Connection="Output" />
+      <Destination ToolID="2" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="2" Connection="Output" />
+      <Destination ToolID="3" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="11" Connection="Output" />
+      <Destination ToolID="14" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="14" Connection="Output" />
+      <Destination ToolID="12" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="12" Connection="Output" />
+      <Destination ToolID="13" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="21" Connection="Output" />
+      <Destination ToolID="22" Connection="Input" />
+    </Connection>
+    <Connection>
+      <Origin ToolID="22" Connection="Output" />
+      <Destination ToolID="23" Connection="Input" />
+    </Connection>
+  </Connections>
+  <Properties>
+    <RuntimeProperties>
+      <EnableEngine2 value="False" />
+    </RuntimeProperties>
+    <RunWithE2 value="False" />
+  </Properties>
+</AlteryxDocument>

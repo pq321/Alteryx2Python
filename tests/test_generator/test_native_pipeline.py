@@ -168,6 +168,46 @@ def test_sample_empty_inputs_keep_schema(tmp_path, mode, grouped):
            {"mode": mode, "n": 2, "group_fields": ["region"] if grouped else []})
 
 
+@pytest.mark.parametrize("group_fields", [[], ["region"]])
+def test_sample_skip_first_rows(tmp_path, group_fields):
+    checkpoints = _unary(
+        tmp_path, "Sample", ["region", "id"],
+        [["west", "a"], ["east", "b"], ["west", "c"], ["east", "d"], ["west", "e"]],
+        {"mode": "Skip", "n": 2, "group_fields": group_fields},
+    )
+    assert checkpoints["result"]["Output"]["id"].tolist() == (["e"] if group_fields else ["c", "d", "e"])
+
+
+def test_sample_random_is_a_chance_per_row(tmp_path):
+    rows = [[str(index)] for index in range(1000)]
+    result = _unary(tmp_path, "Sample", ["id"], rows, {"mode": "Random", "n": 10})["result"]["Output"]
+    assert 50 < len(result) < 150
+    assert result["id"].astype(int).is_monotonic_increasing
+    all_rows = _unary(tmp_path, "Sample", ["id"], rows, {"mode": "Random", "n": 1})["result"]["Output"]
+    assert all_rows["id"].astype(int).tolist() == list(range(1000))
+
+
+@pytest.mark.parametrize("groups,expected", [([], [1, 2, 3, 4, 5]), (["group"], [2, 4, 1, 3, 5])])
+def test_sample_percent_rounds_half_up_and_sorts_groups(tmp_path, groups, expected):
+    rows = [[str(index), "B" if index % 2 else "A"] for index in range(1, 10)]
+    result = _unary(tmp_path, "Sample", ["id", "group"], rows,
+                    {"mode": "NPercent", "n": 50, "group_fields": groups})
+    assert result["result"]["Output"]["id"].tolist() == expected
+
+
+def test_text_input_import_preserves_padding_and_non_ascii_space(tmp_path):
+    from alteryx2python.parser.tool_parsers.textinput_parser import parse_textinput_config
+
+    values = ["", " \t\n", "\u3000", "\xa0", " a ", "a\tb"]
+    config = parse_textinput_config({
+        "Fields": {"Field": {"attributes": {"name": "text"}}},
+        "Data": {"r": [{"c": {"text": value}} for value in values]},
+    }).normalized_config
+    workflow = _workflow(tmp_path, [_node("text", "TextInput", config)], [])
+    _, checkpoints = _compare(workflow, tmp_path)
+    assert checkpoints["text"]["Output"]["text"].tolist() == ["", None, *values[2:]]
+
+
 @pytest.mark.parametrize("keys,empty", [([], False), (["tag"], False), (["tag", "zone"], False), (["tag"], True)])
 def test_unique_checks_both_anchors_and_preserves_indices(tmp_path, keys, empty):
     checkpoints = _unary(tmp_path, "Unique", ["tag", "zone", "weight"],
@@ -205,6 +245,84 @@ def test_rank_ties_modes_and_grouping(tmp_path, modes, groups, empty):
             "sort_fields": [{"field": "points", "order": "Descending"}, {"field": "name", "order": "Ascending"}]})
 
 
+def test_rank_modified_competition_uses_last_position_in_tie(tmp_path):
+    rows = [["22"]] * 7 + [["21"]] * 7 + [["20"]] * 3 + [["19"]] * 3
+    result = _unary(tmp_path, "Rank", ["Units Sold"], rows, {
+        "ranking_modes": ["Standard", "Competition"],
+        "sort_fields": [{"field": "Units Sold", "order": "Descending"}],
+    })["result"]["Output"]
+    assert result["Rank_Standard"].tolist() == [1] * 7 + [8] * 7 + [15] * 3 + [18] * 3
+    assert result["Rank_Competition"].tolist() == [7] * 7 + [14] * 7 + [17] * 3 + [20] * 3
+
+
+def test_crosstab_reads_all_saved_actions_and_uses_designer_headings(tmp_path):
+    from alteryx2python.parser.tool_parsers.crosstab_parser import parse_crosstab_config
+
+    config = parse_crosstab_config({
+        "GroupFields": {"Field": {"attributes": {"field": "Batch"}}},
+        "HeaderField": {"attributes": {"field": "Header"}},
+        "DataField": {"attributes": {"field": "Value"}},
+        "Methods": {"Method": [{"attributes": {"method": "Count"}}, {"attributes": {"method": "Sum"}}]},
+    }).normalized_config
+    inputs = [["b", "Z Top", "4"], ["a", "a/b", "1"], ["a", "Z Top", "2"], ["a", "a/b", "3"],
+              ["a", "Z Top", None], ["b", "a/b", "8"], ["b", "z top", "3"]]
+    result = _unary(tmp_path, "CrossTab", ["Batch", "Header", "Value"], inputs, config)["result"]["Output"]
+    assert result.columns.tolist() == ["Batch", "Sum_a_b", "Count_a_b", "Sum_Z_Top", "Count_Z_Top"]
+    assert result.to_numpy().tolist() == [["a", 4, 2.0, 2, 1.0], ["b", 8, 1.0, 7, 2.0]]
+
+
+def test_crosstab_percentages_and_totals_include_zero_and_sparse_groups(tmp_path):
+    options = {"group_fields": ["Batch"], "header_field": "Header", "data_field": "Value",
+               "methods": ["Sum", "XRow", "XCol", "TotCol", "TotRow"]}
+    inputs = [["b", "Y", "0"], ["a", "X", "1"], ["a", "Y", "3"], ["c", "X", "-1"], ["c", "Y", "1"]]
+    output = _unary(tmp_path, "CrossTab", ["Batch", "Header", "Value"], inputs, options)["result"]["Output"]
+    assert output.columns.tolist() == ["Batch", "Sum_X", "XRow_X", "XCol_X", "Sum_Y", "XRow_Y", "XCol_Y", "Total"]
+    assert output.to_numpy().tolist() == [
+        ["a", 1, 25.0, None, 3, 75.0, 75.0, 4.0],
+        ["b", None, None, None, 0, None, 0.0, 0.0],
+        ["c", -1, None, None, 1, None, 25.0, 0.0],
+        [None, 0, 0.0, None, 4, 100.0, 100.0, 4.0],
+    ]
+
+
+@pytest.mark.parametrize("flag,value,expected", [
+    (0, "a,,b;c", ["a", "", "b;c"]),
+    (1, 'x,"y,z",w', ["x", '"y,z"', "w"]),
+    (2, "x,(y,z),w", ["x", "(y,z)", "w"]),
+    (8, "x,'y,z',w", ["x", "'y,z'", "w"]),
+    (16, "a,,b", ["a", "b", None]),
+    (32, "x,[y,z],w", ["x", "[y,z]", "w"]),
+])
+def test_text_to_columns_applies_each_imported_advanced_flag(tmp_path, flag, value, expected):
+    config = {"field": "value", "root_name": "part", "num_fields": 3, "flags": flag,
+              "delimiters": ",;", "split_to_rows": False, "error_handling": "Last"}
+    result = _unary(tmp_path, "TextToColumns", ["value"], [[value], [None]], config)
+    assert result["result"]["Output"][["part1", "part2", "part3"]].to_numpy().tolist() == [expected, [None] * 3]
+
+
+def test_text_to_rows_imports_single_field_configuration_without_quote_flag(tmp_path):
+    from alteryx2python.parser.tool_parsers.texttocolumns_parser import parse_texttocolumns_config
+
+    config = parse_texttocolumns_config({
+        "Field": {"text": "value"}, "NumFields": {"attributes": {"value": "1"}},
+        "Flags": {"attributes": {"value": "0"}}, "Delimeters": {"attributes": {"value": ","}},
+    }).normalized_config
+    result = _unary(tmp_path, "TextToColumns", ["value"], [["a,,b"], [None]], config)
+    assert result["result"]["Output"]["value"].tolist() == ["a", "", "b", None]
+
+
+def test_text_to_columns_honors_saved_overflow_policy(tmp_path):
+    config = {"field": "value", "root_name": "part", "num_fields": 2, "flags": 0,
+              "delimiters": ",", "split_to_rows": False}
+    with pytest.warns(RuntimeWarning, match="excess delimiters"):
+        result = _unary(tmp_path, "TextToColumns", ["value"], [["a,b,c"]], {**config, "error_handling": "Warn"})
+    assert result["result"]["Output"]["part2"].tolist() == ["b"]
+    result = _unary(tmp_path, "TextToColumns", ["value"], [["a,b,c"]], {**config, "error_handling": "Ignore"})
+    assert result["result"]["Output"]["part2"].tolist() == ["b"]
+    with pytest.raises(ValueError, match="excess delimiters"):
+        _unary(tmp_path, "TextToColumns", ["value"], [["a,b,c"]], {**config, "error_handling": "Error"})
+
+
 @pytest.mark.parametrize("groups,empty", [([], False), (["series"], False), (["series", "zone"], False), (["series"], True)])
 def test_runningtotal_multiple_fields_grouping_and_nulls(tmp_path, groups, empty):
     _unary(tmp_path, "RunningTotal", ["series", "zone", "delta", "extra"],
@@ -230,6 +348,17 @@ def test_summarize_aggregates_groups_and_empty(tmp_path, actions, grouped, empty
            [] if empty else [["c", "2", "elm"], ["d", "8", ""], ["c", "4", "oak"],
                              [None, None, None], ["d", "6", "elm"], ["c", "4", "elm"]],
            {"summarize_fields": fields})
+
+
+@pytest.mark.parametrize("grouped", [False, True])
+def test_summarize_distinguishes_null_empty_and_duplicate_values(tmp_path, grouped):
+    fields = [{"field": "batch", "action": "GroupBy"}] if grouped else []
+    actions = ["Count", "CountNonNull", "CountNull", "CountDistinct", "CountDistinctNonNull"]
+    fields += [{"field": "label", "action": action, "rename": action} for action in actions]
+    rows = [["a", None], ["a", ""], ["a", "x"], ["a", "x"], ["a", None], ["b", None]]
+    result = _unary(tmp_path, "Summarize", ["batch", "label"], rows, {"summarize_fields": fields})
+    expected = [(5, 3, 2, 3, 2), (1, 0, 1, 1, 0)] if grouped else [(6, 3, 3, 3, 2)]
+    assert list(result["result"]["Output"][actions].itertuples(index=False, name=None)) == expected
 
 
 def test_summarize_group_fields_interspersed_with_aggregates(tmp_path):

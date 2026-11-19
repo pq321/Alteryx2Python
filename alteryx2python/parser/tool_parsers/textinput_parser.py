@@ -47,4 +47,5 @@ def _cell_text(node: Any) -> str | None:
         return None
     if isinstance(node, dict) and "text" not in node:
         return None
-    return text(node, "")
+    value = text(node, "")
+    return None if value and not value.strip(" \t\r\n") else value

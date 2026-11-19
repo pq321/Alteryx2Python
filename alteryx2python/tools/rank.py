@@ -13,9 +13,16 @@ RANK_METHODS = {
     "Ordinal": "first",
     "Dense": "dense",
     "Standard": "min",
-    "Competition": "min",
+    "Competition": "max",
     "Fractional": "average",
 }
+
+
+def rank_output_column(mode, modes, native_output):
+    if native_output:
+        name = "ModifiedCompetition" if mode == "Competition" else mode
+        return f"{name}Ranking"
+    return "Rank" if len(modes) == 1 else f"Rank_{mode}"
 
 
 def _rank_series(frame: pd.DataFrame, sort_field: str, ascending: bool, mode: str, group_fields: list[str]) -> pd.Series:
@@ -49,7 +56,7 @@ def rank_tool(
     primary_sort = by[0]
     primary_ascending = ascending[0]
     for mode in ranking_modes:
-        column = "Rank" if len(ranking_modes) == 1 else f"Rank_{mode}"
+        column = rank_output_column(mode, ranking_modes, config.get("native_output", False))
         output[column] = _rank_series(output, primary_sort, primary_ascending, mode, group_fields).astype("Float64")
         if mode in {"Ordinal", "Dense", "Standard", "Competition"}:
             output[column] = output[column].astype("Int64")

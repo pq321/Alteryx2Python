@@ -989,7 +989,10 @@ def test_sort_parser_normalizes_sort_fields():
         }
     )
 
-    assert result.normalized_config == {"sort_fields": [{"field": "CustomerID", "order": "Ascending"}]}
+    assert result.normalized_config == {
+        "sort_fields": [{"field": "CustomerID", "order": "Ascending"}],
+        "sort_locale": "0",
+    }
 
 
 def test_recordid_parser_normalizes_core_settings():
@@ -1444,6 +1447,7 @@ def test_rank_parser_normalizes_modes_sort_and_groups():
         "ranking_modes": ["Dense"],
         "sort_fields": [{"field": "Units Sold", "order": "Descending"}],
         "group_fields": ["Group"],
+        "native_output": True,
     }
 
 

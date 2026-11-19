@@ -54,10 +54,20 @@ def lower_reshape(compiler, kind, config, frame):
             raise UnsupportedLowering(f'Unsupported RegEx method: {method}')
         return lines + ['return output']
     if kind == 'CrossTab':
+        from alteryx2python.tools.crosstab import crosstab_methods, pivot_crosstab
+
         groups, header, data = config.get('group_fields', []), config.get('header_field', ''), config.get('data_field', '')
         method = str(config.get('method', 'First')).lower()
         if not header or not data:
             raise UnsupportedLowering('CrossTab requires header and data fields')
+        if methods := config.get('methods'):
+            try:
+                methods = crosstab_methods(methods)
+            except (NotImplementedError, ValueError) as exc:
+                raise UnsupportedLowering(str(exc)) from exc
+            pivot = compiler.linker.function(pivot_crosstab)
+            return [f'return {pivot}({frame}, {groups!r}, {header!r}, {data!r}, {methods!r}, '
+                    f'{config.get("separator", ",")!r}, {config.get("field_size")!r})']
         numeric = 'pd.to_numeric(pd.Series(values), errors="coerce")'
         aggregates = {'first': 'values[0]', 'last': 'values[-1]', 'count': 'len(values)',
                       'sum': numeric + '.sum(min_count=1)', 'avg': numeric + '.mean()', 'average': numeric + '.mean()',

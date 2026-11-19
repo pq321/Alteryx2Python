@@ -1,0 +1,235 @@
+{
+  "status": "match",
+  "designer_version": "2025.1.2.165",
+  "designer_engine": "Classic",
+  "designer_workflow": "inputs/dynamic-name-actions-native.yxmd",
+  "designer_workflow_sha256": "4c3b70f142fb4385b85c798a1d2d62391cb23227f89ce64bb1a0f2e5348ae6a1",
+  "python_workflow": "inputs/dynamic-name-actions-python.yxmd",
+  "python_workflow_sha256": "b3cad047ce0c8ea78b80333debed77fcf1faa80f1a4fb55ed4693cc7862fb2c2",
+  "input_sha256": {
+    "inputs\\base.csv": "8b6ab0fcfff7bf2bad418819b9f85e460d0e8035a18806cab7201498f7b13dfe",
+    "inputs\\base-East.csv": "c0e906cc1d37953b3b6f66d0fd1a71cb7ae99542e4aadd17337f761c6e13d11a",
+    "inputs\\East-base.csv": "f310c825c7ef0ae3e449d0ba6734aa606c0db26b465e8f75824693787d8c7858",
+    "inputs\\East.csv": "1185f61caf68d09a8ba68368ad625ff9e7c52918014161c7b298afc0f0fc6e35",
+    "inputs\\East.csv.csv": "6743bf21d9ddabcb71d6821b0a728676702dc4022be81caf2ea99c3003e9c32d",
+    "inputs\\base.xlsx": "273983f461ede9dbae0754bb78c5d8b1426ce9f6eccb945a6e9b9a5f9fc1fc04"
+  },
+  "phase_two_exit_code": 0,
+  "comparison_scope": "Dynamic Input Output anchor column names, ordered cell values, and independently written Python CSV files. Physical native types are retained for inspection.",
+  "cases": [
+    {
+      "tool_id": 10,
+      "anchor": "Output",
+      "action": "Suffix",
+      "template_format": "CSV",
+      "resolved_source": "base-East.csv",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "suffix"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node10-anchor1.yxdb",
+      "native_probe_sha256": "bf14333a846cf45861fc96912e1354c7f0a91dcc0a51de35475efe56ce8ad61a",
+      "phase_two_output": "phase-two-standalone-output\\node10-anchor1.csv",
+      "phase_two_output_sha256": "c0e906cc1d37953b3b6f66d0fd1a71cb7ae99542e4aadd17337f761c6e13d11a",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 11,
+      "anchor": "Output",
+      "action": "Prefix",
+      "template_format": "CSV",
+      "resolved_source": "East-base.csv",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "prefix"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node11-anchor1.yxdb",
+      "native_probe_sha256": "ed42bec19e328134ff55e765c22c41406b8e24de2edbedb33a0d2e606bd608db",
+      "phase_two_output": "phase-two-standalone-output\\node11-anchor1.csv",
+      "phase_two_output_sha256": "f310c825c7ef0ae3e449d0ba6734aa606c0db26b465e8f75824693787d8c7858",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 12,
+      "anchor": "Output",
+      "action": "FileName",
+      "template_format": "CSV",
+      "resolved_source": "East.csv.csv",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "replacement-double-extension"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node12-anchor1.yxdb",
+      "native_probe_sha256": "7b900efbacd10540ed4fcd780e7cb018e776a56110aa6c31937075f01e3b9d14",
+      "phase_two_output": "phase-two-standalone-output\\node12-anchor1.csv",
+      "phase_two_output_sha256": "6743bf21d9ddabcb71d6821b0a728676702dc4022be81caf2ea99c3003e9c32d",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 13,
+      "anchor": "Output",
+      "action": "FileName",
+      "template_format": "CSV",
+      "resolved_source": "East.csv",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "replacement"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node13-anchor1.yxdb",
+      "native_probe_sha256": "ca93834baca5bcf16c7895b3863842b75352392cdba44e2af3f29f6711b2b3ae",
+      "phase_two_output": "phase-two-standalone-output\\node13-anchor1.csv",
+      "phase_two_output_sha256": "1185f61caf68d09a8ba68368ad625ff9e7c52918014161c7b298afc0f0fc6e35",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 14,
+      "anchor": "Output",
+      "action": "Suffix",
+      "template_format": "XLSX",
+      "resolved_source": "base.xlsx|||Data$-East",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "literal-suffix"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node14-anchor1.yxdb",
+      "native_probe_sha256": "7f3b67dd0c670769ff6e46150ba9ef6bdf3e345001127953edc389b7f4b92ae9",
+      "phase_two_output": "phase-two-standalone-output\\node14-anchor1.csv",
+      "phase_two_output_sha256": "add113844f75d765da22ef4d10a27490e75d6ee1faacebdb65b2575376a0034c",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 15,
+      "anchor": "Output",
+      "action": "Prefix",
+      "template_format": "XLSX",
+      "resolved_source": "base.xlsx|||East-Data$",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "sheet-prefix"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node15-anchor1.yxdb",
+      "native_probe_sha256": "2dbd4ffcd9cd4e88005029462f6e183b6e74fd96ea9112b6fa19ddab61860b92",
+      "phase_two_output": "phase-two-standalone-output\\node15-anchor1.csv",
+      "phase_two_output_sha256": "902c3444dd748d316288c141c7e1f6c9cf7eaa2c63d668d4fb67d400e440e36a",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    },
+    {
+      "tool_id": 17,
+      "anchor": "Output",
+      "action": "FileName",
+      "template_format": "XLSX",
+      "resolved_source": "base.xlsx|||East",
+      "columns": [
+        "Value"
+      ],
+      "ordered_rows": [
+        [
+          "sheet-name"
+        ]
+      ],
+      "native_schema": [
+        {
+          "name": "Value",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "native_probe": "native-capture\\node17-anchor1.yxdb",
+      "native_probe_sha256": "584b4ad06be7ba44a060aef0bdbad1a08593b8ca29dbeea07888150bd0885fd0",
+      "phase_two_output": "phase-two-standalone-output\\node17-anchor1.csv",
+      "phase_two_output_sha256": "e9e43b3e0374c60f7a7296ca56736d13d27533b60cd94ac461bafdd4cbf448c0",
+      "designer_vs_phase_one": "ordered_values_match",
+      "phase_one_vs_phase_two": "exact_checkpoint_match",
+      "standalone_output": "ordered_values_match"
+    }
+  ],
+  "recorded_designer_workflow_sha256": "d93a44ce0bc3434718c39ce8e7bf18b51cc08f2a6903f87dd83c5acde158af4b",
+  "recorded_python_workflow_sha256": "c4ba97dced96ac298e4e04acf2328c8f7a7307fe860df9f37ae80a0abc7beb6b",
+  "recorded_phase_one_sha256": "383c2f09497efdd5ba76824c345b16153c4e3856f1397aa82cf0b063c9514595",
+  "recorded_phase_two_sha256": "cac4345981435c900e0d14eeb3f7c2eeb20ab02128a652a12f820597587c91bb"
+}

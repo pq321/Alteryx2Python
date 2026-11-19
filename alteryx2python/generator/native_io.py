@@ -208,7 +208,8 @@ def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[
                 raise UnsupportedLowering("Dynamic Input requires an Input frame")
             field, template, behaviour, options = read_list_options(config)
             function = compiler.linker.function(read_file_list)
-            return [f"return {function}({frame}, {field!r}, {template!r}, {options!r}, input_dir, {behaviour!r})"]
+            action = config["read_list_type"]
+            return [f"return {function}({frame}, {field!r}, {template!r}, {options!r}, input_dir, {behaviour!r}, action={action!r})"]
         if kind == "DbFileOutput" and frame is None:
             raise UnsupportedLowering("DbFileOutput requires an Input frame")
         if kind != "DbFileOutput" and frame is not None:

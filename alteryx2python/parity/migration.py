@@ -20,7 +20,7 @@ from alteryx2python.runtime.executor import _target_ancestor_node_ids, _topologi
 from alteryx2python.runtime.scheduling import container_guards, detour_exclusions
 from alteryx2python.runtime.variables import resolve_variable_tokens, workflow_variables
 from alteryx2python.tools.delivery import XLSX_PROFILE
-from alteryx2python.tools.dynamicinput import read_list_options
+from alteryx2python.tools.dynamicinput import dynamic_source_reference, read_list_options
 from alteryx2python.workflow_audit import audit_workflow
 from alteryx2python.workflow_events import bind_logging_events, workflow_events
 
@@ -187,6 +187,7 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, templa
         if ET.tostring(config) != ET.tostring(actual):
             raise ValueError(f"App Action changes Dynamic Input {node_id}'s configuration; its file list cannot be frozen")
         field, reference, behaviour, _ = read_list_options(node.config["normalized"])
+        action = node.config["normalized"]["read_list_type"]
         incoming = [edge for edge in workflow.edges if edge.target_node_id == node_id and edge.target_anchor == "Input"]
         if len(incoming) != 1:
             raise ValueError(f"Dynamic Input {node_id} requires one upstream file list")
@@ -210,13 +211,17 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, templa
             raise ValueError(f"Dynamic Input {node_id} preflight could not read path field {field!r}")
         frozen = {}
         consumer = {"tool": "Dynamic Input", "node_id": node_id, "field": field}
+        configured_template = reference
+        reference = _resolve_path(reference, variables, f"Dynamic Input {node_id} template")
         for value in sorted({value for value in frame[field] if isinstance(value, str) and value.strip()}):
-            path = _resolve_path(value, variables, f"Dynamic Input {node_id}")
+            name = _resolve_path(value, variables, f"Dynamic Input {node_id}")
+            try:
+                path = dynamic_source_reference(name, reference, action)
+            except ValueError as error:
+                raise ValueError(f"Dynamic Input {node_id} could not apply {action} to {name!r}") from error
             snapshot = _stage_input(staged.parent, source_dir, path, entries, allow_missing or behaviour == "warning",
                                     consumer=consumer)
             frozen[value] = (staged.parent / snapshot).as_posix()
-        configured_template = reference
-        reference = _resolve_path(reference, variables, f"Dynamic Input {node_id} template")
         raw, _, sheet = reference.partition("|||")
         template_consumer = {**consumer, "field": "Input Data Source Template"}
         source = source_dir / raw
@@ -256,6 +261,7 @@ def _stage_dynamic_inputs(staged, source_dir, document, answers, entries, templa
         expression = "IF " + " ELSEIF ".join(branches) + f" ELSE {formula_text(missing)} ENDIF" if branches else formula_text(missing)
         insert_input_formula(document, node_id, next_id, copy_field, expression)
         config.find("ReadList_Field").text = copy_field
+        config.find("ReadList_Type").text = "Path"
         adapters[node_id] = {
             "path_field": field, "isolation_tool": str(next_id), "file_count": len(frozen),
             "template": {"configured": configured_template, "source": template_origin, "snapshot": template_path},
