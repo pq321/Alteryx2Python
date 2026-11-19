@@ -16,6 +16,8 @@ Official inventory remains independent of catalog and registry; missing IDs stay
 
 ## 4. Validation and error matrix
 Default behavioral acceptance: both fail regardless of exception class/text, or both succeed with equal per-node data. Known node outcomes must agree; successful upstream checkpoints remain checked after later failure. Numeric values may match across int/float/decimal representations; strings remain distinct, null/empty and row/column order are preserved.
+Presentation Step 3 additionally aligns fields by name and accepts checkpoint row permutations with identical records and duplicate counts. Sort outputs and inputs to order-sensitive tools retain ordered comparison. The table views retain original positions and report ordering differences independently of the verdict. File artifact comparison retains its own format-specific rules.
+The Step 3 summary attributes a repeated input mismatch to its upstream output only when both captures confirm the input mirrors that output. Detailed evidence retains the input comparison.
 Missing node/anchor/outcome evidence => `incomplete`; outcome/data differences => `mismatch`.
 Unavailable implementations/dependencies/models/license/executable/timeout => `blocked`, never a matching semantic failure.
 Physical schema and raw diagnostics are optional `strict` requirements, not default acceptance gates. Non-match returns nonzero.

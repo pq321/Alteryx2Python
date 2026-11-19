@@ -403,7 +403,7 @@ def _resolve_event_commands(document, source_dir, log_event_ids):
         ET.SubElement(element, "cmd_Program").text = str((source_dir / event["program"]).resolve())
 
 
-def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped_nodes=()):
+def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped_nodes=(), table_selection=None):
     directory = directory.resolve()
     native = directory / "native"
     verify_manifest(native)
@@ -414,7 +414,7 @@ def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped
     while destination.exists():
         attempt += 1
         destination = directory / f"delivery-{attempt}"
-    result = verify_delivery(native, destination, observable=True)
+    result = verify_delivery(native, destination, observable=True, table_selection=table_selection)
     result["report"] = str(destination / "acceptance.json")
     return result
 
@@ -426,7 +426,7 @@ def launch_designer(directory, mode, pid, launcher=None):
     return launch_designer_plan(directory / "designer-plan.json", directory / "designer-run.json", mode, pid, launcher)
 
 
-def launch_designer_plan(plan, report, mode, pid=None, launcher=None):
+def launch_designer_plan(plan, report, mode, pid=None, launcher=None, *, log=None):
     runner = Path(__file__).resolve().parents[2] / "scripts" / "designer_click_run.ps1"
     shell = shutil.which("pwsh")
     if shell is None or not runner.is_file():
@@ -440,7 +440,11 @@ def launch_designer_plan(plan, report, mode, pid=None, launcher=None):
     if launcher:
         command.extend(["-DesignerLauncher", str(launcher.resolve(strict=True))])
     previous = _report_signature(report)
-    result = subprocess.run(command, stdout=sys.stderr, check=False)
+    if log is None:
+        result = subprocess.run(command, stdout=sys.stderr, check=False)
+    else:
+        with log.open("wb") as stream:
+            result = subprocess.run(command, stdout=stream, stderr=subprocess.STDOUT, check=False)
     current = _report_signature(report)
     if current is None or current == previous:
         return {"status": "blocked", "returncode": result.returncode, "reason": "designer_report_unavailable",

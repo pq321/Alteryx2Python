@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import base64
+from collections import Counter, defaultdict, deque
+import json
 import math
 from io import BytesIO
 from datetime import date, datetime, time
@@ -78,17 +80,39 @@ def frame_snapshot(frame: pd.DataFrame) -> dict[str, Any]:
 
 
 def compare_snapshots(
-    expected: dict[str, Any], actual: dict[str, Any], *, profile: str = "behavioral"
+    expected: dict[str, Any], actual: dict[str, Any], *, profile: str = "behavioral",
+    align_columns: bool = False, align_rows: bool = False,
 ) -> dict[str, Any]:
     differences: list[dict[str, Any]] = []
-    if expected.get("columns") != actual.get("columns"):
-        differences.append({"dimension": "columns"})
+    order_differences = []
+    left_columns, right_columns = expected.get("columns"), actual.get("columns")
     left_rows, right_rows = expected.get("rows", []), actual.get("rows", [])
+    columns_match = left_columns == right_columns
+    if align_columns and not columns_match and isinstance(left_columns, list) and isinstance(right_columns, list):
+        if Counter(left_columns) == Counter(right_columns) and all(len(row) == len(right_columns) for row in right_rows):
+            indexes = defaultdict(deque)
+            for index, name in enumerate(right_columns):
+                indexes[name].append(index)
+            order = [indexes[name].popleft() for name in left_columns]
+            right_rows = [[row[index] for index in order] for row in right_rows]
+            columns_match = True
+            order_differences.append("columns")
+    if not columns_match:
+        differences.append({
+            "dimension": "columns", "expected": left_columns, "actual": right_columns,
+        })
     rows_equal = len(left_rows) == len(right_rows) and all(
         len(left) == len(right)
         and all(_equal_cell(a, b, profile) for a, b in zip(left, right))
         for left, right in zip(left_rows, right_rows)
     )
+    if (align_columns or align_rows) and columns_match and not rows_equal and len(left_rows) == len(right_rows):
+        def row_counts(rows):
+            return Counter(tuple(cell_comparison_key(cell, profile=profile) for cell in row) for row in rows)
+
+        if row_counts(left_rows) == row_counts(right_rows):
+            order_differences.append("rows")
+            rows_equal = align_rows
     if not rows_equal:
         differences.append({"dimension": "rows"})
     missing_schema = not _complete_schema(expected) or not _complete_schema(actual)
@@ -105,12 +129,12 @@ def compare_snapshots(
             }
         )
     value_differences = []
-    if expected.get("columns") == actual.get("columns"):
+    if columns_match and not rows_equal:
         for row_index, (left, right) in enumerate(
-            zip(expected.get("rows", []), actual.get("rows", []))
+            zip(left_rows, right_rows)
         ):
             for column, left_cell, right_cell in zip(
-                expected.get("columns", []), left, right
+                left_columns or [], left, right
             ):
                 if (
                     not _equal_cell(left_cell, right_cell, profile)
@@ -136,34 +160,32 @@ def compare_snapshots(
         "schema_verified": not missing_schema,
         "differences": differences,
         "value_differences": value_differences,
+        **({"order_differences": order_differences} if order_differences else {}),
         "expected_row_count": len(expected.get("rows", [])),
         "actual_row_count": len(actual.get("rows", [])),
     }
 
 
-def _equal_cell(left: dict[str, Any], right: dict[str, Any], profile: str) -> bool:
-    if left == right:
-        return True
-    numeric = {"int", "float", "decimal"}
-    if (
-        profile != "strict"
-        and left.get("kind") in numeric
-        and right.get("kind") in numeric
-    ):
+_NUMERIC_KINDS = {"int", "float", "decimal"}
 
-        def rational(cell):
-            value = (
-                float.fromhex(cell["value"])
-                if cell["kind"] == "float"
-                else Decimal(cell["value"])
-            )
-            return Fraction(value)
 
+def cell_comparison_key(cell: dict[str, Any], *, profile: str = "behavioral") -> str:
+    if profile != "strict" and cell.get("kind") in _NUMERIC_KINDS:
         try:
-            return rational(left) == rational(right)
+            value = float.fromhex(cell["value"]) if cell["kind"] == "float" else Decimal(cell["value"])
+            return f"numeric:{Fraction(value)}"
         except (ValueError, OverflowError):
-            return False
-    return False
+            pass
+    return json.dumps(cell, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+
+
+def _equal_cell(left: dict[str, Any], right: dict[str, Any], profile: str) -> bool:
+    return left == right or (
+        profile != "strict"
+        and left.get("kind") in _NUMERIC_KINDS
+        and right.get("kind") in _NUMERIC_KINDS
+        and cell_comparison_key(left) == cell_comparison_key(right)
+    )
 
 
 def _complete_schema(snapshot: dict[str, Any]) -> bool:

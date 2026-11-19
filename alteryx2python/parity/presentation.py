@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import argparse
+from html import escape
 import json
 import os
 from pathlib import Path
 import shutil
 import subprocess
 import sys
+from urllib.parse import quote
+import warnings
 from uuid import uuid4
 
 from .amp_export import EXPORT_DIR, _is_amp, native_probe_path, prepare_amp_export
@@ -230,12 +233,99 @@ def _export_amp_probes(case, manifest, migration, skipped):
     write_json(plan, [plan_entry])
     print("Exporting AMP probes in Designer...", file=sys.stderr, flush=True)
     report = case / f"amp-export-run-{uuid4().hex[:8]}.json"
+    log = report.with_suffix(".log")
     launcher = migration.get("designer_launcher")
     result = launch_designer_plan(plan, report, "auto", migration.get("designer_requested_pid"),
-                                  Path(launcher) if launcher else None)
+                                  Path(launcher) if launcher else None, log=log)
     if result["status"] != "outputs_ready":
         detail = result.get("detail") or "Designer did not produce the expected export."
-        raise ValueError(f'AMP export {result["status"]}. {detail} See {report}.')
+        raise ValueError(f'AMP export {result["status"]}. {detail} See {report} and {log}.')
+    return log
+
+
+def _table_text(value):
+    return escape(value.replace("\\", "\\\\").replace("\n", " ").replace("\r", " ")).replace("|", r"\|")
+
+
+def _report_link(label, path, delivery, line=None):
+    relative = Path(os.path.relpath(path, delivery)).as_posix()
+    destination = quote(relative)
+    suffix = f"#L{line}" if line else ""
+    label = _table_text(label).replace("[", r"\[").replace("]", r"\]")
+    return f"[{label}]({destination}{suffix})"
+
+
+def _snapshot_lines(path, anchors):
+    # write_json uses two-space indentation. Index only keys under nodes/inputs or nodes/outputs.
+    def heading(key, indentation):
+        return " " * indentation + json.dumps(key, ensure_ascii=False) + ": {"
+
+    wanted = {
+        (heading(owner, 4), heading(direction, 6), heading(anchor, 8)): (owner, direction, anchor)
+        for owner, direction, anchor in anchors
+    }
+    if not wanted or not path.is_file():
+        return {}
+    lines = {}
+    with path.open(encoding="utf-8") as capture:
+        for line_number, line in enumerate(capture, 1):
+            if line.rstrip() == '  "nodes": {':
+                break
+        else:
+            return lines
+        owner = direction = ""
+        for line_number, line in enumerate(capture, line_number + 1):
+            if line.startswith("  }"):
+                break
+            if line.startswith('    "'):
+                owner, direction = line.rstrip(), ""
+            elif line.startswith('      "'):
+                direction = line.rstrip()
+            elif line.startswith('        "') and (key := wanted.pop((owner, direction, line.rstrip()), None)):
+                lines[key] = line_number
+                if not wanted:
+                    break
+    return lines
+
+
+def _comparison_links(native, delivery, anchor_findings, artifacts):
+    anchor_keys = {
+        (item["node_id"], item["direction"], item["anchor"]) for item in anchor_findings
+        if item.get("missing_from") != "Phase 1"
+    }
+    capture = delivery / "phase-one-capture.json"
+    snapshot_lines = _snapshot_lines(capture, anchor_keys)
+    designer, phase_one = {}, {}
+    for item in anchor_findings:
+        owner, direction, anchor = item["node_id"], item["direction"], item["anchor"]
+        label = f"{direction[:-1].title()} / {anchor}"
+        if filename := item.get("designer_file"):
+            path = native / filename
+            if path.is_file():
+                designer.setdefault(owner, []).append(_report_link(label, path, delivery))
+        if line := snapshot_lines.get((owner, direction, anchor)):
+            phase_one.setdefault(owner, []).append(_report_link(label, capture, delivery, line))
+    for item in artifacts:
+        if owner := item.get("node_id"):
+            label = item.get("phase_one_filename", item["filename"])
+            for links, field, folder in (
+                (designer, "designer_file", native),
+                (phase_one, "phase_one_file", delivery / "phase-one-output"),
+            ):
+                if filename := item.get(field):
+                    path = folder / filename
+                    if path.is_file():
+                        links.setdefault(owner, []).append(_report_link(label, path, delivery))
+    return designer, phase_one
+
+
+def _mismatch_total(status, findings, file_findings=()):
+    """Count each node once, each unassigned file once, or a workflow-only mismatch."""
+    owners = {item["node_id"] for group in (findings, file_findings) for item in group if item.get("node_id")}
+    count = len(owners) + sum(not item.get("node_id") for item in file_findings)
+    if status == "mismatch":
+        return max(count, 1)
+    return count if count or status == "match" else "—"
 
 
 def _compare(args, case):
@@ -254,68 +344,162 @@ def _compare(args, case):
         raise ValueError(migration["designer"]["detail"])
     if outcome is None and not existing and not receipt_path.is_file():
         raise ValueError("No Designer run evidence. Run demo designer or supply an observed outcome explicitly.")
-    export_issue = None
+    export_issue = export_log = None
     try:
-        _export_amp_probes(case, manifest, migration, set(skipped))
+        export_log = _export_amp_probes(case, manifest, migration, set(skipped))
     except (OSError, ValueError) as error:
         if outcome is not None or manual:
             raise
         export_issue = str(error)
     evidence_path = native / "designer-evidence.json"
-    evidence = None
     if outcome is None and not existing:
         receipts = _read(receipt_path)
         if not isinstance(receipts, list) or len(receipts) != 1:
             raise ValueError("Expected one Designer run receipt for the prepared case")
-        evidence = record_designer_evidence(native, manifest, receipts[0], receipt_path=receipt_path)
-    result = resume_migration(case, native_outcome=outcome, failed_nodes=failed, skipped_nodes=skipped)
+        record_designer_evidence(native, manifest, receipts[0], receipt_path=receipt_path)
+    with warnings.catch_warnings(record=True) as recorded_warnings:
+        result = resume_migration(case, native_outcome=outcome, failed_nodes=failed, skipped_nodes=skipped,
+                                  table_selection=(args.node, args.anchor))
     delivery = Path(result["report"]).parent
     native_report = delivery / "native-vs-phase-one.json"
     parity = _read(native_report)
     comparisons = parity["comparisons"]
-    mismatches = [item for item in comparisons if item["status"] in {"mismatch", "incomplete"}]
-    missing = parity.get("missing_native_outputs", []) or parity.get("unreadable_native_outputs", [])
-    business_nodes = {node["node_id"] for node in manifest["nodes"]
-                      if node["tool_type"] not in {"TextInput", "DbFileInput"}}
+    mismatches = [item for item in comparisons if item["status"] == "mismatch" and not item.get("duplicates_upstream")]
+    incomplete = [item for item in comparisons if item["status"] == "incomplete"]
+    aligned = [item for item in comparisons if item["status"] == "match" and item.get("order_differences")]
+    missing = [*parity.get("missing_native_outputs", []), *parity.get("unreadable_native_outputs", [])]
+    tools = {node["node_id"]: node["tool_type"] for node in manifest["nodes"]}
+    artifacts = parity.get("artifact_differences", [])
+    outcomes = parity.get("outcome_differences", [])
+    phase_two_report = delivery / "phase-one-vs-phase-two.json"
+    native_status, phase_two_status = result["native_vs_phase_one"], result["phase_one_vs_phase_two"]
+    phase_two_findings = []
+    phase_two_files = []
+    has_phase_two_report = phase_two_report.is_file()
+    if has_phase_two_report and phase_two_status == "mismatch":
+        phase_two = _read(phase_two_report)
+        phase_two_findings = [item for item in phase_two.get("nodes", []) if item["status"] != "match"]
+        phase_two_files = phase_two.get("file_differences", [])
+    business_nodes = {node_id for node_id, tool in tools.items() if tool not in {"TextInput", "DbFileInput"}}
     business_outputs = [item for item in comparisons if item.get("direction") == "outputs"
                         and item["node_id"] in business_nodes]
-    node_id = args.node or (mismatches or missing or business_outputs or comparisons or [{}])[0].get("node_id")
-    shown = [item for item in comparisons if item["node_id"] == node_id
-             and (not args.anchor or item.get("anchor") == args.anchor)]
-    lines = [f'Overall: {result["status"]} | Designer / Phase 1: {result["native_vs_phase_one"]}',
-             f'Phase 1 / Phase 2: {result["phase_one_vs_phase_two"]} | Standalone: {result["standalone_execution"]}']
-    if evidence:
-        lines.append(f'Designer outcome: {evidence["status"]} | Confirmed skipped nodes: {len(evidence["skipped_nodes"])}')
-        lines.append(f'Designer evidence: {evidence_path}')
-    if export_issue:
-        lines.append(f"AMP export evidence incomplete: {export_issue}")
-    for item in shown[:6]:
-        lines.append(f'Node {node_id} {item.get("direction", "")}/{item.get("anchor", "")}: {item["status"]}')
-    if node_id and not shown:
-        lines.append(f"Node {node_id}: no comparison for the requested anchor.")
-    if mismatches:
-        first = mismatches[0]
-        detail = (first.get("value_differences") or first.get("differences") or [{}])[0]
-        lines.append(f'First difference: node {first["node_id"]} {first.get("anchor", "")} {json.dumps(detail, ensure_ascii=False)[:180]}')
-    elif missing:
-        first = missing[0]
-        lines.append(f'First missing or unreadable evidence: node {first["node_id"]} {first["anchor"]} ({first["file"]})')
-    elif parity["issues"] or parity["incomplete_evidence"]:
-        lines.append("First finding: " + (parity["issues"] or parity["incomplete_evidence"])[0])
-    elif result["phase_one_vs_phase_two"] == "mismatch":
-        phase_two_report = delivery / "phase-one-vs-phase-two.json"
-        observed = _read(phase_two_report)
-        expected_files = {**observed["phase_one_files"], **observed.get("phase_one_workbooks", {})}
-        actual_files = {**observed["phase_two_files"], **observed.get("phase_two_workbooks", {})}
-        first_file = next((name for name in sorted(expected_files.keys() | actual_files.keys())
-                           if expected_files.get(name) != actual_files.get(name)), None)
-        message = f"First output difference: {first_file}" if first_file else "Phase 2 outcome or logging differs."
-        lines.append(f"{message} See {phase_two_report}.")
+    node_id = args.node or next((item["node_id"] for group in
+                                 (mismatches, incomplete, missing, outcomes, artifacts, phase_two_findings, aligned,
+                                  business_outputs, comparisons)
+                                 for item in group if item.get("node_id")), None)
+    overview = [
+        f'Overall: {result["status"]} | Designer / Phase 1: {result["native_vs_phase_one"]} | '
+        f'Phase 1 / Phase 2: {result["phase_one_vs_phase_two"]} | Standalone: {result["standalone_execution"]}',
+        f'Designer / Phase 1: {len(mismatches)} anchor mismatches, {len(incomplete)} incomplete anchors, '
+        f'{len(artifacts)} output differences.',
+    ]
+    if aligned:
+        overview[-1] += f" {len(aligned)} matched after reordering."
+    native_count = _mismatch_total(native_status, [*mismatches, *outcomes], artifacts)
+    phase_two_count = _mismatch_total(phase_two_status, phase_two_findings, phase_two_files)
+    phase_two_label = "[Phase 1 / Phase 2](phase-one-vs-phase-two.json)" if has_phase_two_report else "Phase 1 / Phase 2"
+    report_lines = [
+        "# Step 3 comparison", "",
+        "| Comparison | Status | Mismatches |",
+        "| --- | --- | ---: |",
+        f"| [Designer / Phase 1](native-vs-phase-one.json) | {native_status} | {native_count} |",
+        f"| {phase_two_label} | {phase_two_status} | {phase_two_count} |",
+    ]
+
+    findings = {}
+    for label, items in (
+        ("output mismatch", [item for item in mismatches if item.get("direction") == "outputs"]),
+        ("input mismatch", [item for item in mismatches if item.get("direction") == "inputs"]),
+        ("execution mismatch", outcomes),
+        ("output file mismatch", artifacts),
+        ("incomplete evidence", [*incomplete, *missing]),
+        ("Phase 1 / Phase 2 mismatch", phase_two_findings),
+    ):
+        for item in items:
+            if owner := item.get("node_id"):
+                findings.setdefault(owner, set()).add(label)
+    for reason in parity["incomplete_evidence"]:
+        parts = reason.split("_", 2)
+        if len(parts) == 3 and parts[0] == "node" and parts[1].isdecimal():
+            findings.setdefault(parts[1], set()).add("incomplete evidence")
+
+    anchor_labels = {}
+    table_links = {}
+    for item in sorted(mismatches, key=lambda item: item["direction"] != "outputs"):
+        owner, direction, anchor = item["node_id"], item["direction"], item["anchor"]
+        label = f"{direction[:-1].title()} / {anchor}"
+        anchor_label = _table_text(label)
+        if owner == node_id and anchor == args.anchor:
+            anchor_label = f"**{anchor_label}**"
+        anchor_labels.setdefault(owner, []).append(anchor_label)
+        if filename := item.get("table_report"):
+            table_links.setdefault(owner, []).append(_report_link(label, delivery / filename, delivery))
+    context_nodes = {item.get("node_id") for item in [*artifacts, *outcomes]} - table_links.keys()
+    input_context = {}
+    for item in [*comparisons, *parity.get("unassessed_table_reports", [])]:
+        owner = item["node_id"]
+        if owner in context_nodes and item.get("direction") == "inputs" and not item.get("duplicates_upstream"):
+            if filename := item.get("table_report"):
+                input_context.setdefault(owner, []).append(filename)
+    for owner, filenames in input_context.items():
+        table_links[owner] = [
+            _report_link("Input context" if len(filenames) == 1 else f"Input context {index}", delivery / filename, delivery)
+            for index, filename in enumerate(filenames, 1)
+        ]
+    designer_links, phase_one_links = _comparison_links(native, delivery, mismatches, artifacts)
+    report_lines.extend(["", "## Nodes to review", ""])
+    if findings:
+        report_lines.extend([
+            "| Node | Status | Unmatched anchors (Designer / Phase 1) | Side-by-side comparison (HTML) | Alteryx | Python Phase 1 |",
+            "| --- | --- | --- | --- | --- | --- |",
+        ])
+    for owner in sorted(findings, key=lambda key: (len(key), key)):
+        tool = f" ({tools[owner]})" if owner in tools else ""
+        label = f"Node {owner}{tool}"
+        if args.node == owner:
+            label = f"**{label}**"
+        status = " · ".join(sorted(findings[owner]))
+        designer = ", ".join(designer_links.get(owner, ())) or "—"
+        phase_one = ", ".join(phase_one_links.get(owner, ())) or "—"
+        anchors = "<br>".join(anchor_labels.get(owner, ())) or "—"
+        tables = "<br>".join(table_links.get(owner, ())) or "—"
+        report_lines.append(f"| {label} | {_table_text(status)} | {anchors} | {tables} | {designer} | {phase_one} |")
+    if not findings:
+        report_lines.append("No node-level findings.")
+    report_lines.append("")
     if result.get("failure"):
-        lines.append(f'Execution: {result["failure"]["message"]}')
-    write_json(case / "presentation-result.json", {"report": result["report"], "node": node_id})
-    lines.extend((f"Node comparison: {native_report}", f'Acceptance report: {result["report"]}', "Next: demo deliver"))
-    return {**result, "display": "\n".join(lines)}, 0 if result["status"] == "match" else 1
+        report_lines.append("- Execution failed. See the acceptance report.")
+    acceptance_details = {}
+    if export_issue:
+        acceptance_details["amp_export_issue"] = export_issue
+    if recorded_warnings:
+        acceptance_details["runtime_warnings"] = [
+            {"category": warning.category.__name__, "message": str(warning.message)}
+            for warning in recorded_warnings
+        ]
+        report_lines.append(f"- Runtime warnings: {len(recorded_warnings)}. See the acceptance report.")
+    if acceptance_details:
+        acceptance_path = Path(result["report"])
+        write_json(acceptance_path, {**_read(acceptance_path), **acceptance_details})
+
+    report_lines.extend(["", "## Evidence files", "", "- [Acceptance](acceptance.json)"])
+    if evidence_path.is_file():
+        report_lines.append("- " + _report_link("Designer run and skipped nodes", evidence_path, delivery))
+    if (delivery / "standalone.json").is_file():
+        report_lines.append("- [Independent Phase 2 run](standalone.json)")
+    if export_issue:
+        report_lines.append("- AMP export evidence incomplete. See the acceptance report.")
+    if export_log:
+        report_lines.append("- " + _report_link("AMP export log", export_log, delivery))
+    if parity.get("table_report_issue"):
+        report_lines.append("- Some table views could not be saved. See the Designer / Phase 1 evidence.")
+    comparison_report = delivery / "comparison-summary.md"
+    comparison_report.write_text("\n".join(report_lines) + "\n", encoding="utf-8")
+    write_json(case / "presentation-result.json", {
+        "report": result["report"], "node": node_id, "comparison_report": str(comparison_report),
+    })
+    lines = [*overview, f"Comparison report: {comparison_report}"]
+    return {**result, "comparison_report": str(comparison_report), "display": "\n".join(lines)}, 0 if result["status"] == "match" else 1
 
 
 def _deliver(args, case):

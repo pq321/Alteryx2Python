@@ -48,4 +48,4 @@ show_missing = true
 include = ["alteryx2python*", "alteryx_runtime*"]
 
 [tool.setuptools.package-data]
-alteryx2python = ["parser/*.json"]
+alteryx2python = ["parser/*.json", "parity/table_view/*.html", "parity/table_view/*.css", "parity/table_view/*.js"]

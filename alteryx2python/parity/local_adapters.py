@@ -7,7 +7,7 @@ from pathlib import Path
 import re
 from xml.etree import ElementTree as ET
 
-from alteryx2python.comparison.workbook import workbook_snapshot
+from alteryx2python.comparison.workbook import trim_workbook_padding, workbook_snapshot
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 from .snapshot import encode_value
@@ -109,11 +109,7 @@ def workbook_artifacts(directory):
 
 def workbook_digest(path):
     payload = []
-    for sheet, rows in workbook_snapshot(path).items():
-        # Excel writers omit different amounts of trailing cell padding in sparse rows.
-        for row in rows:
-            while row and row[-1] == (None, None):
-                row.pop()
+    for sheet, rows in trim_workbook_padding(workbook_snapshot(path)).items():
         payload.append((sheet, [[(kind, encode_value(value)) for kind, value in row] for row in rows]))
     return hashlib.sha256(json.dumps(payload, ensure_ascii=False).encode("utf-8")).hexdigest()
 

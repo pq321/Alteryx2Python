@@ -1,0 +1,42 @@
+:root {
+  color-scheme: light dark;
+  font: 15px/1.5 system-ui, sans-serif;
+  --surface: light-dark(#fff, #17212b);
+  --subtle: light-dark(#f2f5f7, #223242);
+  --border: light-dark(#bdc9d2, #496173);
+  --change: light-dark(#fff1c9, #443315);
+  --missing: light-dark(#e7edf2, #263644);
+  --ink: light-dark(#17212b, #e2ebf2);
+}
+
+body { margin: 0 auto; padding: 1.5rem; max-width: 120rem; background: var(--subtle); color: var(--ink); }
+h1 { margin: 0.5rem 0 0; font-size: 1.55rem; }
+h2 { margin: 0; padding: 0.6rem 0.75rem; font-size: 1rem; }
+header p { margin: 0.25rem 0 0.75rem; }
+a { color: light-dark(#064b9c, #9bcaff); }
+button, select { font: inherit; }
+.controls { display: flex; flex-wrap: wrap; gap: 0.65rem 1.25rem; align-items: center; margin: 1rem 0; }
+.pager { display: flex; gap: 0.6rem; align-items: center; margin-inline-start: auto; }
+details { position: relative; }
+summary { cursor: pointer; }
+#key-fields { position: absolute; z-index: 2; min-width: 12rem; max-height: 18rem; overflow: auto; padding: 0.5rem; background: var(--surface); border: 1px solid var(--border); }
+#key-fields label { display: block; }
+.tables { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.8rem; }
+section { min-width: 0; border: 1px solid var(--border); border-radius: 0.4rem; background: var(--surface); }
+.scroll { overflow: auto; max-height: 70vh; }
+table { border-collapse: separate; border-spacing: 0; width: 100%; text-align: left; }
+th, td { border-block-end: 1px solid var(--border); border-inline-end: 1px solid var(--border); padding: 0.3rem 0.45rem; vertical-align: top; }
+thead th { position: sticky; top: 0; background: var(--subtle); }
+thead small { display: block; font-weight: normal; }
+tbody th { background: var(--surface); }
+tbody th small { display: block; font-weight: normal; min-width: 5rem; }
+td.changed { background: var(--change); }
+td.missing { background: var(--missing); }
+td > span { display: block; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 22rem; min-width: 4rem; }
+td details { max-width: 24rem; }
+td pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.empty { padding: 0.5rem 0.75rem; }
+@media (max-width: 750px) {
+  body { padding: 0.75rem; }
+  .tables { grid-template-columns: minmax(0, 1fr); }
+}

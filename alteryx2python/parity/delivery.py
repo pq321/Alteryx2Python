@@ -9,6 +9,11 @@ import sys
 from datetime import datetime
 from pathlib import Path, PureWindowsPath
 from xml.etree import ElementTree as ET
+from zipfile import BadZipFile
+
+from openpyxl.utils.exceptions import InvalidFileException
+
+from alteryx2python.comparison.workbook import first_workbook_difference
 
 from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
@@ -17,11 +22,13 @@ from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.tools.delivery import XLSX_PROFILE
 from alteryx2python.workflow_generator import WorkflowBuilder
 
+from .behavior import changed_artifacts
 from .local_adapters import project_report_snapshot, workbook_artifacts
 from .runner import (
     capture_python, collect_native, compare_runs, file_artifacts, file_hash, prepare,
     sink_digest, verify_manifest, write_json,
 )
+from .table_reports import write_table_reports
 from .snapshot import frame_snapshot
 
 
@@ -138,7 +145,46 @@ def capture_generated_phase_one(workflow, destination, **options):
     )
 
 
-def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False) -> dict:
+def _workbook_detail(expected, actual):
+    if not expected or not actual or expected.suffix.lower() != ".xlsx":
+        return None
+    try:
+        return first_workbook_difference(expected, actual)
+    except (OSError, ValueError, BadZipFile, InvalidFileException) as error:
+        return {"dimension": "unreadable_workbook", "reason": str(error)}
+
+
+def _describe_native_artifacts(findings, manifest, native_directory, phase_one_directory, first, sink_names):
+    render_folders = manifest.get("render_folders") or {}
+    for item in findings:
+        key = item["key"]
+        expected = actual = None
+        if item["group"] == "sink_artifacts":
+            item.update(node_id=key, filename=sink_names.get(key, key))
+            if native_name := manifest.get("sink_files", {}).get(key):
+                expected = native_directory / native_name
+                actual = next(phase_one_directory.glob(f"python-sink-*-{key}{expected.suffix}"), None)
+        elif item["group"] == "render_digests":
+            node = next(iter(render_folders), None)
+            item.update(node_id=node, filename=key)
+            if node is not None:
+                expected = native_directory / render_folders[node] / key
+                name = first.get("render_output_names", {}).get(key, key)
+                actual = phase_one_directory / "render" / name
+                if name != key:
+                    item["phase_one_filename"] = name
+        else:
+            item["filename"] = key
+        if item["status"] != "unexpected" and expected and expected.is_file():
+            item["designer_file"] = expected.relative_to(native_directory).as_posix()
+        if item["status"] != "missing" and actual and actual.is_file():
+            item["phase_one_file"] = actual.relative_to(phase_one_directory).as_posix()
+        if item["status"] == "different" and (detail := _workbook_detail(expected, actual)):
+            item["detail"] = detail
+
+
+def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False,
+                    table_selection: tuple[str | None, str | None] | None = None) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
     manifest = verify_manifest(native_directory)
     source = Path(manifest["source"])
@@ -163,11 +209,15 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     phase_one = destination / "phase_one.py"
     first = capture_generated_phase_one(workflow, destination, answers=answers, event_commands=commands,
                                         log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of)
+    report_snapshots = {}
     if render_folders:
         for node_id in manifest["report_projection_nodes"]:
             node = first["nodes"].get(node_id)
             if node is not None:
                 for direction in ("inputs", "outputs"):
+                    if table_selection is not None:
+                        report_snapshots.update({(node_id, direction, anchor): snapshot
+                                                 for anchor, snapshot in node[direction].items()})
                     node[direction] = {anchor: project_report_snapshot(snapshot)
                                        for anchor, snapshot in node[direction].items()}
     write_json(destination / "phase-one-capture.json", first)
@@ -181,8 +231,23 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             "status": "pending", "event_ids": log_event_ids, "native_policy": "excluded_from_designer",
             "phase_one_log": phase_one_log.name, "phase_two_log": phase_two_log.name,
         }
-    native = collect_native(native_directory, manual=True)
-    native_result = compare_runs(native, first)
+    native = collect_native(native_directory, manual=True, capture_report_fields=table_selection is not None)
+    native_result = compare_runs(native, first, align_checkpoints=table_selection is not None)
+    for item in native_result["comparisons"]:
+        if item.get("direction") and (table_selection is not None or item["status"] in {"mismatch", "incomplete"}):
+            node_id = item["node_id"]
+            direction, anchor = item["direction"], item["anchor"]
+            files = native["capture_files"].get(node_id, {}).get(direction, {})
+            if anchor in files:
+                item["designer_file"] = files[anchor]
+    _describe_native_artifacts(native_result["artifact_differences"], manifest, native_directory,
+                               destination / "phase-one-output", first, sink_names)
+    if table_selection is not None:
+        try:
+            write_table_reports(destination, native, {**first, "report_snapshots": report_snapshots},
+                                native_result, table_selection)
+        except OSError as error:
+            native_result["table_report_issue"] = str(error)
     write_json(destination / "native-vs-phase-one.json", native_result)
     report = {
         "status": "blocked", "source": str(source), "source_sha256": manifest["source_sha256"],
@@ -312,10 +377,17 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     failure_kind = stderr[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr else None
     observed = _delivery_artifacts(output, xlsx_sinks)
     workbook_result = {}
+    file_differences = []
     if "workbooks" in first:
         rendered = {name: digest for name, digest in workbook_artifacts(output).items() if name not in expected_files}
         observed = {name: digest for name, digest in observed.items() if name not in rendered}
         workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
+        for name, change in changed_artifacts(first["workbooks"], rendered):
+            file_differences.append({
+                "filename": name, "status": change,
+                "detail": _workbook_detail(destination / "phase-one-output" / "render" / name, output / name)
+                if change == "different" else None,
+            })
         workbook_match = first["workbooks"] == rendered
         if first["status"] == "success":
             workbook_match = bool(rendered) and workbook_match
@@ -327,12 +399,15 @@ def _verify_observable(script, input_dir, destination, commands, timeout, first,
     else:
         outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
         evidence = True
+    for name, change in changed_artifacts(expected_files, observed):
+        file_differences.append({"filename": name, "status": change})
     logging_match = _match_logging_events(logging_evidence, phase_two_log, first)
     status = "mismatch" if not outcome_matches or expected_files != observed or not logging_match or not workbook_match else "match" if evidence else "incomplete"
     result = {
         "profile": "observable", "status": status, "returncode": process.returncode,
         "phase_one_outcome": first["status"], "phase_two_failure_type": failure_kind if process.returncode else None,
         "phase_one_files": expected_files, "phase_two_files": observed,
+        "file_differences": file_differences,
         **workbook_result,
         **({"logging_events": logging_evidence} if logging_evidence else {}),
     }

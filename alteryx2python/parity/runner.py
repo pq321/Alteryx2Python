@@ -754,7 +754,7 @@ def _without_probe_messages(snapshot: dict, probe_paths: dict[str, Path]) -> tup
     return {**snapshot, "rows": kept}, removed
 
 
-def collect_native(directory: Path, *, manual: bool = False) -> dict:
+def collect_native(directory: Path, *, manual: bool = False, capture_report_fields: bool = False) -> dict:
     from .amp_export import native_probe_path
 
     manifest = verify_manifest(directory)
@@ -810,6 +810,9 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
         for node in manifest["nodes"]
     }
     missing, unreadable = [], []
+    capture_files = {node_id: {"inputs": {}, "outputs": {}} for node_id in nodes}
+    input_sources = {}
+    report_snapshots = {}
     probe_paths = {
         str(probe["probe_id"]): (directory / probe["file"]).resolve()
         for probe in manifest["probes"] if probe.get("probe_id") is not None
@@ -837,8 +840,11 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
                 if removed:
                     node["excluded_probe_log_rows"] = removed
             if probe["node_id"] in manifest.get("report_projection_nodes", ()):
+                if capture_report_fields:
+                    report_snapshots[probe["node_id"], "outputs", probe["anchor"]] = snapshot
                 snapshot = project_report_snapshot(snapshot)
             node["outputs"][probe["anchor"]] = snapshot
+            capture_files[probe["node_id"]]["outputs"][probe["anchor"]] = readable_path.relative_to(directory).as_posix()
         except Exception as exc:
             unreadable.append({**probe, "error": str(exc)})
     # A node's native input is the upstream output on that exact connection.
@@ -855,6 +861,14 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
                 project_report_snapshot(output) if edge["target"] in manifest.get("report_projection_nodes", ())
                 else output
             )
+            if capture_report_fields:
+                raw = report_snapshots.get((edge["source"], "outputs", edge["output"]), output)
+                if raw is not inputs[anchor]:
+                    report_snapshots[edge["target"], "inputs", anchor] = raw
+            capture_files[edge["target"]]["inputs"][anchor] = capture_files[edge["source"]]["outputs"][edge["output"]]
+            input_sources.setdefault(edge["target"], {})[anchor] = {
+                "node_id": edge["source"], "anchor": edge["output"],
+            }
     # Engine console lines attribute failures to nodes ("ToolId 5: ... Error").
     # Only the fact of failure is used (never the message text) so parity
     # matches behaviour, not wording.
@@ -914,6 +928,9 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
         "status": run["status"],
         "run": run,
         "nodes": nodes,
+        "capture_files": capture_files,
+        "input_sources": input_sources,
+        **({"report_snapshots": report_snapshots} if capture_report_fields else {}),
         "missing": missing,
         "unreadable": unreadable,
         "errors": [
@@ -936,11 +953,11 @@ def collect_native(directory: Path, *, manual: bool = False) -> dict:
     }
 
 
-def compare_runs(native: dict, python: dict, *, profile: str = "behavioral") -> dict:
+def compare_runs(native: dict, python: dict, *, profile: str = "behavioral", align_checkpoints: bool = False) -> dict:
     if profile == "behavioral":
         from .behavior import compare_behavior_runs
 
-        return compare_behavior_runs(native, python, runtime_hash())
+        return compare_behavior_runs(native, python, runtime_hash(), align_checkpoints=align_checkpoints)
     if profile != "strict":
         raise ValueError(f"Unknown comparison profile: {profile}")
     issues = []

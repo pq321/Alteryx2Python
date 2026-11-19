@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkpoint comparison</title>
+  <link rel="stylesheet" href="view.css">
+</head>
+<body>
+  <header>
+    <a href="../comparison-summary.md">Comparison report</a>
+    <h1 id="title">Checkpoint comparison</h1>
+    <p id="status" role="status">Loading captured rows…</p>
+    <p id="report-fields" hidden>Report fields such as Table and Layout are shown for inspection. Rendered files are compared separately.</p>
+  </header>
+  <main id="comparison" hidden>
+    <div class="controls">
+      <label>View <select id="view"><option value="aligned">Aligned records</option><option value="original">Original order</option></select></label>
+      <details id="keys" hidden>
+        <summary>Business keys</summary>
+        <div id="key-fields"></div>
+      </details>
+      <label><input id="only-differences" type="checkbox"> Differences only</label>
+      <div class="pager">
+        <button id="previous" type="button">Previous</button>
+        <span id="page" aria-live="polite"></span>
+        <button id="next" type="button">Next</button>
+      </div>
+    </div>
+    <div id="tables" class="tables"></div>
+  </main>
+  <script id="configuration" type="application/json">__CHECKPOINT_CONFIG__</script>
+  <script>window.checkpointTables = Object.create(null);</script>
+  <!--DATA_SCRIPTS-->
+  <script src="view.js"></script>
+</body>
+</html>
