@@ -20,6 +20,7 @@ from .migration import launch_designer, launch_designer_plan, prepare_migration,
 from .output_comparison import build_output_comparison
 from .path_access import PathAccessError, format_path_issue, record_path_issue
 from .runner import file_hash, verify_manifest, write_json
+from .table_reports import checkpoint_tool_label
 
 
 def add_parser(subparsers, handler):
@@ -37,7 +38,7 @@ def add_parser(subparsers, handler):
     designer.add_argument("--prepare-only", action="store_true")
     designer.add_argument("--case", type=Path, help="Launch an already prepared case")
     compare = steps.add_parser("compare", help="Collect Designer evidence, compare Phase 1, and verify Phase 2")
-    compare.add_argument("node", nargs="?", help="Node ID to highlight")
+    compare.add_argument("node", nargs="?", help="Alteryx Tool ID to highlight")
     compare.add_argument("--anchor", help="Anchor to highlight for the selected node")
     compare.add_argument("--outcome", choices=["success", "failed"])
     compare.add_argument("--failed-node", action="append", default=[])
@@ -325,7 +326,7 @@ def _mismatch_total(status, findings, file_findings=()):
     count = len(owners) + sum(not item.get("node_id") for item in file_findings)
     if status == "mismatch":
         return max(count, 1)
-    return count if count or status == "match" else "—"
+    return count if count or status in {"match", "coarse_match"} else "—"
 
 
 def _compare(args, case):
@@ -365,6 +366,7 @@ def _compare(args, case):
     parity = _read(native_report)
     comparisons = parity["comparisons"]
     mismatches = [item for item in comparisons if item["status"] == "mismatch" and not item.get("duplicates_upstream")]
+    coarse = [item for item in comparisons if item["status"] == "coarse_match" and not item.get("duplicates_upstream")]
     incomplete = [item for item in comparisons if item["status"] == "incomplete"]
     aligned = [item for item in comparisons if item["status"] == "match" and item.get("order_differences")]
     missing = [*parity.get("missing_native_outputs", []), *parity.get("unreadable_native_outputs", [])]
@@ -384,7 +386,7 @@ def _compare(args, case):
     business_outputs = [item for item in comparisons if item.get("direction") == "outputs"
                         and item["node_id"] in business_nodes]
     node_id = args.node or next((item["node_id"] for group in
-                                 (mismatches, incomplete, missing, outcomes, artifacts, phase_two_findings, aligned,
+                                 (mismatches, incomplete, missing, outcomes, artifacts, phase_two_findings, coarse, aligned,
                                   business_outputs, comparisons)
                                  for item in group if item.get("node_id")), None)
     overview = [
@@ -395,6 +397,8 @@ def _compare(args, case):
     ]
     if aligned:
         overview[-1] += f" {len(aligned)} matched after reordering."
+    if coarse:
+        overview[-1] += f" {len(coarse)} coarse {'match' if len(coarse) == 1 else 'matches'}."
     native_count = _mismatch_total(native_status, [*mismatches, *outcomes], artifacts)
     phase_two_count = _mismatch_total(phase_two_status, phase_two_findings, phase_two_files)
     phase_two_label = "[Phase 1 / Phase 2](phase-one-vs-phase-two.json)" if has_phase_two_report else "Phase 1 / Phase 2"
@@ -450,12 +454,11 @@ def _compare(args, case):
     report_lines.extend(["", "## Nodes to review", ""])
     if findings:
         report_lines.extend([
-            "| Node | Status | Unmatched anchors (Designer / Phase 1) | Side-by-side comparison (HTML) | Alteryx | Python Phase 1 |",
+            "| Alteryx Tool ID | Status | Unmatched anchors (Designer / Phase 1) | Side-by-side comparison (HTML) | Alteryx | Python Phase 1 |",
             "| --- | --- | --- | --- | --- | --- |",
         ])
     for owner in sorted(findings, key=lambda key: (len(key), key)):
-        tool = f" ({tools[owner]})" if owner in tools else ""
-        label = f"Node {owner}{tool}"
+        label = checkpoint_tool_label(owner, tools.get(owner), manifest.get("dynamic_inputs"))
         if args.node == owner:
             label = f"**{label}**"
         status = " · ".join(sorted(findings[owner]))
@@ -466,6 +469,20 @@ def _compare(args, case):
         report_lines.append(f"| {label} | {_table_text(status)} | {anchors} | {tables} | {designer} | {phase_one} |")
     if not findings:
         report_lines.append("No node-level findings.")
+    if coarse:
+        anchor_count = f"{len(coarse)} {'anchor' if len(coarse) == 1 else 'anchors'}"
+        report_lines.extend([
+            "", f"<details><summary>Coarse matches ({anchor_count})</summary>", "",
+            "| Alteryx Tool ID | Anchor | Side-by-side comparison (HTML) |", "| --- | --- | --- |",
+        ])
+        for item in coarse:
+            owner = item["node_id"]
+            tool = checkpoint_tool_label(owner, tools.get(owner), manifest.get("dynamic_inputs"))
+            anchor = f"{item['direction'][:-1].title()} / {item['anchor']}"
+            filename = item.get("table_report")
+            link = _report_link("Open", delivery / filename, delivery) if filename else "—"
+            report_lines.append(f"| {_table_text(tool)} | {_table_text(anchor)} | {link} |")
+        report_lines.extend(["", "</details>"])
     report_lines.append("")
     if result.get("failure"):
         report_lines.append("- Execution failed. See the acceptance report.")

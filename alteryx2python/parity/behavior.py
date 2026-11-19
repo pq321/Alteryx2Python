@@ -4,9 +4,31 @@ from __future__ import annotations
 
 from typing import Any
 
+from .checkpoints import coarse_rules, coarse_snapshot
 from .snapshot import compare_snapshots
 
 _ORDER_SENSITIVE_INPUTS = {"MultiRowFormula", "RecordID", "RunningTotal", "Sample"}
+
+
+def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, policy):
+    ordered = tool_type == "Sort" if direction == "outputs" else tool_type in _ORDER_SENSITIVE_INPUTS
+    options = {"align_columns": align, "align_rows": align and not ordered}
+    exact = compare_snapshots(expected, actual, **options)
+    if policy is None:
+        return exact
+    protected, group_keys = policy
+    display = {"preserve_row_order": ordered}
+    if direction == "outputs" and (keys := group_keys.get(node_id)):
+        display["alignment_keys"] = keys
+    if exact["status"] != "mismatch" or not (rules := coarse_rules(expected, protected)):
+        return {**exact, **display}
+    coarse = compare_snapshots(coarse_snapshot(expected, rules), coarse_snapshot(actual, rules), **options)
+    display["coarse_rules"] = rules
+    if coarse["status"] == "match":
+        return {**coarse, **display, "status": "coarse_match", "exact_comparison": exact}
+    if coarse.get("order_differences"):
+        display["order_differences"] = coarse["order_differences"]
+    return {**exact, **display}
 
 
 def _mark_repeated_inputs(native, python, comparisons):
@@ -15,11 +37,11 @@ def _mark_repeated_inputs(native, python, comparisons):
         for item in comparisons if item.get("direction") == "outputs"
     }
     for item in comparisons:
-        if item.get("direction") != "inputs" or item["status"] != "mismatch":
+        if item.get("direction") != "inputs" or item["status"] not in {"mismatch", "coarse_match"}:
             continue
         owner, anchor = item["node_id"], item["anchor"]
         source = native.get("input_sources", {}).get(owner, {}).get(anchor)
-        if not source or outputs.get((source["node_id"], source["anchor"])) != "mismatch":
+        if not source or outputs.get((source["node_id"], source["anchor"])) != item["status"]:
             continue
         for run in (native, python):
             source_node = run["nodes"].get(source["node_id"], {})
@@ -34,6 +56,7 @@ def _mark_repeated_inputs(native, python, comparisons):
 
 def compare_behavior_runs(
     native: dict[str, Any], python: dict[str, Any], current_runtime_hash: str, *, align_checkpoints: bool = False,
+    presentation_policy=None,
 ) -> dict[str, Any]:
     issues: list[str] = []
     incomplete: list[str] = []
@@ -128,12 +151,8 @@ def compare_behavior_runs(
                     diff = {"status": "incomplete", "reason": "missing_anchor",
                             "missing_from": "Designer" if anchor not in a else "Phase 1"}
                 else:
-                    tool_type = left["tool_type"]
-                    preserve_row_order = (
-                        tool_type == "Sort" if direction == "outputs" else tool_type in _ORDER_SENSITIVE_INPUTS
-                    )
-                    diff = compare_snapshots(a[anchor], b[anchor], align_columns=align_checkpoints,
-                                             align_rows=align_checkpoints and not preserve_row_order)
+                    diff = _compare_checkpoint(a[anchor], b[anchor], node_id, left["tool_type"], direction,
+                                               align_checkpoints, presentation_policy)
                 comparisons.append(
                     {
                         "node_id": node_id,
@@ -147,7 +166,7 @@ def compare_behavior_runs(
     if not both_failed and native.get("missing"):
         incomplete.append("missing_native_outputs")
     if outcomes == ("success", "success") and not any(
-        item["status"] == "match" for item in comparisons
+        item["status"] in {"match", "coarse_match"} for item in comparisons
     ):
         incomplete.append("no_successful_data_evidence")
     if align_checkpoints:
@@ -159,6 +178,8 @@ def compare_behavior_runs(
         status = "mismatch"
     elif incomplete or "incomplete" in states:
         status = "incomplete"
+    elif "coarse_match" in states:
+        status = "coarse_match"
     else:
         status = "match"
     return {

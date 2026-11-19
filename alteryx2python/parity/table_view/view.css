@@ -4,8 +4,8 @@
   --surface: light-dark(#fff, #17212b);
   --subtle: light-dark(#f2f5f7, #223242);
   --border: light-dark(#bdc9d2, #496173);
-  --change: light-dark(#fff1c9, #443315);
-  --missing: light-dark(#e7edf2, #263644);
+  --coarse-match: light-dark(#fff1b8, #483900);
+  --unmatched: light-dark(#ffdddd, #54292d);
   --ink: light-dark(#17212b, #e2ebf2);
 }
 
@@ -30,8 +30,12 @@ thead th { position: sticky; top: 0; background: var(--subtle); }
 thead small { display: block; font-weight: normal; }
 tbody th { background: var(--surface); }
 tbody th small { display: block; font-weight: normal; min-width: 5rem; }
-td.changed { background: var(--change); }
-td.missing { background: var(--missing); }
+[data-result="coarse-match"] { background: var(--coarse-match); }
+[data-result="unmatched"] { background: var(--unmatched); }
+td[data-result] small { display: block; white-space: pre-wrap; overflow-wrap: anywhere; }
+#status[data-result], .legend span { padding: 0.2rem 0.45rem; border-radius: 0.2rem; }
+#status[data-result] { width: fit-content; }
+.legend { margin: 0 0 0.65rem; }
 td > span { display: block; white-space: pre-wrap; overflow-wrap: anywhere; max-width: 22rem; min-width: 4rem; }
 td details { max-width: 24rem; }
 td pre { white-space: pre-wrap; overflow-wrap: anywhere; }

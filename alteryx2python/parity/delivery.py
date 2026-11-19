@@ -29,6 +29,7 @@ from .runner import (
     sink_digest, verify_manifest, write_json,
 )
 from .table_reports import write_table_reports
+from .checkpoints import checkpoint_policy
 from .snapshot import frame_snapshot
 
 
@@ -232,7 +233,8 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             "phase_one_log": phase_one_log.name, "phase_two_log": phase_two_log.name,
         }
     native = collect_native(native_directory, manual=True, capture_report_fields=table_selection is not None)
-    native_result = compare_runs(native, first, align_checkpoints=table_selection is not None)
+    native_result = compare_runs(native, first, align_checkpoints=table_selection is not None,
+                                 presentation_policy=checkpoint_policy(workflow) if table_selection is not None else None)
     for item in native_result["comparisons"]:
         if item.get("direction") and (table_selection is not None or item["status"] in {"mismatch", "incomplete"}):
             node_id = item["node_id"]
@@ -245,7 +247,8 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     if table_selection is not None:
         try:
             write_table_reports(destination, native, {**first, "report_snapshots": report_snapshots},
-                                native_result, table_selection)
+                                native_result, table_selection, dynamic_inputs=manifest.get("dynamic_inputs"),
+                                probes=manifest["probes"])
         except OSError as error:
             native_result["table_report_issue"] = str(error)
     write_json(destination / "native-vs-phase-one.json", native_result)
@@ -294,7 +297,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
                 as_of, xlsx_sinks, bindings,
             ))
             checks = (native_result["status"], report["phase_one_vs_phase_two"])
-            report["status"] = ("match" if checks == ("match", "match")
+            report["status"] = (checks[0] if checks[0] in {"match", "coarse_match"} and checks[1] == "match"
                                 else "mismatch" if "mismatch" in checks else "incomplete")
             write_json(destination / "acceptance.json", report)
             return report
@@ -339,9 +342,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         }
         write_json(destination / "standalone.json", standalone)
         report["standalone_execution"] = standalone["status"]
-        report["status"] = "match" if all(
-            report[key] == "match" for key in ("native_vs_phase_one", "phase_one_vs_phase_two", "standalone_execution")
-        ) else "mismatch" if "mismatch" in report.values() else "incomplete"
+        checks = (report["phase_one_vs_phase_two"], report["standalone_execution"])
+        status = report["native_vs_phase_one"]
+        report["status"] = (status if status in {"match", "coarse_match"} and checks == ("match", "match")
+                            else "mismatch" if "mismatch" in (status, *checks) else "incomplete")
     except (ValueError, OSError, RuntimeError, KeyError, subprocess.TimeoutExpired) as exc:
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}
     write_json(destination / "acceptance.json", report)

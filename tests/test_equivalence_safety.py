@@ -85,21 +85,25 @@ def test_node_equivalence_without_native_is_blocked(tmp_path):
 def test_node_equivalence_uses_real_native_fixture_probes(tmp_path, monkeypatch):
     """Offline replay of independently captured Designer outputs, never Python goldens."""
     import shutil
+    import json
     from pathlib import Path
     from alteryx2python.parity import runner
 
     fixture = Path("docs/tools/evidence/2026-11-09/behavioral-update/designer-fixed")
-    assert list(fixture.glob("probe-*.yxdb"))
+    saved = json.loads((fixture / "manifest.json").read_text(encoding="utf-8"))
+    saved_probes = {(probe["node_id"], probe["anchor"]): probe["file"] for probe in saved["probes"]}
     engine = tmp_path / "engine.exe"
     engine.write_bytes(b"not executed")
 
     def replay(directory, engine, timeout):
-        for source in fixture.glob("probe-*.yxdb"):
-            shutil.copyfile(source, directory / source.name)
+        probes = runner.verify_manifest(directory)["probes"]
+        for probe in probes:
+            source = fixture / saved_probes[probe["node_id"], probe["anchor"]]
+            shutil.copyfile(source, directory / probe["file"])
         result = {
             "status": "success",
             "output_sha256": {
-                p.name: runner.file_hash(p) for p in directory.glob("probe-*.yxdb")
+                probe["file"]: runner.file_hash(directory / probe["file"]) for probe in probes
             },
         }
         runner.write_json(directory / "native-run.json", result)

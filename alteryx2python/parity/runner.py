@@ -28,6 +28,7 @@ from .local_adapters import (
     project_report_snapshot, report_projection_nodes, workbook_artifacts, workbook_digest,
 )
 from .snapshot import encode_value, frame_snapshot, compare_snapshots
+from .checkpoints import anchor_stem
 
 # Automated runs only support local, side-effect-free data processing here.
 LOCAL_TOOLS = {
@@ -522,10 +523,10 @@ def prepare(
         }
         if node.tool_type == "DbFileOutput" or node.node_id in renders:
             anchors = set()
-        for anchor in sorted(anchors):
+        for anchor_number, anchor in enumerate(sorted(anchors), 1):
             if (node.node_id, anchor) in inactive_detours:
                 continue
-            filename = f"probe-{len(probes):04d}.yxdb"
+            filename = f"{anchor_stem(node.node_id, anchor_number)}.yxdb"
             output_path = destination / filename
             probe_node = ET.SubElement(siblings, "Node", ToolID=str(next_id))
             gui = ET.SubElement(
@@ -557,6 +558,7 @@ def prepare(
                 {
                     "node_id": node.node_id,
                     "anchor": anchor,
+                    "anchor_number": anchor_number,
                     "file": filename,
                     "probe_id": str(next_id),
                 }
@@ -696,7 +698,8 @@ def execute_native(directory: Path, engine: Path, timeout: float = 120) -> dict:
     manifest = verify_manifest(directory)
     if instrumented_path(directory, manifest).suffix.lower() == ".yxwz":
         raise ValueError("Run the analytic app in Designer with the recorded answers")
-    if (directory / "native-run.json").exists() or any(directory.glob("probe-*.yxdb")):
+    probe_paths = [directory / probe["file"] for probe in manifest["probes"]]
+    if (directory / "native-run.json").exists() or any(path.exists() for path in probe_paths):
         raise ValueError("Native artifacts already exist; prepare a new run directory")
     command = [str(engine.resolve()), str(instrumented_path(directory, manifest).resolve())]
     try:
@@ -727,7 +730,7 @@ def execute_native(directory: Path, engine: Path, timeout: float = 120) -> dict:
             "engine_sha256": file_hash(engine) if engine.is_file() else None,
             "console_sha256": hashlib.sha256(raw).hexdigest(),
             "output_sha256": {
-                path.name: file_hash(path) for path in directory.glob("probe-*.yxdb")
+                path.name: file_hash(path) for path in probe_paths if path.is_file()
             },
             **({"event_artifacts": file_artifacts(directory / "native-events")} if manifest.get("event_commands_sha256") else {}),
             **({"sink_artifacts": native_sink_artifacts(directory, manifest)} if manifest.get("sink_files") else {}),
@@ -953,11 +956,13 @@ def collect_native(directory: Path, *, manual: bool = False, capture_report_fiel
     }
 
 
-def compare_runs(native: dict, python: dict, *, profile: str = "behavioral", align_checkpoints: bool = False) -> dict:
+def compare_runs(native: dict, python: dict, *, profile: str = "behavioral", align_checkpoints: bool = False,
+                 presentation_policy=None) -> dict:
     if profile == "behavioral":
         from .behavior import compare_behavior_runs
 
-        return compare_behavior_runs(native, python, runtime_hash(), align_checkpoints=align_checkpoints)
+        return compare_behavior_runs(native, python, runtime_hash(), align_checkpoints=align_checkpoints,
+                                     presentation_policy=presentation_policy)
     if profile != "strict":
         raise ValueError(f"Unknown comparison profile: {profile}")
     issues = []

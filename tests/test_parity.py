@@ -245,7 +245,7 @@ def test_amp_probe_export_binds_native_input_and_conversion_workflow(prepared):
     from alteryx2python.parity.amp_export import AMP_HEADER, native_probe_path, prepare_amp_export
 
     _, directory = prepared
-    raw = directory / "probe-0000.yxdb"
+    raw = directory / verify_manifest(directory)["probes"][0]["file"]
     raw.write_bytes(AMP_HEADER + b"raw fixture")
     with pytest.raises(ValueError, match="requires a Designer classic export"):
         native_probe_path(raw)

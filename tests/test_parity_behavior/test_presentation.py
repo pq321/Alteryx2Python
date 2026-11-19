@@ -128,7 +128,7 @@ def test_demo_compares_without_prompt_and_presents_both_outputs_on_mismatch(
     assert "[Designer run and skipped nodes](../native/designer-evidence.json)" in details
     assert "[Independent Phase 2 run](standalone.json)" in details
     phase_one = next((case / "delivery/phase-one-output").glob(f"python-sink-*-{sink}.csv"))
-    row = next(line for line in details.splitlines() if f"| Node {sink} (DbFileOutput) |" in line)
+    row = next(line for line in details.splitlines() if f"| Alteryx Tool ID {sink} (DbFileOutput) |" in line)
     assert "| output file mismatch | — |" in row
     assert "Side-by-side comparison (HTML)" in details
     if not count:
@@ -139,7 +139,7 @@ def test_demo_compares_without_prompt_and_presents_both_outputs_on_mismatch(
         input_check = next(item for item in findings["comparisons"] if item["direction"] == "inputs")
         assert input_check["status"] == "mismatch"
         assert input_check["duplicates_upstream"] == {"node_id": str(source), "anchor": "Output"}
-        assert f"| Node {source} (TextInput) | output mismatch |" in details
+        assert f"| Alteryx Tool ID {source} (TextInput) | output mismatch |" in details
         assert "input mismatch" not in details
     assert findings["artifact_differences"] == [{
         "group": "sink_artifacts", "key": str(sink), "node_id": str(sink),
@@ -230,8 +230,8 @@ def test_demo_compare_keeps_row_details_in_json(tmp_path, monkeypatch, capsys, c
     from alteryx2python.parity.migration import prepare_migration
     from alteryx2python.parity.snapshot import frame_snapshot
 
-    builder = WorkflowBuilder()
-    builder.add_text_input(["Prod", "Qty"], [["00123", 1]] * 99 + [["ABC", 2]])
+    builder = WorkflowBuilder(next_tool_id=234)
+    node = builder.add_text_input(["Prod", "Qty"], [["00123", 1]] * 99 + [["ABC", 2]])
     workflow = tmp_path / "sample.yxmd"
     workflow.write_text(builder.render(), encoding="utf-8")
     case = tmp_path / "case"
@@ -245,7 +245,7 @@ def test_demo_compare_keeps_row_details_in_json(tmp_path, monkeypatch, capsys, c
         {"status": "outputs_ready", "workflow": launch["native_workflow"]},
     ])
 
-    assert main(["demo", "compare", "1", "--anchor", "Output", "--case", str(case)]) == 1
+    assert main(["demo", "compare", str(node), "--anchor", "Output", "--case", str(case)]) == 1
 
     summary = capsys.readouterr().out
     assert len(summary.strip().splitlines()) == 3
@@ -253,16 +253,19 @@ def test_demo_compare_keeps_row_details_in_json(tmp_path, monkeypatch, capsys, c
     report = case / "delivery/comparison-summary.md"
     assert f"Comparison report: {report}" in summary
     details = report.read_text(encoding="utf-8")
-    node_lines = [line for line in details.splitlines() if "Node 1 (TextInput)" in line]
+    assert "| Alteryx Tool ID |" in details or dimension == "columns"
+    node_lines = [line for line in details.splitlines() if f"Alteryx Tool ID {node} (TextInput)" in line]
     if dimension == "columns":
         assert not node_lines
         assert "Output / Output" not in details
     else:
         row, = node_lines
-        assert row.startswith("| **Node 1 (TextInput)** | output mismatch |")
-        view = re.search(r"\| \*\*Output / Output\*\* \| \[Output / Output\]\(tables/(anchor-\d+\.html)\)", row)
+        assert row.startswith(f"| **Alteryx Tool ID {node} (TextInput)** | output mismatch |")
+        view = re.search(r"\| \*\*Output / Output\*\* \| \[Output / Output\]\(tables/(node234-anchor1\.html)\)", row)
         assert view and (report.parent / "tables" / view[1]).is_file()
+        assert f"Alteryx Tool ID {node} (TextInput)" in (report.parent / "tables" / view[1]).read_text(encoding="utf-8")
         assert f"[Output / Output](../native/{probe['file']})" in row
+        assert probe["file"] == "node234-anchor1.yxdb"
         link = re.search(r"\[Output / Output\]\(phase-one-capture\.json#L(\d+)\)", row)
         assert link
         capture = (report.parent / "phase-one-capture.json").read_text(encoding="utf-8").splitlines()
@@ -282,6 +285,41 @@ def test_demo_compare_keeps_row_details_in_json(tmp_path, monkeypatch, capsys, c
             "row": 0, "column": "Prod", "expected": {"kind": "int", "value": "123"},
             "actual": {"kind": "string", "value": "00123"},
         }
+
+
+def test_demo_coarse_matches_are_available_outside_unmatched_anchors(tmp_path, monkeypatch, capsys):
+    from datetime import date
+
+    import pandas as pd
+    from alteryx2python.parity import designer_evidence, runner
+    from alteryx2python.parity.migration import prepare_migration
+    from alteryx2python.parity.snapshot import frame_snapshot
+
+    builder = WorkflowBuilder(next_tool_id=37)
+    builder.add_text_input(["Dt"], [["2026-10-13"]])
+    workflow = tmp_path / "sample.yxmd"
+    workflow.write_text(builder.render(), encoding="utf-8")
+    case = tmp_path / "case"
+    launch = prepare_migration(workflow, case)
+    manifest = runner.verify_manifest(case / "native")
+    probe, = manifest["probes"]
+    frame = pd.DataFrame({"Dt": [date(2026, 10, 13)]}, dtype=object)
+    frame.attrs["alteryx_schema"] = [{"name": "Dt", "type": "Date", "size": 10, "scale": None}]
+    runner.write_json(case / "native" / probe["file"], frame_snapshot(frame))
+    for module in (runner, designer_evidence):
+        monkeypatch.setattr(module, "read_yxdb", lambda path: json.loads(path.read_text(encoding="utf-8")))
+    runner.write_json(case / "designer-run.json", [{"status": "outputs_ready", "workflow": launch["native_workflow"]}])
+
+    assert main(["demo", "compare", "--case", str(case)]) == 1
+    summary = capsys.readouterr().out
+    assert "0 anchor mismatches" in summary and "1 coarse match." in summary
+    report = case / "delivery" / "comparison-summary.md"
+    details = report.read_text(encoding="utf-8")
+    assert "| coarse_match | 0 |" in details
+    assert "No node-level findings." in details
+    assert "<details><summary>Coarse matches (1 anchor)</summary>" in details
+    assert "| Alteryx Tool ID 37 (TextInput) | Output / Output | [Open](tables/node37-anchor1.html) |" in details
+    assert (report.parent / "tables" / "node37-anchor1.html").is_file()
 
 
 def test_workbook_detail_locates_first_different_cell(tmp_path):
@@ -331,8 +369,8 @@ def test_demo_lists_only_unmatched_output_anchors(tmp_path, monkeypatch, capsys,
 
     assert main(["demo", "compare", "--case", str(case)]) == 1
     lines = (case / "delivery/comparison-summary.md").read_text(encoding="utf-8").splitlines()
-    row, = [line for line in lines if f"| Node {node} (Filter) |" in line]
-    assert re.search(r"\| Output / True \| \[Output / True\]\(tables/anchor-\d+\.html\)", row)
+    row, = [line for line in lines if f"| Alteryx Tool ID {node} (Filter) |" in line]
+    assert f"| Output / True | [Output / True](tables/node{node}-anchor2.html)" in row
     assert "Output / False" not in row
     assert ("incomplete evidence" in row) == (not false_probe_present)
     parity = json.loads((case / "delivery/native-vs-phase-one.json").read_text(encoding="utf-8"))
