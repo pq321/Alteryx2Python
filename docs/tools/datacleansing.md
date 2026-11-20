@@ -9,8 +9,8 @@ Supported anchors:
 
 Supported options map directly from the macro questions:
 
-- `Check Box (135)`: remove rows where all selected fields are null or blank
-- `Check Box (136)`: remove selected columns where all values are null or blank
+- `Check Box (135)`: remove rows that are null in every column
+- `Check Box (136)`: remove columns that are null in every row
 - `Check Box (84)`: replace string nulls with blanks
 - `Check Box (117)`: replace numeric nulls with zero
 - `Check Box (15)`: trim leading and trailing whitespace
@@ -21,4 +21,8 @@ Supported options map directly from the macro questions:
 - `Check Box (70)`: remove punctuation
 - `Check Box (77)` and `Drop Down (81)`: modify case (`upper`, `lower`, or `title`)
 
-The implementation preserves unselected fields and emits trace/schema evidence through the canonical runtime.
+Null removal checks the entire input and preserves empty strings. Field selection applies
+to replacements and character operations. An explicit empty selection skips those operations.
+The implementation emits trace and schema evidence through the canonical runtime.
+
+[Native Classic and AMP comparisons](evidence/2026-11-20/blank-headers-data-cleansing/README.md)

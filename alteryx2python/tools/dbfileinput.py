@@ -9,7 +9,7 @@ import pandas as pd
 from alteryx2python.comparison.schema_diff import snapshot_schema
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
-from alteryx2python.tools.csv_input import read_delimited_file
+from alteryx2python.tools.csv_input import input_field_names, read_delimited_file
 
 
 def _node_text(node: Any, default: str = "") -> str:
@@ -144,47 +144,39 @@ def excel_selection_options(selector, options, *, allow_bare=False):
 
 
 def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, **options):
+    start, stop = 0, None
+    if usecols is not None:
+        from openpyxl.utils.cell import column_index_from_string
+
+        first, last = usecols.split(':', 1)
+        start = column_index_from_string(first) - 1
+        stop = column_index_from_string(last)
     try:
         with pd.ExcelFile(path) as workbook:
             # Keep text cells as text even if their values look numeric or like pandas NA tokens.
             parse_options = {"dtype": object, "keep_default_na": False, "na_values": [""], **options}
-            frame = workbook.parse(sheet_name, header=header, skiprows=skiprows, usecols=usecols, **parse_options)
-            if "dtype" not in options:
-                frame = frame.infer_objects()
-            if header != 0 or not any(isinstance(name, str) and name.startswith('Unnamed: ') for name in frame.columns):
-                return frame
-
-            # Inspect the actual header cells to distinguish blanks from literal "Unnamed: n" names.
-            header_row = workbook.parse(sheet_name, header=None, skiprows=skiprows, nrows=1,
-                                        dtype=object, keep_default_na=False)
+            frame = workbook.parse(sheet_name, header=header, skiprows=skiprows, **parse_options)
+            if header == 0:
+                header_row = workbook.parse(sheet_name, header=None, skiprows=skiprows, nrows=1,
+                                            dtype=object, keep_default_na=False)
+                labels = header_row.iloc[0].tolist() if not header_row.empty else []
     except ImportError as exc:
         raise NotImplementedError("Excel input requires pandas optional Excel engine support") from exc
 
-    start = 0
-    if usecols is not None:
-        from openpyxl.utils.cell import column_index_from_string
-
-        start = column_index_from_string(usecols.split(':', 1)[0]) - 1
-    labels = header_row.iloc[0].tolist() if not header_row.empty else []
-    frame.columns = fill_excel_blank_headers(frame.columns, labels, start)
-    return frame
+    if stop is not None:
+        # A selected range can include cells beyond the last defined worksheet column.
+        frame.columns = range(len(frame.columns))
+        frame = frame.reindex(columns=range(start, stop))
+    if header == 0:
+        frame.columns = fill_excel_blank_headers(frame.columns, labels, start)
+    return frame.infer_objects() if "dtype" not in options else frame
 
 
 def fill_excel_blank_headers(columns, labels, start=0):
-    names = list(columns)
-    named_columns = {name for index, name in enumerate(names, start)
-                     if index < len(labels) and labels[index] not in (None, '')}
-    for index in range(len(names)):
-        if start + index < len(labels) and labels[start + index] not in (None, ''):
-            continue
-        fallback = f'F{index + 1}'
-        replacement, suffix = fallback, 1
-        while replacement in named_columns:
-            replacement = f'{fallback}.{suffix}'
-            suffix += 1
-        named_columns.add(replacement)
-        names[index] = replacement
-    return names
+    width = len(columns)
+    headers = list(labels[start:start + width])
+    headers.extend([None] * (width - len(headers)))
+    return input_field_names(headers, "F")
 
 
 def read_excel_selection(path, selector, *, allow_bare=False, **options):

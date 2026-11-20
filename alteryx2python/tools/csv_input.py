@@ -1,7 +1,9 @@
 """Read delimited files with the workflow's Windows code page."""
 
 import codecs
+import csv
 from io import StringIO
+from itertools import dropwhile, islice
 import re
 
 import pandas as pd
@@ -24,18 +26,71 @@ def detect_legacy_encoding(sample, decode_error, source):
     raise ValueError(f"Cannot determine the CSV encoding for {source}. Set the Input Data CodePage explicitly.") from decode_error
 
 
+def input_field_names(labels, prefix):
+    """Name blank headers and disambiguate duplicates in input order."""
+    names = [
+        str(label) if label is not None and str(label).strip() else f"{prefix}{index}"
+        for index, label in enumerate(labels, 1)
+    ]
+    reserved = {name.casefold() for name in names}
+    seen = set()
+    for index, name in enumerate(names):
+        key = name.casefold()
+        if key not in seen:
+            seen.add(key)
+            continue
+        single_digit = re.fullmatch(r"(.*?)(?<![0-9])([2-8])", name)
+        if single_digit:
+            stem, digit = single_digit.groups()
+            candidates = (f"{stem}{n}" for n in range(int(digit) + 1, 10))
+            replacement = next((value for value in candidates if value.casefold() not in reserved), None)
+            suffix = f"{stem}9_"
+        else:
+            replacement = None
+            suffix = name + ("_" if name[-1] in "0123456789" else "")
+        if replacement is None:
+            number = 2
+            while f"{suffix}{number}".casefold() in reserved:
+                number += 1
+            replacement = f"{suffix}{number}"
+        names[index] = replacement
+        reserved.add(replacement.casefold())
+        seen.add(replacement.casefold())
+    return names
+
+
+def _csv_headers(source, options):
+    start = options.get("skiprows") or 0
+    lines = dropwhile(lambda line: not line.strip(), islice(source, start, None))
+    labels = next(csv.reader(lines, delimiter=options.get("delimiter", ",")), [])
+    return input_field_names(labels, "Field_")
+
+
 def _parse_delimited_file(path, encoding, options, *, text_fields=False):
     options = {"keep_default_na": False, "na_values": [""], **options}
     if text_fields:
         options.setdefault("dtype", str)
     delimiter = options.get("delimiter", ",")
-    if len(delimiter) != 1 or options.get("nrows") == 0:
+    if len(delimiter) != 1:
         return pd.read_csv(path, encoding=encoding, **options)
 
+    has_header = options.get("header", "infer") is not None
+    if options.get("nrows") == 0:
+        frame = pd.read_csv(path, encoding=encoding, **options)
+        if has_header:
+            with open(path, encoding=encoding, newline="") as source:
+                names = _csv_headers(source, options)
+            if len(names) == len(frame.columns):
+                frame.columns = names
+        return frame
     with open(path, encoding=encoding, newline="") as source:
         data = source.read()
+    names = _csv_headers(StringIO(data, newline=""), options) if has_header else None
     if '""' not in data:
-        return pd.read_csv(StringIO(data, newline=""), **options)
+        frame = pd.read_csv(StringIO(data, newline=""), **options)
+        if names is not None and len(names) == len(frame.columns):
+            frame.columns = names
+        return frame
 
     # Protect quoted empty fields before pandas strips the quotes. In Alteryx,
     # quoted empties are strings and unquoted empty fields are null.
@@ -49,9 +104,8 @@ def _parse_delimited_file(path, encoding, options, *, text_fields=False):
         data,
     )
     frame = pd.read_csv(StringIO(protected, newline=""), **options)
-    if any(isinstance(column, str) and token in column for column in frame.columns):
-        header_options = {**options, "nrows": 0}
-        frame.columns = pd.read_csv(StringIO(data, newline=""), **header_options).columns
+    if names is not None and len(names) == len(frame.columns):
+        frame.columns = names
     return frame.replace(token, "")
 
 

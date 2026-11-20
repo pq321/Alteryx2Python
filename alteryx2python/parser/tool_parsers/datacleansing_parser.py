@@ -29,9 +29,10 @@ def parse_datacleansing_config(config: dict[str, Any]) -> ToolParserResult:
         if isinstance(entry, dict)
     }
     normalized: dict[str, Any] = {
-        "selected_fields": _parse_selected_fields(values.get("List Box (11)", "")),
         "case_mode": values.get("Drop Down (81)", ""),
     }
+    if "List Box (11)" in values:
+        normalized["selected_fields"] = _parse_selected_fields(values["List Box (11)"])
     for raw_name, normalized_name in VALUE_MAP.items():
         normalized[normalized_name] = _parse_bool(values.get(raw_name, "False"))
     return ToolParserResult(normalized_config=normalized)

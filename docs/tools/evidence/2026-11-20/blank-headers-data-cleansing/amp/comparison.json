@@ -1,0 +1,5584 @@
+{
+  "engine": "AMP",
+  "designer_version": "2025.1.2.165",
+  "workflow": "header-cleansing-amp.yxmd",
+  "workflow_sha256": "ae99298c70dcc9fe5d69ae9b1b3cd389b1af9dffe128becc702ae7a6c40ad7db",
+  "cases": [
+    {
+      "tool_id": 1,
+      "anchor": "Output",
+      "probe": "classic-export/node1-anchor1.yxdb",
+      "sha256": "cbdbdc033b832147022ba24d801e5d94a49817d61f7310bf0b9b7764daaaf60b",
+      "designer_schema": [
+        {
+          "name": "Robot",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Key",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Path",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "A",
+          "B",
+          "C",
+          null
+        ],
+        [
+          "D",
+          "E",
+          "F",
+          ""
+        ]
+      ],
+      "phase_one": [
+        [
+          "Robot",
+          "Key",
+          "Path",
+          "Field_4"
+        ],
+        [
+          [
+            "A",
+            "B",
+            "C",
+            null
+          ],
+          [
+            "D",
+            "E",
+            "F",
+            ""
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "Robot",
+          "Key",
+          "Path",
+          "Field_4"
+        ],
+        [
+          [
+            "A",
+            "B",
+            "C",
+            null
+          ],
+          [
+            "D",
+            "E",
+            "F",
+            ""
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "Robot",
+          "Key",
+          "Path",
+          "Field_4"
+        ],
+        [
+          [
+            "A",
+            "B",
+            "C",
+            null
+          ],
+          [
+            "D",
+            "E",
+            "F",
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "6f652817f9fbf3aab4a351df9cbd4e90592d04d87f13b38e80bf77c32b5e4013"
+    },
+    {
+      "tool_id": 2,
+      "anchor": "Output",
+      "probe": "classic-export/node2-anchor1.yxdb",
+      "sha256": "06a38cfef38fb3e2ff6a441febdf20f72772b55954ada22dc6d31b2e05b7c889",
+      "designer_schema": [
+        {
+          "name": "Name",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Other",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "A",
+          "keep",
+          "B",
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "Name",
+          "Field_2",
+          "Other",
+          "Field_4"
+        ],
+        [
+          [
+            "A",
+            "keep",
+            "B",
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "Name",
+          "Field_2",
+          "Other",
+          "Field_4"
+        ],
+        [
+          [
+            "A",
+            "keep",
+            "B",
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "84a6be0a5dbe085eb14ea2bccb49f6e05936c0bfcdf1c5045262fef0beb74aa7"
+    },
+    {
+      "tool_id": 3,
+      "anchor": "Output",
+      "probe": "classic-export/node3-anchor1.yxdb",
+      "sha256": "c566e260e829d6405b6a301af7627867e607239bb7c3a6bfcbaf53cb2c251ed8",
+      "designer_schema": [
+        {
+          "name": "Field_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_2_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "field_5",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_6",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ]
+      ],
+      "phase_one": [
+        [
+          "Field_2",
+          "Field_3",
+          "Field_2_2",
+          "field_5",
+          "Field_6"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "Field_2",
+          "Field_3",
+          "Field_2_2",
+          "field_5",
+          "Field_6"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "e16f0069613b10549ed2f5f59ca1735d5de467744f2e99e2e85ac8980a28c288"
+    },
+    {
+      "tool_id": 4,
+      "anchor": "Output",
+      "probe": "classic-export/node4-anchor1.yxdb",
+      "sha256": "8818e1c1a3addb684c0c71a6fdb64d939ee2c115faaad126b059f58855a311b1",
+      "designer_schema": [
+        {
+          "name": "Field_1",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_1_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "Field_1",
+          "Field_1_2",
+          "Field_3",
+          "field_4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "Field_1",
+          "Field_1_2",
+          "Field_3",
+          "field_4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "012c3f5f9d852a534d5acad6c7399456166b79190208199b260ff0183dd2994f"
+    },
+    {
+      "tool_id": 5,
+      "anchor": "Output",
+      "probe": "classic-export/node5-anchor1.yxdb",
+      "sha256": "9fad64fcbe0a428ca8fc9f35259aae588a932ef9f663771c5c3a4d249bdf1cd8",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Unnamed: 1",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "Field_2",
+          "Field_3",
+          "Unnamed: 1"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "Field_2",
+          "Field_3",
+          "Unnamed: 1"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "e54224b91b86993eefd6bf731bee7e7a58165f790a69e26603adb40837d64177"
+    },
+    {
+      "tool_id": 6,
+      "anchor": "Output",
+      "probe": "classic-export/node6-anchor1.yxdb",
+      "sha256": "6873112da204f92dd7b68981f68c23ad38ca84fc9f633f10d3b60706d05afeec",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "Name",
+          "Name2",
+          "Field_4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "Name",
+          "Name2",
+          "Field_4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "7c0876ac5e08dba28a0029cd250de06b9c7e0867aae27d0f9bd815e7bb91973c"
+    },
+    {
+      "tool_id": 7,
+      "anchor": "Output",
+      "probe": "classic-export/node7-anchor1.yxdb",
+      "sha256": "5bcc5eab291770b16873b1322f1a91d8eff9154b76467f9a7f45914cda412a1e",
+      "designer_schema": [
+        {
+          "name": "X",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ]
+      ],
+      "phase_one": [
+        [
+          "X",
+          "Field_3",
+          "Field_4",
+          "Field_3_2",
+          "Field_3_3"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "X",
+          "Field_3",
+          "Field_4",
+          "Field_3_2",
+          "Field_3_3"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "e611bd4a97df448dc5fde405838a560cdad006f85e9983e9b906eacb9a67d7bf"
+    },
+    {
+      "tool_id": 8,
+      "anchor": "Output",
+      "probe": "classic-export/node8-anchor1.yxdb",
+      "sha256": "155e263672c9797194c3a14ca446481152060f6c8e8220f8389888048e22c660",
+      "designer_schema": [
+        {
+          "name": "X",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_32",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_33",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ]
+      ],
+      "phase_one": [
+        [
+          "X",
+          "Field_3",
+          "Field_4",
+          "Field_32",
+          "Field_33"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "X",
+          "Field_3",
+          "Field_4",
+          "Field_32",
+          "Field_33"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "fb33df461876ba9a2b68206e2178c6a60bbfc22d2c7d5b0a09abbd51f8caad9f"
+    },
+    {
+      "tool_id": 20,
+      "anchor": "Output",
+      "probe": "classic-export/node20-anchor1.yxdb",
+      "sha256": "4d01e53da23c035d5c3fa62c83b3972dba1b4547ed32ea32679a778b7f834fb2",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "be1d095f135b4de8d68084406f9d68f340a590feb373c0c2653c8483bd8cdd26"
+    },
+    {
+      "tool_id": 21,
+      "anchor": "Output26",
+      "probe": "classic-export/node21-anchor1.yxdb",
+      "sha256": "0e4130358aecb7ff454b619c021617bb0c6329099b89b92d1a9797746619e0da",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ],
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": false,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match_after_reorder",
+      "amp_source_probe_sha256": "3be8e78635e752946537ebc1f452b835db0b0824b5bfa63583d86e5f7066b6b5"
+    },
+    {
+      "tool_id": 22,
+      "anchor": "Output26",
+      "probe": "classic-export/node22-anchor1.yxdb",
+      "sha256": "9e0eaee3f0543d50b47edcbdf6e3261e6963b0f6029423af4606a04437de0e86",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "26a74db4c57f74e0fb35cc4f42fdf4782761f932117922284dacfae562e3dfad"
+    },
+    {
+      "tool_id": 23,
+      "anchor": "Output26",
+      "probe": "classic-export/node23-anchor1.yxdb",
+      "sha256": "49c83ad42873ce2fd68563dae479beb98b35061c71e6105b6041afa037a4ccce",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          "",
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          "",
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "",
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            "",
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            "",
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42.0,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8.0,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3.0,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "cb3e30266e8ac548af8ec4d3c44e8235eb25dfe645bfa8d57d086344a3e1d2c4"
+    },
+    {
+      "tool_id": 24,
+      "anchor": "Output26",
+      "probe": "classic-export/node24-anchor1.yxdb",
+      "sha256": "47d965237c2056c0f8fea4a22b0919a35a225a8fb3264ce5e8c8355550154bf9",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          0,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          0,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          0,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            0,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            0,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            0,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "2a96279e75d0602ece5d3f2232bb61011de10d82964d551e5c983fb3cbcf3324"
+    },
+    {
+      "tool_id": 25,
+      "anchor": "Output26",
+      "probe": "classic-export/node25-anchor1.yxdb",
+      "sha256": "2f1325ebc9236bd1541b816aa0af4b683cb421f3d1a246df523e6687ffffe9d6",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "MIxED\t\n  àＢ９1!?。　$∑",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          "spacing",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "02000394c997bfaf8fa167406856f0c4bfc80b4ce4bdb46f384c8d117b79f7e1"
+    },
+    {
+      "tool_id": 26,
+      "anchor": "Output26",
+      "probe": "classic-export/node26-anchor1.yxdb",
+      "sha256": "6a3ac9b5a6eeba0d49687748cdbfc699b1e5b038dfdbef15babfa186fee91624",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          " MIxED àＢ９1!?。 $∑ ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " spacing ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            " MIxED àＢ９1!?。 $∑ ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " spacing ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            " MIxED àＢ９1!?。 $∑ ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " spacing ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "e0116086e1778e087f2a0cfadf0d0ea617c83dd67faf836eb1f70a6b8f803af7"
+    },
+    {
+      "tool_id": 27,
+      "anchor": "Output26",
+      "probe": "classic-export/node27-anchor1.yxdb",
+      "sha256": "ce0c5bf8df338c9a013499930b2d080ede6f200ab06dd645811662299924dfe5",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "MIxEDàＢ９1!?。$∑",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABCdON'TO'neilword-WORDãŌ",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          "spacing",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxEDàＢ９1!?。$∑",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABCdON'TO'neilword-WORDãŌ",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxEDàＢ９1!?。$∑",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABCdON'TO'neilword-WORDãŌ",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "59d0da6faa5743aab80313afe7d10b2871f46eead557dd930f4c69ca640beeb5"
+    },
+    {
+      "tool_id": 28,
+      "anchor": "Output26",
+      "probe": "classic-export/node28-anchor1.yxdb",
+      "sha256": "2b6f59e0c283c4ac14ca1a5933b5a76a1cd530286f1004c853d098bb9178f66d",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  \t\n  ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          " ' ' -  ",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t   \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  \t\n  ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            " ' ' -  ",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t   \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  \t\n  ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            " ' ' -  ",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t   \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "5c10c91319b57e50d369a9f49d4f0f180b07f03b5fd0cffe30fe2698c7ca1d84"
+    },
+    {
+      "tool_id": 29,
+      "anchor": "Output26",
+      "probe": "classic-export/node29-anchor1.yxdb",
+      "sha256": "74ea4650e69e7535d4c7005c4aaf9c4f2921af4a4563505c4b823bc46e12d126",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "83048ea7cd725428cd5ed8665e276bb20e0ce3137c53bc7b7e7a74caa1f99edc"
+    },
+    {
+      "tool_id": 30,
+      "anchor": "Output26",
+      "probe": "classic-export/node30-anchor1.yxdb",
+      "sha256": "7a00e6b02cf30d1d93a9a48b35887d9c860feeaa92690f49cb5cf2809fbdb923",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1　  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dONT Oneil wordWORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1　  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dONT Oneil wordWORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1　  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dONT Oneil wordWORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "1e16b2b0ad5fdbff7524695cbfa10d017592e5864f7a6e4273629d628c209188"
+    },
+    {
+      "tool_id": 31,
+      "anchor": "Output26",
+      "probe": "classic-export/node31-anchor1.yxdb",
+      "sha256": "54bc0259543534e4a990506262ad48f77e2b1a1b40fab6c4b318feecd9dcdb57",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIXED\t\n  ÀＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC DON'T O'NEIL WORD-WORD Ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  SPACING \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIXED\t\n  ÀＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC DON'T O'NEIL WORD-WORD Ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  SPACING \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIXED\t\n  ÀＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC DON'T O'NEIL WORD-WORD Ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  SPACING \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "f8e92e9ff9f8695a4283f0743bae092904c2995f98a3f6c5122cce3361299ec5"
+    },
+    {
+      "tool_id": 32,
+      "anchor": "Output26",
+      "probe": "classic-export/node32-anchor1.yxdb",
+      "sha256": "96b25e2993490726fb1a01f6ac4ee91ada996d6c06a0f904e506a35f8e7e59b5",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  mixed\t\n  àｂ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "abc don't o'neil word-word ã ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  mixed\t\n  àｂ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "abc don't o'neil word-word ã ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  mixed\t\n  àｂ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "abc don't o'neil word-word ã ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "d5cb410d1cddcd5cde9bddafbe66d6427fce9f924433d4162ffdf9dfb9caed14"
+    },
+    {
+      "tool_id": 33,
+      "anchor": "Output26",
+      "probe": "classic-export/node33-anchor1.yxdb",
+      "sha256": "34901ea1dda3d60119fc96487b23bf65bd83ae9b780cd213a8e915d6fb3a4814",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  Mixed\t\n  Àｂ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "Abc Don't O'neil Word-word Ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  Spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  Mixed\t\n  Àｂ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Abc Don't O'neil Word-word Ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  Spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  Mixed\t\n  Àｂ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Abc Don't O'neil Word-word Ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  Spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "9a8411fe734a73b2b09a1cbafefa4de233d48364cb10f4c8583b431d14effd09"
+    },
+    {
+      "tool_id": 34,
+      "anchor": "Output26",
+      "probe": "classic-export/node34-anchor1.yxdb",
+      "sha256": "4d01e53da23c035d5c3fa62c83b3972dba1b4547ed32ea32679a778b7f834fb2",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "be1d095f135b4de8d68084406f9d68f340a590feb373c0c2653c8483bd8cdd26"
+    },
+    {
+      "tool_id": 35,
+      "anchor": "Output26",
+      "probe": "classic-export/node35-anchor1.yxdb",
+      "sha256": "4d01e53da23c035d5c3fa62c83b3972dba1b4547ed32ea32679a778b7f834fb2",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "  MIxED\t\n  àＢ９1!?。　$∑  ",
+          " keep ",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          " \t  spacing \n  ",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "  MIxED\t\n  àＢ９1!?。　$∑  ",
+            " keep ",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            " \t  spacing \n  ",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "be1d095f135b4de8d68084406f9d68f340a590feb373c0c2653c8483bd8cdd26"
+    },
+    {
+      "tool_id": 36,
+      "anchor": "Output26",
+      "probe": "classic-export/node36-anchor1.yxdb",
+      "sha256": "ae491625a3aad3bf5cc56badf57e5615ee9fc38db5067fbaf71d453b6ef75599",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "Bool",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "MIxED\t\n  àＢ９1!?。　$∑",
+          "keep",
+          42,
+          null,
+          null
+        ],
+        [
+          null,
+          "KEEP_WITH_NULL",
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8,
+          null,
+          null
+        ],
+        [
+          "spacing",
+          null,
+          3,
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            "keep",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            "keep",
+            42,
+            null,
+            null
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8,
+            null,
+            null
+          ],
+          [
+            "spacing",
+            null,
+            3,
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "e9c504b2597afed35c30360207a9018535020a719e1a9af8e9a6f8c8c4741842"
+    },
+    {
+      "tool_id": 37,
+      "anchor": "Output26",
+      "probe": "classic-export/node37-anchor1.yxdb",
+      "sha256": "c7b7338aef83291fe38632d34b9da951fcd523cac3d51b2b8331554daa5c7bbb",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "1073741823",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_String",
+          "size": "2147483647",
+          "scale": null
+        },
+        {
+          "name": "number",
+          "type": "Int32",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "ABC dON'T O'neil word-WORD ã Ō",
+          "Mixed",
+          -8
+        ],
+        [
+          "",
+          "KEEP_WITH_NULL",
+          0
+        ],
+        [
+          "spacing",
+          null,
+          3
+        ],
+        [
+          "MIxED\t\n  àＢ９1!?。　$∑",
+          " keep ",
+          42
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "number"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            " keep ",
+            42
+          ],
+          [
+            "",
+            "KEEP_WITH_NULL",
+            0
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8
+          ],
+          [
+            "spacing",
+            null,
+            3
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "number"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            " keep ",
+            42
+          ],
+          [
+            "",
+            "KEEP_WITH_NULL",
+            0
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8
+          ],
+          [
+            "spacing",
+            null,
+            3
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "label",
+          "keep",
+          "number"
+        ],
+        [
+          [
+            "MIxED\t\n  àＢ９1!?。　$∑",
+            " keep ",
+            42
+          ],
+          [
+            null,
+            "KEEP_WITH_NULL",
+            0
+          ],
+          [
+            "ABC dON'T O'neil word-WORD ã Ō",
+            "Mixed",
+            -8
+          ],
+          [
+            "spacing",
+            null,
+            3
+          ]
+        ]
+      ],
+      "designer_phase_one_match": false,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match_after_reorder",
+      "amp_source_probe_sha256": "c858a803734116ff0bd9f2f9ae9ad745a382b1cc1c6bc93e20fba3e3abb24fb2"
+    },
+    {
+      "tool_id": 41,
+      "anchor": "Output",
+      "probe": "classic-export/node41-anchor1.yxdb",
+      "sha256": "7236a8b3d97f7c29f0deee0bcfba6958250fa3fa4664e53ea564c48bb9280b5a",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F2",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "C",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F4",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "keep",
+          "c",
+          "tail"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "F2",
+          "C",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "keep",
+            "c",
+            "tail"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "F2",
+          "C",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "keep",
+            "c",
+            "tail"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "902a9b22cdbe55e749bf7dbaa810eb06e1fcf14bcbc5c4f2a4062dd32ba70c1d"
+    },
+    {
+      "tool_id": 42,
+      "anchor": "Output",
+      "probe": "classic-export/node42-anchor1.yxdb",
+      "sha256": "4afe96d651dcca772e6fb71fcd4fa1b09d7db3d87d4ae7472aa7b2d2c9f99eab",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F2",
+          "type": "Double",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "C",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          null,
+          "c"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "F2",
+          "C"
+        ],
+        [
+          [
+            "a",
+            null,
+            "c"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "F2",
+          "C"
+        ],
+        [
+          [
+            "a",
+            null,
+            "c"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "dc8f558e295b7d26d49a0a2ec508510b51e98ee07286aab6f4622e36f3ed9c3e"
+    },
+    {
+      "tool_id": 43,
+      "anchor": "Output",
+      "probe": "classic-export/node43-anchor1.yxdb",
+      "sha256": "bd1e124f3e501356b5776c3b9bdc381c9913515da9b1274b77fac8369eef2db5",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F2",
+          "type": "Double",
+          "size": null,
+          "scale": null
+        },
+        {
+          "name": "C",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F4",
+          "type": "Double",
+          "size": null,
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          null,
+          "c",
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "F2",
+          "C",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            null,
+            "c",
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "F2",
+          "C",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            null,
+            "c",
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "eb24b7b19b31474ac99045745e3ffb3c49fa70aabcdbda36617790ad496620be"
+    },
+    {
+      "tool_id": 44,
+      "anchor": "Output",
+      "probe": "classic-export/node44-anchor1.yxdb",
+      "sha256": "b6e30201f1cf4c4d24f280a71fe3508cd21da757f4bd5c2a36d413ce127b6b2b",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F2",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F3",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F4",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F5",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "F2",
+          "F3",
+          "F4",
+          "F5"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "F2",
+          "F3",
+          "F4",
+          "F5"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "0df15f07a70c06c9506eba58b0f1913a44c44528dab82a4d44f1445bec048d52"
+    },
+    {
+      "tool_id": 45,
+      "anchor": "Output",
+      "probe": "classic-export/node45-anchor1.yxdb",
+      "sha256": "baf1d1d93b27b350ad31d0f5a92d8f18557b5d9c7ed6d68a97fe1bde3bd0ec3e",
+      "designer_schema": [
+        {
+          "name": "A",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "Unnamed: 1",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F3",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "D",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "literal",
+          "saved",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "A",
+          "Unnamed: 1",
+          "F3",
+          "D"
+        ],
+        [
+          [
+            "a",
+            "literal",
+            "saved",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "A",
+          "Unnamed: 1",
+          "F3",
+          "D"
+        ],
+        [
+          [
+            "a",
+            "literal",
+            "saved",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "b5aafbc7a02387e17abd860121e444bbdadaf9061e104698b7e8f1dfde3fe757"
+    },
+    {
+      "tool_id": 46,
+      "anchor": "Output",
+      "probe": "classic-export/node46-anchor1.yxdb",
+      "sha256": "875f11e9fa0782f4f37482af019edf25ac7d2c23fced018e018de68c83176455",
+      "designer_schema": [
+        {
+          "name": "F2",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F5",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F3",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F4",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "F2",
+          "F5",
+          "F3",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "F2",
+          "F5",
+          "F3",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "028e9bcba4ae295b1d7dd61095dd0a5f33397bd1a5b77fb8902a481d634ec58f"
+    },
+    {
+      "tool_id": 47,
+      "anchor": "Output",
+      "probe": "classic-export/node47-anchor1.yxdb",
+      "sha256": "97217d29cebda3987949aaa85a0e9327cfb5620fe7a402d4ee67fbcd1a974e2c",
+      "designer_schema": [
+        {
+          "name": "F1",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F1_2",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F3",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        },
+        {
+          "name": "F4",
+          "type": "V_String",
+          "size": "255",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d"
+        ]
+      ],
+      "phase_one": [
+        [
+          "F1",
+          "F1_2",
+          "F3",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "F1",
+          "F1_2",
+          "F3",
+          "F4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "6e32b47a4dc9d2160d498714dfcf75fd939c164c47c2527651925af1f381038d"
+    },
+    {
+      "tool_id": 50,
+      "anchor": "Output",
+      "probe": "classic-export/node50-anchor1.yxdb",
+      "sha256": "9b27774b4c26d32859b9a941a85ad7db50c382545b77b3bb12f6e4c346fd776d",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          null,
+          "kept",
+          null,
+          null
+        ],
+        [
+          null,
+          null,
+          null,
+          null
+        ],
+        [
+          "",
+          null,
+          null,
+          ""
+        ],
+        [
+          "Foo",
+          "str",
+          null,
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "a5c3fcbe6343b464d5f4347a549e207bedf8d2641febddaca0756a134424b591"
+    },
+    {
+      "tool_id": 51,
+      "anchor": "Output",
+      "probe": "classic-export/node51-anchor1.yxdb",
+      "sha256": "7d0452af474282646f7893398ef23173449485a200ccf69024698faa9c2ed84c",
+      "designer_schema": [
+        {
+          "name": "Field_8",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9_3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9_4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_6",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_7",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9_5",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_9_6",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_10",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j"
+        ]
+      ],
+      "phase_one": [
+        [
+          "Field_8",
+          "Field_9",
+          "Field_9_2",
+          "Field_9_3",
+          "Field_9_4",
+          "Field_6",
+          "Field_7",
+          "Field_9_5",
+          "Field_9_6",
+          "Field_10"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "Field_8",
+          "Field_9",
+          "Field_9_2",
+          "Field_9_3",
+          "Field_9_4",
+          "Field_6",
+          "Field_7",
+          "Field_9_5",
+          "Field_9_6",
+          "Field_10"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "4d612f0bc53c6321834d9f12e1828cd9df433c796b4e2709ead40458a6253235"
+    },
+    {
+      "tool_id": 52,
+      "anchor": "Output",
+      "probe": "classic-export/node52-anchor1.yxdb",
+      "sha256": "e16a88b4d6d1f6d8e45c0a72ee9da819bce2e7841d212790985ff07146a1ada1",
+      "designer_schema": [
+        {
+          "name": "a",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "NAME5",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name9",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Name9_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "  fixed  ",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "a3",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "a2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "a4",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "a",
+          "b",
+          "c",
+          "d",
+          "e",
+          "f",
+          "g",
+          "h",
+          "i",
+          "j"
+        ]
+      ],
+      "phase_one": [
+        [
+          "a",
+          "Name3",
+          "NAME5",
+          "Name4",
+          "Name9",
+          "Name9_2",
+          "  fixed  ",
+          "a3",
+          "a2",
+          "a4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "a",
+          "Name3",
+          "NAME5",
+          "Name4",
+          "Name9",
+          "Name9_2",
+          "  fixed  ",
+          "a3",
+          "a2",
+          "a4"
+        ],
+        [
+          [
+            "a",
+            "b",
+            "c",
+            "d",
+            "e",
+            "f",
+            "g",
+            "h",
+            "i",
+            "j"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "051089225d1c0579c9a600b0275de31a0bf6f6fbe0710ee2fbaa6466e86217cb"
+    },
+    {
+      "tool_id": 53,
+      "anchor": "Output",
+      "probe": "classic-export/node53-anchor1.yxdb",
+      "sha256": "c915b51dd47966f19be5aa4e83e5f34fd7fb582b7d28e855faec4ed5f30a6e44",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+        ],
+        [
+          "　  padded  　"
+        ]
+      ],
+      "phase_one": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+          ],
+          [
+            "　  padded  　"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+          ],
+          [
+            "　  padded  　"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "1e5e5a707dd4b3c322d0abe9fcda9b0e50f58be2aedda6e44c1922e1edfff464"
+    },
+    {
+      "tool_id": 54,
+      "anchor": "Output",
+      "probe": "classic-export/node54-anchor1.yxdb",
+      "sha256": "973a8ad5213d5d3793aecce71c6dcfd3a5356ca85d9e2ef618eec643018d2aba",
+      "designer_schema": [
+        {
+          "name": "a",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "Field_2",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "c",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [],
+      "phase_one": [
+        [
+          "a",
+          "Field_2",
+          "c"
+        ],
+        []
+      ],
+      "phase_two": [
+        [
+          "a",
+          "Field_2",
+          "c"
+        ],
+        []
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "b5d24b701c7385dbf34c709c6202f5f597a20d905ca8a481ae76577fc6e6ad67"
+    },
+    {
+      "tool_id": 55,
+      "anchor": "Output26",
+      "probe": "classic-export/node55-anchor1.yxdb",
+      "sha256": "5db0d3c993d1e2a5de46ce7181ea60fbac638d265d09419fd3fafe12d36cd9bb",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "null_col",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "Foo",
+          "str",
+          null,
+          null
+        ],
+        [
+          null,
+          "kept",
+          null,
+          null
+        ],
+        [
+          "",
+          null,
+          null,
+          ""
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "label",
+          "keep",
+          "null_col",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null,
+            null
+          ],
+          [
+            "Foo",
+            "str",
+            null,
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": false,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match_after_reorder",
+      "amp_source_probe_sha256": "5046d8038e56fe901cbd46af430d7c200ffc41947e60f467130b579e810673c2"
+    },
+    {
+      "tool_id": 56,
+      "anchor": "Output26",
+      "probe": "classic-export/node56-anchor1.yxdb",
+      "sha256": "bac3a3bfc6bbe2038afffabfb935cdad9d9a5225b3dba7c61ecaa0f96e0d04a7",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "keep",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        },
+        {
+          "name": "empty_col",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          null,
+          "kept",
+          null
+        ],
+        [
+          null,
+          null,
+          null
+        ],
+        [
+          "",
+          null,
+          ""
+        ],
+        [
+          "Foo",
+          "str",
+          null
+        ]
+      ],
+      "phase_one": [
+        [
+          "label",
+          "keep",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label",
+          "keep",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            "",
+            null,
+            ""
+          ],
+          [
+            "Foo",
+            "str",
+            null
+          ]
+        ]
+      ],
+      "standalone_csv": [
+        [
+          "label",
+          "keep",
+          "empty_col"
+        ],
+        [
+          [
+            null,
+            "kept",
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            null,
+            null,
+            null
+          ],
+          [
+            "Foo",
+            "str",
+            null
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": false,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "4b1ac141905508ee4aa9e937d611d5f750bfd98e06bb70aa50714f066cab4d8f"
+    },
+    {
+      "tool_id": 57,
+      "anchor": "Output26",
+      "probe": "classic-export/node57-anchor1.yxdb",
+      "sha256": "afa0aa99ebd1ab2c13f578f27f97c228e72f455e9265adefe9193a20a76bae3f",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "12hello O’Neil Word-word (Word Île _Dash) 中文abc"
+        ],
+        [
+          "　  Padded  　"
+        ]
+      ],
+      "phase_one": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hello O’Neil Word-word (Word Île _Dash) 中文abc"
+          ],
+          [
+            "　  Padded  　"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hello O’Neil Word-word (Word Île _Dash) 中文abc"
+          ],
+          [
+            "　  Padded  　"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "ec9387c1dd1dad97902b5704b4c569c61c69d09cb96b4fb3f6e44991a9fa4932"
+    },
+    {
+      "tool_id": 58,
+      "anchor": "Output26",
+      "probe": "classic-export/node58-anchor1.yxdb",
+      "sha256": "50bed1a405eea1fb7e4859777e121f14e781bcc04b0da02c675af34dc3408bad",
+      "designer_schema": [
+        {
+          "name": "label",
+          "type": "V_WString",
+          "size": "254",
+          "scale": null
+        }
+      ],
+      "designer_rows": [
+        [
+          "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+        ],
+        [
+          "　  padded  　"
+        ]
+      ],
+      "phase_one": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+          ],
+          [
+            "　  padded  　"
+          ]
+        ]
+      ],
+      "phase_two": [
+        [
+          "label"
+        ],
+        [
+          [
+            "12hELLo O’NEIL word-WORD (WorD ÎLE _DASH) 中文ABC"
+          ],
+          [
+            "　  padded  　"
+          ]
+        ]
+      ],
+      "designer_phase_one_match": true,
+      "phase_one_phase_two_match": true,
+      "standalone_matches_phase_two": true,
+      "designer_phase_one_status": "match",
+      "amp_source_probe_sha256": "77210bab7cc2bdab95448957982f73883ef820a72ef0c6e211638f67f2686d15"
+    }
+  ],
+  "standalone_csv_process": "success",
+  "inputs": {
+    "input1.csv": "dee2ee5dd1114fbdc97b69f326785db8895b66f150b9ad42775ebe74da944bc7",
+    "input2.csv": "814f8a507b1ae5118632b6c1da8eba70919036c90d6067657337d99a7c7bc9fd",
+    "input3.csv": "d4f5e38ad68a39ddf1b740e352cf28d903ec0d95a8950cadb6f12d9d88316199",
+    "input4.csv": "e721328a01b9249169ae73b35e1185dfbbef86015dd43c11291b42aed1773773",
+    "input41.xlsx": "4246c8898b6479efb15f2c119a50eab5e6a636e8c22a3168c4b40f5097f03e3e",
+    "input42.xlsx": "a277e92e72893a557d6419fb11e65dbc2f8a330a18b551837126f04f48a77f27",
+    "input43.xlsx": "a277e92e72893a557d6419fb11e65dbc2f8a330a18b551837126f04f48a77f27",
+    "input44.xlsx": "0fc9a2ab4df643e3dc7b8cbe3cd19647d6b67322ddf71baa1193972ff5ff2b34",
+    "input45.xlsx": "c31b0df151757271d726d3ea1a6dc83f2f6e4a7ecfc3d7d389e3d7b930cb5bec",
+    "input46.xlsx": "5df88f2c42d1b5242f82038a8183bd36f59f9802f8d20350a03a261706931056",
+    "input47.xlsx": "19daa1f03a9c2a5ca53d16acb9968a12e16fc6e814c76f3957a84cc0fd29e5f0",
+    "input5.csv": "e54b8ef888dfa75a25f913d389a2139e269d2fd52725ffb5552eff20e79485ff",
+    "input50.csv": "a16eb3b28aea3f12bef312d87f46b220731d657bec3422d87f812d6f74a44297",
+    "input51.csv": "465f8bb5d9c7e1c07a44d6899031da8e9682ac7f84f90b5df5e376b57803df27",
+    "input52.csv": "d5ce1ad89ca032f45fc14e697939c67f288ad7e79e641089c342e9f820510839",
+    "input53.csv": "0ead6b96be1ccc1681db8a2b779fe71231ddd195de8e1c82ef0528c641f77085",
+    "input54.csv": "e9885b457eb0355301af76d4330dcaa1bea0864add241cf8afa0e98c61c54d46",
+    "input6.csv": "2df9d93fafd5888f2f0c3c8a33decc4868d94196d1ec27d748f406c3527f4872",
+    "input7.csv": "f1ef9b51b38cd4e924172151c4974c91198bd14ae23ce7695f40c392e2919dfe",
+    "input8.csv": "c16f482293a4051c1bdaa6c57eceeabfdefd037b2d578bfb5bd44b067097f6af"
+  },
+  "input_location": "../",
+  "comparisons": {
+    "match": 39,
+    "match_after_reorder": 3,
+    "mismatch": 0
+  }
+}

@@ -1,6 +1,6 @@
 # Common tool configuration evidence
 
-[The coverage CSV](common-tools-coverage.csv) tracks 806 cases across the 95
+[The coverage CSV](common-tools-coverage.csv) tracks 811 cases across the 95
 selected Designer tools and the related workflow features. Evidence paths are
 relative to the repository root. Designer sample paths are relative to the
 installed `Samples/en` directory. A sample path identifies a candidate for
@@ -16,6 +16,8 @@ testing.
   records the related Python checks.
 - [The installed sample inventory](designer-sample-inventory.json) catalogs
   candidate workflows for 94 of the 95 selected tools.
+- [Blank headers and Data Cleansing](blank-headers-data-cleansing/README.md)
+  compare 42 synthetic output anchors in Classic and another 42 in AMP.
 
 The bundle includes synthetic probes and portable workflow copies. The workflow
 copies use relative input and replay output paths. Recorded workflow hashes

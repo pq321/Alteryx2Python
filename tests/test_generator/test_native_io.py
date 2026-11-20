@@ -168,6 +168,35 @@ def test_excel_range_names_blank_headers_by_selected_position(tmp_path):
     pd.testing.assert_frame_equal(actual, expected, check_exact=True)
 
 
+@pytest.mark.parametrize(
+    "selector,labels,values,names,missing",
+    [
+        ("Data$", ["A", "Unnamed: 1", None, "D"], ["a", "literal", "keep", "d"],
+         ["A", "Unnamed: 1", "F3", "D"], []),
+        ("Data$", ["F2", None, "F3", None], ["a", "b", "c", "d"],
+         ["F2", "F5", "F3", "F4"], []),
+        ("Data$", ["A", None, "C", None], ["a", None, "c", None],
+         ["A", "F2", "C"], [1]),
+        ("Data$A1:D2", ["A", None, "C"], ["a", None, "c"],
+         ["A", "F2", "C", "F4"], [1, 3]),
+    ],
+)
+def test_excel_blank_header_names_and_explicit_range_width(tmp_path, selector, labels, values, names, missing):
+    path = tmp_path / "input.xlsx"
+    pd.DataFrame([labels, values]).to_excel(path, sheet_name="Data", header=False, index=False)
+    settings = {"file": f"input.xlsx|||{selector}", "base_dir": str(tmp_path)}
+    phase_one = dbfileinput_tool({}, settings, WorkflowContext())["Output"]
+    phase_two = _compile("DbFileInput", settings)(input_dir=tmp_path, output_dir=tmp_path)
+    for frame in (phase_one, phase_two):
+        assert frame.columns.tolist() == names
+        assert len(frame) == 1
+        for index in range(len(names)):
+            if index in missing:
+                assert pd.isna(frame.iloc[0, index])
+            else:
+                assert frame.iloc[0, index] == values[index]
+
+
 def test_excel_missing_engine_retains_runtime_blocker(tmp_path, monkeypatch):
     def missing_engine(*args, **kwargs):
         raise ImportError("missing optional engine")
@@ -334,11 +363,31 @@ def test_csv_quoted_empty_fields_preserve_headers_and_multiline_text(tmp_path):
     first = dbfileinput_tool({}, config, WorkflowContext())["Output"]
     second = _compile("DbFileInput", config)(input_dir=tmp_path, output_dir=tmp_path)
     pd.testing.assert_frame_equal(first, second)
-    assert list(second.columns) == ["Unnamed: 0", "Name", "Note"]
+    assert list(second.columns) == ["Field_1", "Name", "Note"]
     assert second.iloc[0].tolist() == ["", "NA", 'line one;"\r\nline two']
     assert pd.isna(second.iloc[1, 0])
     assert second.iloc[1, 1:].tolist() == ["NULL", ""]
     assert second.iloc[2].tolist() == ["__a2p_quoted_empty__", " ", "end"]
+
+
+@pytest.mark.parametrize("limit", [None, "0"])
+@pytest.mark.parametrize(
+    "header,names",
+    [
+        ("Robot,Key,Path,", ["Robot", "Key", "Path", "Field_4"]),
+        ('Name,"", ,Unnamed: 1', ["Name", "Field_2", "Field_3", "Unnamed: 1"]),
+        (",Field_1,,field_3", ["Field_1", "Field_1_2", "Field_3", "field_4"]),
+        ("Field_2,,Field_3,", ["Field_2", "Field_5", "Field_3", "Field_4"]),
+    ],
+)
+def test_csv_blank_headers_use_original_positions_and_native_duplicate_names(tmp_path, limit, header, names):
+    (tmp_path / "input.csv").write_text(f"{header}\na,b,c,d\n", encoding="utf-8")
+    config = {"file": "input.csv", "base_dir": str(tmp_path), "file_attributes": {"RecordLimit": limit}}
+    phase_one = dbfileinput_tool({}, config, WorkflowContext())["Output"]
+    phase_two = _compile("DbFileInput", config)(input_dir=tmp_path, output_dir=tmp_path)
+    for frame in (phase_one, phase_two):
+        assert frame.columns.tolist() == names
+        assert frame.values.tolist() == ([] if limit == "0" else [["a", "b", "c", "d"]])
 
 
 def test_other_tools_are_not_claimed():

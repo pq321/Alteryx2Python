@@ -1,0 +1,3 @@
+# Text Input fixtures preserve literal spaces and tabs before embedded line breaks.
+classic/header-cleansing-classic.yxmd whitespace=cr-at-eol,-blank-at-eol
+amp/header-cleansing-amp.yxmd whitespace=cr-at-eol,-blank-at-eol
