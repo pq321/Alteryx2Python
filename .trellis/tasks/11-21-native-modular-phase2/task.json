@@ -1,0 +1,30 @@
+{
+  "id": "native-modular-phase2",
+  "name": "native-modular-phase2",
+  "title": "Config-decoupled IR-optimized native Python package compiler for Phase 2",
+  "description": "",
+  "status": "planning",
+  "dev_type": null,
+  "scope": null,
+  "package": null,
+  "priority": "P1",
+  "creator": "mingxiao",
+  "assignee": "mingxiao",
+  "createdAt": "2026-11-21",
+  "completedAt": null,
+  "branch": null,
+  "base_branch": "codex/end-to-end-designer-demo",
+  "worktree_path": null,
+  "commit": null,
+  "pr_url": null,
+  "subtasks": [],
+  "children": [
+    "11-21-phase2-ir-optimizer",
+    "11-21-phase2-native-package",
+    "11-21-phase2-boundary-delivery"
+  ],
+  "parent": null,
+  "relatedFiles": [],
+  "notes": "",
+  "meta": {}
+}

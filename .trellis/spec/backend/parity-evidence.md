@@ -55,3 +55,7 @@ inputs must come from the actual caller edges and retain attested file hashes.
 Store repeated and nested Python macro executions under caller ID and
 invocation number. Preserve the distinction between caller-boundary parity
 and parity inside a native macro body.
+
+## 10. Phase 1 vs. Phase 2 boundary delivery
+Phase 1 (`phase_one.py` / `capture_python`) proves node-for-node differential parity against Alteryx Designer. Phase 2 (`verify_delivery` in `alteryx2python/parity/delivery.py`) compiles from the un-staged `original_source` recorded in `native/manifest.json` into `delivery/package/` (`parameter_mode="dynamic"`) so staged snapshot paths (`inputs/1/...`) and single-run Analytic App answers never enter generated `.py` files. Run-specific staged inputs and answers bind externally via `delivery/case_config.json`. Phase 2 verifies end-to-end boundary equivalence (file/report/email sinks, `MacroOutput` boundaries, diagnostics, and lifecycle events) across the primary run plus automatic `parameter_perturbation` and 0-row `empty_input` differential checks without recompiling the package.
+
