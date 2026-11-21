@@ -52,6 +52,8 @@ def _build_parser() -> argparse.ArgumentParser:
     readable.add_argument('--delivery-profile', choices=['html-draft-v1', 'html-smtp-v1', 'xlsx-table-v1'])
     readable.add_argument('--log-event', action='append', default=[], metavar='ID')
     readable.add_argument('--bind-input', action='append', default=[], metavar='NODE_ID=PATH')
+    readable.add_argument('--format', choices=['auto', 'package', 'single-file'], default='auto',
+                          help='Emit a config-decoupled Python package directory or a legacy single-file script')
     readable.set_defaults(func=_readable_command)
     benchmark = subparsers.add_parser('benchmark', help='Build or verify the deterministic two-phase benchmark')
     benchmark.add_argument('action', choices=['build', 'run', 'inventory'])
@@ -1193,6 +1195,7 @@ def _command_error_report(
 
 
 def _readable_command(args):
+    from alteryx2python.generator.package_compiler import ModularPackageGenerator
     from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one, workflow_from_dict
     from alteryx2python.input_bindings import parse_input_bindings
     source = Path(args.source)
@@ -1204,11 +1207,27 @@ def _readable_command(args):
         workflow = XmlWorkflowParser().parse(source)
     answers = json.loads(Path(args.answers).read_text(encoding='utf-8-sig')) if args.answers else None
     constants = json.loads(Path(args.constants).read_text(encoding='utf-8-sig')) if args.constants else None
+    fmt = getattr(args, 'format', 'auto')
+    use_package = fmt == 'package' or (
+        fmt == 'auto' and not str(args.output).lower().endswith('.py') and args.parameter_mode != 'reusable'
+    )
+    if use_package:
+        artifact = ModularPackageGenerator().generate(
+            workflow, answers=answers, constants=constants,
+            parameter_mode='dynamic' if args.parameter_mode == 'reusable' else args.parameter_mode,
+            delivery_profile=args.delivery_profile, log_event_ids=args.log_event,
+            input_bindings=parse_input_bindings(args.bind_input),
+        )
+        paths = artifact.write(args.output)
+        return {'status': 'generated', 'phase': 2, 'format': 'package',
+                'files': [str(path.resolve()) for path in paths],
+                'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0
     artifact = ReadablePythonGenerator().generate(workflow, answers=answers, constants=constants,
         parameter_mode=args.parameter_mode, delivery_profile=args.delivery_profile, log_event_ids=args.log_event,
         input_bindings=parse_input_bindings(args.bind_input))
     paths = artifact.write(args.output)
-    return {'status': 'generated', 'phase': 2, 'files': [str(path.resolve()) for path in paths],
+    return {'status': 'generated', 'phase': 2, 'format': 'single-file',
+            'files': [str(path.resolve()) for path in paths],
             'nodes': len(artifact.manifest['nodes']), 'native_equivalence': 'unverified'}, 0
 
 

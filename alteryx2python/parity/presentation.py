@@ -529,8 +529,15 @@ def _deliver(args, case):
     report_path = Path(selection["report"])
     result = _read(report_path)
     directory = report_path.parent
-    script = directory / "phase_two.py"
-    manifest_path = directory / "phase_two.manifest.json"
+    pkg_script = directory / "package" / "pipeline.py"
+    pkg_manifest = directory / "package" / "manifest.json"
+    pkg_config = directory / "package" / "config.toml"
+    if pkg_script.is_file() and pkg_manifest.is_file():
+        script = pkg_script
+        manifest_path = pkg_manifest
+    else:
+        script = directory / "phase_two.py"
+        manifest_path = directory / "phase_two.manifest.json"
     has_script = script.is_file() and manifest_path.is_file()
     node_id = args.node or selection.get("node")
     nodes = _read(manifest_path)["nodes"] if has_script else []
@@ -546,6 +553,7 @@ def _deliver(args, case):
     lines = [
         f'Overall: {result["status"]} | Standalone: {result["standalone_execution"]}',
         (f'Phase 2: {script}' + (f':{line} (node {node_id})' if line else "")) if has_script else 'Phase 2 code unavailable.',
+        *([f"Config: {pkg_config}"] if pkg_config.is_file() else []),
         f'Acceptance report: {report_path}',
     ]
     if pairs:

@@ -137,6 +137,19 @@ def compile_workflow(graph, base_dir):
                    "input_bindings": settings["input_bindings"], "log_event_ids": settings["log_event_ids"]}
         artifact = ReadablePythonGenerator().generate(workflow, **options)
         result.update(python=artifact.source, manifest=artifact.manifest, phase2Status="compiled")
+        try:
+            from alteryx2python.generator.package_compiler import ModularPackageGenerator
+
+            pkg_options = {**options, "parameter_mode": "dynamic" if options["parameter_mode"] == "reusable" else options["parameter_mode"]}
+            pkg_artifact = ModularPackageGenerator().generate(workflow, **pkg_options)
+            result.update(
+                package=pkg_artifact.files,
+                configToml=pkg_artifact.config_toml,
+                pipelinePython=pkg_artifact.source,
+                packageManifest=pkg_artifact.manifest,
+            )
+        except (UnsupportedLowering, NotImplementedError, ImportError, UnsupportedExpressionError):
+            pass
     except (UnsupportedLowering, NotImplementedError, ImportError, UnsupportedExpressionError) as exc:
         result["unsupported"] = [str(exc)]
         result["blockers"] = [{"code": "phase2_unsupported", "errorType": type(exc).__name__, "message": str(exc)}]

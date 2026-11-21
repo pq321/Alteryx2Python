@@ -172,7 +172,6 @@ def test_complex_expression_fixture_matches_reference_and_delivered_python(tmp_p
 
 
 def test_seven_app_input_types_match_handwritten_python_with_one_reusable_script(tmp_path):
-    import re
     import subprocess
     import sys
     from examples.python_pipeline_comparison.app_reference import run_report
@@ -182,33 +181,31 @@ def test_seven_app_input_types_match_handwritten_python_with_one_reusable_script
     result = compare_app(directory)
     assert result["status"] == "match"
     assert [case["records"] for case in result["cases"]] == [1, 2, 0]
+    assert len({item["pipeline_sha256"] for item in result["cases"]}) == 1
     case = directory / "defaults"
-    script = Path(result["phase_two_script"]).read_text(encoding="utf-8")
-    assert len({item["phase_two_sha256"] for item in result["cases"]}) == 1
-    assert not (directory / "alternate/delivery/phase_two.py").exists()
-    assert 'region_filter_value =' not in script
-    assert ".eq(region)" in script and "row['region']" in script
-    assert "include_archived=False" not in script
+    pkg_dir = case / "delivery/package"
+    script = (pkg_dir / "pipeline.py").read_text(encoding="utf-8")
+    config_toml = (pkg_dir / "config.toml").read_text(encoding="utf-8")
+    assert "_appendfields_append_rows" not in script
+    assert "reference_data" not in script
+    assert "alteryx_schema" not in script
+    assert "trades.csv" not in script
     assert str(directory) not in script and "2026-11-18" not in script and "'Reviewed'" not in script
+    assert 'region = "APAC"' in config_toml
     answers = {**result["cases"][0]["answers"], "region": "EMEA",
                "input_file": str(directory / "trades.csv"), "report_folder": str(directory / "reports-a")}
     run_report(answers, tmp_path / "expected")
-    guard = re.search(r"(?m)^( +)if (\w+)\.columns\.is_unique", script)
-    assert guard
-    for label, dtype in (("pandas", "string"), ("row", "object")):
-        indent, frame = guard.groups()
-        # Exercise each equivalent branch with its real dtype guard.
-        cast = "".join(f"{indent}{frame}[{field!r}] = {frame}[{field!r}].astype({target!r})\n"
-                       for field, target in (("status", "string"), ("include_flag", "string"), ("region", dtype)))
-        executable = tmp_path / f"{label}.py"
-        executable.write_text(script[:guard.start()] + cast + script[guard.start():], encoding="utf-8")
-        output = tmp_path / label
-        process = subprocess.run([sys.executable, "-I", str(executable), "--bindings",
-                                  str(case / "delivery/phase-two-bindings.json"), "--region", "EMEA",
-                                  "--output-file-8", str(output / "report.csv")],
-                                 cwd=tmp_path, capture_output=True, timeout=60)
-        assert process.returncode == 0, process.stderr
-        assert _read_csv(output / "report.csv") == _read_csv(tmp_path / "expected/report.csv")
+    case_cfg = json.loads((case / "delivery/case_config.json").read_text(encoding="utf-8"))
+    case_cfg.setdefault("parameters", {})["region"] = "EMEA"
+    override_cfg = tmp_path / "emea_override.json"
+    override_cfg.write_text(json.dumps(case_cfg), encoding="utf-8")
+    output = tmp_path / "emea_out"
+    process = subprocess.run(
+        [sys.executable, "-I", str(pkg_dir), "--config", str(override_cfg), "--input-dir", str(case), "--output-dir", str(output)],
+        cwd=tmp_path, capture_output=True, timeout=60, check=False,
+    )
+    assert process.returncode == 0, process.stderr
+    assert _read_csv(output / "report.csv") == _read_csv(tmp_path / "expected/report.csv")
 
 
 @pytest.mark.parametrize('expression', ['[Engine.WorkflowDirectory]', '"%Engine.WorkflowDirectory%"'])

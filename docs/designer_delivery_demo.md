@@ -59,9 +59,9 @@ side of Record ID node 138 and inspect the Configuration XML. It shows
 | --- | --- |
 | `acceptance.json` | All three stages report `match`, with source and Python hashes. |
 | `native-vs-phase-one.json` | Probe comparisons by node, direction and anchor, including the output from tool 138. |
-| `phase-one-vs-phase-two.json` | Generated Phase One and Phase Two checkpoints and output hashes. |
-| `phase_one.py`, `phase_two.py` | The two generated programs. Ship `phase_two.py` with its Python dependencies and any workflow input files. |
-| `standalone.json`, `delivery-output/grouped-records.csv` | The exit code, hash and bytes from running the shipped Phase Two file in a separate Python process. |
+| `phase-one-vs-phase-two.json` | End-to-end boundary differential results (primary, parameter-perturbation, and empty-input cases) and output hashes. |
+| `phase_one.py`, `package/` | Phase One script and the config-decoupled Phase Two Python package (`package/pipeline.py`, `package/config.toml`, `package/cli.py`, `package/io_utils.py`, plus `case_config.json`). |
+| `standalone.json`, `delivery-output/grouped-records.csv` | The exit code, hash and bytes from running the shipped Phase Two package in a separate Python process. |
 
 On 2026-11-16, the installed sample produced 6 records across 4 regions in
 Designer 2025.1 using AMP. Eight native comparisons matched by value and

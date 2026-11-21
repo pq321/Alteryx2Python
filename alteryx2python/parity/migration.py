@@ -378,6 +378,14 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         item["snapshot"]: {"source": item["source"], "consumers": item["consumers"]}
         for snapshots in (entries, templates) for item in snapshots.values()
     }
+    manifest["original_source"] = str(source)
+    manifest["original_source_sha256"] = file_hash(source)
+    manifest["staged_input_nodes"] = {
+        consumer["node_id"]: item["snapshot"]
+        for item in entries.values()
+        for consumer in item.get("consumers", ())
+        if consumer.get("tool") == "Input Data" and consumer.get("node_id")
+    }
     write_json(native / "manifest.json", manifest)
     plan = directory / "designer-plan.json"
     write_json(plan, [{"status": "ready", "workflow": str(staged), "run_dir": str(native)}])

@@ -2,35 +2,46 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+from datetime import datetime
 import json
+from pathlib import Path, PureWindowsPath
 import runpy
 import subprocess
 import sys
-from datetime import datetime
-from pathlib import Path, PureWindowsPath
+import tempfile
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
 
 from openpyxl.utils.exceptions import InvalidFileException
 
 from alteryx2python.comparison.workbook import first_workbook_difference
-
+from alteryx2python.generator.package_compiler import ModularPackageGenerator, PackageArtifact
+from alteryx2python.generator.parameters import _alternate
 from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
 from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
+from alteryx2python.runtime.app_config import question_manifest
 from alteryx2python.tools.delivery import XLSX_PROFILE
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 from .behavior import changed_artifacts
+from .checkpoints import checkpoint_policy
 from .local_adapters import project_report_snapshot, workbook_artifacts
 from .runner import (
-    capture_python, collect_native, compare_runs, file_artifacts, file_hash, prepare,
-    sink_digest, verify_manifest, write_json,
+    capture_python,
+    collect_native,
+    compare_runs,
+    file_artifacts,
+    file_hash,
+    prepare,
+    sink_digest,
+    verify_manifest,
+    write_json,
 )
-from .table_reports import write_table_reports
-from .checkpoints import checkpoint_policy
 from .snapshot import frame_snapshot
+from .table_reports import write_table_reports
 
 
 def prepare_record_id_demo(sample: Path, destination: Path) -> dict:
@@ -76,7 +87,6 @@ def _compare_checkpoints(baseline, checkpoints, omitted=()):
             findings.append({"node_id": node_id, "status": "missing_node"})
             continue
         expected = node["outputs"]
-        # The runtime compatibility return from Output Data is not an Alteryx port.
         observed = {} if node["tool_type"] == "DbFileOutput" else {
             anchor: frame_snapshot(frame) for anchor, frame in frames.items()
         }
@@ -184,6 +194,299 @@ def _describe_native_artifacts(findings, manifest, native_directory, phase_one_d
             item["detail"] = detail
 
 
+def _build_case_overrides(
+    artifact: PackageArtifact,
+    *,
+    staged_dir: Path,
+    staged_input_nodes: dict[str, str],
+    answers: dict | None,
+) -> dict:
+    overrides: dict = {}
+    in_overrides: dict = {}
+    for node_id, rel_staged in staged_input_nodes.items():
+        in_key = artifact.config_spec.input_key_by_node.get(str(node_id))
+        if in_key:
+            entry = artifact.config_spec.inputs[in_key]
+            staged_abs = str((staged_dir / rel_staged.partition("|||")[0]).resolve())
+            in_overrides[in_key] = {"path": staged_abs}
+            if entry.get("parameter"):
+                overrides.setdefault("parameters", {})[entry["parameter"]] = staged_abs
+    if in_overrides:
+        overrides["inputs"] = in_overrides
+
+    if answers:
+        param_overrides = overrides.setdefault("parameters", {})
+        for q_name, val in answers.items():
+            py_name = artifact.config_spec.python_param_names.get(q_name)
+            if py_name and val is not None:
+                param_overrides[py_name] = val
+    return overrides
+
+
+def _compile_delivery_package(
+    manifest: dict,
+    phase_one_path: Path,
+    *,
+    staged_dir: Path,
+    answers: dict | None,
+    log_event_ids: list[str],
+    delivery_profile: str | None,
+    first_capture: dict,
+) -> tuple[PackageArtifact, dict]:
+    """Compile Phase 2 package from un-staged original workflow whenever available."""
+    orig_path = Path(manifest["original_source"]) if manifest.get("original_source") else None
+    if orig_path is not None and orig_path.is_file():
+        if manifest.get("original_source_sha256") and file_hash(orig_path) != manifest["original_source_sha256"]:
+            raise ValueError(f"Original workflow changed after preparation: {orig_path}")
+        compile_wf = XmlWorkflowParser().parse(orig_path)
+    else:
+        compile_wf = read_phase_one(phase_one_path)
+
+    staged_input_nodes = manifest.get("staged_input_nodes") or {}
+    generator = ModularPackageGenerator()
+    try:
+        initial = generator.generate(
+            compile_wf,
+            parameter_mode="dynamic",
+            delivery_profile=delivery_profile,
+            log_event_ids=log_event_ids,
+        )
+        mode_used = "dynamic"
+    except UnsupportedLowering:
+        initial = generator.generate(
+            compile_wf,
+            answers=answers,
+            parameter_mode="specialized",
+            delivery_profile=delivery_profile,
+            log_event_ids=log_event_ids,
+        )
+        mode_used = "specialized"
+
+    case_overrides = _build_case_overrides(
+        initial,
+        staged_dir=staged_dir,
+        staged_input_nodes=staged_input_nodes,
+        answers=answers,
+    )
+
+    if first_capture.get("status") == "success" and first_capture.get("sink_artifacts") and not delivery_profile:
+        artifact = generator.generate(
+            compile_wf,
+            answers=answers if mode_used == "specialized" else None,
+            parameter_mode=mode_used,
+            delivery_profile=delivery_profile,
+            log_event_ids=log_event_ids,
+            reference_capture=first_capture,
+            reference_input_dir=staged_dir,
+            reference_overrides=case_overrides,
+        )
+    else:
+        artifact = initial
+    artifact.manifest["parameter_mode"] = mode_used
+    return artifact, case_overrides
+
+
+def _run_package_subprocess(
+    pkg_dir: Path,
+    *,
+    config_path: Path,
+    input_dir: Path,
+    output_dir: Path,
+    events_dir: Path,
+    commands: tuple[str, ...],
+    log_args: list[str],
+    as_of: str | None,
+    timeout: float,
+) -> subprocess.CompletedProcess:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    events_dir.mkdir(parents=True, exist_ok=True)
+    return subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            str(pkg_dir),
+            "--config",
+            str(config_path),
+            "--input-dir",
+            str(input_dir),
+            "--output-dir",
+            str(output_dir),
+            "--event-working-dir",
+            str(events_dir),
+            "--command-working-dir",
+            str(output_dir),
+            *[part for command in commands for part in ("--allow-command", command)],
+            *log_args,
+            *(["--as-of", as_of] if as_of else []),
+        ],
+        capture_output=True,
+        timeout=timeout,
+        cwd=output_dir,
+        check=False,
+    )
+
+
+def _run_additional_boundary_cases(
+    *,
+    staged_source: Path,
+    pkg_dir: Path,
+    artifact: PackageArtifact,
+    base_overrides: dict,
+    answers: dict | None,
+    commands: tuple[str, ...],
+    sink_names: dict[str, str],
+    xlsx_sinks: set[str],
+    as_of: str | None,
+    timeout: float,
+) -> dict[str, dict]:
+    """Verify parameter perturbation and 0-row empty input cases WITHOUT recompiling Phase 2."""
+    results: dict[str, dict] = {}
+    if artifact.manifest.get("parameter_mode") != "dynamic":
+        return results
+
+    if staged_source.suffix.lower() == ".yxwz" and staged_source.is_file():
+        questions = question_manifest(ET.fromstring(staged_source.read_bytes()))
+        scalar_qs = [
+            q for q in questions
+            if q.kind not in {"FileBrowse", "QuestionFileBrowse", "FolderBrowse"}
+            and q.name in artifact.config_spec.python_param_names
+        ]
+        if scalar_qs and answers:
+            perturbed_answers = dict(answers)
+            changed_any = False
+            for q in scalar_qs:
+                try:
+                    alt = _alternate(q, answers[q.name])
+                except Exception:
+                    continue
+                if alt != answers[q.name]:
+                    perturbed_answers[q.name] = alt
+                    changed_any = True
+                    break
+            if changed_any:
+                with tempfile.TemporaryDirectory() as tmp:
+                    tmp_root = Path(tmp)
+                    p1_capture = capture_python(
+                        staged_source,
+                        output_directory=tmp_root / "p1_out",
+                        answers=perturbed_answers,
+                        event_commands=commands,
+                        as_of=as_of,
+                    )
+                    if p1_capture["status"] == "success":
+                        p1_files = {sink_names[nid]: digest for nid, digest in p1_capture["sink_artifacts"].items() if nid in sink_names}
+                        pert_overrides = deepcopy(base_overrides)
+                        for q_n, val in perturbed_answers.items():
+                            py_n = artifact.config_spec.python_param_names.get(q_n)
+                            if py_n:
+                                pert_overrides.setdefault("parameters", {})[py_n] = val
+                        cfg_path = tmp_root / "perturbed_config.json"
+                        cfg_path.write_text(json.dumps(pert_overrides), encoding="utf-8")
+                        p2_out = tmp_root / "p2_out"
+                        proc = _run_package_subprocess(
+                            pkg_dir,
+                            config_path=cfg_path,
+                            input_dir=staged_source.parent,
+                            output_dir=p2_out,
+                            events_dir=p2_out,
+                            commands=commands,
+                            log_args=[],
+                            as_of=as_of,
+                            timeout=timeout,
+                        )
+                        p2_files = _delivery_artifacts(p2_out, xlsx_sinks)
+                        results["parameter_perturbation"] = {
+                            "status": "match" if proc.returncode == 0 and p1_files == p2_files else "mismatch",
+                            "phase_one_files": p1_files,
+                            "phase_two_files": p2_files,
+                        }
+
+    csv_inputs = {
+        k: v for k, v in artifact.config_spec.inputs.items()
+        if v.get("format") == "csv" and v.get("has_header", True)
+    }
+    if csv_inputs and not commands:
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_root = Path(tmp)
+            empty_wf_dir = tmp_root / "wf"
+            empty_wf_dir.mkdir()
+            wf_tree = ET.parse(staged_source)
+            can_empty = True
+            empty_overrides = deepcopy(base_overrides)
+
+            for nid, in_key in artifact.config_spec.input_key_by_node.items():
+                if in_key not in csv_inputs:
+                    continue
+                entry = csv_inputs[in_key]
+                override_path_str = (base_overrides.get("inputs", {}).get(in_key, {}) or {}).get("path")
+                param_key = entry.get("parameter")
+                if not override_path_str and param_key:
+                    override_path_str = (base_overrides.get("parameters", {}) or {}).get(param_key)
+                actual_src = Path(override_path_str) if override_path_str else (staged_source.parent / entry["path"])
+                if not actual_src.is_absolute():
+                    actual_src = (staged_source.parent / actual_src).resolve()
+                if not actual_src.is_file():
+                    can_empty = False
+                    break
+                first_line = actual_src.read_bytes().splitlines(keepends=True)[:1]
+                if not first_line:
+                    can_empty = False
+                    break
+                header_file = empty_wf_dir / f"empty_{nid}.csv"
+                header_file.write_bytes(first_line[0] if first_line[0].endswith((b"\n", b"\r")) else first_line[0] + b"\n")
+
+                for el in wf_tree.iter("Node"):
+                    if el.get("ToolID") == str(nid):
+                        f_el = el.find("Properties/Configuration/File")
+                        if f_el is not None:
+                            f_el.text = str(header_file)
+                empty_overrides.setdefault("inputs", {})[in_key] = {"path": str(header_file)}
+                if param_key:
+                    empty_overrides.setdefault("parameters", {})[param_key] = str(header_file)
+
+            empty_answers = dict(answers) if answers else None
+            if empty_answers:
+                for q in (question_manifest(wf_tree.getroot()) if staged_source.suffix.lower() == ".yxwz" else []):
+                    if q.kind in {"FileBrowse", "QuestionFileBrowse"} and q.name in artifact.config_spec.python_param_names:
+                        py_n = artifact.config_spec.python_param_names[q.name]
+                        if py_n in empty_overrides.get("parameters", {}):
+                            empty_answers[q.name] = empty_overrides["parameters"][py_n]
+
+            if can_empty:
+                empty_wf_path = empty_wf_dir / staged_source.name
+                wf_tree.write(empty_wf_path, encoding="utf-8", xml_declaration=True)
+                p1_empty = capture_python(
+                    empty_wf_path,
+                    output_directory=tmp_root / "p1_empty",
+                    answers=empty_answers,
+                    as_of=as_of,
+                )
+                if p1_empty["status"] == "success":
+                    p1_files = {sink_names[nid]: digest for nid, digest in p1_empty["sink_artifacts"].items() if nid in sink_names}
+                    cfg_path = tmp_root / "empty_config.json"
+                    cfg_path.write_text(json.dumps(empty_overrides), encoding="utf-8")
+                    p2_empty = tmp_root / "p2_empty"
+                    proc = _run_package_subprocess(
+                        pkg_dir,
+                        config_path=cfg_path,
+                        input_dir=empty_wf_dir,
+                        output_dir=p2_empty,
+                        events_dir=p2_empty,
+                        commands=(),
+                        log_args=[],
+                        as_of=as_of,
+                        timeout=timeout,
+                    )
+                    p2_files = _delivery_artifacts(p2_empty, xlsx_sinks)
+                    results["empty_input"] = {
+                        "status": "match" if proc.returncode == 0 and p1_files == p2_files else "mismatch",
+                        "phase_one_files": p1_files,
+                        "phase_two_files": p2_files,
+                    }
+
+    return results
+
+
 def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False,
                     table_selection: tuple[str | None, str | None] | None = None) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
@@ -197,7 +500,6 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     as_of = manifest.get("as_of") or datetime.now().isoformat(sep=" ", timespec="seconds")
     if render_folders:
         observable = True
-    # Scope this proof to sinks whose output locations the capture manifest can identify.
     sink_names = {
         node.node_id: PureWindowsPath(node.config["normalized"]["file"].split("|||", 1)[0]).name
         for node in workflow.nodes if node.node_id in manifest.get("sink_files", {})
@@ -271,25 +573,156 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
         phase_one_ir = read_phase_one(phase_one)
-        compile_options = {"answers": answers, "log_event_ids": log_event_ids,
-                           "delivery_profile": XLSX_PROFILE if render_folders else None}
-        try:
-            artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="reusable", **compile_options)
-        except UnsupportedLowering as error:
-            report["phase_two_reuse_blocker"] = str(error)
-            artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="specialized", **compile_options)
-        report["phase_two_mode"] = artifact.manifest["parameter_mode"]
+        delivery_profile = XLSX_PROFILE if render_folders else None
+        compile_options = {"answers": answers, "log_event_ids": log_event_ids, "delivery_profile": delivery_profile}
+
+        # Preserve single-file transform metadata when supported so legacy transform callers stay working
+        legacy_artifact = None
         delivered = destination / "phase_two.py"
-        artifact.write(delivered)
-        report["phase_two_sha256"] = file_hash(delivered)
         bindings = None
         delivery_dir = destination / "delivery-output"
-        if "reusable" in artifact.manifest:
-            bindings = destination / "phase-two-bindings.json"
-            write_json(bindings, reusable_arguments(artifact.manifest, workflow, answers, delivery_dir, as_of))
-            report["phase_two_bindings"] = str(bindings)
+        try:
+            try:
+                legacy_artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="reusable", **compile_options)
+            except UnsupportedLowering as error:
+                report["phase_two_reuse_blocker"] = str(error)
+                legacy_artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="specialized", **compile_options)
+            report["phase_two_mode"] = legacy_artifact.manifest["parameter_mode"]
+            legacy_artifact.write(delivered)
+            report["phase_two_sha256"] = file_hash(delivered)
+            if "reusable" in legacy_artifact.manifest:
+                bindings = destination / "phase-two-bindings.json"
+                write_json(bindings, reusable_arguments(legacy_artifact.manifest, workflow, answers, delivery_dir, as_of))
+                report["phase_two_bindings"] = str(bindings)
+        except (UnsupportedLowering, NotImplementedError, ValueError):
+            legacy_artifact = None
+
         expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
         expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
+
+        pkg_artifact = None
+        case_overrides = None
+        if not manifest.get("dynamic_inputs") and first["status"] == "success":
+            try:
+                pkg_artifact, case_overrides = _compile_delivery_package(
+                    manifest,
+                    phase_one,
+                    staged_dir=source.parent,
+                    answers=answers,
+                    log_event_ids=log_event_ids,
+                    delivery_profile=delivery_profile,
+                    first_capture=first,
+                )
+            except (UnsupportedLowering, NotImplementedError):
+                pkg_artifact = None
+
+        if pkg_artifact is not None and case_overrides is not None:
+            pkg_dir = destination / "package"
+            pkg_artifact.write(pkg_dir)
+            case_config_path = destination / "case_config.json"
+            write_json(case_config_path, case_overrides)
+            report["phase_two_package"] = str(pkg_dir)
+            report["phase_two_sha256"] = pkg_artifact.manifest["generated_sha256"]
+
+            delivery_events = delivery_dir / "events" if commands else delivery_dir
+            process = _run_package_subprocess(
+                pkg_dir,
+                config_path=case_config_path,
+                input_dir=source.parent,
+                output_dir=delivery_dir,
+                events_dir=delivery_events,
+                commands=commands,
+                log_args=log_args,
+                as_of=as_of,
+                timeout=timeout,
+            )
+            (destination / "standalone.stdout.txt").write_bytes(process.stdout)
+            (destination / "standalone.stderr.txt").write_bytes(process.stderr)
+            stderr_lines = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
+            failure_kind = stderr_lines[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr_lines else None
+            observed_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
+
+            workbook_result = {}
+            file_differences = []
+            if "workbooks" in first:
+                rendered = {name: digest for name, digest in workbook_artifacts(delivery_dir).items() if name not in expected_files}
+                observed_files = {name: digest for name, digest in observed_files.items() if name not in rendered}
+                workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
+                for name, change in changed_artifacts(first["workbooks"], rendered):
+                    file_differences.append({
+                        "filename": name, "status": change,
+                        "detail": _workbook_detail(destination / "phase-one-output" / "render" / name, delivery_dir / name)
+                        if change == "different" else None,
+                    })
+                workbook_match = bool(rendered) and first["workbooks"] == rendered
+            else:
+                workbook_match = True
+
+            for name, change in changed_artifacts(expected_files, observed_files):
+                file_differences.append({"filename": name, "status": change})
+
+            outcome_matches = process.returncode == 0
+            has_evidence = bool(expected_files or workbook_result) or not observable
+            logging_match = _match_logging_events(report.get("logging_events"), phase_two_log, first)
+
+            boundary_cases: dict[str, dict] = {}
+            if outcome_matches and expected_files == observed_files and workbook_match and not delivery_profile:
+                boundary_cases = _run_additional_boundary_cases(
+                    staged_source=source,
+                    pkg_dir=pkg_dir,
+                    artifact=pkg_artifact,
+                    base_overrides=case_overrides,
+                    answers=answers,
+                    commands=commands,
+                    sink_names=sink_names,
+                    xlsx_sinks=xlsx_sinks,
+                    as_of=as_of,
+                    timeout=timeout,
+                )
+
+            extra_ok = all(item["status"] == "match" for item in boundary_cases.values())
+            p2_status = (
+                "mismatch"
+                if not outcome_matches or expected_files != observed_files or not logging_match or not workbook_match or not extra_ok
+                else ("match" if has_evidence else "incomplete")
+            )
+
+            if p2_status == "match":
+                pkg_artifact.manifest["python_differential"] = "verified"
+                (pkg_dir / "manifest.json").write_text(
+                    json.dumps(pkg_artifact.manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+                )
+
+            phase_two_result = {
+                "profile": "boundary_package",
+                "status": p2_status,
+                "returncode": process.returncode,
+                "phase_one_outcome": first["status"],
+                "phase_two_failure_type": failure_kind if process.returncode else None,
+                "phase_one_files": expected_files,
+                "phase_two_files": observed_files,
+                "file_differences": file_differences,
+                "boundary_cases": boundary_cases,
+                **workbook_result,
+                **({"logging_events": logging_evidence} if log_event_ids else {}),
+            }
+            write_json(destination / "phase-one-vs-phase-two.json", phase_two_result)
+            write_json(destination / "standalone.json", {
+                "returncode": process.returncode,
+                "outputs": observed_files,
+                "status": p2_status,
+                **({"logging_events": logging_evidence} if log_event_ids else {}),
+            })
+            report["phase_one_vs_phase_two"] = p2_status
+            report["standalone_execution"] = p2_status
+            status = report["native_vs_phase_one"]
+            report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match"
+                                else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
+            write_json(destination / "acceptance.json", report)
+            return report
+
+        if legacy_artifact is None:
+            raise UnsupportedLowering("Workflow could not be compiled by either modular package or legacy Phase 2 compiler")
         if observable:
             report.update(_verify_observable(
                 delivered, source.parent, destination, commands, timeout, first, expected_files,
@@ -305,16 +738,16 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         verification_events = verification_dir / "events" if commands else verification_dir
         verification_events.mkdir(parents=True)
         namespace = {"__name__": "delivery_verification", "__file__": str(delivered)}
-        exec(compile(artifact.verification_source, str(delivered), "exec"), namespace)
+        exec(compile(legacy_artifact.verification_source, str(delivered), "exec"), namespace)
         checkpoints = {}
         verification_arguments = (
-            reusable_arguments(artifact.manifest, workflow, answers, verification_dir, as_of)
+            reusable_arguments(legacy_artifact.manifest, workflow, answers, verification_dir, as_of)
             if bindings else dict(input_dir=source.parent, output_dir=verification_dir, allowed_commands=commands,
                                   event_working_dir=verification_events, command_working_dir=verification_dir,
                                   as_of=as_of)
         )
         namespace["run_workflow"](**verification_arguments, checkpoints=checkpoints)
-        findings = _compare_checkpoints(first["nodes"], checkpoints, artifact.manifest.get("reusable", {}).get("omitted_nodes", ()))
+        findings = _compare_checkpoints(first["nodes"], checkpoints, legacy_artifact.manifest.get("reusable", {}).get("omitted_nodes", ()))
         phase_two_files = _delivery_artifacts(verification_dir, xlsx_sinks)
         phase_two_result = {
             "nodes": findings, "phase_one_files": expected_files, "phase_two_files": phase_two_files,
