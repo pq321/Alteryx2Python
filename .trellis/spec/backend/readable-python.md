@@ -70,8 +70,9 @@ changed without recompilation; typed overflow/truncation; source overwrite gates
   - Fold private 1-row `TextInput + AppendFields` parameter patterns into scalar parameters in general dynamic mode.
   - Algebraically compose consecutive `Select -> Select` chains (unless intermediate narrow cast/truncation would be lost), fuse consecutive single-consumer `Formula` nodes and single-branch `Filter` nodes, inline 1-call Standard Macros, deduplicate 2+-call Standard Macros into `macros/<key>.py`, and lower `BatchMacro` / `IterativeMacro` to explicit loop modules in `macros/<key>.py`.
 - **Adaptive Self-Contained Package Layout**:
-  - Always emit `__init__.py`, `__main__.py`, `config.toml`, `pipeline.py`, `cli.py`, `io_utils.py`, `manifest.json`, and `workflow.ir.json`.
+  - Always emit `__init__.py`, `__main__.py`, `config.toml`, `audit_utils.py`, `pipeline.py`, `cli.py`, `io_utils.py`, `manifest.json`, and `workflow.ir.json`.
   - Emit `macros/` only when reusable/loop macros exist; emit `references/` only when multi-row `TextInput` tables exist; emit `helpers.py` only when non-vectorizable functions or specialized kernels are referenced.
+  - Every input read, reference load, intermediate stage (`audit.run_step`), skipped conditional branch (`audit.skip_step`), and output write emits structured step-by-step auditing via `audit_utils.py` (configurable under `[logging]` in `config.toml` and `--log-level` / `--log-format` / `--audit-log` in `cli.py`; see `logging-guidelines.md`).
 - **Option A Data-Driven Semantic Specialization**:
   - Emit clean, vectorized idiomatic Pandas (`df.assign`, `np.where`, `.loc`, `merge`, `groupby().agg()`) without `alteryx_schema` / `declare_field` noise by default.
   - When `reference_capture` from Phase 1 diverges on real data, apply minimal targeted refinements in cascade order: Tier 1a `.str.slice(0, width)` -> Tier 1b `.str.casefold()` on Join/Unique -> Tier 2 exact scalar/type semantics, recording applied rules in `manifest.json["option_a_refinements"]`.

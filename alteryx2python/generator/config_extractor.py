@@ -80,6 +80,14 @@ class ConfigSpec:
     outputs: dict[str, dict[str, Any]] = field(default_factory=dict)
     parameters: dict[str, Any] = field(default_factory=dict)
     parameter_meta: dict[str, dict[str, Any]] = field(default_factory=dict)
+    logging: dict[str, Any] = field(
+        default_factory=lambda: {
+            "enabled": True,
+            "level": "INFO",
+            "format": "text",
+            "file": "",
+        }
+    )
     references: dict[str, dict[str, Any]] = field(default_factory=dict)
     events: list[dict[str, Any]] = field(default_factory=list)
     reference_files: dict[str, str] = field(default_factory=dict)  # rel POSIX path -> CSV text
@@ -93,6 +101,7 @@ class ConfigSpec:
             "inputs": self.inputs,
             "outputs": self.outputs,
             "parameters": self.parameters,
+            "logging": self.logging,
         }
         if self.references:
             payload["references"] = self.references
@@ -190,6 +199,11 @@ def _render_config_toml(spec: ConfigSpec) -> str:
     for hook in spec.events:
         blocks.append("\n[[events.hooks]]")
         blocks.extend(_render_table_entries(hook))
+
+    if spec.logging:
+        blocks.append("\n[logging]")
+        blocks.append("# Step-by-step pipeline audit logging (format: \"text\" or \"jsonl\"; level: \"DEBUG\", \"INFO\", \"WARNING\", \"ERROR\", \"OFF\").")
+        blocks.extend(_render_table_entries(spec.logging))
 
     return "\n".join(blocks) + "\n"
 

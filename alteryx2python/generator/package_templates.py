@@ -32,6 +32,362 @@ def render_main_py() -> str:
     ).lstrip()
 
 
+def render_audit_utils_py() -> str:
+    """Emit a framework-free stdlib logging module for step-by-step pipeline auditing."""
+    return textwrap.dedent(
+        '''
+        """Step-by-step pipeline auditing utilities backed by Python stdlib logging."""
+
+        from __future__ import annotations
+
+        from datetime import datetime, timezone
+        import json
+        import logging
+        from pathlib import Path
+        import sys
+        import time
+        from uuid import uuid4
+
+        import pandas as pd
+
+        PACKAGE_DIR = Path(__file__).resolve().parent
+        _SENSITIVE_KEYS = ("password", "secret", "token", "api_key", "apikey", "credential")
+        _LEVEL_MAP = {
+            "DEBUG": logging.DEBUG,
+            "INFO": logging.INFO,
+            "WARNING": logging.WARNING,
+            "WARN": logging.WARNING,
+            "ERROR": logging.ERROR,
+        }
+
+
+        def _redact_params(params: dict | None) -> dict:
+            if not params:
+                return {}
+            redacted: dict = {}
+            for key, val in params.items():
+                low = str(key).lower()
+                redacted[str(key)] = "***REDACTED***" if any(part in low for part in _SENSITIVE_KEYS) else val
+            return redacted
+
+
+        def _frame_shape(frame: pd.DataFrame) -> dict:
+            return {
+                "rows": int(len(frame)),
+                "cols": int(len(frame.columns)),
+                "columns": [str(col) for col in frame.columns],
+            }
+
+
+        def _extract_frames(value: object) -> list[pd.DataFrame]:
+            if isinstance(value, pd.DataFrame):
+                return [value]
+            if isinstance(value, (tuple, list)):
+                return [item for item in value if isinstance(item, pd.DataFrame)]
+            if isinstance(value, dict):
+                return [item for item in value.values() if isinstance(item, pd.DataFrame)]
+            return []
+
+
+        class _AuditFormatter(logging.Formatter):
+            def __init__(self, fmt_mode: str) -> None:
+                super().__init__()
+                self.fmt_mode = fmt_mode
+
+            def format(self, record: logging.LogRecord) -> str:
+                payload = getattr(record, "audit_payload", None)
+                if self.fmt_mode == "jsonl" and isinstance(payload, dict):
+                    return json.dumps(payload, ensure_ascii=False, default=str)
+                ts = datetime.fromtimestamp(record.created).strftime("%Y-%m-%d %H:%M:%S")
+                return f"[{ts}] {record.levelname:<5} {record.getMessage()}"
+
+
+        class AuditLogger:
+            """Structured and human-readable step auditor for migrated data pipelines."""
+
+            def __init__(
+                self,
+                *,
+                enabled: bool = True,
+                level: str = "INFO",
+                fmt_mode: str = "text",
+                log_file: str | Path | None = None,
+                scope: str | None = None,
+            ) -> None:
+                self.run_id = uuid4().hex[:8]
+                self.scope = scope
+                self.records: list[dict] = []
+                self._step_counter = 0
+                self._started_perf = time.perf_counter()
+                norm_level = str(level or "INFO").strip().upper()
+                self.enabled = bool(enabled) and norm_level != "OFF"
+                self._handlers: list[logging.Handler] = []
+                self._logger = logging.getLogger(f"pipeline.audit.{self.run_id}" + (f".{scope}" if scope else ""))
+                self._logger.propagate = False
+                self._logger.handlers.clear()
+
+                if self.enabled:
+                    py_level = _LEVEL_MAP.get(norm_level, logging.INFO)
+                    self._logger.setLevel(py_level)
+                    stream_handler = logging.StreamHandler(sys.stderr)
+                    stream_handler.setLevel(py_level)
+                    stream_handler.setFormatter(_AuditFormatter(fmt_mode))
+                    self._logger.addHandler(stream_handler)
+                    self._handlers.append(stream_handler)
+
+                    if log_file:
+                        file_path = Path(log_file)
+                        if not file_path.is_absolute():
+                            file_path = (PACKAGE_DIR / file_path).resolve()
+                        file_path.parent.mkdir(parents=True, exist_ok=True)
+                        file_fmt = "jsonl" if file_path.suffix.lower() == ".jsonl" and fmt_mode == "text" else fmt_mode
+                        file_handler = logging.FileHandler(file_path, encoding="utf-8")
+                        file_handler.setLevel(py_level)
+                        file_handler.setFormatter(_AuditFormatter(file_fmt))
+                        self._logger.addHandler(file_handler)
+                        self._handlers.append(file_handler)
+
+            def _emit(self, py_level: int, text_msg: str, payload: dict) -> None:
+                self.records.append(payload)
+                if self.enabled:
+                    prefix = f"[run={self.run_id}" + (f" scope={self.scope}] " if self.scope else "] ")
+                    self._logger.log(py_level, prefix + text_msg, extra={"audit_payload": payload})
+
+            def close(self) -> None:
+                for handler in list(self._handlers):
+                    self._logger.removeHandler(handler)
+                    try:
+                        handler.flush()
+                        handler.close()
+                    except OSError:
+                        pass
+                self._handlers.clear()
+
+            def start_pipeline(self, *, parameters: dict | None = None) -> None:
+                self._started_perf = time.perf_counter()
+                safe_params = _redact_params(parameters)
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "kind": "pipeline_start",
+                    "status": "started",
+                    "parameters": safe_params,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                param_text = f" | params={safe_params}" if safe_params else ""
+                lvl = logging.DEBUG if self.scope else logging.INFO
+                self._emit(lvl, f"START pipeline{param_text}", payload)
+
+            def record_io(
+                self,
+                kind: str,
+                key: str,
+                tool_label: str,
+                df: pd.DataFrame,
+                path: Path | str | None,
+                duration_ms: float,
+            ) -> None:
+                self._step_counter += 1
+                shape = _frame_shape(df)
+                artifact_name = Path(path).name if path else key
+                direction = "<-" if kind in {"input", "reference"} else "->"
+                col_preview = shape["columns"][:6]
+                col_str = "[" + ", ".join(col_preview) + (", ..." if len(shape["columns"]) > 6 else "") + "]"
+                tool_part = f" ({tool_label})" if tool_label else ""
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "step_index": self._step_counter,
+                    "kind": kind,
+                    "step": key,
+                    "tool": tool_label,
+                    "status": "ok",
+                    "rows": shape["rows"],
+                    "cols": shape["cols"],
+                    "columns": shape["columns"],
+                    "artifact": artifact_name,
+                    "artifact_path": str(path) if path else None,
+                    "duration_ms": round(duration_ms, 2),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                lvl = logging.DEBUG if self.scope else logging.INFO
+                self._emit(
+                    lvl,
+                    f"[Step {self._step_counter}] {kind.upper()} {key}{tool_part} | {shape['rows']} rows x {shape['cols']} cols {col_str} {direction} {artifact_name} ({duration_ms:.2f} ms)",
+                    payload,
+                )
+
+            def run_step(self, step_name: str, tool_label: str, description: str, func, /, *args, **kwargs):
+                self._step_counter += 1
+                step_idx = self._step_counter
+                in_frames = [arg for arg in args if isinstance(arg, pd.DataFrame)]
+                in_shapes = [_frame_shape(f) for f in in_frames]
+                step_params = _redact_params({k: v for k, v in kwargs.items() if k != "config" and not isinstance(v, pd.DataFrame)})
+                t0 = time.perf_counter()
+                try:
+                    result = func(*args, **kwargs)
+                except Exception as exc:
+                    elapsed_ms = (time.perf_counter() - t0) * 1000.0
+                    err_payload = {
+                        "run_id": self.run_id,
+                        "scope": self.scope,
+                        "step_index": step_idx,
+                        "kind": "transform",
+                        "step": step_name,
+                        "tool": tool_label,
+                        "summary": description,
+                        "status": "failed",
+                        "inputs": in_shapes,
+                        "parameters": step_params,
+                        "error_type": type(exc).__name__,
+                        "error": str(exc),
+                        "duration_ms": round(elapsed_ms, 2),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                    }
+                    self._emit(
+                        logging.ERROR,
+                        f"[Step {step_idx}] FAIL {step_name} ({tool_label}) | {description} | {type(exc).__name__}: {exc} ({elapsed_ms:.2f} ms)",
+                        err_payload,
+                    )
+                    raise
+
+                elapsed_ms = (time.perf_counter() - t0) * 1000.0
+                out_frames = _extract_frames(result)
+                out_shapes = [_frame_shape(f) for f in out_frames]
+
+                row_delta: int | None = None
+                cols_added: list[str] = []
+                cols_removed: list[str] = []
+                if len(in_shapes) == 1 and len(out_shapes) == 1:
+                    row_delta = out_shapes[0]["rows"] - in_shapes[0]["rows"]
+                    in_col_set = set(in_shapes[0]["columns"])
+                    out_col_set = set(out_shapes[0]["columns"])
+                    cols_added = [c for c in out_shapes[0]["columns"] if c not in in_col_set]
+                    cols_removed = [c for c in in_shapes[0]["columns"] if c not in out_col_set]
+                    details = [f"rows {row_delta:+d}"]
+                    if cols_added:
+                        details.append(f"+cols={cols_added[:5]}" + ("..." if len(cols_added) > 5 else ""))
+                    if cols_removed:
+                        details.append(f"-cols={cols_removed[:5]}" + ("..." if len(cols_removed) > 5 else ""))
+                    shape_msg = f"{in_shapes[0]['rows']}x{in_shapes[0]['cols']} -> {out_shapes[0]['rows']}x{out_shapes[0]['cols']} ({', '.join(details)})"
+                else:
+                    in_str = "[" + ", ".join(f"{s['rows']}x{s['cols']}" for s in in_shapes) + "]" if in_shapes else "0"
+                    out_str = (
+                        f"{out_shapes[0]['rows']}x{out_shapes[0]['cols']}"
+                        if len(out_shapes) == 1
+                        else "[" + ", ".join(f"{s['rows']}x{s['cols']}" for s in out_shapes) + "]"
+                    )
+                    shape_msg = f"{in_str} -> {out_str}"
+
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "step_index": step_idx,
+                    "kind": "transform",
+                    "step": step_name,
+                    "tool": tool_label,
+                    "summary": description,
+                    "status": "ok",
+                    "inputs": in_shapes,
+                    "outputs": out_shapes,
+                    "row_delta": row_delta,
+                    "columns_added": cols_added,
+                    "columns_removed": cols_removed,
+                    "parameters": step_params,
+                    "duration_ms": round(elapsed_ms, 2),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                lvl = logging.DEBUG if self.scope else logging.INFO
+                self._emit(
+                    lvl,
+                    f"[Step {step_idx}] STEP {step_name} ({tool_label}) | {description} | {shape_msg} ({elapsed_ms:.2f} ms)",
+                    payload,
+                )
+                return result
+
+            def skip_step(
+                self,
+                step_name: str,
+                tool_label: str,
+                description: str,
+                *,
+                reason: str = "guard_condition_false",
+            ) -> None:
+                self._step_counter += 1
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "step_index": self._step_counter,
+                    "kind": "skip",
+                    "step": step_name,
+                    "tool": tool_label,
+                    "summary": description,
+                    "status": "skipped",
+                    "reason": reason,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                lvl = logging.DEBUG if self.scope else logging.INFO
+                self._emit(
+                    lvl,
+                    f"[Step {self._step_counter}] SKIP {step_name} ({tool_label}) | {description} | reason={reason}",
+                    payload,
+                )
+
+            def finish_pipeline(self, *, outputs: dict | None = None) -> None:
+                total_ms = (time.perf_counter() - self._started_perf) * 1000.0
+                out_names = {k: Path(v).name if isinstance(v, (Path, str)) else str(v) for k, v in (outputs or {}).items()}
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "kind": "pipeline_end",
+                    "status": "completed",
+                    "steps_executed": self._step_counter,
+                    "outputs": out_names,
+                    "duration_ms": round(total_ms, 2),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                lvl = logging.DEBUG if self.scope else logging.INFO
+                self._emit(
+                    lvl,
+                    f"DONE pipeline | steps={self._step_counter} | outputs={len(out_names)} | total={total_ms:.2f} ms",
+                    payload,
+                )
+                self.close()
+
+            def fail_pipeline(self, error: BaseException) -> None:
+                total_ms = (time.perf_counter() - self._started_perf) * 1000.0
+                payload = {
+                    "run_id": self.run_id,
+                    "scope": self.scope,
+                    "kind": "pipeline_end",
+                    "status": "failed",
+                    "steps_executed": self._step_counter,
+                    "error_type": type(error).__name__,
+                    "error": str(error),
+                    "duration_ms": round(total_ms, 2),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+                self._emit(
+                    logging.ERROR,
+                    f"FAIL pipeline | steps={self._step_counter} | {type(error).__name__}: {error} | total={total_ms:.2f} ms",
+                    payload,
+                )
+                self.close()
+
+
+        def create_audit_logger(config: dict | None = None, *, scope: str | None = None) -> AuditLogger:
+            log_cfg = (config or {}).get("logging") or {}
+            return AuditLogger(
+                enabled=bool(log_cfg.get("enabled", True)),
+                level=str(log_cfg.get("level", "INFO")),
+                fmt_mode=str(log_cfg.get("format", "text")).strip().lower() or "text",
+                log_file=log_cfg.get("file") or None,
+                scope=scope,
+            )
+        '''
+    ).lstrip()
+
+
 def render_io_utils_py(
     spec: ConfigSpec,
     *,
@@ -51,6 +407,7 @@ def render_io_utils_py(
         "import json",
         "import os",
         "from pathlib import Path, PureWindowsPath",
+        "import time",
         "import tomllib",
         "import pandas as pd",
     ]
@@ -196,7 +553,8 @@ def render_io_utils_py(
                 raise ValueError(f"Cannot determine CSV encoding for {source}") from decode_error
 
 
-            def read_input_table(config: dict, key: str) -> pd.DataFrame:
+            def read_input_table(config: dict, key: str, *, audit=None, tool_label: str = "") -> pd.DataFrame:
+                t0 = time.perf_counter()
                 entry = config["inputs"][key]
                 path = resolve_input_path(config, entry)
                 fmt = entry.get("format", "csv")
@@ -247,6 +605,8 @@ def render_io_utils_py(
 
                 if not has_header:
                     df.columns = [f"F{idx}" for idx in range(1, len(df.columns) + 1)]
+                if audit is not None:
+                    audit.record_io("input", key, tool_label, df, path, (time.perf_counter() - t0) * 1000.0)
                 return df
             '''
         ).strip()
@@ -256,7 +616,8 @@ def render_io_utils_py(
         sections.append(
             textwrap.dedent(
                 '''
-                def read_reference_table(config: dict, key: str) -> pd.DataFrame:
+                def read_reference_table(config: dict, key: str, *, audit=None, tool_label: str = "") -> pd.DataFrame:
+                    t0 = time.perf_counter()
                     entry = config["references"][key]
                     rel_path = Path(entry["path"])
                     path = rel_path if rel_path.is_absolute() else (PACKAGE_DIR / rel_path)
@@ -294,7 +655,10 @@ def render_io_utils_py(
                             result[col] = pd.to_datetime(series.replace("", pd.NA), errors="coerce").astype(target_dtype)
                         else:
                             result[col] = series.astype(target_dtype)
-                    return pd.DataFrame(result)
+                    out_df = pd.DataFrame(result)
+                    if audit is not None:
+                        audit.record_io("reference", key, tool_label, out_df, path, (time.perf_counter() - t0) * 1000.0)
+                    return out_df
                 '''
             ).strip()
         )
@@ -314,11 +678,8 @@ def render_io_utils_py(
             return str(value)
 
 
-        def write_output_table(df: pd.DataFrame, config: dict, key: str) -> Path:
-            entry = config["outputs"][key]
+        def _write_output_impl(out_df: pd.DataFrame, config: dict, entry: dict) -> Path:
             fmt = entry.get("format", "csv")
-            max_rows = entry.get("max_rows")
-            out_df = df.head(int(max_rows)) if max_rows is not None else df
 
             if fmt == "excel":
                 path = resolve_output_path(config, entry)
@@ -403,6 +764,26 @@ def render_io_utils_py(
         ).strip(),
         "    ",
     )
+    writer_code += "\n\n\n" + textwrap.dedent(
+        '''
+        def write_output_table(
+            df: pd.DataFrame,
+            config: dict,
+            key: str,
+            *,
+            audit=None,
+            tool_label: str = "",
+        ) -> Path:
+            t0 = time.perf_counter()
+            entry = config["outputs"][key]
+            max_rows = entry.get("max_rows")
+            out_df = df.head(int(max_rows)) if max_rows is not None else df
+            written_path = _write_output_impl(out_df, config, entry)
+            if audit is not None:
+                audit.record_io("output", key, tool_label, out_df, written_path, (time.perf_counter() - t0) * 1000.0)
+            return written_path
+        '''
+    ).strip()
     sections.append(writer_code)
 
     if needs_email or any(str(e.get("kind", "")).startswith("email") for e in spec.events):
@@ -737,14 +1118,18 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
         '    parser.add_argument("--command-working-dir", type=Path)',
         '    parser.add_argument("--allow-command", action="append", default=[])',
         '    parser.add_argument("--as-of", default=None)',
+        '    parser.add_argument("--log-level", choices=["DEBUG", "INFO", "WARNING", "ERROR", "OFF"], default=None, help="Audit log verbosity level")',
+        '    parser.add_argument("--log-format", choices=["text", "jsonl"], default=None, help="Audit log output format")',
+        '    parser.add_argument("--audit-log", type=Path, default=None, help="Optional file path to write step-by-step audit records")',
         '    parser.add_argument("--set", dest="overrides", action="append", default=[], metavar="KEY=VALUE")',
     ]
     if has_log:
         arg_lines.append('    parser.add_argument("--workflow-log", type=Path)')
         arg_lines.append('    parser.add_argument("--workflow-log-columns", type=Path)')
+    reserved_flags = {"--as-of", "--config", "--input-dir", "--output-dir", "--log-level", "--log-format", "--audit-log"}
     for py_name in spec.parameters:
         flag = "--" + py_name.replace("_", "-")
-        if flag in {"--as-of", "--config", "--input-dir", "--output-dir"}:
+        if flag in reserved_flags:
             continue
         arg_lines.append(f'    parser.add_argument({flag!r}, dest="param__{py_name}", default=argparse.SUPPRESS)')
 
@@ -759,7 +1144,7 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
     ])
     for py_name in spec.parameters:
         flag = "--" + py_name.replace("_", "-")
-        if flag in {"--as-of", "--config", "--input-dir", "--output-dir"}:
+        if flag in reserved_flags:
             continue
         arg_lines.append(f'    if hasattr(args, "param__{py_name}"):')
         arg_lines.append(f'        param_overrides[{py_name!r}] = getattr(args, "param__{py_name}")')
@@ -778,11 +1163,21 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
         '        runtime_overrides["command_working_dir"] = str(args.command_working_dir.resolve())',
         "    if args.as_of is not None:",
         '        runtime_overrides["as_of"] = args.as_of',
+        "    logging_overrides: dict = {}",
+        "    if args.log_level is not None:",
+        '        logging_overrides["level"] = args.log_level',
+        '        logging_overrides["enabled"] = args.log_level != "OFF"',
+        "    if args.log_format is not None:",
+        '        logging_overrides["format"] = args.log_format',
+        "    if args.audit_log is not None:",
+        '        logging_overrides["file"] = str(args.audit_log.resolve())',
         "    merged_overrides: dict = {}",
         "    if param_overrides:",
         '        merged_overrides["parameters"] = param_overrides',
         "    if runtime_overrides:",
         '        merged_overrides["runtime"] = runtime_overrides',
+        "    if logging_overrides:",
+        '        merged_overrides["logging"] = logging_overrides',
         "    config = load_config(",
         "        args.config,",
         "        overrides=merged_overrides or None,",

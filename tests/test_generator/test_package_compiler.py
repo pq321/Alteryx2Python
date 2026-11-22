@@ -854,4 +854,132 @@ def test_crosstab_transpose_datetime_and_vectorized_lowering_edges(tmp_path: Pat
     ).code
 
 
+def test_step_auditing_logs_text_jsonl_skip_redaction_and_failures(tmp_path: Path):
+    """Verify template-driven step auditing across text stderr, JSONL files, secret redaction, OFF mode, and error capture."""
+    from examples.python_pipeline_comparison.compare_app import TRADES, build_app
+
+    data_dir = tmp_path / "data"
+    data_dir.mkdir()
+    app_path = data_dir / "transaction-app.yxwz"
+    build_app(app_path)
+    (data_dir / "trades.csv").write_text(TRADES, encoding="utf-8")
+    (data_dir / "reports-a").mkdir()
+
+    workflow = XmlWorkflowParser().parse(app_path)
+    artifact = ModularPackageGenerator().generate(workflow)
+    assert "audit_utils.py" in artifact.files
+    assert "[logging]" in artifact.files["config.toml"]
+    assert "audit.run_step(" in artifact.files["pipeline.py"]
+
+    pkg_dir = tmp_path / "audited_pkg"
+    artifact.write(pkg_dir)
+
+    # 1. Default text mode logs every step (INPUT -> STEP -> STEP -> OUTPUT -> DONE) to stderr and writes JSONL to --audit-log
+    out_dir = tmp_path / "out_text"
+    audit_jsonl = tmp_path / "audit_trail.jsonl"
+    override_cfg = tmp_path / "cfg.json"
+    override_cfg.write_text(
+        json.dumps({
+            "parameters": {
+                "report_folder": str(data_dir / "reports-a"),
+                "api_token": "super-secret-token-123",
+            }
+        }),
+        encoding="utf-8",
+    )
+
+    proc = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            str(pkg_dir),
+            "--config",
+            str(override_cfg),
+            "--input-dir",
+            str(data_dir),
+            "--output-dir",
+            str(out_dir),
+            "--audit-log",
+            str(audit_jsonl),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert [p.name for p in out_dir.iterdir()] == ["report.csv"]
+
+    assert "START pipeline" in proc.stderr
+    assert "[Step 1] INPUT trades (DbFileInput #1) | 3 rows x 4 cols" in proc.stderr
+    assert "[Step 2] STEP select_trade_id_and_region (Select #2)" in proc.stderr
+    assert "[Step 3] STEP compute_include_flag_and_report_date (Formula->Filter->Select #5,6,7)" in proc.stderr
+    assert "3x4 -> 1x6 (rows -2" in proc.stderr
+    assert "[Step 4] OUTPUT report (DbFileOutput #8) | 1 rows x 6 cols" in proc.stderr
+    assert "-> report.csv" in proc.stderr
+    assert "DONE pipeline | steps=4 | outputs=1" in proc.stderr
+    assert "super-secret-token-123" not in proc.stderr
+    assert "***REDACTED***" in proc.stderr
+    assert "T001" not in proc.stderr
+
+    records = [json.loads(line) for line in audit_jsonl.read_text(encoding="utf-8").splitlines()]
+    assert [r["kind"] for r in records] == ["pipeline_start", "input", "transform", "transform", "output", "pipeline_end"]
+    assert records[0]["parameters"]["api_token"] == "***REDACTED***"
+    assert records[3]["row_delta"] == -2
+    assert "display_amount" in records[3]["columns_added"]
+    assert "status" in records[3]["columns_removed"]
+
+    # 2. --log-level OFF silences stderr completely while preserving normal execution
+    out_off = tmp_path / "out_off"
+    proc_off = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            str(pkg_dir),
+            "--config",
+            str(override_cfg),
+            "--input-dir",
+            str(data_dir),
+            "--output-dir",
+            str(out_off),
+            "--log-level",
+            "OFF",
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc_off.returncode == 0
+    assert proc_off.stderr == ""
+    assert _read_csv(out_off / "report.csv") == _read_csv(out_dir / "report.csv")
+
+    # 3. Runtime failure logs FAIL audit record with step & error details before propagating exception
+    bad_dir = tmp_path / "empty_in_dir"
+    bad_dir.mkdir()
+    bad_audit = tmp_path / "failed_audit.jsonl"
+    proc_fail = subprocess.run(
+        [
+            sys.executable,
+            "-I",
+            str(pkg_dir),
+            "--input-dir",
+            str(bad_dir),
+            "--output-dir",
+            str(tmp_path / "out_fail"),
+            "--log-format",
+            "jsonl",
+            "--audit-log",
+            str(bad_audit),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert proc_fail.returncode != 0
+    fail_records = [json.loads(line) for line in bad_audit.read_text(encoding="utf-8").splitlines()]
+    assert fail_records[-1]["kind"] == "pipeline_end"
+    assert fail_records[-1]["status"] == "failed"
+    assert fail_records[-1]["error_type"] == "FileNotFoundError"
+
+
+
 

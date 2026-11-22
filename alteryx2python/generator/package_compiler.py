@@ -27,6 +27,7 @@ from alteryx2python.generator.ir_optimizer import (
     optimize_workflow_ir,
 )
 from alteryx2python.generator.package_templates import (
+    render_audit_utils_py,
     render_cli_py,
     render_init_py,
     render_io_utils_py,
@@ -139,6 +140,8 @@ class _CompiledOp:
     imports: set[str] = field(default_factory=set)
     can_inline_linear: bool = False
     guards: list[str] = field(default_factory=list)
+    audit_label: str = ""
+    audit_summary: str = ""
 
 
 class _SubgraphEmitter:
@@ -1162,6 +1165,89 @@ class _SubgraphEmitter:
         tree = simplify_template(tree)
         return [ast.unparse(ast.fix_missing_locations(stmt)) for stmt in tree.body]
 
+    def _describe_node_audit(self, node: NodeIR, cfg: dict[str, Any]) -> tuple[str, str]:
+        """Synthesize deterministic (tool_label, summary) metadata for step-by-step auditing."""
+        tool_id = str(node.source_tool_id or node.node_id)
+        label = f"{node.tool_type} #{tool_id}"
+        kind = node.tool_type
+
+        if kind == "Select":
+            explicit = [f for f in cfg.get("select_fields", []) if f.get("selected", True) and f.get("source") != "*Unknown"]
+            names = [str(f.get("rename") or f["source"]) for f in explicit]
+            casts = [f"{f.get('rename') or f['source']}:{f['dtype']}" for f in explicit if f.get("dtype")]
+            col_part = f"[{', '.join(names[:5])}{', ...' if len(names) > 5 else ''}]" if names else "all columns"
+            cast_part = f"; cast [{', '.join(casts[:4])}{', ...' if len(casts) > 4 else ''}]" if casts else ""
+            return label, f"Select {col_part}{cast_part}"
+
+        if kind == "Formula":
+            computed = [str(f["field"]) for f in cfg.get("formula_fields", []) if f.get("enabled", True)]
+            col_part = f"[{', '.join(computed[:5])}{', ...' if len(computed) > 5 else ''}]"
+            return label, f"Compute {col_part}"
+
+        if kind == "Filter":
+            expr_txt = " ".join(str(cfg.get("expression", "")).split())
+            if len(expr_txt) > 64:
+                expr_txt = expr_txt[:61] + "..."
+            return label, f"Filter {expr_txt}" if expr_txt else "Filter rows"
+
+        if kind == "Summarize":
+            fields = cfg.get("fields", [])
+            groups = [str(f["field"]) for f in fields if f.get("action") == "GroupBy"]
+            aggs = [f"{f.get('action')}({f.get('field')})" for f in fields if f.get("action") != "GroupBy"]
+            grp_part = f" by [{', '.join(groups[:4])}]" if groups else ""
+            agg_part = f" -> [{', '.join(aggs[:4])}{', ...' if len(aggs) > 4 else ''}]" if aggs else ""
+            return label, f"Summarize{grp_part}{agg_part}"
+
+        if kind == "Join":
+            if cfg.get("join_by_record_pos"):
+                return label, "Join streams by record position"
+            from alteryx2python.tools.join import join_keys
+
+            l_k = join_keys(cfg, "Left")
+            r_k = join_keys(cfg, "Right")
+            return label, f"Join Left={l_k} with Right={r_k}"
+
+        if kind == "Union":
+            return label, f"Union streams ({cfg.get('mode', 'ByName')})"
+
+        if kind == "Sort":
+            keys = [f"{f.get('field')} {str(f.get('order', 'Asc'))[:4]}" for f in cfg.get("fields", [])]
+            return label, f"Sort by [{', '.join(keys[:4])}]"
+
+        if kind == "Unique":
+            return label, f"Deduplicate on {cfg.get('unique_fields', [])}"
+
+        if kind == "RecordID":
+            grp = f" grouped by {cfg['group_fields']}" if cfg.get("group_fields") else ""
+            return label, f"Assign {cfg.get('field_name', 'RecordID')} from {cfg.get('start_value', 1)}{grp}"
+
+        if kind == "Sample":
+            return label, f"Sample {cfg.get('mode', 'First')} N={cfg.get('n', '')}"
+
+        if kind == "CrossTab":
+            return label, f"CrossTab header={cfg.get('header_field')} value={cfg.get('data_field')}"
+
+        if kind == "Transpose":
+            return label, f"Transpose keys={cfg.get('key_fields', [])} data={cfg.get('data_fields', [])[:4]}"
+
+        if kind == "RegEx":
+            return label, f"RegEx {cfg.get('method', '')} on [{cfg.get('field', '')}]"
+
+        if kind == "TextToColumns":
+            return label, f"Split [{cfg.get('field', '')}] to columns"
+
+        if kind == "AppendFields":
+            return label, "Append source fields onto target rows"
+
+        if kind == "MacroSubgraphCall":
+            return label, f"Invoke reusable macro {node.metadata.get('reusable_macro_key', '')}"
+
+        if kind == "MacroLoopCall":
+            return label, f"Execute loop macro {node.metadata.get('loop_macro_key', '')}"
+
+        ann = _annotation_name(node)
+        return label, ann if ann else f"Execute {kind}"
+
     def compile_pipeline(self) -> tuple[str, list[dict[str, Any]]]:
         """Return (pipeline_py_source, node_mapping_entries)."""
         from alteryx2python.runtime.executor import (
@@ -1192,8 +1278,8 @@ class _SubgraphEmitter:
             if k not in param_names
         }
 
-        used_func_names: set[str] = {"run_pipeline"}
-        used_var_names: set[str] = {"config", "params", "written_outputs", "terminal_frames"} | set(param_names.values())
+        used_func_names: set[str] = {"run_pipeline", "create_audit_logger"}
+        used_var_names: set[str] = {"audit", "config", "params", "written_outputs", "terminal_frames"} | set(param_names.values())
         var_by_anchor: dict[tuple[str, str], str] = {}
         orchestration_lines: list[str] = []
         mapping_entries: list[dict[str, Any]] = []
@@ -1235,7 +1321,9 @@ class _SubgraphEmitter:
                 var_name = alloc_var(f"{in_key}_df")
                 var_by_anchor[(node_id, "Output")] = var_name
                 used_io_helpers.add("read_input_table")
-                orchestration_lines.append(f'    {var_name} = read_input_table(config, {in_key!r})')
+                tool_lbl = f"DbFileInput #{node.source_tool_id or node_id}"
+                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
+                orchestration_lines.append(f"    {var_name} = read_input_table(config, {in_key!r}{io_audit_kw})")
                 mapping_entries.append({
                     "node_id": node_id,
                     "source_tool_id": node.source_tool_id,
@@ -1251,7 +1339,9 @@ class _SubgraphEmitter:
                 var_name = alloc_var(f"{ref_key}_df")
                 var_by_anchor[(node_id, "Output")] = var_name
                 used_io_helpers.add("read_reference_table")
-                orchestration_lines.append(f'    {var_name} = read_reference_table(config, {ref_key!r})')
+                tool_lbl = f"TextInput #{node.source_tool_id or node_id}"
+                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
+                orchestration_lines.append(f"    {var_name} = read_reference_table(config, {ref_key!r}{io_audit_kw})")
                 ref_dtypes = self.config_spec.references[ref_key].get("dtypes", {})
                 self.column_kinds_by_var[var_name] = {
                     col: ("numeric" if dt in {"int64", "Int64", "float64"} else ("bool" if dt in {"bool", "boolean"} else "string" if dt == "string" else "any"))
@@ -1283,10 +1373,15 @@ class _SubgraphEmitter:
                     self.needs_email = True
 
                 guards = self._build_guards(node, by_id, var_by_anchor, param_names, container_guards)
-                write_stmt = f'written_outputs[{out_key!r}] = write_output_table({src_var}, config, {out_key!r})'
+                tool_lbl = f"{node.tool_type} #{node.source_tool_id or node_id}"
+                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
+                write_stmt = f"written_outputs[{out_key!r}] = write_output_table({src_var}, config, {out_key!r}{io_audit_kw})"
                 if guards:
                     orchestration_lines.append(f"    if {' and '.join(guards)}:")
                     orchestration_lines.append(f"        {write_stmt}")
+                    if not self.is_macro:
+                        orchestration_lines.append("    else:")
+                        orchestration_lines.append(f"        audit.skip_step({out_key!r}, {tool_lbl!r}, {f'Write output {out_key}'!r})")
                 else:
                     orchestration_lines.append(f"    {write_stmt}")
                 mapping_entries.append({
@@ -1363,6 +1458,7 @@ class _SubgraphEmitter:
             for g_p in self._guard_params(node, by_id, param_names):
                 p_used.add(g_p)
 
+            audit_lbl, audit_sum = self._describe_node_audit(node, cfg)
             op = _CompiledOp(
                 node_id=node_id,
                 source_tool_id=node.source_tool_id,
@@ -1378,6 +1474,8 @@ class _SubgraphEmitter:
                 imports=imps,
                 can_inline_linear=can_inline and not guards and len(arg_names) == 1 and len(eff_outputs) == 1,
                 guards=guards,
+                audit_label=audit_lbl,
+                audit_summary=audit_sum,
             )
             compiled_ops[node_id] = op
             orchestration_lines.append(f"    __OP__:{node_id}")
@@ -1404,9 +1502,21 @@ class _SubgraphEmitter:
         run_lines.append('    output_dir = str(config.get("runtime", {}).get("output_dir", "output"))')
         if needs_params:
             run_lines.append('    params = config.get("parameters", {})')
+        if not self.is_macro:
+            run_lines.append("    audit = create_audit_logger(config)")
+            run_lines.append("    audit.start_pipeline(parameters=params)" if needs_params else "    audit.start_pipeline()")
         if "write_output_table" in used_io_helpers:
             run_lines.append("    written_outputs: dict = {}")
-        run_lines.extend(orchestration_lines)
+        if not self.is_macro and orchestration_lines:
+            run_lines.append("    try:")
+            run_lines.extend("    " + line for line in orchestration_lines)
+            run_lines.append("    except Exception as exc:")
+            run_lines.append("        audit.fail_pipeline(exc)")
+            run_lines.append("        raise")
+        else:
+            run_lines.extend(orchestration_lines)
+        if not self.is_macro:
+            run_lines.append("    audit.finish_pipeline(outputs=written_outputs)" if "write_output_table" in used_io_helpers else "    audit.finish_pipeline()")
         ret_dict_items = ['"output_dir": output_dir']
         if "write_output_table" in used_io_helpers:
             ret_dict_items.append('"outputs": written_outputs')
@@ -1414,13 +1524,25 @@ class _SubgraphEmitter:
             ret_dict_items.append('"frames": {' + ", ".join(terminal_pairs) + "}")
         else:
             ret_dict_items.append('"frames": {}')
+        if not self.is_macro:
+            ret_dict_items.append('"audit": audit.records')
         run_lines.append("    return {" + ", ".join(ret_dict_items) + "}")
 
         io_imports = sorted(used_io_helpers)
         all_imports = set(self.pipeline_imports)
-        if io_imports:
-            io_line = f"from .io_utils import {', '.join(io_imports)}"
-            # Support both package import and direct script execution
+        if not self.is_macro:
+            rel_pkg_imps = ["from .audit_utils import create_audit_logger"]
+            abs_pkg_imps = ["from audit_utils import create_audit_logger"]
+            if io_imports:
+                rel_pkg_imps.append(f"from .io_utils import {', '.join(io_imports)}")
+                abs_pkg_imps.append(f"from io_utils import {', '.join(io_imports)}")
+            io_block = (
+                "if __package__:\n    "
+                + "\n    ".join(rel_pkg_imps)
+                + "\nelse:\n    "
+                + "\n    ".join(abs_pkg_imps)
+            )
+        elif io_imports:
             io_block = (
                 "if __package__:\n"
                 f"    from .io_utils import {', '.join(io_imports)}\n"
@@ -1684,6 +1806,9 @@ class _SubgraphEmitter:
             sig_parts.extend(kw_args)
         header = f"def {fn_name}({', '.join(sig_parts)}) -> pd.DataFrame:"
         code = f"{header}\n" + textwrap.indent("\n".join(body_lines), "    ")
+        fused_tools = "->".join(g.tool_type for g in group)
+        fused_ids = ",".join(str(g.source_tool_id or g.node_id) for g in group)
+        fused_summary = " -> ".join(g.audit_summary for g in group if g.audit_summary)
         combined = _CompiledOp(
             node_id=last.node_id,
             source_tool_id=last.source_tool_id,
@@ -1696,23 +1821,33 @@ class _SubgraphEmitter:
             param_kwargs=all_params,
             runtime_kwargs=all_rt,
             body_lines=body_lines,
+            audit_label=f"{fused_tools} #{fused_ids}",
+            audit_summary=fused_summary,
         )
         return fn_name, code, combined
 
     def _render_stage_call(self, op: _CompiledOp) -> list[str]:
         pos_vals = list(op.input_vars.values())
         kw_vals = [*(f"{r}={r}" for r in op.runtime_kwargs), *(f'{p}=params[{p!r}]' for p in op.param_kwargs)]
-        call_expr = f"{op.func_name}({', '.join([*pos_vals, *kw_vals])})"
+        all_args = [*pos_vals, *kw_vals]
+        if self.is_macro or op.tool_type in {"MacroInput", "MacroBoundaryInput", "MacroOutput"}:
+            call_expr = f"{op.func_name}({', '.join(all_args)})"
+        else:
+            arg_tail = (", " + ", ".join(all_args)) if all_args else ""
+            call_expr = f"audit.run_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r}, {op.func_name}{arg_tail})"
         lhs = ", ".join(op.output_vars)
         stmt = f"{lhs} = {call_expr}" if lhs else call_expr
         if not op.guards:
             return [f"    {stmt}"]
         lines = [f"    if {' and '.join(op.guards)}:", f"        {stmt}"]
-        if op.output_vars:
+        if op.output_vars or not self.is_macro:
             lines.append("    else:")
-            fallback_src = next(iter(op.input_vars.values()), None)
-            for v in op.output_vars:
-                lines.append(f"        {v} = {fallback_src}.iloc[:0].copy()" if fallback_src else f"        {v} = pd.DataFrame()")
+            if not self.is_macro:
+                lines.append(f"        audit.skip_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r})")
+            if op.output_vars:
+                fallback_src = next(iter(op.input_vars.values()), None)
+                for v in op.output_vars:
+                    lines.append(f"        {v} = {fallback_src}.iloc[:0].copy()" if fallback_src else f"        {v} = pd.DataFrame()")
         return lines
 
 
@@ -1832,6 +1967,7 @@ class ModularPackageGenerator:
             "__init__.py": render_init_py(),
             "__main__.py": render_main_py(),
             "config.toml": config_spec.to_toml(),
+            "audit_utils.py": render_audit_utils_py(),
             "pipeline.py": pipeline_py,
             "cli.py": render_cli_py(config_spec, has_messages=emitter.has_messages),
             "io_utils.py": render_io_utils_py(

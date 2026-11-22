@@ -18,7 +18,7 @@ This directory contains guidelines for backend development. Fill in each file wi
 | [Database Guidelines](./database-guidelines.md) | ORM patterns, queries, migrations | To fill |
 | [Error Handling](./error-handling.md) | Error types, handling strategies | To fill |
 | [Quality Guidelines](./quality-guidelines.md) | Code standards, forbidden patterns | To fill |
-| [Logging Guidelines](./logging-guidelines.md) | Structured logging, log levels | To fill |
+| [Logging Guidelines](./logging-guidelines.md) | Step-by-step Phase 2 auditing & workflow logs | Active |
 | [Parity Evidence](./parity-evidence.md) | Native differential evidence and coverage gates | Active |
 | [Readable Python](./readable-python.md) | Deterministic lowering, ownership and acceptance gates | Active |
 | [Web Editor](./web-editor.md) | Lossless configuration, native export, capabilities and bilingual clients | Active |
