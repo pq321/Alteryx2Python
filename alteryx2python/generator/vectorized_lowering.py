@@ -136,6 +136,8 @@ def try_lower_vectorized(
             if node.name.startswith(("Row-", "Row+")) or node.name == "_CurrentField_":
                 return None
             c_kind = known_column_kinds.get(node.name.casefold(), "any")
+            if c_kind == "decimal":
+                return None
             return LoweredExpr(
                 f"{frame_var}[{node.name!r}]",
                 is_series=True,

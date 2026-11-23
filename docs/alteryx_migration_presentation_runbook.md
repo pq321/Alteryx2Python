@@ -130,7 +130,7 @@ Markdown 的节点表按输出、文件、执行或独立输入差异定位问�
 
 沿用第 3 步选择的节点，显示生成脚本位置。命令将同一案例的 Alteryx 和 Python 产物复制到 `side-by-side`，在 Windows 上打开首对可预览文件，方便查看差异。若独立 Phase 2 产物缺失，报告会注明可用的 Phase 1 副本。终端可找到 VS Code 时跳到对应行。只想生成和显示路径可加 --paths-only。现场演示业务规则变更时，才运行另存的脚本副本。
 
-可复用交付会同时显示运行参数文件 `phase-two-bindings.json`。展示如何换一组输入时，只需换这份 JSON，再用 `phase_two.py --bindings <参数文件>` 运行同一脚本。核心 `transform` 直接接收数据表和业务参数。需要其他 I/O 适配的案例会在验收报告中注明交付模式。
+交付显示 `package/pipeline.py`、`package/config.toml` 和验收报告。换输入时，用另一个 `--config` 运行同一个包。核心 `transform` 接收数据表和业务参数，返回最终数据。
 
 ### 彩排选项
 
@@ -174,20 +174,17 @@ Import-Csv "$backupOut/delivery-output/grouped-records.csv" |
     Select-Object Region, 'Grouped Record ID' | Format-Table -AutoSize
 ```
 
-备用案例可以演示 `groupby(...).cumcount() + 1`。在临时副本把这一条规则的 `+ 1` 改成 `+ 100`，单独运行。编号应从 `1, 2, 1, 1, 2, 1` 变为 `100, 101, 100, 100, 101, 100`。展示时说明这一步是模拟一次业务规则变更。把修改好的副本放在 `$backupOut/phase_two_edit.py`，现场只需运行它并显示输出。
+备用案例可以演示 `groupby(...).cumcount() + 1`。复制生成包，在副本的 `pipeline.py` 里把 `+ 1` 改成 `+ 100`。编号应从 `1, 2, 1, 1, 2, 1` 变为 `100, 101, 100, 100, 101, 100`。
 
 ```powershell
-if (Test-Path "$backupOut/edited-bindings.json") {
-    & $py -I "$backupOut/phase_two_edit.py" --bindings "$backupOut/edited-bindings.json"
-} else {
-    & $py -I "$backupOut/phase_two_edit.py" --output-dir "$backupOut/edited-output"
-}
+Copy-Item "$backupOut/package" "$backupOut/edited-package" -Recurse
+$backupSource = (Get-Content "$backupNative/manifest.json" -Raw | ConvertFrom-Json).source
+# Edit $backupOut/edited-package/pipeline.py before running.
+& $py -I "$backupOut/edited-package" --config "$backupOut/case_config.json" --input-dir (Split-Path $backupSource) --output-dir "$backupOut/edited-output"
 if ($LASTEXITCODE -ne 0) { throw 'Edited delivery failed' }
 Import-Csv "$backupOut/edited-output/grouped-records.csv" |
     Select-Object Region, 'Grouped Record ID' | Format-Table -AutoSize
 ```
-
-彩排时，如果验收报告提供了 `phase-two-bindings.json`，复制为 `edited-bindings.json`，将 CSV 对应的 `output_file_*` 值改到 `edited-output/grouped-records.csv` 的绝对路径。
 
 ## 4. 现场操作顺序（默认 6 分钟 demo）
 
@@ -228,7 +225,7 @@ Import-Csv "$backupOut/edited-output/grouped-records.csv" |
 | **Why use deterministic conversion?** | The source already describes tool settings, expressions and connections. Explicit rules make a conversion repeatable and traceable. AI can assist investigation or test design. Native comparisons determine whether the required behaviour is preserved. |
 | **How do we know the results match?** | We run with the same inputs and settings and compare against captured Designer results. The report tells us which nodes, outputs and behaviours were checked. The fallback covers values at the selected node and identical CSV bytes. |
 | **Why keep two phases?** | Phase 1 keeps the original tool boundaries for verification. Phase 2 is the Python source the team can maintain. The phases can develop in parallel, with a native baseline for acceptance of each workflow. |
-| **Can someone really edit the generated code?** | Show the rule in `phase_two.py`. In the fallback, changing the starting ID from 1 to 100 changed the expected column when we ran the script on its own. The programme still needs its Python dependencies and any external input resources. |
+| **Can someone really edit the generated code?** | Show the rule in `package/pipeline.py`. In the fallback, changing the starting ID from 1 to 100 changed the expected column when we ran the script on its own. The programme still needs its Python dependencies and any external input resources. |
 | **Can this cover all 1,000+ workflows?** | Scope coverage by the actual tool configurations, macros, app Actions, inputs, outputs and external dependencies. The first batch will establish what runs, what differs and what requires more work. |
 | **Will users have to test every workflow by hand?** | I can run the first batch with the workflows, data and scripts I already have access to. A business owner can review cases that involve material differences or decisions about expected behaviour. |
 | **What if EngineCmd is unavailable?** | We can capture the reference in Designer and replay the comparison from that baseline. The Python verification can rerun independently from the original capture. |
@@ -288,7 +285,7 @@ Prior audits found File Action and question binding gaps in the repository copie
 ### 8.4 Assets and handoff checklist for the deck builder
 
 - Record ID Designer screenshots, instrumented workflow and native output are under `reports/parity/record-id-demo/native/`. Use `designer-result.png` for a cropped canvas and `results-detail.png` for the Results view. The prepared source is `reports/parity/record-id-demo/record-id-demo.yxmd`.
-- Regenerate the paired reports and editable `phase_two.py` using the Record ID fallback commands in section 3. `phase_two.manifest.json` identifies the function and generated line for a source node. `delivery-output/grouped-records.csv` provides the two or three actual rows for a slide. For node 138, use the group key `Region` and the output column `Grouped Record ID`.
+- Regenerate the paired reports and editable `package/pipeline.py` using the Record ID fallback commands in section 3. `package/manifest.json` identifies the function and generated line for a source node. `delivery-output/grouped-records.csv` provides the two or three actual rows for a slide. For node 138, use the group key `Region` and the output column `Grouped Record ID`.
 - Previous-version files are `reports/migration-proposal/Alteryx_Migration_Proposal.pptx` and `reports/migration-proposal/Alteryx_Migration_Speaker_Script.md`. These provide a comparison version if available. The proposal facts, presentation flow, wording and evidence scope needed for a fresh version are in this runbook.
 - Before authoring, fill the main-case brief with the authorised workflow name, node ID, rule, input and output fields, native capture date, observable result and screenshot permissions. If these are unavailable, make the live walkthrough instructions reusable and label Record ID visuals and numbers as fallback evidence.
 - Keep public source links next to the corresponding platform claims in speaker notes or a references appendix. Attribute the GWM process and retirement premise to internal project context.

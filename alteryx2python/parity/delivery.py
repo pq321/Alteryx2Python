@@ -1,4 +1,4 @@
-"""Verify a delivered workflow against native evidence and both generated builds."""
+"""Verify a delivered workflow against native evidence and the Phase 2 package."""
 
 from __future__ import annotations
 
@@ -19,7 +19,6 @@ from alteryx2python.comparison.workbook import first_workbook_difference
 from alteryx2python.generator.package_compiler import ModularPackageGenerator, PackageArtifact
 from alteryx2python.generator.parameters import _alternate
 from alteryx2python.generator.python_generator import PythonGenerator
-from alteryx2python.generator.readable import ReadablePythonGenerator, read_phase_one
 from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import question_manifest
@@ -75,76 +74,11 @@ def prepare_record_id_demo(sample: Path, destination: Path) -> dict:
     return entry
 
 
-def _compare_checkpoints(baseline, checkpoints, omitted=()):
-    findings = []
-    for node_id in sorted(baseline.keys() | checkpoints.keys()):
-        node = baseline.get(node_id)
-        frames = checkpoints.get(node_id)
-        if frames is None and node_id in omitted and node and not node["outputs"] and node["status"] in {"success", "skipped"}:
-            findings.append({"node_id": node_id, "status": "match", "omitted_from_transform": True})
-            continue
-        if node is None or frames is None:
-            findings.append({"node_id": node_id, "status": "missing_node"})
-            continue
-        expected = node["outputs"]
-        observed = {} if node["tool_type"] == "DbFileOutput" else {
-            anchor: frame_snapshot(frame) for anchor, frame in frames.items()
-        }
-        findings.append({
-            "node_id": node_id,
-            "tool_type": node["tool_type"],
-            "anchors": {
-                anchor: "match" if expected.get(anchor) == observed.get(anchor) else "mismatch"
-                for anchor in sorted(expected.keys() | observed.keys())
-            },
-            "status": "match" if expected == observed else "mismatch",
-        })
-    return findings
-
-
 def _delivery_artifacts(directory, xlsx_sinks):
     artifacts = file_artifacts(directory)
     for name in xlsx_sinks & artifacts.keys():
         artifacts[name] = sink_digest(directory / name)
     return artifacts
-
-
-def reusable_arguments(manifest, workflow, answers, output, as_of=None):
-    """Bind a reusable script to one replay, outside its generated source."""
-    from alteryx2python.runtime.app_config import prepare_workflow
-    from alteryx2python.runtime.variables import bind_workflow_variables
-
-    configured = bind_workflow_variables(prepare_workflow(workflow, answers))
-    nodes = {node.node_id: node.config.get("normalized", node.config) for node in configured.nodes}
-    arguments = {
-        parameter["python_name"]: configured.metadata["answers"][parameter["name"]]
-        for parameter in manifest["parameters"]
-    }
-    base = Path(workflow.source_file).parent
-    plan = manifest["reusable"]
-    for node_id, entry in plan["inputs"].items():
-        raw = nodes[node_id]["file"].partition("|||")[0]
-        arguments[entry["parameter"]] = str((base / raw).resolve())
-    for node_id, entry in plan["outputs"].items():
-        filename = PureWindowsPath(nodes[node_id]["file"].partition("|||")[0]).name
-        arguments[entry["parameter"]] = str(output / filename)
-    if plan["requires_as_of"]:
-        if as_of is None:
-            raise ValueError("Reusable delivery needs an explicit replay timestamp")
-        arguments["as_of"] = as_of
-    return arguments
-
-
-def _standalone_arguments(script, input_dir, output, events, commands, log_args, as_of, bindings=None):
-    command = [sys.executable, "-I", str(script)]
-    if bindings is not None:
-        return command + ["--bindings", str(bindings)]
-    return command + [
-        "--input-dir", str(input_dir), "--output-dir", str(output), "--event-working-dir", str(events),
-        "--command-working-dir", str(output),
-        *[part for program in commands for part in ("--allow-command", program)], *log_args,
-        *(["--as-of", as_of] if as_of else []),
-    ]
 
 
 def capture_generated_phase_one(workflow, destination, **options):
@@ -225,65 +159,47 @@ def _build_case_overrides(
 
 def _compile_delivery_package(
     manifest: dict,
-    phase_one_path: Path,
     *,
     staged_dir: Path,
     answers: dict | None,
     log_event_ids: list[str],
     delivery_profile: str | None,
-    first_capture: dict,
 ) -> tuple[PackageArtifact, dict]:
-    """Compile Phase 2 package from un-staged original workflow whenever available."""
-    orig_path = Path(manifest["original_source"]) if manifest.get("original_source") else None
-    if orig_path is not None and orig_path.is_file():
-        if manifest.get("original_source_sha256") and file_hash(orig_path) != manifest["original_source_sha256"]:
-            raise ValueError(f"Original workflow changed after preparation: {orig_path}")
-        compile_wf = XmlWorkflowParser().parse(orig_path)
-    else:
-        compile_wf = read_phase_one(phase_one_path)
-
-    staged_input_nodes = manifest.get("staged_input_nodes") or {}
-    generator = ModularPackageGenerator()
-    try:
-        initial = generator.generate(
-            compile_wf,
-            parameter_mode="dynamic",
-            delivery_profile=delivery_profile,
-            log_event_ids=log_event_ids,
-        )
-        mode_used = "dynamic"
-    except UnsupportedLowering:
-        initial = generator.generate(
-            compile_wf,
-            answers=answers,
-            parameter_mode="specialized",
-            delivery_profile=delivery_profile,
-            log_event_ids=log_event_ids,
-        )
-        mode_used = "specialized"
-
-    case_overrides = _build_case_overrides(
-        initial,
-        staged_dir=staged_dir,
-        staged_input_nodes=staged_input_nodes,
-        answers=answers,
+    """Compile the original definition and bind recorded values only for verification."""
+    if not manifest.get("original_source") and (
+        "staged_input_nodes" in manifest or manifest.get("dynamic_inputs") or (staged_dir / "migration.json").is_file()
+    ):
+        raise UnsupportedLowering("Phase 2 requires the original workflow for a staged migration case")
+    original = Path(manifest.get("original_source") or manifest["source"])
+    if not original.is_file():
+        raise UnsupportedLowering(f"Phase 2 original workflow is unavailable: {original}")
+    if manifest.get("original_source_sha256") and file_hash(original) != manifest["original_source_sha256"]:
+        raise ValueError(f"Original workflow changed after preparation: {original}")
+    workflow = XmlWorkflowParser().parse(original)
+    artifact = ModularPackageGenerator().generate(
+        workflow, delivery_profile=delivery_profile, log_event_ids=log_event_ids,
     )
-
-    if first_capture.get("status") == "success" and first_capture.get("sink_artifacts") and not delivery_profile:
-        artifact = generator.generate(
-            compile_wf,
-            answers=answers if mode_used == "specialized" else None,
-            parameter_mode=mode_used,
-            delivery_profile=delivery_profile,
-            log_event_ids=log_event_ids,
-            reference_capture=first_capture,
-            reference_input_dir=staged_dir,
-            reference_overrides=case_overrides,
+    overrides = _build_case_overrides(
+        artifact, staged_dir=staged_dir,
+        staged_input_nodes=manifest.get("staged_input_nodes") or {}, answers=answers,
+    )
+    aliases = {
+        str(Path(entry["source"]).resolve()): snapshot
+        for snapshot, entry in manifest.get("input_origins", {}).items()
+    }
+    for node_id, dynamic in manifest.get("dynamic_inputs", {}).items():
+        key = f"dynamic_input_{node_id}"
+        if key in artifact.config_spec.operations:
+            overrides.setdefault("operations", {})[key] = {
+                "input_dir": str(original.parent),
+                "path_aliases": aliases,
+                "schema_reference": dynamic["template"]["snapshot"],
+            }
+    if aliases:
+        overrides.setdefault("runtime", {}).update(
+            original_input_dir=str(original.parent), input_aliases=aliases,
         )
-    else:
-        artifact = initial
-    artifact.manifest["parameter_mode"] = mode_used
-    return artifact, case_overrides
+    return artifact, overrides
 
 
 def _run_package_subprocess(
@@ -572,213 +488,122 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     try:
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
-        phase_one_ir = read_phase_one(phase_one)
         delivery_profile = XLSX_PROFILE if render_folders else None
-        compile_options = {"answers": answers, "log_event_ids": log_event_ids, "delivery_profile": delivery_profile}
-
-        # Preserve single-file transform metadata when supported so legacy transform callers stay working
-        legacy_artifact = None
-        delivered = destination / "phase_two.py"
-        bindings = None
         delivery_dir = destination / "delivery-output"
-        try:
-            try:
-                legacy_artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="reusable", **compile_options)
-            except UnsupportedLowering as error:
-                report["phase_two_reuse_blocker"] = str(error)
-                legacy_artifact = ReadablePythonGenerator().generate(phase_one_ir, parameter_mode="specialized", **compile_options)
-            report["phase_two_mode"] = legacy_artifact.manifest["parameter_mode"]
-            legacy_artifact.write(delivered)
-            report["phase_two_sha256"] = file_hash(delivered)
-            if "reusable" in legacy_artifact.manifest:
-                bindings = destination / "phase-two-bindings.json"
-                write_json(bindings, reusable_arguments(legacy_artifact.manifest, workflow, answers, delivery_dir, as_of))
-                report["phase_two_bindings"] = str(bindings)
-        except (UnsupportedLowering, NotImplementedError, ValueError):
-            legacy_artifact = None
-
         expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
         expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
-
-        pkg_artifact = None
-        case_overrides = None
-        if not manifest.get("dynamic_inputs") and first["status"] == "success":
-            try:
-                pkg_artifact, case_overrides = _compile_delivery_package(
-                    manifest,
-                    phase_one,
-                    staged_dir=source.parent,
-                    answers=answers,
-                    log_event_ids=log_event_ids,
-                    delivery_profile=delivery_profile,
-                    first_capture=first,
-                )
-            except (UnsupportedLowering, NotImplementedError):
-                pkg_artifact = None
-
-        if pkg_artifact is not None and case_overrides is not None:
-            pkg_dir = destination / "package"
-            pkg_artifact.write(pkg_dir)
-            case_config_path = destination / "case_config.json"
-            write_json(case_config_path, case_overrides)
-            report["phase_two_package"] = str(pkg_dir)
-            report["phase_two_sha256"] = pkg_artifact.manifest["generated_sha256"]
-
-            delivery_events = delivery_dir / "events" if commands else delivery_dir
-            process = _run_package_subprocess(
-                pkg_dir,
-                config_path=case_config_path,
-                input_dir=source.parent,
-                output_dir=delivery_dir,
-                events_dir=delivery_events,
-                commands=commands,
-                log_args=log_args,
-                as_of=as_of,
-                timeout=timeout,
-            )
-            (destination / "standalone.stdout.txt").write_bytes(process.stdout)
-            (destination / "standalone.stderr.txt").write_bytes(process.stderr)
-            stderr_lines = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
-            failure_kind = stderr_lines[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr_lines else None
-            observed_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
-
-            workbook_result = {}
-            file_differences = []
-            if "workbooks" in first:
-                rendered = {name: digest for name, digest in workbook_artifacts(delivery_dir).items() if name not in expected_files}
-                observed_files = {name: digest for name, digest in observed_files.items() if name not in rendered}
-                workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
-                for name, change in changed_artifacts(first["workbooks"], rendered):
-                    file_differences.append({
-                        "filename": name, "status": change,
-                        "detail": _workbook_detail(destination / "phase-one-output" / "render" / name, delivery_dir / name)
-                        if change == "different" else None,
-                    })
-                workbook_match = bool(rendered) and first["workbooks"] == rendered
-            else:
-                workbook_match = True
-
-            for name, change in changed_artifacts(expected_files, observed_files):
-                file_differences.append({"filename": name, "status": change})
-
-            outcome_matches = process.returncode == 0
-            has_evidence = bool(expected_files or workbook_result) or not observable
-            logging_match = _match_logging_events(report.get("logging_events"), phase_two_log, first)
-
-            boundary_cases: dict[str, dict] = {}
-            if outcome_matches and expected_files == observed_files and workbook_match and not delivery_profile:
-                boundary_cases = _run_additional_boundary_cases(
-                    staged_source=source,
-                    pkg_dir=pkg_dir,
-                    artifact=pkg_artifact,
-                    base_overrides=case_overrides,
-                    answers=answers,
-                    commands=commands,
-                    sink_names=sink_names,
-                    xlsx_sinks=xlsx_sinks,
-                    as_of=as_of,
-                    timeout=timeout,
-                )
-
-            extra_ok = all(item["status"] == "match" for item in boundary_cases.values())
-            p2_status = (
-                "mismatch"
-                if not outcome_matches or expected_files != observed_files or not logging_match or not workbook_match or not extra_ok
-                else ("match" if has_evidence else "incomplete")
-            )
-
-            if p2_status == "match":
-                pkg_artifact.manifest["python_differential"] = "verified"
-                (pkg_dir / "manifest.json").write_text(
-                    json.dumps(pkg_artifact.manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-                )
-
-            phase_two_result = {
-                "profile": "boundary_package",
-                "status": p2_status,
-                "returncode": process.returncode,
-                "phase_one_outcome": first["status"],
-                "phase_two_failure_type": failure_kind if process.returncode else None,
-                "phase_one_files": expected_files,
-                "phase_two_files": observed_files,
-                "file_differences": file_differences,
-                "boundary_cases": boundary_cases,
-                **workbook_result,
-                **({"logging_events": logging_evidence} if log_event_ids else {}),
-            }
-            write_json(destination / "phase-one-vs-phase-two.json", phase_two_result)
-            write_json(destination / "standalone.json", {
-                "returncode": process.returncode,
-                "outputs": observed_files,
-                "status": p2_status,
-                **({"logging_events": logging_evidence} if log_event_ids else {}),
-            })
-            report["phase_one_vs_phase_two"] = p2_status
-            report["standalone_execution"] = p2_status
-            status = report["native_vs_phase_one"]
-            report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match"
-                                else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
-            write_json(destination / "acceptance.json", report)
-            return report
-
-        if legacy_artifact is None:
-            raise UnsupportedLowering("Workflow could not be compiled by either modular package or legacy Phase 2 compiler")
-        if observable:
-            report.update(_verify_observable(
-                delivered, source.parent, destination, commands, timeout, first, expected_files,
-                report.get("logging_events"),
-                as_of, xlsx_sinks, bindings,
-            ))
-            checks = (native_result["status"], report["phase_one_vs_phase_two"])
-            report["status"] = (checks[0] if checks[0] in {"match", "coarse_match"} and checks[1] == "match"
-                                else "mismatch" if "mismatch" in checks else "incomplete")
-            write_json(destination / "acceptance.json", report)
-            return report
-        verification_dir = destination / "phase-two-verification-output"
-        verification_events = verification_dir / "events" if commands else verification_dir
-        verification_events.mkdir(parents=True)
-        namespace = {"__name__": "delivery_verification", "__file__": str(delivered)}
-        exec(compile(legacy_artifact.verification_source, str(delivered), "exec"), namespace)
-        checkpoints = {}
-        verification_arguments = (
-            reusable_arguments(legacy_artifact.manifest, workflow, answers, verification_dir, as_of)
-            if bindings else dict(input_dir=source.parent, output_dir=verification_dir, allowed_commands=commands,
-                                  event_working_dir=verification_events, command_working_dir=verification_dir,
-                                  as_of=as_of)
+        pkg_artifact, case_overrides = _compile_delivery_package(
+            manifest, staged_dir=source.parent, answers=answers, log_event_ids=log_event_ids,
+            delivery_profile=delivery_profile,
         )
-        namespace["run_workflow"](**verification_arguments, checkpoints=checkpoints)
-        findings = _compare_checkpoints(first["nodes"], checkpoints, legacy_artifact.manifest.get("reusable", {}).get("omitted_nodes", ()))
-        phase_two_files = _delivery_artifacts(verification_dir, xlsx_sinks)
-        phase_two_result = {
-            "nodes": findings, "phase_one_files": expected_files, "phase_two_files": phase_two_files,
-            "status": "match" if all(item["status"] == "match" for item in findings)
-            and expected_files == phase_two_files else "mismatch",
-        }
-        write_json(destination / "phase-one-vs-phase-two.json", phase_two_result)
-        report["phase_one_vs_phase_two"] = phase_two_result["status"]
+        pkg_dir = destination / "package"
+        pkg_artifact.write(pkg_dir)
+        case_config_path = destination / "case_config.json"
+        write_json(case_config_path, case_overrides)
+        report["phase_two_package"] = str(pkg_dir)
+        report["phase_two_sha256"] = pkg_artifact.manifest["generated_sha256"]
 
         delivery_events = delivery_dir / "events" if commands else delivery_dir
-        delivery_events.mkdir(parents=True)
-        process = subprocess.run(
-            _standalone_arguments(delivered, source.parent, delivery_dir, delivery_events, commands, log_args, as_of, bindings),
-            capture_output=True, timeout=timeout, cwd=delivery_dir, check=False,
+        process = _run_package_subprocess(
+            pkg_dir,
+            config_path=case_config_path,
+            input_dir=source.parent,
+            output_dir=delivery_dir,
+            events_dir=delivery_events,
+            commands=commands,
+            log_args=log_args,
+            as_of=as_of,
+            timeout=timeout,
         )
         (destination / "standalone.stdout.txt").write_bytes(process.stdout)
         (destination / "standalone.stderr.txt").write_bytes(process.stderr)
-        delivery_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
+        stderr_lines = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
+        failure_kind = stderr_lines[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr_lines else None
+        observed_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
+
+        workbook_result = {}
+        file_differences = []
+        if "workbooks" in first:
+            rendered = {name: digest for name, digest in workbook_artifacts(delivery_dir).items() if name not in expected_files}
+            observed_files = {name: digest for name, digest in observed_files.items() if name not in rendered}
+            workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
+            for name, change in changed_artifacts(first["workbooks"], rendered):
+                file_differences.append({
+                    "filename": name, "status": change,
+                    "detail": _workbook_detail(destination / "phase-one-output" / "render" / name, delivery_dir / name)
+                    if change == "different" else None,
+                })
+            workbook_match = first["workbooks"] == rendered and (bool(rendered) or first["status"] != "success")
+        else:
+            workbook_match = True
+
+        for name, change in changed_artifacts(expected_files, observed_files):
+            file_differences.append({"filename": name, "status": change})
+
+        if first["status"] == "success":
+            outcome_matches = process.returncode == 0
+            has_evidence = bool(expected_files or workbook_result) or not observable
+        else:
+            outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
+            has_evidence = True
         logging_match = _match_logging_events(report.get("logging_events"), phase_two_log, first)
-        standalone = {
-            "returncode": process.returncode, "outputs": delivery_files,
-            "status": "match" if process.returncode == 0 and delivery_files
-            and delivery_files == phase_two_files and logging_match else "mismatch",
+
+        boundary_cases: dict[str, dict] = {}
+        if first["status"] == "success" and outcome_matches and expected_files == observed_files and workbook_match and not delivery_profile:
+            boundary_cases = _run_additional_boundary_cases(
+                staged_source=source,
+                pkg_dir=pkg_dir,
+                artifact=pkg_artifact,
+                base_overrides=case_overrides,
+                answers=answers,
+                commands=commands,
+                sink_names=sink_names,
+                xlsx_sinks=xlsx_sinks,
+                as_of=as_of,
+                timeout=timeout,
+            )
+
+        extra_ok = all(item["status"] == "match" for item in boundary_cases.values())
+        p2_status = (
+            "mismatch"
+            if not outcome_matches or expected_files != observed_files or not logging_match or not workbook_match or not extra_ok
+            else ("match" if has_evidence else "incomplete")
+        )
+
+        if p2_status == "match":
+            pkg_artifact.manifest["python_differential"] = "verified"
+            (pkg_dir / "manifest.json").write_text(
+                json.dumps(pkg_artifact.manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
+            )
+
+        phase_two_result = {
+            "profile": "boundary_package",
+            "status": p2_status,
+            "returncode": process.returncode,
+            "phase_one_outcome": first["status"],
+            "phase_two_failure_type": failure_kind if process.returncode else None,
+            "phase_one_files": expected_files,
+            "phase_two_files": observed_files,
+            "file_differences": file_differences,
+            "boundary_cases": boundary_cases,
+            **workbook_result,
             **({"logging_events": logging_evidence} if log_event_ids else {}),
         }
-        write_json(destination / "standalone.json", standalone)
-        report["standalone_execution"] = standalone["status"]
-        checks = (report["phase_one_vs_phase_two"], report["standalone_execution"])
+        write_json(destination / "phase-one-vs-phase-two.json", phase_two_result)
+        write_json(destination / "standalone.json", {
+            "returncode": process.returncode,
+            "outputs": observed_files,
+            "status": p2_status,
+            **({"logging_events": logging_evidence} if log_event_ids else {}),
+        })
+        report["phase_one_vs_phase_two"] = p2_status
+        report["standalone_execution"] = p2_status
         status = report["native_vs_phase_one"]
-        report["status"] = (status if status in {"match", "coarse_match"} and checks == ("match", "match")
-                            else "mismatch" if "mismatch" in (status, *checks) else "incomplete")
+        report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match"
+                            else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
+        write_json(destination / "acceptance.json", report)
+        return report
+
     except (ValueError, OSError, RuntimeError, KeyError, subprocess.TimeoutExpired) as exc:
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}
     write_json(destination / "acceptance.json", report)
@@ -795,59 +620,3 @@ def _match_logging_events(evidence, phase_two_log, first):
     matched = one == two == expected
     evidence["status"] = "match" if matched else "mismatch"
     return matched
-
-
-def _verify_observable(script, input_dir, destination, commands, timeout, first, expected_files,
-                       logging_evidence=None, as_of=None, xlsx_sinks=frozenset(), bindings=None):
-    output = destination / "delivery-output"
-    events = output / "events" if commands else output
-    events.mkdir(parents=True)
-    phase_two_log = destination / "phase-two-workflow.jsonl"
-    log_args = ["--workflow-log", str(phase_two_log)] if logging_evidence else []
-    process = subprocess.run(
-        _standalone_arguments(script, input_dir, output, events, commands, log_args, as_of, bindings),
-        capture_output=True, timeout=timeout, cwd=output, check=False,
-    )
-    (destination / "standalone.stdout.txt").write_bytes(process.stdout)
-    (destination / "standalone.stderr.txt").write_bytes(process.stderr)
-    stderr = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
-    failure_kind = stderr[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr else None
-    observed = _delivery_artifacts(output, xlsx_sinks)
-    workbook_result = {}
-    file_differences = []
-    if "workbooks" in first:
-        rendered = {name: digest for name, digest in workbook_artifacts(output).items() if name not in expected_files}
-        observed = {name: digest for name, digest in observed.items() if name not in rendered}
-        workbook_result = {"phase_one_workbooks": first["workbooks"], "phase_two_workbooks": rendered}
-        for name, change in changed_artifacts(first["workbooks"], rendered):
-            file_differences.append({
-                "filename": name, "status": change,
-                "detail": _workbook_detail(destination / "phase-one-output" / "render" / name, output / name)
-                if change == "different" else None,
-            })
-        workbook_match = first["workbooks"] == rendered
-        if first["status"] == "success":
-            workbook_match = bool(rendered) and workbook_match
-    else:
-        workbook_match = True
-    if first["status"] == "success":
-        outcome_matches = process.returncode == 0
-        evidence = bool(expected_files or workbook_result)
-    else:
-        outcome_matches = process.returncode == 1 and failure_kind == first["failure"]["type"]
-        evidence = True
-    for name, change in changed_artifacts(expected_files, observed):
-        file_differences.append({"filename": name, "status": change})
-    logging_match = _match_logging_events(logging_evidence, phase_two_log, first)
-    status = "mismatch" if not outcome_matches or expected_files != observed or not logging_match or not workbook_match else "match" if evidence else "incomplete"
-    result = {
-        "profile": "observable", "status": status, "returncode": process.returncode,
-        "phase_one_outcome": first["status"], "phase_two_failure_type": failure_kind if process.returncode else None,
-        "phase_one_files": expected_files, "phase_two_files": observed,
-        "file_differences": file_differences,
-        **workbook_result,
-        **({"logging_events": logging_evidence} if logging_evidence else {}),
-    }
-    write_json(destination / "phase-one-vs-phase-two.json", result)
-    write_json(destination / "standalone.json", result)
-    return {"phase_one_vs_phase_two": status, "standalone_execution": status}

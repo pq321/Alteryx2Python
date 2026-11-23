@@ -57,7 +57,8 @@ changed without recompilation; typed overflow/truncation; source overwrite gates
 ### 2. Signatures
 - `optimize_workflow_ir(workflow, *, parameters=None, parameter_bindings=None, parameter_expressions=None) -> OptimizationResult`
 - `extract_config(opt, *, original_workflow=None, delivery_profile=None, log_event_ids=()) -> ConfigSpec`
-- `ModularPackageGenerator().generate(workflow, *, answers=None, constants=None, parameter_mode="dynamic", delivery_profile=None, log_event_ids=(), input_bindings=None, reference_capture=None, reference_input_dir=None, reference_overrides=None) -> PackageArtifact`
+- `ModularPackageGenerator().generate(workflow, *, answers=None, constants=None, parameter_mode="dynamic", delivery_profile=None, log_event_ids=(), input_bindings=None) -> PackageArtifact`
+- Generated package API `transform(tables, *, parameters=None, references=None, operations=None)` returns the final DataFrame for a single output and the named final results for multiple workflow sinks.
 - CLI: `alteryx2python readable <source> --output <dir_or_py> [--format auto|package|single-file]`
 
 ### 3. Contracts
@@ -70,12 +71,12 @@ changed without recompilation; typed overflow/truncation; source overwrite gates
   - Fold private 1-row `TextInput + AppendFields` parameter patterns into scalar parameters in general dynamic mode.
   - Algebraically compose consecutive `Select -> Select` chains (unless intermediate narrow cast/truncation would be lost), fuse consecutive single-consumer `Formula` nodes and single-branch `Filter` nodes, inline 1-call Standard Macros, deduplicate 2+-call Standard Macros into `macros/<key>.py`, and lower `BatchMacro` / `IterativeMacro` to explicit loop modules in `macros/<key>.py`.
 - **Adaptive Self-Contained Package Layout**:
-  - Always emit `__init__.py`, `__main__.py`, `config.toml`, `audit_utils.py`, `pipeline.py`, `cli.py`, `io_utils.py`, `manifest.json`, and `workflow.ir.json`.
+  - Always emit `__init__.py`, `__main__.py`, `config.toml`, `audit_utils.py`, `pipeline.py`, `runner.py`, `cli.py`, `io_utils.py`, `manifest.json`, and `workflow.ir.json`.
   - Emit `macros/` only when reusable/loop macros exist; emit `references/` only when multi-row `TextInput` tables exist; emit `helpers.py` only when non-vectorizable functions or specialized kernels are referenced.
-  - Every input read, reference load, intermediate stage (`audit.run_step`), skipped conditional branch (`audit.skip_step`), and output write emits structured step-by-step auditing via `audit_utils.py` (configurable under `[logging]` in `config.toml` and `--log-level` / `--log-format` / `--audit-log` in `cli.py`; see `logging-guidelines.md`).
-- **Option A Data-Driven Semantic Specialization**:
+  - `runner.py` binds file readers, reference tables, workflow sinks, and external operations. `transform` accepts tables and operations from the caller and holds intermediate frames in local variables. The CLI can record structured execution diagnostics through `audit_utils.py`.
+- **Deterministic Operator Semantics**:
   - Emit clean, vectorized idiomatic Pandas (`df.assign`, `np.where`, `.loc`, `merge`, `groupby().agg()`) without `alteryx_schema` / `declare_field` noise by default.
-  - When `reference_capture` from Phase 1 diverges on real data, apply minimal targeted refinements in cascade order: Tier 1a `.str.slice(0, width)` -> Tier 1b `.str.casefold()` on Join/Unique -> Tier 2 exact scalar/type semantics, recording applied rules in `manifest.json["option_a_refinements"]`.
+  - Lower declared widths and fixed-decimal types from the workflow definition. Phase 1 records and output comparisons are verification inputs. Compile the same Python for every run of a supported workflow definition.
 - **Record-Field Precedence Gotcha**:
   - Bare `[field_name]` AST references ALWAYS resolve to DataFrame columns `df["field_name"]`, even when an Analytic App Question shares the same name (e.g., `[region]` column vs. `region` DropDown Question). Only `ParameterExpression(name)` or explicit `[Question.*]` / `[User.*]` / `[Engine.*]` namespaces resolve to parameters.
 
@@ -94,7 +95,7 @@ changed without recompilation; typed overflow/truncation; source overwrite gates
 
 ### 6. Tests Required
 - `tests/test_generator/test_ir_optimizer.py`: Select/Formula/Filter fusion, lossy truncation preservation, 1-row `TextInput + AppendFields` dynamic folding, 1-call macro inlining vs. 2-call deduplication vs. Batch/Iterative loop specs, container guard boundaries.
-- `tests/test_generator/test_package_compiler.py`: 7-question single-compile multi-config execution, multi-row `TextInput` CSV extraction, `User.*` parameter override via `--set`, Option A refinement cascade, workflow logging & email events.
+- `tests/test_generator/test_package_compiler.py`: 7-question single-compile multi-config execution, in-memory final results, static truncation, Dynamic Input bindings, reference tables, workflow logging and email events.
 - `tests/test_parity_behavior/test_boundary_delivery.py`: Un-staged compilation during `resume_migration`, `case_config.json` binding, automatic `parameter_perturbation` and `empty_input` boundary differential verification.
 
 ### 7. Wrong vs. Correct

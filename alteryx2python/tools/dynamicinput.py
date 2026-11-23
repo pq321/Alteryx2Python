@@ -63,7 +63,10 @@ def dynamic_source_reference(value, template, action):
     return filename + separator + name if workbook else str(path.with_name(name + path.suffix))
 
 
-def read_file_list(frame, field, template, read_options, input_dir, behaviour="error", on_warning=None, *, action="Path"):
+def read_file_list(
+    frame, field, template, read_options, input_dir, behaviour="error", on_warning=None, *,
+    action="Path", path_aliases=None, schema_reference=None,
+):
     template_path, _, template_sheet = template.partition("|||")
     suffix = Path(template_path).suffix.lower()
     if field not in frame:
@@ -74,6 +77,8 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
             raise ValueError(f"Dynamic Input path in {field!r} must be nonempty text")
         filename, _, sheet = reference.partition("|||")
         path = Path(input_dir) / filename
+        if path_aliases:
+            path = Path(path_aliases.get(str(path.resolve()), path))
         if path.suffix.lower() != suffix:
             raise ValueError(f"Dynamic Input expected {suffix} files, got {path.name!r}")
         if suffix == ".csv":
@@ -97,7 +102,7 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
     try:
         # A header-only Excel parse can drop trailing blank headers whose columns contain data.
         schema_options = read_options if suffix == ".xlsx" else {**read_options, "nrows": 0}
-        expected_columns = list(read_one(template, schema_options).columns) if references else None
+        expected_columns = list(read_one(schema_reference or template, schema_options).columns) if references else None
     except (OSError, ValueError, BadZipFile, NotImplementedError):
         # A portable workflow can still use a complete source path when its saved template is unavailable.
         expected_columns = None
@@ -125,7 +130,7 @@ def read_file_list(frame, field, template, read_options, input_dir, behaviour="e
     if frames:
         return pd.concat(frames, ignore_index=True)
     try:
-        return read_one(template, read_options).iloc[:0]
+        return read_one(schema_reference or template, read_options).iloc[:0]
     except (OSError, ValueError, BadZipFile, NotImplementedError):
         if first_failure is not None:
             message, error = first_failure

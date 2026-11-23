@@ -9,7 +9,126 @@ from alteryx2python.generator.config_extractor import ConfigSpec
 
 
 def render_init_py() -> str:
-    return '"""Generated native Python data pipeline package."""\n\nfrom .pipeline import run_pipeline\n\n__all__ = ["run_pipeline"]\n'
+    return '"""Generated native Python data pipeline package."""\n\nfrom .pipeline import transform\nfrom .runner import run_pipeline\n\n__all__ = ["transform", "run_pipeline"]\n'
+
+
+def render_runner_py(spec: ConfigSpec, io_helpers: list[str], operation_helpers: dict[str, str]) -> str:
+    imports = ["from functools import partial", "from pathlib import Path"] if spec.operations or "file_exists" in operation_helpers else []
+    relative = ["from .audit_utils import create_audit_logger", "from .pipeline import _transform"]
+    if io_helpers:
+        relative.append(f"from .io_utils import {', '.join(io_helpers)}")
+    if "render_xlsx" in operation_helpers:
+        relative.append("from .io_utils import resolve_output_path")
+    if operation_helpers:
+        relative.append(f"from .helpers import {', '.join(operation_helpers.values())}")
+    imports.extend(["if __package__:", *[f"    {line}" for line in relative], "else:"])
+    imports.extend(f"    {line.replace('from .', 'from ', 1)}" for line in relative)
+
+    blocks = ["\n".join(imports)]
+    if "directory" in operation_helpers:
+        blocks.append(textwrap.dedent(f"""
+            def _list_directory(entry, input_dir):
+                directory = (input_dir / entry["directory"]).resolve()
+                return {operation_helpers['directory']}(directory, entry["file_spec"], entry["include_subdirs"])
+        """).strip())
+    if "dynamic" in operation_helpers:
+        blocks.append(textwrap.dedent(f"""
+            def _read_dynamic(entry, input_dir, parameters, frame, field):
+                template = parameters.get(entry.get("parameter"), entry["template"])
+                if Path(template.partition("|||")[0]).suffix.lower() != entry["expected_suffix"]:
+                    raise ValueError("Dynamic Input template must keep its configured file format")
+                options = {{"header": None, "nrows": None, **entry["read_options"]}}
+                return {operation_helpers['dynamic']}(
+                    frame, field, template, options, entry.get("input_dir", input_dir), entry["behaviour"],
+                    action=entry["action"], path_aliases=entry.get("path_aliases"),
+                    schema_reference=entry.get("schema_reference"),
+                )
+        """).strip())
+    if "file_exists" in operation_helpers:
+        blocks.append(textwrap.dedent(f"""
+            def _file_exists(runtime, value):
+                aliases = runtime.get("input_aliases")
+                if aliases and isinstance(value, str) and value:
+                    original = Path(runtime["original_input_dir"]) / value
+                    value = aliases.get(str(original.resolve()), value)
+                return {operation_helpers['file_exists']}(value)
+        """).strip())
+    if "command" in operation_helpers:
+        blocks.append(textwrap.dedent(f"""
+            def _run_command(entry, runtime, input_dir, frame, **overrides):
+                entry = {{**entry, **overrides}}
+                program = entry["program_name"]
+                if not Path(program).is_absolute() and (input_dir / program).is_file():
+                    program = str((input_dir / program).resolve())
+                work_dir = Path(runtime["command_working_dir"]) if runtime.get("command_working_dir") else input_dir / entry["working_dir"]
+                return {operation_helpers['command']}(
+                    program, entry["arguments"], work_dir, frame, entry["input_file"],
+                    entry["output_file"], runtime.get("allowed_commands", ()),
+                )
+        """).strip())
+
+    lines = [
+        "def run_pipeline(config):",
+        '    runtime = config.get("runtime", {})',
+        '    parameters = config.get("parameters", {})',
+        "    audit = create_audit_logger(config)",
+        "    written_outputs = {}",
+        "    operations = {}",
+    ]
+    if spec.operations:
+        lines.append('    input_dir = Path(runtime.get("input_dir", "."))')
+        for key in spec.operations:
+            if key.startswith("directory_"):
+                call = "_list_directory, entry, input_dir"
+            elif key.startswith("dynamic_input_"):
+                call = "_read_dynamic, entry, input_dir, parameters"
+            else:
+                call = "_run_command, entry, runtime, input_dir"
+            lines.extend([
+                f'    entry = config["operations"][{key!r}]',
+                f"    operations[{key!r}] = partial({call})",
+            ])
+    if "file_exists" in operation_helpers:
+        lines.append('    operations["file_exists"] = partial(_file_exists, runtime)')
+    lines.extend(["", "    def read_table(section, key, label):"])
+    for section, reader in (("inputs", "read_input_table"), ("references", "read_reference_table")):
+        if reader in io_helpers:
+            lines.extend([
+                f"        if section == {section!r}:",
+                f"            return {reader}(config, key, audit=audit, tool_label=label)",
+            ])
+    lines.append("        raise KeyError((section, key))")
+    sink = ""
+    if "write_output_table" in io_helpers:
+        lines.extend(["", "    def write_result(frame, key, label):"])
+        if "render_xlsx" in operation_helpers:
+            lines.extend([
+                '        entry = config["outputs"][key]',
+                '        if entry["format"] == "render_xlsx":',
+                '            destination = resolve_output_path(config, entry)',
+                f"            written_outputs[key] = {operation_helpers['render_xlsx']}(",
+                '                frame, destination, entry["field"], entry["group_field"] or None, entry["modifier"] or None,',
+                '            )',
+                '            return',
+            ])
+        lines.append("        written_outputs[key] = write_output_table(frame, config, key, audit=audit, tool_label=label)")
+        sink = ", write_result=write_result"
+    lines.extend([
+        "",
+        "    audit.start_pipeline(parameters=parameters)",
+        "    try:",
+        f"        result = _transform(read_table, parameters, operations, audit=audit{sink})",
+        "    except Exception as exc:",
+        "        audit.fail_pipeline(exc)",
+        "        raise",
+        "    else:",
+        "        audit.finish_pipeline(outputs=written_outputs)",
+        "    finally:",
+        "        audit.close()",
+        '    return {"output_dir": str(runtime.get("output_dir", "output")), "outputs": written_outputs,',
+        '            "frames": result if not written_outputs else {}, "audit": audit.records}',
+    ])
+    return "\n\n\n".join([*blocks, "\n".join(lines)]) + "\n"
 
 
 def render_main_py() -> str:
@@ -1039,11 +1158,11 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
         f'''
         if __package__:
             from .io_utils import load_config{(", configure_workflow_logging" if has_log else "")}{(", workflow_lifecycle" if has_events else "")}
-            from .pipeline import run_pipeline
+            from .runner import run_pipeline
         else:
             sys.path.insert(0, str(Path(__file__).resolve().parent))
             from io_utils import load_config{(", configure_workflow_logging" if has_log else "")}{(", workflow_lifecycle" if has_events else "")}
-            from pipeline import run_pipeline
+            from runner import run_pipeline
         '''
     ).strip()
 

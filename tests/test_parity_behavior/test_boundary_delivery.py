@@ -65,7 +65,26 @@ def test_cli_readable_directory_emits_modular_package(tmp_path: Path, capsys):
     payload = json.loads(capsys.readouterr().out)
     assert payload["format"] == "package"
     assert (out_pkg / "pipeline.py").is_file()
+    assert (out_pkg / "runner.py").is_file()
     assert (out_pkg / "config.toml").is_file()
+
+
+def test_migration_does_not_compile_from_replay_when_original_is_missing(tmp_path: Path):
+    builder = WorkflowBuilder()
+    data = builder.add_text_input(["amount"], [["1"]])
+    sink = builder.add_csv_output("out.csv")
+    builder.connect(data, sink)
+    source = tmp_path / "simple.yxmd"
+    source.write_text(builder.render(), encoding="utf-8")
+    case_dir = tmp_path / "case"
+    prepare_migration(source, case_dir)
+    source.rename(tmp_path / "moved.yxmd")
+
+    result = resume_migration(case_dir)
+
+    assert result["status"] == "blocked"
+    assert "original workflow is unavailable" in result["failure"]["message"]
+    assert not (case_dir / "delivery" / "package").exists()
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows preview associations")

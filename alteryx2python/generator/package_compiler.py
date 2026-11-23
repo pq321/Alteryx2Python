@@ -11,7 +11,6 @@ import json
 import keyword
 from pathlib import Path
 import re
-import tempfile
 import textwrap
 from typing import Any
 
@@ -32,6 +31,7 @@ from alteryx2python.generator.package_templates import (
     render_init_py,
     render_io_utils_py,
     render_main_py,
+    render_runner_py,
 )
 from alteryx2python.generator.parameters import ParameterExpression, prepare_parameters
 from alteryx2python.generator.source_linker import (
@@ -46,7 +46,7 @@ from alteryx2python.ir.models import NodeIR, WorkflowIR
 from alteryx2python.tools.field_contracts import INTEGER_BYTES, STRING_TYPES, field_contract
 
 
-PACKAGE_TEMPLATE_VERSION = "native-package/1.0.0"
+PACKAGE_TEMPLATE_VERSION = "native-package/2.0.0"
 
 IO_BOUNDARY_TOOLS = frozenset({
     "DbFileInput",
@@ -69,22 +69,6 @@ def _annotation_name(node: NodeIR) -> str:
     if isinstance(ann, dict):
         ann = ann.get("text", "")
     return str(ann or "").strip()
-
-
-@dataclass
-class RefinementSpec:
-    """Option A targeted semantic refinements (empty by default for clean native Pandas)."""
-
-    casefold_nodes: set[str] = field(default_factory=set)
-    truncated_fields: dict[tuple[str, str], int] = field(default_factory=dict)
-    exact_nodes: set[str] = field(default_factory=set)
-
-    def to_dict(self) -> dict[str, Any]:
-        return {
-            "casefold_nodes": sorted(self.casefold_nodes),
-            "truncated_fields": {f"{nid}:{col}": w for (nid, col), w in sorted(self.truncated_fields.items())},
-            "exact_nodes": sorted(self.exact_nodes),
-        }
 
 
 @dataclass
@@ -135,7 +119,7 @@ class _CompiledOp:
     output_anchors: tuple[str, ...]
     output_vars: list[str]
     param_kwargs: list[str]     # sorted python parameter names from config["parameters"]
-    runtime_kwargs: list[str]   # e.g. ["config"] if RunCommand/DynamicInput needs runtime config
+    runtime_kwargs: list[str]
     body_lines: list[str]
     imports: set[str] = field(default_factory=set)
     can_inline_linear: bool = False
@@ -153,7 +137,6 @@ class _SubgraphEmitter:
         config_spec: ConfigSpec,
         *,
         delivery_profile: str | None = None,
-        refinement: RefinementSpec | None = None,
         helper_linker: SourceLinker | None = None,
         is_macro: bool = False,
     ) -> None:
@@ -161,7 +144,6 @@ class _SubgraphEmitter:
         self.workflow = opt.workflow
         self.config_spec = config_spec
         self.delivery_profile = delivery_profile
-        self.refinement = refinement or RefinementSpec()
         self.linker = helper_linker if helper_linker is not None else SourceLinker()
         self.is_macro = is_macro
         self.pipeline_imports: set[str] = {"from __future__ import annotations", "import pandas as pd"}
@@ -171,6 +153,8 @@ class _SubgraphEmitter:
         self.needs_render_html = False
         self.needs_render_xlsx = False
         self.needs_email = False
+        self.needs_file_exists = False
+        self.expression_needs_file_exists = False
         self.needs_excel_in = any(v.get("format") == "excel" for v in config_spec.inputs.values())
         self.needs_excel_out = any(v.get("format") == "excel" for v in config_spec.outputs.values())
         self.column_kinds_by_var: dict[str, dict[str, str]] = {}
@@ -210,6 +194,9 @@ class _SubgraphEmitter:
                 return f"({node.operator}{render(node.operand)})"
             if isinstance(node, FunctionExpression):
                 fn_up = node.name.upper()
+                if fn_up == "FILEEXISTS" and len(node.args) == 1:
+                    self.expression_needs_file_exists = True
+                    return f"operations['file_exists']({render(node.args[0])})"
                 if fn_up in {"TRIMLEFT", "TRIMRIGHT", "LOWERCASE"} and len(node.args) == 1:
                     arg_code = render(node.args[0])
                     m = {"TRIMLEFT": "lstrip()", "TRIMRIGHT": "rstrip()", "LOWERCASE": "lower()"}[fn_up]
@@ -304,29 +291,20 @@ class _SubgraphEmitter:
         series_code: str,
         dtype: str | None,
         size: Any = None,
-        *,
-        node_id: str = "",
-        col_name: str = "",
     ) -> tuple[str, str]:
         """Return (cast_code, kind_tag) using clean native Pandas by default."""
         if not dtype:
             return series_code, "any"
-        exact = node_id in self.refinement.exact_nodes
-        trunc_width = self.refinement.truncated_fields.get((node_id, col_name))
 
         if dtype in STRING_TYPES:
             code = f'{series_code}.astype("string")'
-            if trunc_width is not None:
-                code = f"{code}.str.slice(0, {trunc_width!r})"
-            elif exact:
-                contract = field_contract(dtype, size)
-                if contract and contract.get("size"):
-                    code = f"{code}.str.slice(0, {contract['size']!r})"
+            contract = field_contract(dtype, size)
+            if contract and contract.get("size"):
+                code = f"{code}.str.slice(0, {contract['size']!r})"
             return code, "string"
 
         if dtype in INTEGER_BYTES or dtype == "int64":
-            if exact and dtype in INTEGER_BYTES:
-                from alteryx2python.generator.native_fields import INTEGER_BYTES as IB
+            if dtype in INTEGER_BYTES:
                 from alteryx2python.tools.field_contracts import coerce_field
 
                 h_coerce = self.linker.function(coerce_field)
@@ -343,13 +321,11 @@ class _SubgraphEmitter:
             width = str((contract or {}).get("size") or size or "19.2")
             _, _, scale_str = width.partition(".")
             scale = int(scale_str or "2")
-            if exact:
-                from alteryx2python.tools.field_contracts import _fixed_decimal
+            from alteryx2python.tools.field_contracts import _fixed_decimal
 
-                prec = int(width.partition(".")[0] or "19")
-                h_dec = self.linker.function(_fixed_decimal)
-                return f"pd.Series([{h_dec}(v, {prec}, {scale}) for v in {series_code}], index={series_code}.index, dtype=object)", "numeric"
-            return f'pd.to_numeric({series_code}, errors="coerce").round({scale})', "numeric"
+            prec = int(width.partition(".")[0] or "19")
+            h_dec = self.linker.function(_fixed_decimal)
+            return f"pd.Series([{h_dec}(v, {prec}, {scale}) for v in {series_code}], index={series_code}.index, dtype=object)", "decimal"
 
         if dtype in {"Bool", "bool"}:
             return (
@@ -381,8 +357,6 @@ class _SubgraphEmitter:
         in_kinds = dict(self.column_kinds_by_var.get(in_var, {}))
         imps: set[str] = set()
         params_used: set[str] = set()
-        exact = node.node_id in self.refinement.exact_nodes
-        casefold = node.node_id in self.refinement.casefold_nodes
 
         if kind == "Select":
             from alteryx2python.tools.select import _expected_output_columns, _normalize_select_fields
@@ -397,7 +371,6 @@ class _SubgraphEmitter:
                 pure_subset = all(
                     f["rename"] == f["source"]
                     and not f["dtype"]
-                    and (node.node_id, f["rename"]) not in self.refinement.truncated_fields
                     for f in selected
                 )
                 order = _expected_output_columns(cfg.get("expected_output_schema"))
@@ -414,7 +387,7 @@ class _SubgraphEmitter:
                 for f in selected:
                     src, dst = f["source"], f["rename"]
                     cast_code, k_tag = self._native_cast_expr(
-                        f"{frame}[{src!r}]", f["dtype"], f.get("size"), node_id=node.node_id, col_name=dst
+                        f"{frame}[{src!r}]", f["dtype"], f.get("size")
                     )
                     if cast_code == f"{frame}[{src!r}]":
                         cast_code += ".copy()"
@@ -442,9 +415,9 @@ class _SubgraphEmitter:
                         out_kinds[d_col] = out_kinds.pop(s_col)
             for f in selected:
                 dst = f["rename"]
-                if f["dtype"] or (node.node_id, dst) in self.refinement.truncated_fields:
+                if f["dtype"]:
                     cast_code, k_tag = self._native_cast_expr(
-                        f"out[{dst!r}]", f["dtype"], f.get("size"), node_id=node.node_id, col_name=dst
+                        f"out[{dst!r}]", f["dtype"], f.get("size")
                     )
                     lines.append(f"out[{dst!r}] = {cast_code}")
                     out_kinds[dst] = k_tag
@@ -463,18 +436,13 @@ class _SubgraphEmitter:
                 ) or parse_expression(f_entry["expression"])
                 params_used |= self._collect_expr_params(parsed, param_names)
 
-                lowered = (
-                    None
-                    if exact
-                    else try_lower_vectorized(
-                        parsed,
-                        "out",
-                        param_names=param_names,
-                        param_meta=self.config_spec.parameter_meta,
-                        static_constants=static_consts,
-                        known_column_kinds=out_kinds,
-                        casefold_comparisons=casefold,
-                    )
+                lowered = try_lower_vectorized(
+                    parsed,
+                    "out",
+                    param_names=param_names,
+                    param_meta=self.config_spec.parameter_meta,
+                    static_constants=static_consts,
+                    known_column_kinds=out_kinds,
                 )
                 if lowered is not None:
                     imps |= lowered.imports
@@ -488,16 +456,9 @@ class _SubgraphEmitter:
                     k_tag = "any"
 
                 f_type = f_entry.get("type")
-                has_trunc = (node.node_id, target_col) in self.refinement.truncated_fields
-                if f_type and not (
-                    lowered is not None
-                    and f_type in STRING_TYPES
-                    and lowered.kind == "string"
-                    and not has_trunc
-                    and not exact
-                ):
+                if f_type:
                     cast_code, k_tag = self._native_cast_expr(
-                        f"out[{target_col!r}]", f_type, f_entry.get("size"), node_id=node.node_id, col_name=target_col
+                        f"out[{target_col!r}]", f_type, f_entry.get("size")
                     )
                     if cast_code != f"out[{target_col!r}]":
                         lines.append(f"out[{target_col!r}] = {cast_code}")
@@ -511,18 +472,13 @@ class _SubgraphEmitter:
                 raise UnsupportedLowering(f"Unsupported Filter operator: {cfg['unsupported_operator']}")
             parsed = self.opt.parameter_expressions.get((node.node_id, ("expression",))) or parse_expression(cfg["expression"])
             params_used |= self._collect_expr_params(parsed, param_names)
-            lowered = (
-                None
-                if exact
-                else try_lower_vectorized(
-                    parsed,
-                    frame,
-                    param_names=param_names,
-                    param_meta=self.config_spec.parameter_meta,
-                    static_constants=static_consts,
-                    known_column_kinds=in_kinds,
-                    casefold_comparisons=casefold,
-                )
+            lowered = try_lower_vectorized(
+                parsed,
+                frame,
+                param_names=param_names,
+                param_meta=self.config_spec.parameter_meta,
+                static_constants=static_consts,
+                known_column_kinds=in_kinds,
             )
             if lowered is not None:
                 imps |= lowered.imports
@@ -581,13 +537,9 @@ class _SubgraphEmitter:
                 "Max": "max",
                 "Avg": "mean",
                 "Median": "median",
-                "First": "first",
-                "Last": "last",
             }
             simple_groups = (
                 bool(groups)
-                and not exact
-                and not casefold
                 and all(not f.get("rename") or f["rename"] == f["field"] for f in group_fields)
                 and len(set(out_cols)) == len(out_cols)
                 and all(m["action"] in agg_map for m in measures)
@@ -630,11 +582,7 @@ class _SubgraphEmitter:
                 f"keys = {subset}",
                 f'ordered = {frame}.sort_values(keys, kind="stable", na_position="first")',
             ]
-            if casefold and u_fields:
-                lines.append("norm_keys = ordered[keys].apply(lambda s: s.astype('string').str.casefold())")
-                lines.append('duplicate = norm_keys.duplicated(keep="first")')
-            else:
-                lines.append('duplicate = ordered.duplicated(subset=keys, keep="first")')
+            lines.append('duplicate = ordered.duplicated(subset=keys, keep="first")')
             want_u = "Unique" in consumed_anchors or not consumed_anchors
             want_d = "Duplicates" in consumed_anchors
             if want_u and not want_d:
@@ -710,28 +658,10 @@ class _SubgraphEmitter:
             if not by_pos and (not l_keys or len(l_keys) != len(r_keys)):
                 raise UnsupportedLowering("Join requires equally many Left and Right fields")
 
-            # Clean native pd.merge fast path when only inner 'Join' output is used and no complex SelectConfiguration
             sel_fields = cfg.get("select_fields", [])
-            simple_sel = not sel_fields or (
-                len(sel_fields) == 1 and sel_fields[0].get("source") == "*Unknown" and sel_fields[0].get("selected", True)
-            )
-            if (
-                not by_pos
-                and not exact
-                and simple_sel
-                and consumed_anchors == {"Join"}
-            ):
-                if not casefold:
-                    lines = [
-                        f"right_renamed = {right_arg}.rename(columns={{c: f'Right_{{c}}' for c in {right_arg}.columns if c in {left_arg}.columns}})",
-                        f"right_keys = [f'Right_{{k}}' if k in {left_arg}.columns else k for k in {r_keys!r}]",
-                        f"return {left_arg}.merge(right_renamed, left_on={l_keys!r}, right_on=right_keys, how='inner', sort=True)",
-                    ]
-                    return lines, imps, params_used, [], False, {}
-
             h_join = self.linker.function(join_frames)
             lines = [
-                f"left_out, joined_out, right_out = {h_join}({left_arg}, {right_arg}, {l_keys!r}, {r_keys!r}, {sel_fields!r}, {cfg.get('order_changed', True)!r}, {by_pos!r})"
+                f"joined_out, left_out, right_out = {h_join}({left_arg}, {right_arg}, {l_keys!r}, {r_keys!r}, {sel_fields!r}, {cfg.get('order_changed', True)!r}, {by_pos!r})"
             ]
             if consumed_anchors == {"Join"}:
                 lines.append("return joined_out")
@@ -763,7 +693,7 @@ class _SubgraphEmitter:
             for f in cfg.get("select_fields", []):
                 ref, dtype = f["source"], f.get("dtype")
                 if dtype and f.get("selected", True) and ref != "*Unknown":
-                    cast_c, _ = self._native_cast_expr("out[col_name]", dtype, f.get("size"), node_id=node.node_id)
+                    cast_c, _ = self._native_cast_expr("out[col_name]", dtype, f.get("size"))
                     lines.extend([
                         f"if {ref!r} in col_names:",
                         f"    col_name = col_names[{ref!r}]",
@@ -811,49 +741,26 @@ class _SubgraphEmitter:
                 params_used.add(as_of_var)
             return [f"return {h_dt}({as_of_var} or {cfg.get('now')!r}, {out_fmt!r})"], imps, params_used, [], False, {}
 
-        if kind == "DynamicInput":
-            from alteryx2python.tools.dynamicinput import read_file_list, read_list_options
-
-            field_n, template, behaviour, options = read_list_options(cfg)
-            h_dyn = self.linker.function(read_file_list)
-            imps.add("from pathlib import Path")
-            return (
-                [
-                    'input_dir = Path(config.get("runtime", {}).get("input_dir", "."))',
-                    f"return {h_dyn}({frame}, {field_n!r}, {template!r}, {options!r}, input_dir, {behaviour!r})",
-                ],
-                imps,
-                params_used,
-                ["config"],
-                False,
-                {},
-            )
-
-        if kind == "RunCommand":
-            self.needs_commands = True
-            cmd_params: dict[str, str] = {}
-            for b in self.opt.parameter_bindings:
-                if b.get("kind") == "command" and str(b.get("node_id")) == node.node_id and b.get("name") in param_names:
-                    p_py = param_names[b["name"]]
-                    cmd_params[b["path"][0]] = p_py
-                    params_used.add(p_py)
-            from alteryx2python.tools.delivery import run_checked_command
-
-            h_cmd = self.linker.function(run_checked_command)
-            prog_expr = cmd_params.get("program_name", repr(cfg.get("program_name", "")))
-            args_expr = cmd_params.get("arguments", repr(cfg.get("arguments", "")))
-            dir_expr = cmd_params.get("working_dir", repr(cfg.get("working_dir", "")))
-            imps.add("from pathlib import Path")
-            body = [
-                'runtime = config.get("runtime", {})',
-                'input_dir = Path(runtime.get("input_dir", "."))',
-                f"program = {prog_expr}",
-                "if not Path(program).is_absolute() and (input_dir / program).is_file():",
-                "    program = str((input_dir / program).resolve())",
-                f'work_dir = Path(runtime["command_working_dir"]) if runtime.get("command_working_dir") else (input_dir / ({dir_expr}))',
-                f'return {h_cmd}(program, {args_expr}, work_dir, {frame if arg_names else "None"}, {cfg.get("input_file", "")!r}, {cfg.get("output_file", "")!r}, runtime.get("allowed_commands", ()))',
-            ]
-            return body, imps, params_used, ["config"], False, {}
+        if kind in {"Directory", "DynamicInput", "RunCommand"}:
+            if self.is_macro:
+                raise UnsupportedLowering(f"{kind} #{node.node_id} needs an external operation binding in a reusable macro")
+            if kind == "Directory":
+                key = f"directory_{node.node_id}"
+                call_args = ""
+            elif kind == "DynamicInput":
+                key = f"dynamic_input_{node.node_id}"
+                call_args = f"{frame}, {cfg['read_list_field']!r}"
+            else:
+                self.needs_commands = True
+                key = f"command_{node.node_id}"
+                args = [frame if arg_names else "None"]
+                for binding in self.opt.parameter_bindings:
+                    if binding.get("kind") == "command" and str(binding["node_id"]) == node.node_id:
+                        parameter = param_names[binding["name"]]
+                        params_used.add(parameter)
+                        args.append(f"{binding['path'][0]}={parameter}")
+                call_args = ", ".join(args)
+            return [f"return operations[{key!r}]({call_args})"], imps, params_used, ["operations"], False, {}
 
         if kind in {"PortfolioComposerTable", "PortfolioComposerText", "PortfolioComposerLayout"}:
             from alteryx2python.tools import delivery as delivery_tools
@@ -1185,10 +1092,7 @@ class _SubgraphEmitter:
             return label, f"Compute {col_part}"
 
         if kind == "Filter":
-            expr_txt = " ".join(str(cfg.get("expression", "")).split())
-            if len(expr_txt) > 64:
-                expr_txt = expr_txt[:61] + "..."
-            return label, f"Filter {expr_txt}" if expr_txt else "Filter rows"
+            return label, "Filter rows"
 
         if kind == "Summarize":
             fields = cfg.get("fields", [])
@@ -1278,8 +1182,8 @@ class _SubgraphEmitter:
             if k not in param_names
         }
 
-        used_func_names: set[str] = {"run_pipeline", "create_audit_logger"}
-        used_var_names: set[str] = {"audit", "config", "params", "written_outputs", "terminal_frames"} | set(param_names.values())
+        used_func_names = {"run_pipeline", "transform", "_transform", "_run_step"}
+        used_var_names: set[str] = {"audit", "config", "params", "results", "read_table", "write_result", "operations"} | set(param_names.values())
         var_by_anchor: dict[tuple[str, str], str] = {}
         orchestration_lines: list[str] = []
         mapping_entries: list[dict[str, Any]] = []
@@ -1305,6 +1209,7 @@ class _SubgraphEmitter:
 
         # Track whether pipeline needs io_utils imports
         used_io_helpers: set[str] = set()
+        sink_keys: list[str] = []
 
         for node_id in order:
             node = by_id[node_id]
@@ -1322,8 +1227,10 @@ class _SubgraphEmitter:
                 var_by_anchor[(node_id, "Output")] = var_name
                 used_io_helpers.add("read_input_table")
                 tool_lbl = f"DbFileInput #{node.source_tool_id or node_id}"
-                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
-                orchestration_lines.append(f"    {var_name} = read_input_table(config, {in_key!r}{io_audit_kw})")
+                if self.is_macro:
+                    orchestration_lines.append(f"    {var_name} = read_input_table(config, {in_key!r})")
+                else:
+                    orchestration_lines.append(f"    {var_name} = read_table('inputs', {in_key!r}, {tool_lbl!r})")
                 mapping_entries.append({
                     "node_id": node_id,
                     "source_tool_id": node.source_tool_id,
@@ -1340,8 +1247,10 @@ class _SubgraphEmitter:
                 var_by_anchor[(node_id, "Output")] = var_name
                 used_io_helpers.add("read_reference_table")
                 tool_lbl = f"TextInput #{node.source_tool_id or node_id}"
-                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
-                orchestration_lines.append(f"    {var_name} = read_reference_table(config, {ref_key!r}{io_audit_kw})")
+                if self.is_macro:
+                    orchestration_lines.append(f"    {var_name} = read_reference_table(config, {ref_key!r})")
+                else:
+                    orchestration_lines.append(f"    {var_name} = read_table('references', {ref_key!r}, {tool_lbl!r})")
                 ref_dtypes = self.config_spec.references[ref_key].get("dtypes", {})
                 self.column_kinds_by_var[var_name] = {
                     col: ("numeric" if dt in {"int64", "Int64", "float64"} else ("bool" if dt in {"bool", "boolean"} else "string" if dt == "string" else "any"))
@@ -1373,17 +1282,25 @@ class _SubgraphEmitter:
                     self.needs_email = True
 
                 guards = self._build_guards(node, by_id, var_by_anchor, param_names, container_guards)
+                if "False" not in guards:
+                    sink_keys.append(out_key)
                 tool_lbl = f"{node.tool_type} #{node.source_tool_id or node_id}"
-                io_audit_kw = f", audit=audit, tool_label={tool_lbl!r}" if not self.is_macro else ""
-                write_stmt = f"written_outputs[{out_key!r}] = write_output_table({src_var}, config, {out_key!r}{io_audit_kw})"
+                write_lines = (
+                    [f"written_outputs[{out_key!r}] = write_output_table({src_var}, config, {out_key!r})"]
+                    if self.is_macro else [
+                        f"results[{out_key!r}] = {src_var}",
+                        "if write_result is not None:",
+                        f"    write_result({src_var}, {out_key!r}, {tool_lbl!r})",
+                    ]
+                )
                 if guards:
                     orchestration_lines.append(f"    if {' and '.join(guards)}:")
-                    orchestration_lines.append(f"        {write_stmt}")
+                    orchestration_lines.extend("        " + line for line in write_lines)
                     if not self.is_macro:
-                        orchestration_lines.append("    else:")
+                        orchestration_lines.append("    elif audit is not None:")
                         orchestration_lines.append(f"        audit.skip_step({out_key!r}, {tool_lbl!r}, {f'Write output {out_key}'!r})")
                 else:
-                    orchestration_lines.append(f"    {write_stmt}")
+                    orchestration_lines.extend("    " + line for line in write_lines)
                 mapping_entries.append({
                     "node_id": node_id,
                     "source_tool_id": node.source_tool_id,
@@ -1426,10 +1343,13 @@ class _SubgraphEmitter:
             # For Filter / Unique / Join / BlockUntilDone, only return anchors actually consumed (unless terminal!)
             if consumed and node.tool_type in {"Filter", "Unique", "Join", "BlockUntilDone"}:
                 eff_outputs = tuple(a for a in all_outputs if a in consumed)
+            elif not consumed and node.tool_type in {"Filter", "Unique"}:
+                eff_outputs = ("True" if node.tool_type == "Filter" else "Unique",)
             else:
                 eff_outputs = all_outputs
 
             node_consts = node.metadata.get("workflow_constants") or static_consts
+            self.expression_needs_file_exists = False
             lowered_res = self._lower_pure_node(
                 node, cfg, arg_names, input_vars, consumed, eff_outputs, param_names, node_consts
             )
@@ -1438,6 +1358,11 @@ class _SubgraphEmitter:
             else:
                 body_lines = self._lower_via_registry_template(node, cfg, arg_names, eff_outputs)
                 imps, p_used, rt_kwargs, can_inline, out_kinds = set(), set(), [], False, {}
+            if self.expression_needs_file_exists:
+                if self.is_macro:
+                    raise UnsupportedLowering(f"{node.tool_type} #{node_id} needs a FileExists binding in a reusable macro")
+                self.needs_file_exists = True
+                rt_kwargs = [*rt_kwargs, "operations"]
 
             self.pipeline_imports |= imps
             fn_stem = self._stage_name(node, cfg)
@@ -1488,61 +1413,64 @@ class _SubgraphEmitter:
         mapping_entries.extend(stage_mappings)
 
         # Collect terminal non-sink frames (for pure-transform workflows & Macro bodies)
-        terminal_pairs: list[str] = []
-        for (nid, anch), v_name in var_by_anchor.items():
-            if consumers_count.get((nid, anch), 0) == 0:
-                terminal_pairs.append(f'"{nid}:{anch}": {v_name}')
-
-        # Assemble pipeline.py
-        needs_params = bool(self.config_spec.parameters) and (
-            any(op.param_kwargs for op in compiled_ops.values())
-            or any("params[" in line for line in orchestration_lines)
-        )
-        run_lines = ["def run_pipeline(config: dict) -> dict:"]
-        run_lines.append('    output_dir = str(config.get("runtime", {}).get("output_dir", "output"))')
-        if needs_params:
-            run_lines.append('    params = config.get("parameters", {})')
-        if not self.is_macro:
-            run_lines.append("    audit = create_audit_logger(config)")
-            run_lines.append("    audit.start_pipeline(parameters=params)" if needs_params else "    audit.start_pipeline()")
-        if "write_output_table" in used_io_helpers:
-            run_lines.append("    written_outputs: dict = {}")
-        if not self.is_macro and orchestration_lines:
-            run_lines.append("    try:")
-            run_lines.extend("    " + line for line in orchestration_lines)
-            run_lines.append("    except Exception as exc:")
-            run_lines.append("        audit.fail_pipeline(exc)")
-            run_lines.append("        raise")
-        else:
-            run_lines.extend(orchestration_lines)
-        if not self.is_macro:
-            run_lines.append("    audit.finish_pipeline(outputs=written_outputs)" if "write_output_table" in used_io_helpers else "    audit.finish_pipeline()")
-        ret_dict_items = ['"output_dir": output_dir']
-        if "write_output_table" in used_io_helpers:
-            ret_dict_items.append('"outputs": written_outputs')
-        if terminal_pairs:
-            ret_dict_items.append('"frames": {' + ", ".join(terminal_pairs) + "}")
-        else:
-            ret_dict_items.append('"frames": {}')
-        if not self.is_macro:
-            ret_dict_items.append('"audit": audit.records')
-        run_lines.append("    return {" + ", ".join(ret_dict_items) + "}")
+        terminals = {
+            f"{nid}:{anchor}": var_name
+            for (nid, anchor), var_name in var_by_anchor.items()
+            if not consumers_count.get((nid, anchor))
+        }
+        terminal_items = ", ".join(f"{key!r}: {var}" for key, var in terminals.items())
 
         io_imports = sorted(used_io_helpers)
         all_imports = set(self.pipeline_imports)
+        entry_name = "run_pipeline" if self.is_macro else "transform"
         if not self.is_macro:
-            rel_pkg_imps = ["from .audit_utils import create_audit_logger"]
-            abs_pkg_imps = ["from audit_utils import create_audit_logger"]
-            if io_imports:
-                rel_pkg_imps.append(f"from .io_utils import {', '.join(io_imports)}")
-                abs_pkg_imps.append(f"from io_utils import {', '.join(io_imports)}")
-            io_block = (
-                "if __package__:\n    "
-                + "\n    ".join(rel_pkg_imps)
-                + "\nelse:\n    "
-                + "\n    ".join(abs_pkg_imps)
-            )
-        elif io_imports:
+            has_sinks = "write_output_table" in used_io_helpers
+            run_lines = [
+                "def _transform(read_table, params, operations, *, audit=None, write_result=None):",
+                *(["    results = {}"] if has_sinks else []),
+                *orchestration_lines,
+            ]
+            if has_sinks:
+                run_lines.append("    return results")
+            else:
+                run_lines.append(f"    return {{{terminal_items}}}")
+            final_keys = sink_keys if has_sinks else list(terminals)
+            return_expr = f"results.get({final_keys[0]!r})" if len(final_keys) == 1 else "results"
+            run_lines += [
+                "",
+                "",
+                "def transform(tables, *, parameters=None, references=None, operations=None):",
+                '    """Apply workflow rules to in-memory tables and return the final result."""',
+                '    sources = {"inputs": tables, "references": references or {}}',
+                "",
+                "    def read_table(section, key, _label):",
+                "        return sources[section][key]",
+                "",
+                "    results = _transform(read_table, parameters or {}, operations or {})",
+                f"    return {return_expr}",
+            ]
+            if compiled_ops:
+                run_lines = [
+                    "def _run_step(audit, name, tool, description, func, *args, **kwargs):",
+                    "    if audit is None:",
+                    "        return func(*args, **kwargs)",
+                    "    return audit.run_step(name, tool, description, func, *args, **kwargs)",
+                    "",
+                    "",
+                    *run_lines,
+                ]
+            io_block = ""
+        else:
+            run_lines = [
+                "def run_pipeline(config: dict) -> dict:",
+                '    params = config.get("parameters", {})',
+            ]
+            if "write_output_table" in used_io_helpers:
+                run_lines.append("    written_outputs = {}")
+            run_lines.extend(orchestration_lines)
+            run_lines.append('    return {"frames": {' + terminal_items + "}}")
+
+        if self.is_macro and io_imports:
             io_block = (
                 "if __package__:\n"
                 f"    from .io_utils import {', '.join(io_imports)}\n"
@@ -1597,12 +1525,42 @@ class _SubgraphEmitter:
             for fn_name, _, _ in self.stage_defs
         }
         line_by_fn["run_pipeline"] = next(
-            (i + 1 for i, ln in enumerate(src_lines) if ln.startswith("def run_pipeline(")), 1
+            (i + 1 for i, ln in enumerate(src_lines) if ln.startswith(f"def {entry_name}(")), 1
         )
+        if not self.is_macro:
+            for entry in mapping_entries:
+                if entry["function"] == "run_pipeline":
+                    entry["function"] = entry_name
+            line_by_fn[entry_name] = line_by_fn["run_pipeline"]
         for entry in mapping_entries:
             entry["line"] = line_by_fn.get(entry["function"], 1)
 
+        if not self.is_macro:
+            self.runner_source = render_runner_py(self.config_spec, io_imports, self._link_operations())
         return full_source, mapping_entries
+
+    def _link_operations(self) -> dict[str, str]:
+        from alteryx2python.tools.delivery import run_checked_command
+        from alteryx2python.tools.dynamicinput import read_file_list
+
+        helpers = {}
+        if any(key.startswith("dynamic_input_") for key in self.config_spec.operations):
+            helpers["dynamic"] = self.linker.function(read_file_list)
+        if any(key.startswith("directory_") for key in self.config_spec.operations):
+            from alteryx2python.tools.directory import directory_frame
+
+            helpers["directory"] = self.linker.function(directory_frame)
+        if self.needs_commands:
+            helpers["command"] = self.linker.function(run_checked_command)
+        if self.needs_file_exists:
+            from alteryx2python.expressions.functions import _file_exists
+
+            helpers["file_exists"] = self.linker.function(_file_exists)
+        if self.needs_render_xlsx:
+            from alteryx2python.tools.delivery import render_xlsx_tables
+
+            helpers["render_xlsx"] = self.linker.function(render_xlsx_tables)
+        return helpers
 
     def _stage_name(self, node: NodeIR, cfg: dict[str, Any]) -> str:
         ann = _annotation_name(node)
@@ -1834,7 +1792,7 @@ class _SubgraphEmitter:
             call_expr = f"{op.func_name}({', '.join(all_args)})"
         else:
             arg_tail = (", " + ", ".join(all_args)) if all_args else ""
-            call_expr = f"audit.run_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r}, {op.func_name}{arg_tail})"
+            call_expr = f"_run_step(audit, {op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r}, {op.func_name}{arg_tail})"
         lhs = ", ".join(op.output_vars)
         stmt = f"{lhs} = {call_expr}" if lhs else call_expr
         if not op.guards:
@@ -1843,7 +1801,8 @@ class _SubgraphEmitter:
         if op.output_vars or not self.is_macro:
             lines.append("    else:")
             if not self.is_macro:
-                lines.append(f"        audit.skip_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r})")
+                lines.append("        if audit is not None:")
+                lines.append(f"            audit.skip_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r})")
             if op.output_vars:
                 fallback_src = next(iter(op.input_vars.values()), None)
                 for v in op.output_vars:
@@ -1864,23 +1823,23 @@ class ModularPackageGenerator:
         delivery_profile: str | None = None,
         log_event_ids: tuple[str, ...] | list[str] = (),
         input_bindings: dict[str, str] | None = None,
-        reference_capture: dict[str, Any] | None = None,
-        reference_input_dir: str | Path | None = None,
-        reference_overrides: dict[str, Any] | None = None,
     ) -> PackageArtifact:
-        from alteryx2python.runtime.app_config import prepare_workflow
         from alteryx2python.runtime.variables import bind_workflow_variables
 
         log_event_ids = tuple(log_event_ids)
         original = deepcopy(workflow)
 
-        if parameter_mode == "dynamic":
-            prepared, param_exprs, param_specs = prepare_parameters(workflow, answers, constants)
-        elif parameter_mode == "specialized":
-            prepared = prepare_workflow(deepcopy(workflow), answers)
-            param_exprs, param_specs = {}, []
-        else:
-            raise ValueError(f"Unknown parameter mode: {parameter_mode}")
+        if parameter_mode != "dynamic":
+            raise UnsupportedLowering("Phase 2 packages require dynamic parameter bindings")
+        if workflow.metadata.get("configuration_applied"):
+            raise UnsupportedLowering("Phase 2 requires workflow IR before app answers are applied")
+        for node in workflow.nodes:
+            cfg = node.config.get("normalized", node.config)
+            if node.tool_type == "DynamicInput" and str(cfg.get("read_list_field", "")).startswith("__a2p_path_"):
+                raise UnsupportedLowering(
+                    f"DynamicInput #{node.node_id} uses a replay-only path field. Compile the original workflow."
+                )
+        prepared, param_exprs, param_specs = prepare_parameters(workflow, answers, constants)
 
         prepared = bind_workflow_variables(prepared, constants)
         if input_bindings:
@@ -1900,33 +1859,9 @@ class ModularPackageGenerator:
             parameter_expressions=param_exprs,
         )
 
-        refinement = RefinementSpec()
-        artifact = self._emit_package(
-            original, opt, delivery_profile=delivery_profile, log_event_ids=log_event_ids, refinement=refinement
+        return self._emit_package(
+            original, opt, delivery_profile=delivery_profile, log_event_ids=log_event_ids
         )
-
-        # Option A: If Phase 1 reference capture is supplied, verify clean Pandas output;
-        # automatically specialize only diverging operations if real data triggers Alteryx quirks!
-        if reference_capture is not None and reference_capture.get("status") == "success":
-            refined_spec = self._diagnose_option_a_refinements(
-                artifact,
-                opt,
-                reference_capture,
-                input_dir=Path(reference_input_dir) if reference_input_dir else (
-                    Path(original.source_file).parent if original.source_file else Path.cwd()
-                ),
-                answers=answers,
-                extra_overrides=reference_overrides,
-            )
-            if refined_spec is not None:
-                artifact = self._emit_package(
-                    original,
-                    opt,
-                    delivery_profile=delivery_profile,
-                    log_event_ids=log_event_ids,
-                    refinement=refined_spec,
-                )
-        return artifact
 
     def _emit_package(
         self,
@@ -1935,7 +1870,6 @@ class ModularPackageGenerator:
         *,
         delivery_profile: str | None,
         log_event_ids: tuple[str, ...],
-        refinement: RefinementSpec,
     ) -> PackageArtifact:
         config_spec = extract_config(
             opt,
@@ -1949,7 +1883,6 @@ class ModularPackageGenerator:
             opt,
             config_spec,
             delivery_profile=delivery_profile,
-            refinement=refinement,
             helper_linker=helper_linker,
         )
         pipeline_py, node_mappings = emitter.compile_pipeline()
@@ -1969,6 +1902,7 @@ class ModularPackageGenerator:
             "config.toml": config_spec.to_toml(),
             "audit_utils.py": render_audit_utils_py(),
             "pipeline.py": pipeline_py,
+            "runner.py": emitter.runner_source,
             "cli.py": render_cli_py(config_spec, has_messages=emitter.has_messages),
             "io_utils.py": render_io_utils_py(
                 config_spec,
@@ -2016,7 +1950,7 @@ class ModularPackageGenerator:
                 "node_id": orig_id,
                 "source_tool_id": orig_id,
                 "tool_type": prov.get("reason", "optimized"),
-                "function": target_entry["function"] if target_entry else "run_pipeline",
+                "function": target_entry["function"] if target_entry else "transform",
                 "line": target_entry["line"] if target_entry else 1,
                 "optimization": prov,
                 "outputs": [],
@@ -2037,7 +1971,7 @@ class ModularPackageGenerator:
             "file_sha256": file_hashes,
             "delivery_profile": delivery_profile,
             "config_schema": config_spec.to_dict(),
-            "option_a_refinements": refinement.to_dict(),
+            "parameter_mode": "dynamic",
             "optimization_provenance": opt.provenance,
             "native_equivalence": "unverified",
             "python_differential": "unverified",
@@ -2281,131 +2215,3 @@ class ModularPackageGenerator:
 
         del helper_linker
         return ast.unparse(ast.fix_missing_locations(tree)) + "\n"
-
-    def _matches_reference_sinks(
-        self,
-        candidate: PackageArtifact,
-        expected_sinks: dict[str, str],
-        *,
-        input_dir: Path,
-        answers: dict[str, Any] | None,
-        extra_overrides: dict[str, Any] | None = None,
-    ) -> bool:
-        from alteryx2python.parity.runner import file_artifacts
-        import subprocess
-        import sys
-
-        expected_by_name = {
-            candidate.config_spec.outputs[candidate.config_spec.output_key_by_node[nid]]["filename"]: digest
-            for nid, digest in expected_sinks.items()
-            if nid in candidate.config_spec.output_key_by_node
-        }
-        if not expected_by_name:
-            return True
-
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp_root = Path(tmp)
-            pkg_dir = tmp_root / "pkg"
-            out_dir = tmp_root / "out"
-            candidate.write(pkg_dir)
-
-            overrides: dict[str, Any] = deepcopy(extra_overrides or {})
-            if answers:
-                mapped_params = {
-                    candidate.config_spec.python_param_names[k]: v
-                    for k, v in answers.items()
-                    if k in candidate.config_spec.python_param_names
-                }
-                if mapped_params:
-                    overrides.setdefault("parameters", {}).update(mapped_params)
-            override_path = tmp_root / "ref_override.json"
-            override_path.write_text(json.dumps(overrides), encoding="utf-8")
-
-            proc = subprocess.run(
-                [
-                    sys.executable,
-                    "-I",
-                    str(pkg_dir / "cli.py"),
-                    "--config",
-                    str(override_path),
-                    "--input-dir",
-                    str(input_dir),
-                    "--output-dir",
-                    str(out_dir),
-                ],
-                capture_output=True,
-                timeout=60,
-                check=False,
-            )
-            observed = file_artifacts(out_dir) if out_dir.exists() else {}
-            return proc.returncode == 0 and observed == expected_by_name
-
-    def _diagnose_option_a_refinements(
-        self,
-        initial: PackageArtifact,
-        opt: OptimizationResult,
-        reference_capture: dict[str, Any],
-        *,
-        input_dir: Path,
-        answers: dict[str, Any] | None,
-        extra_overrides: dict[str, Any] | None = None,
-    ) -> RefinementSpec | None:
-        """Two-tier Option A cascade: try vectorized casefold/slice first, exact fallback only if still needed."""
-        expected_sinks = reference_capture.get("sink_artifacts")
-        if not expected_sinks:
-            return None
-
-        if self._matches_reference_sinks(
-            initial, expected_sinks, input_dir=input_dir, answers=answers, extra_overrides=extra_overrides
-        ):
-            return None
-
-        # Tier 1a: Keep pure vectorized Pandas, adding only explicit .str.slice(0, width) for string truncation
-        log_ids = tuple(e["id"] for e in initial.config_spec.events if e.get("kind") == "logging")
-        prof = initial.manifest.get("delivery_profile")
-
-        tier1a = RefinementSpec()
-        for node in opt.workflow.nodes:
-            cfg = node.config.get("normalized", node.config)
-            if node.tool_type == "Select":
-                for f in cfg.get("select_fields", []):
-                    if f.get("selected", True) and f.get("dtype") in STRING_TYPES and f.get("size"):
-                        contract = field_contract(f["dtype"], f.get("size"))
-                        if contract and contract.get("size"):
-                            tier1a.truncated_fields[(node.node_id, str(f["rename"] if f.get("rename") else f["source"]))] = int(contract["size"])
-            if node.tool_type == "Formula":
-                for f in cfg.get("formula_fields", []):
-                    if f.get("enabled", True) and f.get("type") in STRING_TYPES and f.get("size"):
-                        contract = field_contract(f["type"], f.get("size"))
-                        if contract and contract.get("size"):
-                            tier1a.truncated_fields[(node.node_id, str(f["field"]))] = int(contract["size"])
-
-        if tier1a.truncated_fields:
-            tier1a_art = self._emit_package(
-                initial.workflow, opt, delivery_profile=prof, log_event_ids=log_ids, refinement=tier1a
-            )
-            if self._matches_reference_sinks(
-                tier1a_art, expected_sinks, input_dir=input_dir, answers=answers, extra_overrides=extra_overrides
-            ):
-                return tier1a
-
-        # Tier 1b: Add .str.casefold() normalization on Join / Unique string keys if needed
-        tier1b = deepcopy(tier1a)
-        for node in opt.workflow.nodes:
-            if node.tool_type in {"Join", "Unique"}:
-                tier1b.casefold_nodes.add(node.node_id)
-        if tier1b.casefold_nodes:
-            tier1b_art = self._emit_package(
-                initial.workflow, opt, delivery_profile=prof, log_event_ids=log_ids, refinement=tier1b
-            )
-            if self._matches_reference_sinks(
-                tier1b_art, expected_sinks, input_dir=input_dir, answers=answers, extra_overrides=extra_overrides
-            ):
-                return tier1b
-
-        # Tier 2: Enable exact Alteryx numeric/null/join semantics on transform nodes
-        tier2 = deepcopy(tier1b)
-        for node in opt.workflow.nodes:
-            if node.tool_type in {"Select", "Formula", "Summarize", "Join"}:
-                tier2.exact_nodes.add(node.node_id)
-        return tier2

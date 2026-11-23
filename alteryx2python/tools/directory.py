@@ -18,17 +18,10 @@ def _resolve_directory(config: dict[str, Any]) -> Path:
     return directory.resolve()
 
 
-def directory_tool(
-    inputs: dict[str, pd.DataFrame],
-    config: dict[str, Any],
-    context: WorkflowContext,
-) -> dict[str, pd.DataFrame]:
-    directory = _resolve_directory(config)
+def directory_frame(directory: Path, file_spec: str, include_subdirs: bool) -> pd.DataFrame:
     if not directory.exists() or not directory.is_dir():
         raise FileNotFoundError(f"Directory tool path does not exist: {directory}")
 
-    file_spec = str(config.get("file_spec", "*.*"))
-    include_subdirs = bool(config.get("include_subdirs", False))
     iterator = directory.rglob(file_spec) if include_subdirs else directory.glob(file_spec)
     rows = []
     for path in sorted(iterator):
@@ -48,7 +41,18 @@ def directory_tool(
                 "LastWriteTime": datetime_from_timestamp(stat.st_mtime),
             }
         )
-    output = pd.DataFrame(rows)
+    return pd.DataFrame(rows)
+
+
+def directory_tool(
+    inputs: dict[str, pd.DataFrame],
+    config: dict[str, Any],
+    context: WorkflowContext,
+) -> dict[str, pd.DataFrame]:
+    directory = _resolve_directory(config)
+    file_spec = str(config.get("file_spec", "*.*"))
+    include_subdirs = bool(config.get("include_subdirs", False))
+    output = directory_frame(directory, file_spec, include_subdirs)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

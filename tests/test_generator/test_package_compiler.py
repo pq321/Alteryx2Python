@@ -3,14 +3,17 @@
 from __future__ import annotations
 
 import csv
+import importlib
 import json
 from pathlib import Path
 import subprocess
 import sys
 
 import pandas as pd
+import pytest
 
 from alteryx2python.generator.package_compiler import ModularPackageGenerator
+from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parity.runner import capture_python
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.context import WorkflowContext
@@ -55,8 +58,8 @@ def test_seven_question_app_compiles_once_and_runs_all_configs_without_recompila
     assert len(pipeline_py.splitlines()) <= 70
     # Simple app has no reusable macros or multi-row reference tables -> adaptive layout omits them
     assert not any(k.startswith(("macros/", "references/")) for k in artifact.files)
-    assert "[inputs.trades]" in config_toml
-    assert "[outputs.report]" in config_toml
+    assert "[inputs.input_1]" in config_toml
+    assert "[outputs.output_8]" in config_toml
     assert 'region = "APAC"' in config_toml
 
     pkg_dir = tmp_path / "tx_report_pkg"
@@ -81,6 +84,10 @@ def test_seven_question_app_compiles_once_and_runs_all_configs_without_recompila
             "region": "EMEA",
             "input_file": "empty-trades.csv",
         },
+    }
+    alternate_artifact = ModularPackageGenerator().generate(workflow, answers=cases["alternate"])
+    assert {key: value for key, value in artifact.files.items() if key.endswith(".py")} == {
+        key: value for key, value in alternate_artifact.files.items() if key.endswith(".py")
     }
 
     # 2. Run ALL THREE cases against the SINGLE compiled Python package by swapping config JSON only!
@@ -310,7 +317,7 @@ def test_reusable_and_iterative_macros_execute_standalone_and_match_phase1(tmp_p
     assert _read_csv(out_dir / "bumped.csv") == [["v"], ["11"], ["20"]]
 
 
-def test_option_a_auto_refinement_triggers_only_when_data_hits_truncation(tmp_path: Path):
+def test_declared_truncation_applies_when_the_same_package_receives_new_data(tmp_path: Path, monkeypatch):
     # Workflow with narrow V_WString(3) Select where actual data "ABCDEF" exceeds width 3
     builder = WorkflowBuilder()
     (tmp_path / "raw.csv").write_text("code,region\nABCDEF,APAC\nXYZ,EMEA\n", encoding="utf-8")
@@ -334,30 +341,120 @@ def test_option_a_auto_refinement_triggers_only_when_data_hits_truncation(tmp_pa
     wf_path.write_text(builder.render(), encoding="utf-8")
     workflow = XmlWorkflowParser().parse(wf_path)
 
-    # Without reference_capture, default Option A is pure idiomatic Pandas (no .slice)
-    clean_art = ModularPackageGenerator().generate(workflow)
-    assert clean_art.manifest["option_a_refinements"]["truncated_fields"] == {}
-    assert ".str.slice(" not in clean_art.files["pipeline.py"]
+    artifact = ModularPackageGenerator().generate(workflow)
+    assert ".str.slice(0, 3)" in artifact.source
+    pkg_dir = tmp_path / "truncation_pkg"
+    artifact.write(pkg_dir)
 
-    # With Phase 1 reference_capture showing real data hit width-3 truncation,
-    # Tier 1a Option A refines ONLY .str.slice(0, 3) while keeping vectorized Pandas (exact_nodes == [])!
-    p1_capture = capture_python(wf_path, output_directory=tmp_path / "p1_out")
-    refined_art = ModularPackageGenerator().generate(
-        workflow, reference_capture=p1_capture, reference_input_dir=tmp_path
-    )
-    assert refined_art.manifest["option_a_refinements"]["truncated_fields"] == {f"{sel}:code": 3, f"{sel}:region": 10}
-    assert refined_art.manifest["option_a_refinements"]["exact_nodes"] == []
-    assert ".str.slice(0, 3)" in refined_art.files["pipeline.py"]
+    # The public function runs on in-memory inputs, preserves them, and returns only the last table.
+    monkeypatch.syspath_prepend(str(tmp_path))
+    transform = importlib.import_module(pkg_dir.name).transform
+    for code in ("ABC", "ABCDEF"):
+        data = pd.DataFrame({"code": [code], "region": ["APAC"]})
+        result = transform({f"input_{inp}": data})
+        assert result.to_dict("records") == [{"code": "ABC", "region": "APAC"}]
+        assert data.at[0, "code"] == code
+    empty = transform({f"input_{inp}": data.iloc[:0]})
+    assert empty.empty and list(empty) == ["code", "region"]
 
-    pkg_dir = tmp_path / "refined_pkg"
     p2_out = tmp_path / "p2_out"
-    refined_art.write(pkg_dir)
     proc = subprocess.run(
-        [sys.executable, "-I", str(pkg_dir / "cli.py"), "--input-dir", str(tmp_path), "--output-dir", str(p2_out)],
+        [sys.executable, "-I", str(pkg_dir), "--input-dir", str(tmp_path), "--output-dir", str(p2_out)],
         capture_output=True, text=True, check=False,
     )
     assert proc.returncode == 0, proc.stderr
     assert _read_csv(p2_out / "matched.csv") == [["code", "region"], ["ABC", "APAC"]]
+
+
+def test_dynamic_input_files_and_reader_are_runtime_bindings(tmp_path, monkeypatch):
+    builder = WorkflowBuilder()
+    paths = builder.add_text_input(["path"], [["recorded-data.csv"]])
+    reader = builder._node("DynamicInput", """
+        <InputConfiguration><Configuration><File FileFormat="0">old/schema.csv</File>
+        <FormatSpecificOptions><CodePage>65001</CodePage></FormatSpecificOptions></Configuration></InputConfiguration>
+        <Mode>ReadList</Mode><ReadList_Field>path</ReadList_Field><ReadList_Type>Path</ReadList_Type>
+    """, (100, 50))
+    sink = builder.add_csv_output("report.csv")
+    builder.connect(paths, reader)
+    builder.connect(reader, sink)
+    xml = builder.render()
+    parser = XmlWorkflowParser()
+
+    def compile_xml(source):
+        return ModularPackageGenerator().generate(parser.parse_xml(source, tmp_path / "dynamic.yxmd"))
+
+    artifact = compile_xml(xml)
+    alternate = compile_xml(xml.replace("old/schema.csv", "new/schema.csv").replace("recorded-data.csv", "other.csv"))
+    for key, source in artifact.files.items():
+        if key.endswith(".py"):
+            assert source == alternate.files[key]
+            assert "old/schema.csv" not in source and "recorded-data.csv" not in source
+    with pytest.raises(UnsupportedLowering, match="replay-only path field"):
+        compile_xml(xml.replace("<ReadList_Field>path", "<ReadList_Field>__a2p_path_2"))
+
+    pkg = tmp_path / "dynamic_input_pkg"
+    artifact.write(pkg)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    transform = importlib.import_module(pkg.name).transform
+    operation = f"dynamic_input_{reader}"
+    references = {artifact.config_spec.reference_key_by_node[str(paths)]: pd.DataFrame({"path": ["in-memory.csv"]})}
+
+    def resolve(frame, field):
+        assert frame[field].tolist() == ["in-memory.csv"]
+        return pd.DataFrame({"amount": [30]})
+
+    result = transform({}, references=references, operations={operation: resolve})
+    assert result.to_dict("records") == [{"amount": 30}]
+
+    (tmp_path / "recorded-data.csv").write_text("amount\n42\n", encoding="utf-8")
+    (tmp_path / "fresh-schema.csv").write_text("amount\n", encoding="utf-8")
+    config = tmp_path / "run.json"
+    config.write_text(json.dumps({"operations": {operation: {"template": "fresh-schema.csv"}}}), encoding="utf-8")
+    out = tmp_path / "out"
+    proc = subprocess.run(
+        [sys.executable, "-I", str(pkg), "--config", str(config), "--output-dir", str(out)],
+        capture_output=True, text=True, check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert list(out.iterdir()) == [out / "report.csv"]
+    assert _read_csv(out / "report.csv") == [["amount"], ["42"]]
+
+
+def test_directory_and_file_exists_are_injected_into_transform(tmp_path, monkeypatch):
+    builder = WorkflowBuilder()
+    directory = builder._node("Directory", "<Directory>old-folder</Directory><FileSpec>*.csv</FileSpec>", (10, 20))
+    check = builder.add_formula([("exists", "Bool", "1", "FileExists([FullPath])")])
+    project = builder.add_select([("FileName", "True"), ("exists", "True")], include_unknown=False)
+    sink = builder.add_csv_output("files.csv")
+    builder.connect(directory, check)
+    builder.connect(check, project)
+    builder.connect(project, sink)
+    workflow = XmlWorkflowParser().parse_xml(builder.render(), tmp_path / "scan.yxmd")
+    artifact = ModularPackageGenerator().generate(workflow)
+    assert all("old-folder" not in source for name, source in artifact.files.items() if name.endswith(".py"))
+    pkg = tmp_path / "directory_pkg"
+    artifact.write(pkg)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    transform = importlib.import_module(pkg.name).transform
+    operation = f"directory_{directory}"
+    result = transform({}, operations={
+        operation: lambda: pd.DataFrame({"FullPath": ["virtual.csv"], "FileName": ["virtual.csv"]}),
+        "file_exists": lambda path: path == "virtual.csv",
+    })
+    assert result.to_dict("records") == [{"FileName": "virtual.csv", "exists": True}]
+
+    new_dir = tmp_path / "new-folder"
+    new_dir.mkdir()
+    (new_dir / "actual.csv").touch()
+    config = tmp_path / "runtime.json"
+    config.write_text(json.dumps({"operations": {operation: {"directory": "new-folder"}}}), encoding="utf-8")
+    out = tmp_path / "out"
+    proc = subprocess.run(
+        [sys.executable, "-I", str(pkg), "--config", str(config), "--output-dir", str(out)],
+        capture_output=True, text=True, check=False,
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert _read_csv(out / "files.csv")[1][0] == "actual.csv"
 
 
 def test_workflow_logging_and_email_events_decoupled_into_config(tmp_path: Path):
@@ -505,11 +602,7 @@ def test_vectorized_string_math_conditional_and_relational_operators(tmp_path: P
     wf_path = tmp_path / "operators.yxmd"
     wf_path.write_text(builder.render(), encoding="utf-8")
     workflow = XmlWorkflowParser().parse(wf_path)
-    p1 = capture_python(wf_path, output_directory=tmp_path / "p1")
-
-    artifact = ModularPackageGenerator().generate(
-        workflow, reference_capture=p1, reference_input_dir=tmp_path
-    )
+    artifact = ModularPackageGenerator().generate(workflow)
     assert "np.select" in artifact.files["pipeline.py"]
     pkg_dir = tmp_path / "ops_pkg"
     out_dir = tmp_path / "ops_out"
@@ -730,10 +823,7 @@ def test_transaction_reporting_html_and_email_draft_package(tmp_path: Path, monk
     shutil.copyfile(EXAMPLE / "transactions.csv", tmp_path / "transactions.csv")
 
     workflow = XmlWorkflowParser().parse(wf_path)
-    p1 = capture_python(wf_path, output_directory=tmp_path / "p1")
-    artifact = ModularPackageGenerator().generate(
-        workflow, delivery_profile=PROFILE, reference_capture=p1, reference_input_dir=tmp_path
-    )
+    artifact = ModularPackageGenerator().generate(workflow, delivery_profile=PROFILE)
 
     pkg_dir = tmp_path / "tx_pkg"
     out_dir = tmp_path / "tx_out"
@@ -910,11 +1000,11 @@ def test_step_auditing_logs_text_jsonl_skip_redaction_and_failures(tmp_path: Pat
     assert [p.name for p in out_dir.iterdir()] == ["report.csv"]
 
     assert "START pipeline" in proc.stderr
-    assert "[Step 1] INPUT trades (DbFileInput #1) | 3 rows x 4 cols" in proc.stderr
+    assert "[Step 1] INPUT input_1 (DbFileInput #1) | 3 rows x 4 cols" in proc.stderr
     assert "[Step 2] STEP select_trade_id_and_region (Select #2)" in proc.stderr
     assert "[Step 3] STEP compute_include_flag_and_report_date (Formula->Filter->Select #5,6,7)" in proc.stderr
     assert "3x4 -> 1x6 (rows -2" in proc.stderr
-    assert "[Step 4] OUTPUT report (DbFileOutput #8) | 1 rows x 6 cols" in proc.stderr
+    assert "[Step 4] OUTPUT output_8 (DbFileOutput #8) | 1 rows x 6 cols" in proc.stderr
     assert "-> report.csv" in proc.stderr
     assert "DONE pipeline | steps=4 | outputs=1" in proc.stderr
     assert "super-secret-token-123" not in proc.stderr

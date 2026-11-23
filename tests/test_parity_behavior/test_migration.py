@@ -1,5 +1,5 @@
 import json
-import runpy
+import importlib
 import subprocess
 import sys
 from datetime import datetime
@@ -55,7 +55,7 @@ def test_stripping_tracing_preserves_empty_class_syntax():
     compile(ast.fix_missing_locations(transformed), "<generated>", "exec")
 
 
-def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
+def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path, monkeypatch):
     workbook = Workbook()
     workbook.active.append(["Wrong worksheet"])
     sheet = workbook.create_sheet("R5300")
@@ -109,9 +109,13 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     assert result["phase_one_outcome"] == "success"
     assert result["phase_one_vs_phase_two"] == "match", result
     assert result["standalone_execution"] == "match"
-    assert result["phase_two_mode"] == "reusable"
-    delivery_manifest = json.loads((case / "delivery/phase_two.manifest.json").read_text(encoding="utf-8"))
-    assert delivery_manifest["reusable"]["omitted_nodes"] == ["100", str(disabled_sink)]
+    package = case / "delivery/package"
+    delivery_manifest = json.loads((package / "manifest.json").read_text(encoding="utf-8"))
+    assert delivery_manifest["parameter_mode"] == "dynamic"
+    assert {"100", str(disabled_sink)} <= delivery_manifest["optimization_provenance"].keys()
+    assert not (case / "delivery/phase_two.py").exists()
+    input_key = next(iter(delivery_manifest["config_schema"]["inputs"]))
+    output_key = next(iter(delivery_manifest["config_schema"]["outputs"]))
     actual = case / "delivery/delivery-output/R5300.xlsx"
     assert workbook_snapshot(actual) == {
         "Target": [
@@ -124,15 +128,16 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     assert not (tmp_path / "out").exists()
     assert file_hash(source_file) == source_hash
 
-    script = case / "delivery/phase_two.py"
+    script = package / "pipeline.py"
     script_hash = file_hash(script)
     code = script.read_text(encoding="utf-8")
     assert 'R5300.xlsx' not in code and 'inputs/1/' not in code
-    transform = runpy.run_path(str(script))["transform"]
+    monkeypatch.syspath_prepend(str(package.parent))
+    transform = importlib.import_module(package.name).transform
     import pandas as pd
 
     supplied = pd.DataFrame({"example": [15]})
-    pd.testing.assert_frame_equal(transform(load_data=supplied), supplied)
+    pd.testing.assert_frame_equal(transform({input_key: supplied}), supplied)
 
     alternate = tmp_path / "second-batch"
     alternate.mkdir()
@@ -144,9 +149,13 @@ def test_amp_excel_copy_preserves_sheet_selection_and_cell_values(tmp_path):
     ET.ElementTree(root).write(alternate_source, encoding="utf-8")
     phase_one = capture_generated_phase_one(XmlWorkflowParser().parse(alternate_source), alternate)
     reused_output = alternate / "replayed/Renamed result.xlsx"
+    config = alternate / "case.json"
+    config.write_text(json.dumps({
+        "inputs": {input_key: {"path": str(second_input)}},
+        "outputs": {output_key: {"path": reused_output.name}},
+    }), encoding="utf-8")
     completed = subprocess.run(
-        [sys.executable, "-I", str(script), f"--input-file-{input_id}", str(second_input),
-         f"--output-file-{output_id}", str(reused_output)],
+        [sys.executable, "-I", str(package), "--config", str(config), "--output-dir", str(reused_output.parent)],
         cwd=alternate, capture_output=True, timeout=60,
     )
     assert completed.returncode == 0, completed.stderr
@@ -257,8 +266,14 @@ def test_dynamic_input_and_grouped_render_migration(tmp_path, excel):
     result = resume_migration(case)
     assert result["native_vs_phase_one"] == "incomplete"
     assert result["phase_one_vs_phase_two"] == "match", result
-    assert result["phase_two_mode"] == "specialized"
-    assert "DynamicInput" in result["phase_two_reuse_blocker"]
+    delivery = case / "delivery"
+    package = delivery / "package"
+    pipeline = (package / "pipeline.py").read_text(encoding="utf-8")
+    assert "__a2p_path_" not in pipeline
+    assert snapshot.as_posix() not in pipeline
+    assert not (delivery / "phase_two.py").exists()
+    replay = json.loads((delivery / "case_config.json").read_text(encoding="utf-8"))
+    assert replay["operations"]["dynamic_input_2"]["schema_reference"].startswith(snapshot.as_posix())
     outputs = case / "delivery/delivery-output"
     filename = f'report-{datetime.fromisoformat(manifest["as_of"]):%Y%m%d%H%M%S}.xlsx'
     assert list(workbook_artifacts(outputs)) == [filename]

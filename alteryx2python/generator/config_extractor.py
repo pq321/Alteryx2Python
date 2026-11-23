@@ -89,6 +89,7 @@ class ConfigSpec:
         }
     )
     references: dict[str, dict[str, Any]] = field(default_factory=dict)
+    operations: dict[str, dict[str, Any]] = field(default_factory=dict)
     events: list[dict[str, Any]] = field(default_factory=list)
     reference_files: dict[str, str] = field(default_factory=dict)  # rel POSIX path -> CSV text
     input_key_by_node: dict[str, str] = field(default_factory=dict)
@@ -105,6 +106,8 @@ class ConfigSpec:
         }
         if self.references:
             payload["references"] = self.references
+        if self.operations:
+            payload["operations"] = self.operations
         if self.events:
             payload["events"] = {"hooks": self.events}
         return payload
@@ -194,6 +197,10 @@ def _render_config_toml(spec: ConfigSpec) -> str:
 
     for key, entry in spec.references.items():
         blocks.append(f"\n[references.{_toml_key(key)}]")
+        blocks.extend(_render_table_entries(entry))
+
+    for key, entry in spec.operations.items():
+        blocks.append(f"\n[operations.{_toml_key(key)}]")
         blocks.extend(_render_table_entries(entry))
 
     for hook in spec.events:
@@ -314,9 +321,13 @@ def extract_config(
         }
 
     file_param_by_node: dict[str, str] = {}
+    dynamic_template_params: dict[str, str] = {}
     for binding in opt.parameter_bindings:
-        if binding.get("kind") == "file" and binding.get("name") in spec.python_param_names:
-            file_param_by_node[str(binding["node_id"])] = spec.python_param_names[binding["name"]]
+        parameter = spec.python_param_names.get(binding.get("name"))
+        if parameter and binding.get("kind") == "file":
+            file_param_by_node[str(binding["node_id"])] = parameter
+        elif parameter and binding.get("kind") == "dynamic_template":
+            dynamic_template_params[str(binding["node_id"])] = parameter
 
     # Detect DbFileInput/DbFileOutput nodes whose original XML <File> was a %User.*% token
     raw_xml_files: dict[str, str] = {}
@@ -372,7 +383,7 @@ def extract_config(
                     explicit_binding=bool(cfg.get("explicit_input_binding")),
                 )
             )
-            stem = _node_annotation(node) or _pure_path(raw).stem or f"input_{node.node_id}"
+            stem = _node_annotation(node) or f"input_{node.node_id}"
             key = _unique_key(stem, used_inputs, "source")
             spec.input_key_by_node[node.node_id] = key
 
@@ -411,6 +422,37 @@ def extract_config(
                 if excel_opts.get("nrows") is not None:
                     entry["max_rows"] = int(excel_opts["nrows"])
             spec.inputs[key] = entry
+
+        elif kind == "DynamicInput":
+            from alteryx2python.tools.dynamicinput import read_list_options
+
+            try:
+                _, template, behaviour, options = read_list_options(cfg)
+            except (NotImplementedError, ValueError) as exc:
+                raise UnsupportedLowering(f"DynamicInput #{node.node_id}: {exc}") from exc
+            raw, separator, selector = template.partition("|||")
+            spec.operations[f"dynamic_input_{node.node_id}"] = {
+                "template": _pure_path(raw).as_posix() + separator + selector,
+                "expected_suffix": _pure_path(raw).suffix.lower(),
+                "behaviour": behaviour,
+                "action": cfg["read_list_type"],
+                "read_options": options,
+            }
+            if node.node_id in dynamic_template_params:
+                spec.operations[f"dynamic_input_{node.node_id}"]["parameter"] = dynamic_template_params[node.node_id]
+
+        elif kind == "Directory":
+            spec.operations[f"directory_{node.node_id}"] = {
+                "directory": _pure_path(str(cfg.get("directory", "."))).as_posix(),
+                "file_spec": str(cfg.get("file_spec", "*.*")),
+                "include_subdirs": bool(cfg.get("include_subdirs", False)),
+            }
+
+        elif kind == "RunCommand":
+            spec.operations[f"command_{node.node_id}"] = {
+                key: cfg.get(key) or ""
+                for key in ("program_name", "arguments", "working_dir", "input_file", "output_file")
+            }
 
         elif kind == "TextInput":
             fields_list = [str(f) for f in cfg.get("fields", [])]
@@ -467,7 +509,7 @@ def extract_config(
             p = _pure_path(raw)
             suffix = p.suffix.lower()
             file_fmt = _file_attribute(cfg, "FileFormat")
-            stem = _node_annotation(node) or p.stem or f"output_{node.node_id}"
+            stem = _node_annotation(node) or f"output_{node.node_id}"
             key = _unique_key(stem, used_outputs, "output")
             spec.output_key_by_node[node.node_id] = key
 
@@ -521,7 +563,7 @@ def extract_config(
                 except NotImplementedError as exc:
                     raise UnsupportedLowering(str(exc)) from exc
                 configured = cfg.get("output_file") or filename
-                key = _unique_key(_pure_path(configured).stem or "report_xlsx", used_outputs, "report")
+                key = _unique_key(_node_annotation(node) or f"output_{node.node_id}", used_outputs, "report")
                 spec.output_key_by_node[node.node_id] = key
                 spec.outputs[key] = {
                     "path": str(configured),
@@ -536,7 +578,7 @@ def extract_config(
                     filename = delivery_tools.html_render_filename(cfg)
                 except NotImplementedError as exc:
                     raise UnsupportedLowering(str(exc)) from exc
-                key = _unique_key(_pure_path(filename).stem or "report_html", used_outputs, "report")
+                key = _unique_key(_node_annotation(node) or f"output_{node.node_id}", used_outputs, "report")
                 spec.output_key_by_node[node.node_id] = key
                 spec.outputs[key] = {
                     "path": filename,
