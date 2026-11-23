@@ -5,6 +5,8 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
+import tomllib
+from xml.etree import ElementTree as ET
 
 import pytest
 
@@ -13,10 +15,14 @@ from alteryx2python.parity.migration import prepare_migration, resume_migration
 from alteryx2python.workflow_generator import WorkflowBuilder
 
 
-def test_migration_delivery_emits_unstaged_package_and_verifies_boundary_cases(tmp_path: Path):
+@pytest.mark.parametrize("default_date", ["2026-11-18", "", "9999-12-31"])
+def test_migration_delivery_emits_unstaged_package_and_verifies_boundary_cases(tmp_path: Path, default_date: str):
     from tests.test_parity_behavior.test_migration import app_fixture
 
     source = app_fixture(tmp_path)
+    document = ET.parse(source)
+    document.find(".//Question[Name='report_date']/Default").text = default_date
+    document.write(source, encoding="utf-8")
     selected = tmp_path / "selected.csv"
     selected.write_text("amount\n15\n30\n", encoding="utf-8")
 
@@ -42,7 +48,10 @@ def test_migration_delivery_emits_unstaged_package_and_verifies_boundary_cases(t
     assert "2026-11-20" not in pipeline_py
     # Default config.toml reflects the un-staged source defaults, not staged paths!
     assert 'source_file = "default.csv"' in config_toml
-    assert 'report_date = "2026-11-18"' in config_toml
+    assert tomllib.loads(config_toml)["parameters"]["report_date"] == default_date
+    assert "2000-01-01" not in pipeline_py
+    case_config = json.loads((case_dir / "delivery/case_config.json").read_text(encoding="utf-8"))
+    assert case_config["parameters"]["report_date"] == "2026-11-20"
 
     # Multi-case boundary verification ran both parameter_perturbation and empty_input without recompiling!
     diff_report = json.loads((case_dir / "delivery/phase-one-vs-phase-two.json").read_text(encoding="utf-8"))

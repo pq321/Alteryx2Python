@@ -34,7 +34,11 @@ def _alternate(question, value):
         return next((item for item in question.choices if item != value), value)
     if question.kind == 'Date':
         from datetime import date, timedelta
-        return str(date.fromisoformat(value) + timedelta(days=1))
+
+        if not value:
+            return '2000-01-01'
+        current = date.fromisoformat(value)
+        return (current + timedelta(days=-1 if current == date.max else 1)).isoformat()
     if question.kind in {'FileBrowse', 'QuestionFileBrowse', 'FolderBrowse'}:
         from pathlib import PurePath
         path = PurePath(value or 'input.csv')
