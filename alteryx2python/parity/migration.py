@@ -417,18 +417,19 @@ def _resolve_event_commands(document, source_dir, log_event_ids):
         ET.SubElement(element, "cmd_Program").text = str((source_dir / event["program"]).resolve())
 
 
-def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped_nodes=(), table_selection=None):
+def resume_migration(directory, *, native_outcome=None, failed_nodes=(), skipped_nodes=(), table_selection=None,
+                     _verified_manifest=None):
     directory = directory.resolve()
     native = directory / "native"
-    verify_manifest(native)
+    manifest = verify_manifest(native) if _verified_manifest is None else _verified_manifest
     if native_outcome:
-        attest_native(native, native_outcome, failed_nodes=failed_nodes, skipped_nodes=skipped_nodes)
+        attest_native(native, native_outcome, failed_nodes=failed_nodes, skipped_nodes=skipped_nodes, _verified_manifest=manifest)
     attempt = 1
     destination = directory / "delivery"
     while destination.exists():
         attempt += 1
         destination = directory / f"delivery-{attempt}"
-    result = verify_delivery(native, destination, observable=True, table_selection=table_selection)
+    result = verify_delivery(native, destination, observable=True, table_selection=table_selection, _verified_manifest=manifest)
     result["report"] = str(destination / "acceptance.json")
     return result
 

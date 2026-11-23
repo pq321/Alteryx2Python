@@ -83,7 +83,7 @@ def test_demo_compares_without_prompt_and_presents_both_outputs_on_mismatch(
 ):
     import pandas as pd
 
-    from alteryx2python.parity import designer_evidence, runner
+    from alteryx2python.parity import delivery, designer_evidence, migration, presentation, runner
     from alteryx2python.parity.snapshot import frame_snapshot
     from alteryx2python.parity.migration import prepare_migration
 
@@ -109,7 +109,21 @@ def test_demo_compares_without_prompt_and_presents_both_outputs_on_mismatch(
     monkeypatch.chdir(tmp_path)
     monkeypatch.setattr("sys.stdin", io.StringIO(""))
 
+    validations = []
+
+    def verify(directory):
+        validations.append(directory)
+        return runner.verify_manifest(directory)
+
+    for module in (presentation, migration, delivery):
+        monkeypatch.setattr(module, "verify_manifest", verify)
     assert main(["demo", "compare", "--case", str(case)]) == 1
+    assert validations == [case / "native"]
+    acceptance = json.loads((case / "delivery/acceptance.json").read_text(encoding="utf-8"))
+    assert acceptance["timings_seconds"].keys() >= {
+        "amp_probe_export", "phase_one_capture", "native_collection", "checkpoint_comparison_and_reports",
+        "phase_two_compile_run_and_checks", "step_three_total",
+    }
     summary = capsys.readouterr().out
     assert len(summary.strip().splitlines()) == 3
     count = int(native_probe_value != "sample")

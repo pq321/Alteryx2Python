@@ -10,6 +10,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
+from time import perf_counter
 from urllib.parse import quote
 import warnings
 from uuid import uuid4
@@ -330,8 +331,10 @@ def _mismatch_total(status, findings, file_findings=()):
 
 
 def _compare(args, case):
+    started = perf_counter()
     native = case / "native"
     manifest = verify_manifest(native)
+    validation_seconds = perf_counter() - started
     migration = _read(case / "migration.json")
     outcome = args.outcome
     failed = args.failed_node
@@ -346,12 +349,14 @@ def _compare(args, case):
     if outcome is None and not existing and not receipt_path.is_file():
         raise ValueError("No Designer run evidence. Run demo designer or supply an observed outcome explicitly.")
     export_issue = export_log = None
+    export_started = perf_counter()
     try:
         export_log = _export_amp_probes(case, manifest, migration, set(skipped))
     except (OSError, ValueError) as error:
         if outcome is not None or manual:
             raise
         export_issue = str(error)
+    export_seconds = perf_counter() - export_started
     evidence_path = native / "designer-evidence.json"
     if outcome is None and not existing:
         receipts = _read(receipt_path)
@@ -360,7 +365,8 @@ def _compare(args, case):
         record_designer_evidence(native, manifest, receipts[0], receipt_path=receipt_path)
     with warnings.catch_warnings(record=True) as recorded_warnings:
         result = resume_migration(case, native_outcome=outcome, failed_nodes=failed, skipped_nodes=skipped,
-                                  table_selection=(args.node, args.anchor))
+                                  table_selection=(args.node, args.anchor),
+                                  _verified_manifest=manifest if export_log is None and export_issue is None else None)
     delivery = Path(result["report"]).parent
     native_report = delivery / "native-vs-phase-one.json"
     parity = _read(native_report)
@@ -489,7 +495,13 @@ def _compare(args, case):
     report_lines.append("")
     if result.get("failure"):
         report_lines.append("- Execution failed. See the acceptance report.")
-    acceptance_details = {}
+    timings = result.get("timings_seconds", {})
+    step_timings = {
+        **timings,
+        "manifest_validation": round(validation_seconds + timings.get("manifest_validation", 0), 3),
+        "amp_probe_export": round(export_seconds, 3),
+    }
+    acceptance_details = {"timings_seconds": step_timings}
     if export_issue:
         acceptance_details["amp_export_issue"] = export_issue
     if recorded_warnings:
@@ -498,10 +510,6 @@ def _compare(args, case):
             for warning in recorded_warnings
         ]
         report_lines.append(f"- Runtime warnings: {len(recorded_warnings)}. See the acceptance report.")
-    if acceptance_details:
-        acceptance_path = Path(result["report"])
-        write_json(acceptance_path, {**_read(acceptance_path), **acceptance_details})
-
     report_lines.extend(["", "## Evidence files", "", "- [Acceptance](acceptance.json)"])
     if evidence_path.is_file():
         report_lines.append("- " + _report_link("Designer run and skipped nodes", evidence_path, delivery))
@@ -518,6 +526,10 @@ def _compare(args, case):
     write_json(case / "presentation-result.json", {
         "report": result["report"], "node": node_id, "comparison_report": str(comparison_report),
     })
+    step_timings["step_three_total"] = round(perf_counter() - started, 3)
+    acceptance_path = Path(result["report"])
+    write_json(acceptance_path, {**_read(acceptance_path), **acceptance_details})
+    result["timings_seconds"] = step_timings
     lines = [*overview, f"Comparison report: {comparison_report}"]
     return {**result, "comparison_report": str(comparison_report), "display": "\n".join(lines)}, 0 if result["status"] == "match" else 1
 

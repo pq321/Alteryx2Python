@@ -222,19 +222,7 @@ def execute_static_macro(
         mode = batch.findtext("OutputMode", "AllSame")
         if mode not in {"AllSame", "AutoByName", "AutoByPosition"}:
             raise ToolUnavailableError(f"Unsupported batch output mode: {mode}")
-        mapped = {}
-        for name, frames in collected.items():
-            if mode == "AllSame" and any(
-                list(f.columns) != list(frames[0].columns) for f in frames
-            ):
-                raise ValueError("Batch AllSame outputs have different field layouts")
-            if mode == "AutoByPosition":
-                if any(len(f.columns) != len(frames[0].columns) for f in frames):
-                    raise ValueError(
-                        "Batch position outputs have different column counts"
-                    )
-                frames = [f.set_axis(frames[0].columns, axis=1) for f in frames]
-            mapped[name] = pd.concat(frames, ignore_index=True, sort=False)
+        mapped = {name: concat_batch_frames(frames, mode) for name, frames in collected.items()}
     elif iterative is not None:
         input_name, output_name = (
             iterative.findtext("Input"),
@@ -288,3 +276,14 @@ IMPLEMENTATIONS = {
 }
 ANCHORS = {name: (("Input",), ("Output",)) for name in IMPLEMENTATIONS}
 PARSERS = {}
+
+
+def concat_batch_frames(frames, mode):
+    columns = frames[0].columns
+    if mode == "AllSame" and any(not frame.columns.equals(columns) for frame in frames):
+        raise ValueError("Batch AllSame outputs have different field layouts")
+    if mode == "AutoByPosition":
+        if any(len(frame.columns) != len(columns) for frame in frames):
+            raise ValueError("Batch position outputs have different column counts")
+        frames = [frame.set_axis(columns, axis=1) for frame in frames]
+    return pd.concat(frames, ignore_index=True, sort=False)

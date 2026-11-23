@@ -79,6 +79,7 @@ class LoopMacroSpec:
     control_param: str | None = None
     control_anchor: str | None = None
     output_mode: str = "AllSame"
+    output_columns: dict[str, list[str]] = field(default_factory=dict)
     iteration_input: str | None = None
     iteration_output: str | None = None
     iteration_limit: int = 100
@@ -416,7 +417,6 @@ class _IROptimizer:
             changed |= self._prune_noop_and_dead_branches()
             changed |= self._fuse_select_chains()
             changed |= self._fuse_formulas()
-            changed |= self._fuse_single_branch_filters()
             changed |= self._prune_dead_columns()
             if not changed:
                 break
@@ -530,6 +530,14 @@ class _IROptimizer:
                         self.reusable_macros.update(opt_child.reusable_macros)
                         self.loop_macros.update(opt_child.loop_macros)
                         output_mode = batch_el.findtext("OutputMode", "AllSame")
+                        if output_mode not in {"AllSame", "AutoByName", "AutoByPosition"}:
+                            raise UnsupportedLowering(f"Unsupported batch output mode: {output_mode}")
+                        output_columns = {
+                            el.findtext("Properties/Configuration/Name", "Output"):
+                                [column.get("name") for column in el.findall("Properties/MetaInfo/RecordInfo/Field")]
+                            for el in root.iter("Node")
+                            if (gui := el.find("GuiSettings")) is not None and "MacroOutput" in gui.get("Plugin", "")
+                        }
                         self.loop_macros[macro_key] = LoopMacroSpec(
                             macro_key=macro_key,
                             macro_path=str(path),
@@ -542,6 +550,7 @@ class _IROptimizer:
                             control_param=control_q.name,
                             control_anchor=_norm_cfg(parent).get("control_anchor"),
                             output_mode=output_mode,
+                            output_columns=output_columns,
                         )
                     else:
                         iter_in = iter_el.findtext("Input")
@@ -1257,68 +1266,7 @@ class _IROptimizer:
         return False
 
     # ------------------------------------------------------------------
-    # Pass 6: Consecutive single-branch Filter -> Filter fusion
-    # ------------------------------------------------------------------
-    def _fuse_single_branch_filters(self) -> bool:
-        by_id = {n.node_id: n for n in self.workflow.nodes}
-        incoming: dict[str, list[EdgeIR]] = {}
-        outgoing: dict[str, list[EdgeIR]] = {}
-        for edge in self.workflow.edges:
-            incoming.setdefault(edge.target_node_id, []).append(edge)
-            outgoing.setdefault(edge.source_node_id, []).append(edge)
-
-        for first in list(self.workflow.nodes):
-            if first.tool_type != "Filter":
-                continue
-            outs1 = outgoing.get(first.node_id, [])
-            if len(outs1) != 1 or outs1[0].source_anchor not in {"True", "False"}:
-                continue
-            second = by_id.get(outs1[0].target_node_id)
-            if second is None or second.tool_type != "Filter":
-                continue
-            if len(incoming.get(second.node_id, [])) != 1:
-                continue
-            outs2 = outgoing.get(second.node_id, [])
-            # Only fuse when second Filter's False branch is NOT consumed (otherwise False of second
-            # only contains records that passed first, which differs from combined False!)
-            if not outs2 or any(e.source_anchor != "True" for e in outs2):
-                continue
-            if _container_scope(first, by_id) != _container_scope(second, by_id):
-                continue
-            cfg1, cfg2 = _norm_cfg(first), _norm_cfg(second)
-            if cfg1.get("unsupported_operator") or cfg2.get("unsupported_operator"):
-                continue
-
-            key1 = (first.node_id, ("expression",))
-            key2 = (second.node_id, ("expression",))
-            ast1 = self.parameter_expressions.get(key1) or parse_expression(cfg1["expression"])
-            ast2 = self.parameter_expressions.get(key2) or parse_expression(cfg2["expression"])
-            cond1 = ast1 if outs1[0].source_anchor == "True" else UnaryExpression("!", ast1)
-            combined_ast = BinaryExpression(cond1, "AND", ast2)
-
-            raw1 = cfg1["expression"]
-            raw2 = cfg2["expression"]
-            combined_raw = f"({raw1}) AND ({raw2})" if outs1[0].source_anchor == "True" else f"(!({raw1})) AND ({raw2})"
-            cfg1["expression"] = combined_raw
-            if key1 in self.parameter_expressions or key2 in self.parameter_expressions:
-                self.parameter_expressions[key1] = combined_ast
-                self.parameter_expressions.pop(key2, None)
-
-            bridge_edge_id = outs1[0].edge_id
-            self.workflow.edges = [
-                replace(e, source_node_id=first.node_id, source_anchor="True")
-                if e.source_node_id == second.node_id
-                else e
-                for e in self.workflow.edges
-                if e.edge_id != bridge_edge_id
-            ]
-            self.workflow.nodes = [n for n in self.workflow.nodes if n.node_id != second.node_id]
-            self._record_elimination(second.node_id, first.node_id, "fused", "fused_filter_chain")
-            return True
-        return False
-
-    # ------------------------------------------------------------------
-    # Pass 7: Conservative dead-column pruning on Select & Formula nodes
+    # Pass 6: Conservative dead-column pruning on Select & Formula nodes
     # ------------------------------------------------------------------
     def _prune_dead_columns(self) -> bool:
         changed = False

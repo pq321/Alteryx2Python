@@ -69,7 +69,9 @@ changed without recompilation; typed overflow/truncation; source overwrite gates
 - **IR Redundancy Elimination**:
   - Eliminate UI no-ops (`BrowseV2`, `TextBox`, `HtmlBox`), static enabled `ToolContainer` wrappers, identity `Select` nodes, and unreachable dead branches.
   - Fold private 1-row `TextInput + AppendFields` parameter patterns into scalar parameters in general dynamic mode.
-  - Algebraically compose consecutive `Select -> Select` chains (unless intermediate narrow cast/truncation would be lost), fuse consecutive single-consumer `Formula` nodes and single-branch `Filter` nodes, inline 1-call Standard Macros, deduplicate 2+-call Standard Macros into `macros/<key>.py`, and lower `BatchMacro` / `IterativeMacro` to explicit loop modules in `macros/<key>.py`.
+  - Algebraically compose consecutive `Select -> Select` chains (unless intermediate narrow cast/truncation would be lost), fuse consecutive single-consumer `Formula` nodes, inline 1-call Standard Macros, deduplicate 2+-call Standard Macros into `macros/<key>.py`, and lower `BatchMacro` / `IterativeMacro` to explicit loop modules in `macros/<key>.py`.
+  - Keep each Filter on its original input rows. Consecutive filters may share a Python stage function while their predicates run sequentially on their respective frames.
+  - Batch Macro outputs use the declared mode. Validate column layout for AllSame, align by name for AutoByName, and validate widths and align by position for AutoByPosition.
 - **Adaptive Self-Contained Package Layout**:
   - Always emit `__init__.py`, `__main__.py`, `config.toml`, `audit_utils.py`, `pipeline.py`, `runner.py`, `cli.py`, `io_utils.py`, `manifest.json`, and `workflow.ir.json`.
   - Emit `macros/` only when reusable/loop macros exist; emit `references/` only when multi-row `TextInput` tables exist; emit `helpers.py` only when non-vectorizable functions or specialized kernels are referenced.

@@ -10,6 +10,7 @@ import runpy
 import subprocess
 import sys
 import tempfile
+from time import perf_counter
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile
 
@@ -344,12 +345,13 @@ def _run_additional_boundary_cases(
                 if not actual_src.is_file():
                     can_empty = False
                     break
-                first_line = actual_src.read_bytes().splitlines(keepends=True)[:1]
+                with actual_src.open("rb") as stream:
+                    first_line = next(iter(stream.readline().splitlines(keepends=True)), b"")
                 if not first_line:
                     can_empty = False
                     break
                 header_file = empty_wf_dir / f"empty_{nid}.csv"
-                header_file.write_bytes(first_line[0] if first_line[0].endswith((b"\n", b"\r")) else first_line[0] + b"\n")
+                header_file.write_bytes(first_line if first_line.endswith((b"\n", b"\r")) else first_line + b"\n")
 
                 for el in wf_tree.iter("Node"):
                     if el.get("ToolID") == str(nid):
@@ -404,9 +406,11 @@ def _run_additional_boundary_cases(
 
 
 def verify_delivery(native_directory: Path, destination: Path, *, timeout: float = 120, observable: bool = False,
-                    table_selection: tuple[str | None, str | None] | None = None) -> dict:
+                    table_selection: tuple[str | None, str | None] | None = None, _verified_manifest: dict | None = None) -> dict:
     native_directory, destination = native_directory.resolve(), destination.resolve()
-    manifest = verify_manifest(native_directory)
+    started = perf_counter()
+    manifest = verify_manifest(native_directory) if _verified_manifest is None else _verified_manifest
+    timings = {"manifest_validation": round(perf_counter() - started, 3)}
     source = Path(manifest["source"])
     workflow = XmlWorkflowParser().parse(source)
     answers = manifest.get("answers")
@@ -426,8 +430,11 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
 
     destination.mkdir(parents=True, exist_ok=False)
     phase_one = destination / "phase_one.py"
+    phase_started = perf_counter()
     first = capture_generated_phase_one(workflow, destination, answers=answers, event_commands=commands,
                                         log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of)
+    timings["phase_one_capture"] = round(perf_counter() - phase_started, 3)
+    phase_started = perf_counter()
     report_snapshots = {}
     if render_folders:
         for node_id in manifest["report_projection_nodes"]:
@@ -450,7 +457,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             "status": "pending", "event_ids": log_event_ids, "native_policy": "excluded_from_designer",
             "phase_one_log": phase_one_log.name, "phase_two_log": phase_two_log.name,
         }
-    native = collect_native(native_directory, manual=True, capture_report_fields=table_selection is not None)
+    native = collect_native(native_directory, manual=True, capture_report_fields=table_selection is not None,
+                            _verified_manifest=manifest)
+    timings["native_collection"] = round(perf_counter() - phase_started, 3)
+    phase_started = perf_counter()
     native_result = compare_runs(native, first, align_checkpoints=table_selection is not None,
                                  presentation_policy=checkpoint_policy(workflow) if table_selection is not None else None)
     for item in native_result["comparisons"]:
@@ -470,6 +480,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         except OSError as error:
             native_result["table_report_issue"] = str(error)
     write_json(destination / "native-vs-phase-one.json", native_result)
+    timings["checkpoint_comparison_and_reports"] = round(perf_counter() - phase_started, 3)
     report = {
         "status": "blocked", "source": str(source), "source_sha256": manifest["source_sha256"],
         "answers": answers, "phase_one_sha256": file_hash(phase_one),
@@ -485,6 +496,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         }
     if as_of:
         report["as_of"] = as_of
+    phase_started = perf_counter()
     try:
         if first["status"] == "blocked" or (first["status"] != "success" and not observable):
             raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
@@ -601,11 +613,12 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         status = report["native_vs_phase_one"]
         report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match"
                             else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
-        write_json(destination / "acceptance.json", report)
-        return report
 
     except (ValueError, OSError, RuntimeError, KeyError, subprocess.TimeoutExpired) as exc:
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}
+    timings["phase_two_compile_run_and_checks"] = round(perf_counter() - phase_started, 3)
+    timings["total"] = round(perf_counter() - started, 3)
+    report["timings_seconds"] = timings
     write_json(destination / "acceptance.json", report)
     return report
 

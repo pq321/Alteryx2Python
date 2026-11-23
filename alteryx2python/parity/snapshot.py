@@ -101,11 +101,13 @@ def compare_snapshots(
         differences.append({
             "dimension": "columns", "expected": left_columns, "actual": right_columns,
         })
-    rows_equal = len(left_rows) == len(right_rows) and all(
-        len(left) == len(right)
-        and all(_equal_cell(a, b, profile) for a, b in zip(left, right))
-        for left, right in zip(left_rows, right_rows)
-    )
+    rows_equal = left_rows == right_rows
+    if not rows_equal and len(left_rows) == len(right_rows):
+        rows_equal = all(
+            len(left) == len(right)
+            and all(_equal_cell(a, b, profile) for a, b in zip(left, right))
+            for left, right in zip(left_rows, right_rows)
+        )
     if (align_columns or align_rows) and columns_match and not rows_equal and len(left_rows) == len(right_rows):
         def row_counts(rows):
             return Counter(tuple(cell_comparison_key(cell, profile=profile) for cell in row) for row in rows)
@@ -136,10 +138,7 @@ def compare_snapshots(
             for column, left_cell, right_cell in zip(
                 left_columns or [], left, right
             ):
-                if (
-                    not _equal_cell(left_cell, right_cell, profile)
-                    and len(value_differences) < 20
-                ):
+                if not _equal_cell(left_cell, right_cell, profile):
                     value_differences.append(
                         {
                             "row": row_index,
@@ -148,6 +147,10 @@ def compare_snapshots(
                             "actual": right_cell,
                         }
                     )
+                    if len(value_differences) == 20:
+                        break
+            if len(value_differences) == 20:
+                break
     return {
         "status": "mismatch"
         if differences

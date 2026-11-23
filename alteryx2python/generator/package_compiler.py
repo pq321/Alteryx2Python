@@ -2036,6 +2036,10 @@ class ModularPackageGenerator:
             helper_linker=helper_linker,
             is_macro=True,
         )
+        if spec.kind == "batch":
+            from alteryx2python.tools.macro_engine import concat_batch_frames
+
+            concat_batch = helper_linker.function(concat_batch_frames)
         body_py, _ = sub_emitter.compile_pipeline()
         all_outs = list(spec.output_anchors)
         if spec.kind == "iterative" and spec.iteration_output and spec.iteration_output not in all_outs:
@@ -2049,17 +2053,25 @@ class ModularPackageGenerator:
                 f'''
 
                 def run_{spec.macro_key}_batch(control_df: pd.DataFrame, {", ".join(f"{a}: pd.DataFrame" for a in in_args)}, *, control_field: str | None = None):
-                    col = control_field or control_df.columns[0]
+                    col = control_field
+                    if col is None and len(control_df.columns) == 1:
+                        col = control_df.columns[0]
+                    if col not in control_df:
+                        raise ValueError("Batch macro requires a valid control_field")
                     collected: dict[str, list[pd.DataFrame]] = {{name: [] for name in {spec.output_anchors!r}}}
                     for ctrl_val in control_df[col]:
                         cfg = {{"inputs": {{}}, "outputs": {{}}, "parameters": {{{ctrl_py!r}: ctrl_val}}, "runtime": {{}}}}
                         step_out = _run_macro_body(cfg, {", ".join(in_args)})
                         for name in {spec.output_anchors!r}:
                             collected[name].append(step_out[name])
-                    results = [
-                        pd.concat(collected[name], ignore_index=True) if collected[name] else pd.DataFrame()
-                        for name in {spec.output_anchors!r}
-                    ]
+                    results = []
+                    for name, frames in collected.items():
+                        if not frames:
+                            columns = {spec.output_columns!r}.get(name)
+                            if not columns:
+                                raise ValueError("Empty batch control needs an independently declared output schema")
+                            frames = [pd.DataFrame(columns=columns)]
+                        results.append({concat_batch}(frames, {spec.output_mode!r}))
                     return results[0] if len(results) == 1 else tuple(results)
                 '''
             )

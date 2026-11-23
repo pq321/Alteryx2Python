@@ -123,7 +123,7 @@ def test_select_chain_preserves_lossy_narrow_truncation(tmp_path: Path):
     assert select_ids == [str(s1), str(s2)]
 
 
-def test_formula_and_single_branch_filter_fusion_match_phase1(tmp_path: Path):
+def test_formula_fusion_preserves_sequential_filter_boundaries(tmp_path: Path):
     builder = WorkflowBuilder()
     src = builder.add_text_input(
         ["region", "status", "qty", "price"],
@@ -156,14 +156,14 @@ def test_formula_and_single_branch_filter_fusion_match_phase1(tmp_path: Path):
     opt = optimize_workflow_ir(workflow)
 
     assert len([n for n in opt.workflow.nodes if n.tool_type == "Formula"]) == 1
-    assert len([n for n in opt.workflow.nodes if n.tool_type == "Filter"]) == 1
+    assert len([n for n in opt.workflow.nodes if n.tool_type == "Filter"]) == 2
     assert opt.provenance[str(f2)]["reason"] == "fused_formula_chain"
-    assert opt.provenance[str(flt2)]["reason"] == "fused_filter_chain"
+    assert opt.provenance[str(flt2)]["status"] == "retained"
 
     orig_res = run_workflow_graph(workflow, WorkflowContext())
     opt_res = run_workflow_graph(opt.workflow, WorkflowContext())
     expected = orig_res.node_results[str(flt2)].outputs["True"].reset_index(drop=True)
-    actual = opt_res.node_results[str(flt1)].outputs["True"].reset_index(drop=True)
+    actual = opt_res.node_results[str(flt2)].outputs["True"].reset_index(drop=True)
     pd.testing.assert_frame_equal(actual, expected)
 
 

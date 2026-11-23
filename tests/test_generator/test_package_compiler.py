@@ -317,6 +317,61 @@ def test_reusable_and_iterative_macros_execute_standalone_and_match_phase1(tmp_p
     assert _read_csv(out_dir / "bumped.csv") == [["v"], ["11"], ["20"]]
 
 
+def test_generated_filter_chain_evaluates_second_predicate_on_surviving_rows(tmp_path, monkeypatch):
+    builder = WorkflowBuilder()
+    source = builder._node("DbFileInput", '<File FileFormat="0">data.csv</File>', (20, 40))
+    choose = builder.add_filter('[keep] = "yes"')
+    positive = builder.add_filter("[x] > 0")
+    sink = builder.add_csv_output("selected.csv")
+    builder.connect(source, choose)
+    builder.connect(choose, positive, source_anchor="True")
+    builder.connect(positive, sink, source_anchor="True")
+    workflow = XmlWorkflowParser().parse_xml(builder.render(), tmp_path / "filters.yxmd")
+    artifact = ModularPackageGenerator().generate(workflow)
+    stages = {entry["node_id"]: entry["function"] for entry in artifact.manifest["nodes"]}
+    assert stages[str(choose)] == stages[str(positive)]
+    package = tmp_path / "sequential_filter_pkg"
+    artifact.write(package)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    transform = importlib.import_module(package.name).transform
+    data = pd.DataFrame({"keep": ["yes", "no"], "x": [2, "not-a-number"]})
+    assert transform({f"input_{source}": data}).to_dict("records") == [{"keep": "yes", "x": 2}]
+
+
+@pytest.mark.parametrize("mode", ["AllSame", "AutoByName", "AutoByPosition"])
+def test_generated_batch_uses_declared_output_mode(tmp_path, monkeypatch, mode):
+    examples = Path(__file__).resolve().parents[2] / "examples" / "cli"
+    macro = examples / "BatchFactor.yxmc"
+    (tmp_path / macro.name).write_text(
+        macro.read_text(encoding="utf-8").replace("<OutputMode>AllSame</OutputMode>", f"<OutputMode>{mode}</OutputMode>"),
+        encoding="utf-8",
+    )
+    caller = examples / "batch-macro.yxmd"
+    workflow = XmlWorkflowParser().parse_xml(caller.read_text(encoding="utf-8"), tmp_path / caller.name)
+    artifact = ModularPackageGenerator().generate(workflow)
+    package = tmp_path / f"batch_mode_{mode}"
+    artifact.write(package)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    macro_file = next(path for path in (package / "macros").glob("*.py") if path.stem != "__init__")
+    module = importlib.import_module(f"{package.name}.macros.{macro_file.stem}")
+    run = next(value for name, value in vars(module).items() if name.startswith("run_") and name.endswith("_batch"))
+
+    # Vary the schema returned by different batch invocations.
+    batches = iter([{"Output": pd.DataFrame({"left": [1]})}, {"Output": pd.DataFrame({"right": [2]})}])
+    monkeypatch.setattr(module, "_run_macro_body", lambda *args: next(batches))
+    with pytest.raises(ValueError, match="declared output schema"):
+        run(pd.DataFrame({"control": []}), pd.DataFrame())
+    controls = pd.DataFrame({"control": [1, 2]})
+    if mode == "AllSame":
+        with pytest.raises(ValueError, match="different field layouts"):
+            run(controls, pd.DataFrame())
+    else:
+        result = run(controls, pd.DataFrame())
+        expected = (pd.DataFrame({"left": [1, 2]}) if mode == "AutoByPosition" else
+                    pd.DataFrame({"left": [1.0, None], "right": [None, 2.0]}))
+        pd.testing.assert_frame_equal(result, expected)
+
+
 def test_declared_truncation_applies_when_the_same_package_receives_new_data(tmp_path: Path, monkeypatch):
     # Workflow with narrow V_WString(3) Select where actual data "ABCDEF" exceeds width 3
     builder = WorkflowBuilder()

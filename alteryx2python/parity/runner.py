@@ -757,10 +757,11 @@ def _without_probe_messages(snapshot: dict, probe_paths: dict[str, Path]) -> tup
     return {**snapshot, "rows": kept}, removed
 
 
-def collect_native(directory: Path, *, manual: bool = False, capture_report_fields: bool = False) -> dict:
+def collect_native(directory: Path, *, manual: bool = False, capture_report_fields: bool = False,
+                   _verified_manifest: dict | None = None) -> dict:
     from .amp_export import native_probe_path
 
-    manifest = verify_manifest(directory)
+    manifest = verify_manifest(directory) if _verified_manifest is None else _verified_manifest
     run_path = directory / "native-run.json"
     review_path = directory / "manual-review.json"
     automatic_path = directory / "designer-evidence.json"
@@ -828,13 +829,15 @@ def collect_native(directory: Path, *, manual: bool = False, capture_report_fiel
                 missing.append(probe)
             continue
         try:
-            if run.get("output_sha256") is not None and run["output_sha256"].get(
+            if review is None and run.get("output_sha256") is not None and run["output_sha256"].get(
                 path.name
             ) != file_hash(path):
                 raise ValueError("Native output changed after engine run")
+            if review is not None and path.name not in review["output_sha256"]:
+                raise ValueError("Native output was not recorded in Designer evidence")
             readable_path = native_probe_path(path)
             if review is not None and readable_path != path:
-                if review["output_sha256"].get(readable_path.relative_to(directory).as_posix()) != file_hash(readable_path):
+                if readable_path.relative_to(directory).as_posix() not in review["output_sha256"]:
                     raise ValueError("Classic export was not attested with its AMP probe")
             node = nodes[probe["node_id"]]
             snapshot = read_yxdb(readable_path)

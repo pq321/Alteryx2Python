@@ -42,11 +42,12 @@ def attest_native(
     skipped_nodes: list[str] | None = None,
     reviewer: str = "manual",
     note: str = "",
+    _verified_manifest: dict | None = None,
 ) -> dict[str, Any]:
     """Record the observed Designer outcome; never infer it from Python."""
     if status not in {"success", "failed"}:
         raise ValueError("Native outcome must be success or failed")
-    manifest = verify_manifest(directory)
+    manifest = verify_manifest(directory) if _verified_manifest is None else _verified_manifest
     failures = set(failed_nodes or [])
     skips = set(skipped_nodes or [])
     ids = {node["node_id"] for node in manifest["nodes"]}
