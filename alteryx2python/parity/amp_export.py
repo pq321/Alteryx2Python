@@ -28,18 +28,18 @@ def _file_tool(nodes, node_id, name, path, x, y):
                   EngineDllEntryPoint=f"Alteryx{name}")
 
 
-def prepare_amp_export(directory: Path) -> dict:
+def prepare_amp_export(directory: Path, *, names=None, destination=None, _manifest=None) -> dict:
     from .runner import file_hash, verify_manifest, write_json
 
     directory = directory.resolve()
-    manifest = verify_manifest(directory)
-    names = [
+    manifest = verify_manifest(directory) if _manifest is None else _manifest
+    names = names if names is not None else [
         probe["file"] for probe in manifest["probes"]
         if (directory / probe["file"]).is_file() and _is_amp(directory / probe["file"])
     ]
     if not names:
         raise ValueError("No AMP probe exports are available")
-    destination = directory / EXPORT_DIR
+    destination = destination or directory / EXPORT_DIR
     destination.mkdir(exist_ok=False)
     original = ET.parse(directory / manifest["instrumented_file"]).getroot()
     root = ET.Element("AlteryxDocument", original.attrib)
@@ -72,6 +72,11 @@ def native_probe_path(path: Path) -> Path:
     if not _is_amp(path):
         return path
     destination = path.parent / EXPORT_DIR
+    index = destination / "batches.json"
+    if index.is_file():
+        batch = json.loads(index.read_text(encoding="utf-8")).get(path.name)
+        if batch:
+            destination = path.parent / batch
     receipt = destination / "manifest.json"
     if not receipt.is_file():
         raise ValueError("AMP YXDB requires a Designer classic export")
@@ -80,4 +85,7 @@ def native_probe_path(path: Path) -> Path:
         raise ValueError(f"AMP input changed since classic export preparation: {path.name}")
     if file_hash(destination / manifest["instrumented_file"]) != manifest["instrumented_sha256"]:
         raise ValueError("Classic export workflow changed")
-    return destination / path.name
+    converted = destination / path.name
+    if converted.is_file() and _is_amp(converted):
+        raise ValueError(f"Classic export is still AMP: {path.name}")
+    return converted

@@ -668,18 +668,8 @@ class _SubgraphEmitter:
             lines = [
                 f"joined_out, left_out, right_out = {h_join}({left_arg}, {right_arg}, {l_keys!r}, {r_keys!r}, {sel_fields!r}, {cfg.get('order_changed', True)!r}, {by_pos!r})"
             ]
-            if consumed_anchors == {"Join"}:
-                lines.append("return joined_out")
-            elif consumed_anchors == {"Left"}:
-                lines.append("return left_out")
-            elif consumed_anchors == {"Right"}:
-                lines.append("return right_out")
-            else:
-                ret_items = []
-                for anch, var_n in (("Left", "left_out"), ("Join", "joined_out"), ("Right", "right_out")):
-                    if anch in consumed_anchors or not consumed_anchors:
-                        ret_items.append(var_n)
-                lines.append("return " + ", ".join(ret_items))
+            result_by_anchor = {"Join": "joined_out", "Left": "left_out", "Right": "right_out"}
+            lines.append("return " + ", ".join(result_by_anchor[anchor] for anchor in outputs))
             return lines, imps, params_used, [], False, {}
 
         if kind == "AppendFields":
@@ -1697,6 +1687,7 @@ class _SubgraphEmitter:
                         "source_tool_id": g.source_tool_id,
                         "tool_type": g.tool_type,
                         "function": fn_name,
+                        "stage_boundary": g is group[-1],
                         "outputs": list(g.output_anchors),
                         "variables": dict(zip(g.output_anchors, g.output_vars)),
                     })

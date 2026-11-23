@@ -26,6 +26,10 @@ def arithmetic_operand(value):
 
 def add_nullable(left, right):
     left, right = as_formula_value(left), as_formula_value(right)
+    if left is None and isinstance(right, str):
+        return right
+    if right is None and isinstance(left, str):
+        return left
     if left is None and isinstance(right, (int, float)):
         left = 0
     if right is None and isinstance(left, (int, float)):

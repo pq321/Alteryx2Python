@@ -1225,9 +1225,11 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
         def validate_parameters(parameters: dict) -> dict:
             cleaned = dict(parameters)
             for key, meta in PARAMETER_SCHEMA.items():
+                val = cleaned.get(key)
+                if meta.get("required") and (val is None or val == ""):
+                    raise ValueError(f"Required parameter is empty: {{key}}")
                 if key not in cleaned:
                     continue
-                val = cleaned[key]
                 kind = meta.get("kind", "TextBox")
                 if kind == "NumericUpDown":
                     val = float(val)
@@ -1248,8 +1250,6 @@ def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:
                     val = "" if val is None else str(val)
                     if kind == "Date" and val:
                         date.fromisoformat(val)
-                if meta.get("required") and (val is None or val == ""):
-                    raise ValueError(f"Required parameter is empty: {{key}}")
                 if meta.get("choices") and val not in meta["choices"]:
                     raise ValueError(f"Invalid choice for {{key}}: {{val!r}} not in {{meta['choices']!r}}")
                 if meta.get("expression_text") and isinstance(val, str):

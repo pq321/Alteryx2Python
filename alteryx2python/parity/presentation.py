@@ -45,6 +45,8 @@ def add_parser(subparsers, handler):
     compare.add_argument("--failed-node", action="append", default=[])
     compare.add_argument("--skipped-node", action="append", default=[])
     compare.add_argument("--case", type=Path)
+    compare.add_argument("--amp-timeout", type=int, default=600, metavar="SECONDS",
+                         help="Designer timeout per AMP export batch (5 to 3600 seconds)")
     deliver = steps.add_parser("deliver", help="Show the verified Phase 2 script and open an output")
     deliver.add_argument("node", nargs="?", help="Node ID to locate in the generated script")
     deliver.add_argument("--paths-only", action="store_true")
@@ -219,36 +221,64 @@ def _prompt(label):
     return value.strip()
 
 
-def _export_amp_probes(case, manifest, migration, skipped):
+def _export_amp_probes(case, manifest, migration, skipped, *, timeout=600):
+    if not 5 <= timeout <= 3600:
+        raise ValueError("AMP export timeout must be between 5 and 3600 seconds")
     native = case / "native"
-    probes = [native / probe["file"] for probe in manifest["probes"] if probe["node_id"] not in skipped]
-    amp = [path for path in probes if path.is_file() and _is_amp(path)]
-    if not amp:
+    pending = []
+    for probe in manifest["probes"]:
+        path = native / probe["file"]
+        if probe["node_id"] in skipped or not path.is_file() or not _is_amp(path):
+            continue
+        try:
+            if native_probe_path(path).is_file():
+                continue
+        except ValueError:
+            pass
+        pending.append(path)
+    if not pending:
         return
-    export = native / EXPORT_DIR
-    receipt_path = export / "manifest.json"
-    if receipt_path.is_file() and all(native_probe_path(path).is_file() for path in amp):
-        return
-    if receipt_path.is_file():
-        receipt = _read(receipt_path)
-        plan_entry = {
-            "workflow": str(export / receipt["instrumented_file"]),
-            "status": "ready", "run_dir": str(export),
-        }
-    else:
-        plan_entry = prepare_amp_export(native)
-    plan = case / "amp-export-plan.json"
-    write_json(plan, [plan_entry])
-    print("Exporting AMP probes in Designer...", file=sys.stderr, flush=True)
-    report = case / f"amp-export-run-{uuid4().hex[:8]}.json"
-    log = report.with_suffix(".log")
+
+    cache = native / EXPORT_DIR
+    cache.mkdir(exist_ok=True)
+    index_path = cache / "batches.json"
+    index = _read(index_path) if index_path.is_file() else {}
     launcher = migration.get("designer_launcher")
-    result = launch_designer_plan(plan, report, "auto", migration.get("designer_requested_pid"),
-                                  Path(launcher) if launcher else None, log=log)
-    if result["status"] != "outputs_ready":
-        detail = result.get("detail") or "Designer did not produce the expected export."
-        raise ValueError(f'AMP export {result["status"]}. {detail} See {report} and {log}.')
-    return log
+    logs = []
+    # Limit both the workflow size and the amount of data per Designer run.
+    batches = []
+    batch, size = [], 0
+    for path in pending:
+        length = path.stat().st_size
+        if batch and (len(batch) >= 16 or size + length > 256 * 1024**2):
+            batches.append(batch)
+            batch, size = [], 0
+        batch.append(path.name)
+        size += length
+    if batch:
+        batches.append(batch)
+    for number, names in enumerate(batches, 1):
+        run_id = uuid4().hex[:12]
+        destination = native / f"{EXPORT_DIR}-{run_id}"
+        entry = prepare_amp_export(native, names=names, destination=destination, _manifest=manifest)
+        plan = destination / "plan.json"
+        write_json(plan, [entry])
+        print(f"Exporting AMP probes in Designer ({number}/{len(batches)}, {len(names)} files)...",
+              file=sys.stderr, flush=True)
+        report = destination / "run.json"
+        log = report.with_suffix(".log")
+        result = launch_designer_plan(plan, report, "auto", migration.get("designer_requested_pid"),
+                                      Path(launcher) if launcher else None, log=log, timeout=timeout)
+        if result["status"] != "outputs_ready" or any(
+            not (destination / name).is_file() or (destination / name).stat().st_size == 0
+            or _is_amp(destination / name) for name in names
+        ):
+            detail = result.get("detail") or "Designer did not produce the expected classic files."
+            raise ValueError(f'AMP export batch {number}/{len(batches)} ({result["status"]}). {detail} See {report} and {log}.')
+        index.update(dict.fromkeys(names, destination.name))
+        write_json(index_path, index)
+        logs.append(log)
+    return logs[-1]
 
 
 def _table_text(value):
@@ -354,13 +384,13 @@ def _compare(args, case):
         raise ValueError(migration["designer"]["detail"])
     if outcome is None and not existing and not receipt_path.is_file():
         raise ValueError("No Designer run evidence. Run demo designer or supply an observed outcome explicitly.")
+    if not 5 <= args.amp_timeout <= 3600:
+        raise ValueError("AMP export timeout must be between 5 and 3600 seconds")
     export_issue = export_log = None
     export_started = perf_counter()
     try:
-        export_log = _export_amp_probes(case, manifest, migration, set(skipped))
+        export_log = _export_amp_probes(case, manifest, migration, set(skipped), timeout=args.amp_timeout)
     except (OSError, ValueError) as error:
-        if outcome is not None or manual:
-            raise
         export_issue = str(error)
     export_seconds = perf_counter() - export_started
     evidence_path = native / "designer-evidence.json"
@@ -370,7 +400,8 @@ def _compare(args, case):
             raise ValueError("Expected one Designer run receipt for the prepared case")
         record_designer_evidence(native, manifest, receipts[0], receipt_path=receipt_path)
     with warnings.catch_warnings(record=True) as recorded_warnings:
-        result = resume_migration(case, native_outcome=outcome, failed_nodes=failed, skipped_nodes=skipped,
+        result = resume_migration(case, native_outcome=None if export_issue else outcome,
+                                  failed_nodes=failed, skipped_nodes=skipped,
                                   table_selection=(args.node, args.anchor),
                                   _verified_manifest=manifest if export_log is None and export_issue is None else None)
     delivery = Path(result["report"]).parent
@@ -512,6 +543,9 @@ def _compare(args, case):
     report_lines.append("")
     if result.get("phase_two_package"):
         report_lines.append("- [Phase 2 package](package/pipeline.py)")
+    if first_divergence := result.get("phase_two_first_divergence"):
+        position = _report_link("Phase 2 stage", delivery / "package/pipeline.py", delivery, first_divergence["line"])
+        report_lines.append(f'- First differing Phase 2 stage output: {position}, node {first_divergence["node_id"]}, anchor {first_divergence["anchor"]}.')
     if failed_stage:
         site = f' ({failed_stage["tool"]})'
         link = _report_link("Phase 2 failure", delivery / "package/pipeline.py", delivery, failed_stage.get("line"))
@@ -561,6 +595,11 @@ def _compare(args, case):
     return {**result, "comparison_report": str(comparison_report), "display": "\n".join(lines)}, 0 if result["status"] == "match" else 1
 
 
+def _powershell_arg(value):
+    text = str(value).replace("'", "''")
+    return f"'{text}'"
+
+
 def _deliver(args, case):
     if not (case / "presentation-result.json").is_file():
         raise ValueError("Run demo compare first.")
@@ -578,7 +617,7 @@ def _deliver(args, case):
         script = directory / "phase_two.py"
         manifest_path = directory / "phase_two.manifest.json"
     has_script = script.is_file() and manifest_path.is_file()
-    failure = result.get("phase_two_stage_failure") or {}
+    failure = result.get("phase_two_stage_failure") or result.get("phase_two_first_divergence") or {}
     node_id = args.node or (failure.get("node_id") if failure.get("line") else selection.get("node"))
     nodes = _read(manifest_path)["nodes"] if has_script else []
     entry = next((item for item in nodes if item["node_id"] == node_id and item.get("line")), None)
@@ -590,11 +629,29 @@ def _deliver(args, case):
     output = preview or (outputs[0] if outputs else None)
     native = case / "native"
     pairs = build_output_comparison(native, directory) if (native / "manifest.json").is_file() else []
+    replay = []
+    case_config = directory / "case_config.json"
+    if pkg_script.is_file() and case_config.is_file():
+        replay_output = directory / "replay-output"
+        command = [
+            "python -I -X utf8", _powershell_arg(pkg_script.parent),
+            "--config", _powershell_arg(case_config), "--input-dir", _powershell_arg(case),
+            "--output-dir", _powershell_arg(replay_output),
+            "--command-working-dir", _powershell_arg(replay_output),
+            "--event-working-dir", _powershell_arg(replay_output),
+        ]
+        if result.get("as_of"):
+            command.extend(["--as-of", _powershell_arg(result["as_of"])])
+        if result.get("logging_events"):
+            command.extend(["--workflow-log", _powershell_arg(directory / "replay-workflow.jsonl")])
+        replay = ["Replay recorded case: " + " ".join(command)]
     lines = [
         f'Overall: {result["status"]} | Standalone: {result["standalone_execution"]}',
         (f'Phase 2: {script}' + (f':{line}' + (f' (node {node_id})' if node_id else "") if line else "")) if has_script else 'Phase 2 code unavailable.',
         *([f"Config: {pkg_config}"] if pkg_config.is_file() else []),
-        *([f'Run: python -I -X utf8 "{pkg_script.parent}"'] if pkg_script.is_file() else []),
+        *replay,
+        *([f'Run with package defaults or your own config: python -I -X utf8 {_powershell_arg(pkg_script.parent)}']
+          if pkg_script.is_file() else []),
         f'Acceptance report: {report_path}',
     ]
     if pairs:

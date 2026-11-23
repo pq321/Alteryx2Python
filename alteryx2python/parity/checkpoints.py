@@ -1,7 +1,7 @@
 """Presentation rules for comparing captured data without modifying records."""
 
 from collections import Counter
-from datetime import date
+from datetime import date, datetime
 from decimal import Decimal, InvalidOperation, ROUND_HALF_UP, localcontext
 import re
 
@@ -130,6 +130,8 @@ def coarse_rules(snapshot, actual, protected):
             continue
         if dtype == "Date":
             rules[name] = "date"
+        elif dtype == "DateTime":
+            rules[name] = "datetime"
         elif dtype == "FixedDecimal":
             scale = str(field.get("scale"))
             if scale.isdecimal() and int(scale) < 50:
@@ -182,6 +184,13 @@ def coarse_cell(cell, rule):
         return _text_number(cell, *rule)
     if rule == "empty" and (kind == "null" or (kind == "string" and value == "")):
         return {"kind": "coarse_empty"}
+    if rule == "datetime" and kind in {"datetime", "string"}:
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}[T ]\d{2}:\d{2}:\d{2}(?:\.\d{1,6})?", value):
+            try:
+                timestamp = datetime.fromisoformat(value)
+            except ValueError:
+                return cell
+            return {"kind": "coarse_datetime", "value": timestamp.isoformat()}
     if rule == "date" and kind in {"date", "datetime", "string"}:
         match = _DATE_VALUE.fullmatch(value)
         if match:

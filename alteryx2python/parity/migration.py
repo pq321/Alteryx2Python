@@ -482,14 +482,14 @@ def launch_designer(directory, mode, pid, launcher=None):
     return launch_designer_plan(directory / "designer-plan.json", directory / "designer-run.json", mode, pid, launcher)
 
 
-def launch_designer_plan(plan, report, mode, pid=None, launcher=None, *, log=None):
+def launch_designer_plan(plan, report, mode, pid=None, launcher=None, *, log=None, timeout=180):
     runner = Path(__file__).resolve().parents[2] / "scripts" / "designer_click_run.ps1"
     shell = shutil.which("pwsh")
     if shell is None or not runner.is_file():
         raise ValueError("Designer automation requires PowerShell 7 and the repository scripts directory")
     command = [
         shell, "-NoProfile", "-File", str(runner), "-Plan", str(plan),
-        "-Report", str(report), "-AppLaunch", mode, "-ManualAppInputs", "-TimeoutSeconds", "180",
+        "-Report", str(report), "-AppLaunch", mode, "-ManualAppInputs", "-TimeoutSeconds", str(timeout),
     ]
     if pid:
         command.extend(["-DesignerProcessId", str(pid)])

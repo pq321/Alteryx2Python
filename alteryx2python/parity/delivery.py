@@ -285,6 +285,7 @@ def _run_package_subprocess(
     log_args: list[str],
     as_of: str | None,
     timeout: float,
+    verification_paths: tuple[Path, Path] | None = None,
 ) -> subprocess.CompletedProcess:
     output_dir.mkdir(parents=True, exist_ok=True)
     events_dir.mkdir(parents=True, exist_ok=True)
@@ -294,7 +295,11 @@ def _run_package_subprocess(
             "-I",
             "-X",
             "utf8",
-            str(pkg_dir),
+            *(
+                [str(Path(__file__).with_name("phase_two_verification.py")), str(pkg_dir),
+                 *(str(path) for path in verification_paths)]
+                if verification_paths else [str(pkg_dir)]
+            ),
             "--config",
             str(config_path),
             "--input-dir",
@@ -714,6 +719,34 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             else ("match" if has_evidence else "incomplete")
         )
 
+        if (
+            p2_status == "mismatch" and first["status"] == "success" and process.returncode == 0
+            and not commands
+            and all(event.get("kind") == "logging" for event in pkg_artifact.config_spec.events)
+            and not any(key.startswith("command_") for key in pkg_artifact.config_spec.operations)
+            and all(not entry.get("format", "").startswith("email") for entry in pkg_artifact.config_spec.outputs.values())
+        ):
+            stages_path = destination / "phase-two-stage-comparison.json"
+            try:
+                with tempfile.TemporaryDirectory(dir=destination) as temporary:
+                    diagnostic_dir = Path(temporary)
+                    diagnostic = _run_package_subprocess(
+                        pkg_dir, config_path=case_config_path, input_dir=source.parent,
+                        output_dir=diagnostic_dir, events_dir=diagnostic_dir, commands=(),
+                        log_args=["--workflow-log", str(diagnostic_dir / "events.jsonl")] if log_event_ids else [],
+                        as_of=as_of, timeout=timeout,
+                        verification_paths=(destination / "phase-one-capture.json", stages_path),
+                    )
+                    if diagnostic.returncode:
+                        report["phase_two_stage_comparison_issue"] = diagnostic.stderr.decode("utf-8", errors="replace").strip()[-2000:]
+                    elif stages_path.is_file():
+                        stage_report = json.loads(stages_path.read_text(encoding="utf-8"))
+                        report["phase_two_stage_comparison"] = stages_path.name
+                        if stage_report["first_divergence"]:
+                            report["phase_two_first_divergence"] = stage_report["first_divergence"]
+            except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+                report["phase_two_stage_comparison_issue"] = str(error)
+
         comparison_scope = "successful_outputs" if first["status"] == "success" else "failure_behavior"
         if p2_status == "match" and comparison_scope == "successful_outputs":
             pkg_artifact.manifest["python_differential"] = "verified"
@@ -729,6 +762,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             "phase_one_outcome": first["status"],
             "phase_two_failure_type": failure_kind if process.returncode else None,
             **({"phase_two_stage_failure": stage_failure} if report.get("phase_two_stage_failure") else {}),
+            **({"nodes": [report["phase_two_first_divergence"]]} if report.get("phase_two_first_divergence") else {}),
             "phase_one_files": expected_files,
             "phase_two_files": observed_files,
             "file_differences": file_differences,
