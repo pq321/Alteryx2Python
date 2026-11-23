@@ -865,6 +865,13 @@ class _IROptimizer:
                     continue
 
             normalized_row = _normalize_row(rows[0], col_names)
+            # A null bound cell can acquire a type at runtime. Keep TextInput inference
+            # instead of substituting the raw Question value into downstream expressions.
+            if any(
+                value is None and (source_node.node_id, 0, col_idx) in cell_bindings
+                for col_idx, value in enumerate(normalized_row)
+            ):
+                continue
             inferred_frame = _infer_types(pd.DataFrame([normalized_row], columns=col_names, dtype=object))
             inferred_record = inferred_frame.to_dict("records")[0]
 

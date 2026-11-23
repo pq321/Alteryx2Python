@@ -6,6 +6,9 @@ import textwrap
 from typing import Any
 
 from alteryx2python.generator.config_extractor import ConfigSpec
+from alteryx2python.generator.source_linker import SourceLinker
+from alteryx2python.parser.tool_parsers.textinput_parser import normalize_cell_text
+from alteryx2python.tools.textinput import _infer_types
 
 
 def render_init_py() -> str:
@@ -552,7 +555,27 @@ def render_io_utils_py(
             "from uuid import uuid4",
         ])
 
+    reference_linker = SourceLinker()
+    restore_reference_types = "out_df = _restore_reference_types(df, entry)"
+    if any(entry.get("cell_parameters") for entry in spec.references.values()):
+        infer_types = reference_linker.function(_infer_types)
+        cell_text = reference_linker.function(normalize_cell_text)
+        imports.extend(reference_linker.imports)
+        restore_reference_types = textwrap.dedent(f'''
+            cell_params = entry.get("cell_parameters")
+            if cell_params:
+                params = config.get("parameters", {{}})
+                for coord, param_name in cell_params.items():
+                    row, col = map(int, coord.split(":", 1))
+                    if param_name in params:
+                        df.iat[row, col] = {cell_text}(params[param_name])
+                out_df = {infer_types}(df)
+            else:
+                out_df = _restore_reference_types(df, entry)
+        ''').strip()
+
     sections: list[str] = ['"""Configuration loading and native table I/O utilities."""\n\n' + "\n".join(sorted(set(imports)))]
+    sections.extend(reference_linker.definitions.values())
 
     sections.append(
         textwrap.dedent(
@@ -741,18 +764,16 @@ def render_io_utils_py(
                     rel_path = Path(entry["path"])
                     path = rel_path if rel_path.is_absolute() else (PACKAGE_DIR / rel_path)
                     df = pd.read_csv(path, dtype=object, keep_default_na=False)
-                    cell_params = entry.get("cell_parameters") or {}
-                    params = config.get("parameters", {})
-                    for coord, param_name in cell_params.items():
-                        r_str, c_str = coord.split(":", 1)
-                        if param_name in params:
-                            df.iat[int(r_str), int(c_str)] = str(params[param_name])
-                    null_rows = entry.get("null_rows") or {}
-                    for col, indices in null_rows.items():
+                    for col, indices in (entry.get("null_rows") or {}).items():
                         if col in df.columns:
-                            for r_idx in indices:
-                                if f"{r_idx}:{list(df.columns).index(col)}" not in cell_params:
-                                    df.at[r_idx, col] = None
+                            df.loc[indices, col] = None
+                    __RESTORE_REFERENCE_TYPES__
+                    if audit is not None:
+                        audit.record_io("reference", key, tool_label, out_df, path, (time.perf_counter() - t0) * 1000.0)
+                    return out_df
+
+
+                def _restore_reference_types(df: pd.DataFrame, entry: dict) -> pd.DataFrame:
                     dtypes = entry.get("dtypes") or {}
                     result: dict[str, pd.Series] = {}
                     for col in entry.get("columns", list(df.columns)):
@@ -774,12 +795,12 @@ def render_io_utils_py(
                             result[col] = pd.to_datetime(series.replace("", pd.NA), errors="coerce").astype(target_dtype)
                         else:
                             result[col] = series.astype(target_dtype)
-                    out_df = pd.DataFrame(result)
-                    if audit is not None:
-                        audit.record_io("reference", key, tool_label, out_df, path, (time.perf_counter() - t0) * 1000.0)
-                    return out_df
+                    return pd.DataFrame(result)
                 '''
-            ).strip()
+            ).strip().replace(
+                "    __RESTORE_REFERENCE_TYPES__",
+                textwrap.indent(restore_reference_types, "    "),
+            )
         )
 
     # Output writer

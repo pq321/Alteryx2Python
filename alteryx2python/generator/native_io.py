@@ -7,6 +7,7 @@ from pathlib import PurePosixPath, PureWindowsPath
 import pandas as pd
 
 from alteryx2python.generator.source_linker import UnsupportedLowering
+from alteryx2python.parser.tool_parsers.textinput_parser import normalize_cell_text
 from alteryx2python.tools.csv_input import read_delimited_file
 from alteryx2python.tools.dbfileinput import (
     _delimiter,
@@ -64,10 +65,14 @@ def _text_input(config: dict, compiler=None) -> list[str]:
     normalized = [_normalize_row(row, fields) for row in rows]
     if config.get('_cell_parameters'):
         infer = compiler.linker.function(_infer_types)
+        cell_text = compiler.linker.function(normalize_cell_text)
         cells = config['_cell_parameters']
         columns = []
         for index, field in enumerate(fields):
-            values = [f'str({cells[str(row_index) + ":" + str(index)]})' if str(row_index) + ':' + str(index) in cells else repr(row[index]) for row_index, row in enumerate(normalized)]
+            values = []
+            for row_index, row in enumerate(normalized):
+                param = cells.get(f"{row_index}:{index}")
+                values.append(f"{cell_text}({param})" if param is not None else repr(row[index]))
             columns.append(f'{field!r}: [{", ".join(values)}]')
         return [f'return {infer}(pd.DataFrame({{{", ".join(columns)}}}, dtype=object))']
     frame = _infer_types(pd.DataFrame(normalized, columns=fields, dtype=object))

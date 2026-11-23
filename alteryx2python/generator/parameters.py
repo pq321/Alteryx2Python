@@ -7,7 +7,8 @@ from xml.etree import ElementTree as ET
 from alteryx2python.expressions.ast import ExpressionNode, LiteralExpression
 from alteryx2python.expressions.parser import parse_expression
 from alteryx2python.generator.source_linker import UnsupportedLowering
-from alteryx2python.runtime.app_config import prepare_workflow, question_manifest
+from alteryx2python.parser.tool_parsers.textinput_parser import normalize_cell_text
+from alteryx2python.runtime.app_config import _serialize, prepare_workflow, question_manifest
 
 
 @dataclass(frozen=True)
@@ -146,9 +147,11 @@ def prepare_parameters(workflow, answers, constants=None):
                         raise UnsupportedLowering('Run Command parameters must replace a complete command setting')
                     bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'command'})
                 elif node.tool_type == 'TextInput' and len(path) == 3 and path[0] == 'rows' and isinstance(path[1], int) and isinstance(path[2], int):
-                    from alteryx2python.runtime.app_config import _serialize
-                    if base != _serialize(value) or changed != _serialize(alternate):
-                        raise UnsupportedLowering('TextInput parameters must replace a complete cell')
+                    if base != normalize_cell_text(_serialize(value)) or changed != normalize_cell_text(_serialize(alternate)):
+                        raise UnsupportedLowering(
+                            'TextInput parameters must replace a complete cell '
+                            f'(question {question.name!r}, node {node_id}, row {path[1] + 1}, column {path[2] + 1})'
+                        )
                     bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'cell'})
                 else:
                     raise UnsupportedLowering(f'Question {question.name} changes unsupported configuration {node.tool_type}/{path}')

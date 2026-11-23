@@ -266,7 +266,11 @@ class SourceLinker:
 
     def function(self, function, bindings=None):
         module = function.__module__
-        if not module.startswith(('alteryx2python.tools.', 'alteryx2python.expressions.functions',
+        text_cell_normalizer = (
+            module == 'alteryx2python.parser.tool_parsers.textinput_parser'
+            and function.__name__ == 'normalize_cell_text'
+        )
+        if not text_cell_normalizer and not module.startswith(('alteryx2python.tools.', 'alteryx2python.expressions.functions',
                                   'alteryx2python.expressions.numeric',
                                   'alteryx2python.expressions.verified_functions',
                                   'alteryx2python.expressions.errors', 'alteryx2python.comparison.schema_diff',

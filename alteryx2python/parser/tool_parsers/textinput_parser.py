@@ -48,4 +48,12 @@ def _cell_text(node: Any) -> str | None:
     if isinstance(node, dict) and "text" not in node:
         return None
     value = text(node, "")
-    return None if value and not value.strip(" \t\r\n") else value
+    # The raw-config API can supply an explicit empty string. An empty XML
+    # element reaches the parser as a dictionary without text.
+    return normalize_cell_text(value) if value else value
+
+
+def normalize_cell_text(value: object) -> str | None:
+    """Convert a cell value to text or null using XML whitespace rules."""
+    cell = "" if value is None else str(value)
+    return cell if cell.strip(" \t\r\n") else None

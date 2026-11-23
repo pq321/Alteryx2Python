@@ -26,6 +26,75 @@ def _read_csv(path: Path) -> list[list[str]]:
         return list(csv.reader(f))
 
 
+@pytest.mark.parametrize("append", [False, True])
+def test_optional_date_action_updates_text_input_cell_at_runtime(tmp_path, monkeypatch, append):
+    from xml.etree import ElementTree as ET
+
+    builder = WorkflowBuilder()
+    if append:
+        source = builder.add_text_input(["Dt"], [[""]])
+        targets = builder.add_text_input(["Label"], [[" first "], ["second"]])
+        formula_input = builder._node("AppendFields", "<CartesianMode>Error</CartesianMode>", (200, 200))
+        builder.connect(targets, formula_input, target_anchor="Targets")
+        builder.connect(source, formula_input, target_anchor="Source")
+    else:
+        source = builder.add_text_input(["Dt", "Label"], [["", " first "], ["", "second"]])
+        formula_input = source
+    formula = builder.add_formula([("Missing", "Bool", "1", "IsNull([Dt])")])
+    builder.connect(formula_input, formula)
+    root = ET.fromstring(builder.render())
+    runtime = root.find("Properties/RuntimeProperties")
+    ET.SubElement(runtime, "ModuleType").text = "Wizard"
+    runtime.remove(runtime.find("Questions"))
+    runtime.remove(runtime.find("Actions"))
+    runtime.append(ET.fromstring("""
+        <Questions><Question><Type>Date</Type><Name>report_date</Name><Default/>
+          <ToolId value="121"/>
+        </Question></Questions>
+    """))
+    runtime.append(ET.fromstring(f"""
+        <Actions><NoCondition><True>
+          <Action><Type>UpdateValue</Type><Variable>report_date</Variable>
+            <ToolId value="122"/><Destination>{source}/Data/r[1]/c[1]</Destination>
+          </Action>
+        </True></NoCondition></Actions>
+    """))
+    path = tmp_path / "date_cell.yxwz"
+    ET.ElementTree(root).write(path, encoding="utf-8")
+    workflow = XmlWorkflowParser().parse(path)
+
+    artifact = ModularPackageGenerator().generate(workflow)
+    package_name = "date_cell_append_pkg" if append else "date_cell_pkg"
+    artifact.write(tmp_path / package_name)
+    monkeypatch.syspath_prepend(str(tmp_path))
+    package = importlib.import_module(package_name)
+    io_utils = importlib.import_module(f"{package_name}.io_utils")
+
+    for answer in ("", "2026-11-21"):
+        context = WorkflowContext({"answers": {"report_date": answer}})
+        graph = run_workflow_graph(workflow, context)
+        expected = graph.node_results[str(formula)].outputs["Output"]
+        config = io_utils.load_config(overrides={"parameters": {"report_date": answer}})
+        actual, = package.run_pipeline(config)["frames"].values()
+        pd.testing.assert_frame_equal(actual, expected)
+        assert actual["Missing"].tolist() == [not answer, not answer if append else True]
+        assert actual["Label"].tolist() == [" first ", "second"]
+        if answer:
+            assert actual["Dt"].iloc[0] == pd.Timestamp(answer)
+        else:
+            assert actual["Dt"].tolist() == [None, None]
+
+    if append:
+        return
+    root.find(f".//Node[@ToolID='{source}']/Properties/Configuration/Data/r/c").text = "Date: TOKEN"
+    action = runtime.find(".//Action")
+    ET.SubElement(action, "Replace", value="True")
+    ET.SubElement(action, "ReplaceText").text = "TOKEN"
+    partial = XmlWorkflowParser().parse_xml(ET.tostring(root, encoding="unicode"), path)
+    with pytest.raises(UnsupportedLowering, match="TextInput parameters must replace a complete cell"):
+        ModularPackageGenerator().generate(partial)
+
+
 def test_seven_question_app_compiles_once_and_runs_all_configs_without_recompilation(tmp_path: Path):
     from examples.python_pipeline_comparison.app_reference import run_report
     from examples.python_pipeline_comparison.compare_app import ALTERNATE_TRADES, CONTROL_SPECS, TRADES, build_app
