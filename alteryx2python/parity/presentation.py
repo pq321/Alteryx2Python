@@ -125,7 +125,9 @@ def _designer(args, state_file, state):
                 interactive=is_app and bool(saved.get("questions")) and not args.answers,
                 event_commands=tuple(args.allow_event_command), log_event_ids=event_ids,
             )
-        except (OSError, ValueError):
+        except (OSError, ValueError) as error:
+            for note in getattr(error, "__notes__", ()):
+                print(note, file=sys.stderr, flush=True)
             report = _show_path_warnings(case)
             if report.is_file():
                 print(f"Path diagnostics: {report}", file=sys.stderr, flush=True)
@@ -140,6 +142,10 @@ def _designer(args, state_file, state):
     path_report = _show_path_warnings(case)
     if path_report.is_file():
         lines.append(f"Path diagnostics: {path_report}")
+    if result.get("phase_two_package"):
+        lines.append(f'Phase 2 candidate (unverified): {result["phase_two_package"]}')
+    elif result.get("phase_two_failure"):
+        lines.append(f'Phase 2 compilation failed: {result["phase_two_failure"]["message"]}')
     if result.get("answers"):
         lines.append(f'App answers: {result["answers"]}')
     if args.prepare_only:
@@ -497,8 +503,12 @@ def _compare(args, case):
             report_lines.append(f"| {_table_text(tool)} | {_table_text(anchor)} | {link} |")
         report_lines.extend(["", "</details>"])
     report_lines.append("")
-    if result.get("failure"):
-        report_lines.append("- Execution failed. See the acceptance report.")
+    if result.get("phase_two_package"):
+        report_lines.append("- [Phase 2 package](package/pipeline.py)")
+    if result.get("phase_two_comparison_scope") == "failure_behavior":
+        report_lines.append("- The Phase 1 / Phase 2 result covers failure behavior.")
+    if result.get("failure") or result.get("phase_one_failure"):
+        report_lines.append("- See the acceptance report for the reported failures.")
     timings = result.get("timings_seconds", {})
     step_timings = {
         **timings,

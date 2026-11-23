@@ -359,11 +359,37 @@ def test_migration_reuses_question_answers_and_compares_standalone_artifacts(tmp
     assert result["native_vs_phase_one"] == "incomplete"
     assert result["phase_one_vs_phase_two"] == "match"
     assert result["phase_one_outcome"] == ("failed" if missing else "success")
+    assert result["phase_two_comparison_scope"] == ("failure_behavior" if missing else "successful_outputs")
+    pkg_manifest = json.loads((directory / "delivery/package/manifest.json").read_text(encoding="utf-8"))
+    assert pkg_manifest["python_differential"] == ("unverified" if missing else "verified")
     assert file_hash(source) == source_hash
     assert not (directory / "delivery/phase-two-verification-output").exists()
     if not missing:
         assert (directory / "delivery/delivery-output/report.csv").read_bytes() == b"amount,report_date\r\n25,2026-11-17\r\n"
         assert not (tmp_path / "dated-output").exists()
+
+
+def test_migrate_without_input_exposes_unverified_candidate(tmp_path, capsys):
+    from pathlib import Path
+
+    from alteryx2python.cli import main
+
+    source, _ = constant_input_fixture(tmp_path, "yxmd", "missing.csv")
+    case = tmp_path / "case"
+    assert main(["migrate", str(source), "--run-dir", str(case)]) == 2
+    receipt = json.loads(capsys.readouterr().out)
+
+    assert receipt == json.loads((case / "migration.json").read_text(encoding="utf-8"))
+    assert receipt["status"] == "incomplete"
+    assert receipt["phase_two_generation"] == "generated"
+    assert receipt["failure"]["type"] == "PathAccessError"
+    assert (case / "phase_one.py").is_file()
+    package = Path(receipt["phase_two_package"])
+    assert (package / "pipeline.py").is_file()
+    manifest = json.loads((package / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["phase_one_sha256"] == file_hash(case / "phase_one.py")
+    assert manifest["python_differential"] == manifest["native_equivalence"] == "unverified"
+    assert not (case / "designer-plan.json").exists()
 
 
 def test_case_detects_changed_snapshot(tmp_path):

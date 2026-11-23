@@ -29,6 +29,7 @@ def test_demo_keeps_case_between_commands_and_requires_native_evidence(tmp_path,
     assert (case / "source-audit.json").is_file()
     assert (case / "audit.json").is_file()
     assert (case / "native/manifest.json").is_file()
+    assert (case / "phase-two-candidate/pipeline.py").is_file()
 
     monkeypatch.setattr("sys.stdin", io.StringIO(""))
     assert main(["demo", "compare"]) == 2

@@ -17,6 +17,7 @@ from zipfile import BadZipFile
 from openpyxl.utils.exceptions import InvalidFileException
 
 from alteryx2python.comparison.workbook import first_workbook_difference
+from alteryx2python.expressions.errors import ExpressionError
 from alteryx2python.generator.package_compiler import ModularPackageGenerator, PackageArtifact
 from alteryx2python.generator.parameters import _alternate
 from alteryx2python.generator.python_generator import PythonGenerator
@@ -229,24 +230,25 @@ def _build_case_overrides(
     return overrides
 
 
-def _compile_delivery_package(
-    workflow,
-    manifest: dict,
-    *,
-    staged_dir: Path,
-    answers: dict | None,
-    log_event_ids: list[str],
-    delivery_profile: str | None,
-    runtime: dict,
-) -> tuple[PackageArtifact, dict]:
-    """Compile the frozen Phase 1 IR and bind recorded values only for verification."""
-    original = Path(workflow.source_file)
+def write_phase_two_candidate(workflow, destination: Path, *, phase_one_sha256: str, log_event_ids=()):
+    """Compile and save the frozen IR before attempting runtime verification."""
+    delivery_profile = XLSX_PROFILE if any(
+        node.tool_type == "PortfolioComposerRender" for node in workflow.nodes
+    ) else None
     artifact = ModularPackageGenerator().generate(
         workflow, delivery_profile=delivery_profile, log_event_ids=log_event_ids,
     )
+    artifact.manifest["phase_one_sha256"] = phase_one_sha256
+    artifact.write(destination)
+    return artifact
+
+
+def _delivery_case_config(artifact: PackageArtifact, workflow, manifest: dict, runtime: dict) -> dict:
+    staged_dir = Path(manifest["source"]).parent
+    original = Path(workflow.source_file)
     overrides = _build_case_overrides(
         artifact, staged_dir=staged_dir,
-        staged_input_nodes=manifest.get("staged_input_nodes") or {}, answers=answers,
+        staged_input_nodes=manifest.get("staged_input_nodes") or {}, answers=manifest.get("answers"),
     )
     aliases = runtime["input_path_aliases"]
     for node_id, dynamic in manifest.get("dynamic_inputs", {}).items():
@@ -261,7 +263,7 @@ def _compile_delivery_package(
         overrides.setdefault("runtime", {}).update(
             original_input_dir=str(original.parent), input_aliases=aliases,
         )
-    return artifact, overrides
+    return overrides
 
 
 def _run_package_subprocess(
@@ -480,14 +482,39 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     phase_one = destination / "phase_one.py"
     try:
         workflow = _load_phase_one(manifest, source, phase_one)
-    except (ValueError, OSError) as error:
+    except (ValueError, OSError, SyntaxError) as error:
         report = {
             "status": "blocked", "native_vs_phase_one": "pending", "phase_one_vs_phase_two": "pending",
-            "standalone_execution": "pending", "failure": {"type": type(error).__name__, "message": str(error)},
+            "standalone_execution": "pending", "phase_two_generation": "blocked",
+            "failure": {"type": type(error).__name__, "message": str(error)},
         }
         write_json(destination / "acceptance.json", report)
         return report
     phase_one_sha256 = file_hash(phase_one)
+    report = {
+        "status": "incomplete", "source": str(source), "source_sha256": manifest["source_sha256"],
+        "answers": answers, "phase_one_sha256": phase_one_sha256,
+        "native_vs_phase_one": "pending", "phase_one_outcome": "pending",
+        "phase_one_vs_phase_two": "pending", "standalone_execution": "pending",
+    }
+    pkg_dir = destination / "package"
+    phase_started = perf_counter()
+    pkg_artifact = None
+    try:
+        pkg_artifact = write_phase_two_candidate(
+            workflow, pkg_dir, phase_one_sha256=phase_one_sha256, log_event_ids=log_event_ids,
+        )
+    except (ValueError, OSError, RuntimeError, KeyError, SyntaxError, ExpressionError) as error:
+        report.update(phase_two_generation="failed", failure={"type": type(error).__name__, "message": str(error)})
+    else:
+        report.update(
+            phase_two_generation="generated",
+            phase_two_package=str(pkg_dir),
+            phase_two_sha256=pkg_artifact.manifest["generated_sha256"],
+        )
+    timings["phase_two_compile"] = round(perf_counter() - phase_started, 3)
+    write_json(destination / "acceptance.json", report)
+
     runtime = _case_runtime(manifest)
     sink_names = {
         node.node_id: PureWindowsPath(node.config["normalized"]["file"].split("|||", 1)[0]).name
@@ -498,11 +525,18 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     xlsx_sinks = {name for name in sink_names.values() if Path(name).suffix.lower() == ".xlsx"}
 
     phase_started = perf_counter()
-    first = capture_python(
-        source, workflow=workflow, runtime_config=runtime, evidence_source_sha256=manifest["source_sha256"],
-        output_directory=destination / "phase-one-output", answers=answers, event_commands=commands,
-        log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of,
-    )
+    try:
+        first = capture_python(
+            source, workflow=workflow, runtime_config=runtime, evidence_source_sha256=manifest["source_sha256"],
+            output_directory=destination / "phase-one-output", answers=answers, event_commands=commands,
+            log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of,
+        )
+    except (ValueError, OSError, RuntimeError, subprocess.TimeoutExpired) as error:
+        first = {
+            "source_sha256": manifest["source_sha256"], "producer": "python", "answers": answers,
+            "status": "blocked", "failure": {"type": type(error).__name__, "message": str(error)},
+            "nodes": {}, "sink_artifacts": {},
+        }
     first["phase_one_sha256"] = phase_one_sha256
     first["workflow_source_sha256"] = workflow.source_hash
     timings["phase_one_capture"] = round(perf_counter() - phase_started, 3)
@@ -554,40 +588,37 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             native_result["table_report_issue"] = str(error)
     write_json(destination / "native-vs-phase-one.json", native_result)
     timings["checkpoint_comparison_and_reports"] = round(perf_counter() - phase_started, 3)
-    report = {
-        "status": "blocked", "source": str(source), "source_sha256": manifest["source_sha256"],
-        "answers": answers, "phase_one_sha256": phase_one_sha256,
-        "native_vs_phase_one": native_result["status"], "phase_one_outcome": first["status"],
-        "phase_one_vs_phase_two": "pending", "standalone_execution": "pending",
-    }
+    report.update(native_vs_phase_one=native_result["status"], phase_one_outcome=first["status"])
+    if first["failure"]:
+        report["phase_one_failure"] = first["failure"]
+    if native_result["status"] == "mismatch":
+        report["status"] = "mismatch"
     if log_event_ids:
         report["logging_events"] = logging_evidence
     if render_folders:
         report["render_workbooks"] = {
             "designer": native["render_workbooks"],
-            "phase_one": first["workbooks"],
+            "phase_one": first.get("workbooks", {}),
         }
     if as_of:
         report["as_of"] = as_of
+    if pkg_artifact is None or first["status"] == "blocked" or (first["status"] != "success" and not observable):
+        if pkg_artifact is None and report["status"] != "mismatch":
+            report["status"] = "blocked"
+        timings["total"] = round(perf_counter() - started, 3)
+        report["timings_seconds"] = timings
+        write_json(destination / "acceptance.json", report)
+        return report
+
     phase_started = perf_counter()
     try:
-        if first["status"] == "blocked" or (first["status"] != "success" and not observable):
-            raise ValueError(f"Generated Phase 1 did not succeed: {first['failure']}")
         delivery_profile = XLSX_PROFILE if render_folders else None
         delivery_dir = destination / "delivery-output"
         expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
         expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
-        pkg_artifact, case_overrides = _compile_delivery_package(
-            workflow, manifest, staged_dir=source.parent, answers=answers, log_event_ids=log_event_ids,
-            delivery_profile=delivery_profile, runtime=runtime,
-        )
-        pkg_artifact.manifest["phase_one_sha256"] = phase_one_sha256
-        pkg_dir = destination / "package"
-        pkg_artifact.write(pkg_dir)
+        case_overrides = _delivery_case_config(pkg_artifact, workflow, manifest, runtime)
         case_config_path = destination / "case_config.json"
         write_json(case_config_path, case_overrides)
-        report["phase_two_package"] = str(pkg_dir)
-        report["phase_two_sha256"] = pkg_artifact.manifest["generated_sha256"]
 
         delivery_events = delivery_dir / "events" if commands else delivery_dir
         process = _run_package_subprocess(
@@ -658,7 +689,8 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             else ("match" if has_evidence else "incomplete")
         )
 
-        if p2_status == "match":
+        comparison_scope = "successful_outputs" if first["status"] == "success" else "failure_behavior"
+        if p2_status == "match" and comparison_scope == "successful_outputs":
             pkg_artifact.manifest["python_differential"] = "verified"
             (pkg_dir / "manifest.json").write_text(
                 json.dumps(pkg_artifact.manifest, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
@@ -667,6 +699,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         phase_two_result = {
             "profile": "boundary_package",
             "status": p2_status,
+            "comparison_scope": comparison_scope,
             "returncode": process.returncode,
             "phase_one_outcome": first["status"],
             "phase_two_failure_type": failure_kind if process.returncode else None,
@@ -685,14 +718,16 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             **({"logging_events": logging_evidence} if log_event_ids else {}),
         })
         report["phase_one_vs_phase_two"] = p2_status
+        report["phase_two_comparison_scope"] = comparison_scope
         report["standalone_execution"] = p2_status
         status = report["native_vs_phase_one"]
-        report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match"
+        report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match" and first["status"] == "success"
                             else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
 
     except (ValueError, OSError, RuntimeError, KeyError, subprocess.TimeoutExpired) as exc:
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}
-    timings["phase_two_compile_run_and_checks"] = round(perf_counter() - phase_started, 3)
+        report.update(phase_one_vs_phase_two="incomplete", standalone_execution="incomplete")
+    timings["phase_two_compile_run_and_checks"] = round(timings["phase_two_compile"] + perf_counter() - phase_started, 3)
     timings["total"] = round(perf_counter() - started, 3)
     report["timings_seconds"] = timings
     write_json(destination / "acceptance.json", report)

@@ -11,8 +11,10 @@ import subprocess
 import sys
 from xml.etree import ElementTree as ET
 
-from alteryx2python.generator.python_generator import PythonGenerator
+from alteryx2python.expressions.errors import ExpressionError
 from alteryx2python.generator.macro_sources import resolve_macro_path
+from alteryx2python.generator.python_generator import PythonGenerator
+from alteryx2python.generator.readable import read_phase_one
 from alteryx2python.input_bindings import STAGEABLE_INPUT_SUFFIXES
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import _typed, bind_answers, configure_workflow, question_manifest
@@ -25,7 +27,7 @@ from alteryx2python.tools.dynamicinput import dynamic_source_reference, read_lis
 from alteryx2python.workflow_audit import audit_workflow
 from alteryx2python.workflow_events import bind_logging_events, workflow_events
 
-from .delivery import verify_delivery
+from .delivery import verify_delivery, write_phase_two_candidate
 from .local_adapters import field_reference, formula_text, insert_input_formula
 from .manual import attest_native
 from .path_access import PathAccessError, record_path_issue
@@ -285,6 +287,44 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
     if (supplied is not None or interactive) and not is_app:
         raise ValueError("Question answers require an analytic app (.yxwz)")
     directory.mkdir(parents=True, exist_ok=False)
+    phase_one = directory / "phase_one.py"
+    phase_one.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
+    phase_one_sha256 = file_hash(phase_one)
+    candidate = directory / "phase-two-candidate"
+    result = {"source": str(source), "source_sha256": workflow.source_hash}
+    try:
+        write_phase_two_candidate(
+            read_phase_one(phase_one), candidate,
+            phase_one_sha256=phase_one_sha256, log_event_ids=log_event_ids,
+        )
+    except (ValueError, OSError, RuntimeError, KeyError, SyntaxError, ExpressionError) as error:
+        result.update(phase_two_generation="failed", phase_two_failure={
+            "type": type(error).__name__, "message": str(error),
+        })
+    else:
+        result.update(phase_two_generation="generated", phase_two_package=str(candidate))
+
+    try:
+        result.update(_prepare_validation(
+            source, directory, workflow, document, questions, phase_one_sha256,
+            supplied=supplied, interactive=interactive, allow_missing=allow_missing,
+            event_commands=event_commands, instrumented_filename=instrumented_filename,
+            log_event_ids=log_event_ids,
+        ))
+    except (ValueError, OSError, RuntimeError, KeyError, EOFError) as error:
+        result.update(status="incomplete", failure={"type": type(error).__name__, "message": str(error)})
+        write_json(directory / "migration.json", result)
+        if result.get("phase_two_package"):
+            error.add_note(f"Phase 2 candidate (unverified): {candidate}")
+        raise
+
+    write_json(directory / "migration.json", result)
+    return result
+
+
+def _prepare_validation(source, directory, workflow, document, questions, phase_one_sha256, *,
+                        supplied, interactive, allow_missing, event_commands, instrumented_filename, log_event_ids):
+    is_app = source.suffix.lower() == ".yxwz"
     write_json(directory / "nodes.json", [
         {"id": node.node_id, "tool": node.tool_type, "configuration": node.config.get("normalized", {})}
         for node in workflow.nodes
@@ -379,10 +419,8 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         item["snapshot"]: {"source": item["source"], "consumers": item["consumers"]}
         for snapshots in (entries, templates) for item in snapshots.values()
     }
-    phase_one = directory / "phase_one.py"
-    phase_one.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
-    manifest["phase_one_file"] = phase_one.name
-    manifest["phase_one_sha256"] = file_hash(phase_one)
+    manifest["phase_one_file"] = "phase_one.py"
+    manifest["phase_one_sha256"] = phase_one_sha256
     manifest["original_source"] = str(source)
     manifest["original_source_sha256"] = workflow.source_hash
     manifest["staged_input_nodes"] = {
@@ -394,8 +432,8 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
     write_json(native / "manifest.json", manifest)
     plan = directory / "designer-plan.json"
     write_json(plan, [{"status": "ready", "workflow": str(staged), "run_dir": str(native)}])
-    result = {
-        "status": "awaiting_designer", "source": str(source), "source_sha256": file_hash(source),
+    return {
+        "status": "awaiting_designer",
         "runtime_input_dependencies": [
             node.node_id for node in workflow.nodes
             if node.tool_type in {"DynamicInput", "Directory"} or node.tool_type.startswith("Macro_")
@@ -404,8 +442,6 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         "answers": str(directory / "answers.json") if is_app else None,
         **({"log_event_ids": manifest["log_event_ids"]} if manifest.get("log_event_ids") else {}),
     }
-    write_json(directory / "migration.json", result)
-    return result
 
 
 def _resolve_event_commands(document, source_dir, log_event_ids):

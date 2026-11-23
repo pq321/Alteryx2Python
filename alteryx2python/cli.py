@@ -542,6 +542,7 @@ def _generate_command(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
 
 def _migrate_command(args):
     from alteryx2python.parity.migration import launch_designer, prepare_migration, resume_migration
+    from alteryx2python.parity.path_access import PathAccessError
     from alteryx2python.parity.runner import write_json
 
     if args.resume:
@@ -557,9 +558,12 @@ def _migrate_command(args):
     if not args.designer and (args.designer_pid or args.designer_launcher):
         raise ValueError("Designer session options require --designer")
     if args.workflow:
-        result = prepare_migration(args.workflow, args.run_dir, supplied=_read_answers(args.answers) if args.answers else None,
-                                   interactive=args.interactive, allow_missing=args.allow_missing_input,
-                                   event_commands=tuple(args.allow_event_command), log_event_ids=args.log_event)
+        try:
+            result = prepare_migration(args.workflow, args.run_dir, supplied=_read_answers(args.answers) if args.answers else None,
+                                       interactive=args.interactive, allow_missing=args.allow_missing_input,
+                                       event_commands=tuple(args.allow_event_command), log_event_ids=args.log_event)
+        except PathAccessError:
+            return json.loads((args.run_dir / "migration.json").read_text(encoding="utf-8")), 2
     elif args.designer and not (args.answers or args.interactive or args.allow_missing_input or args.allow_event_command or args.log_event):
         result = json.loads((args.run_dir / "migration.json").read_text(encoding="utf-8"))
     else:
