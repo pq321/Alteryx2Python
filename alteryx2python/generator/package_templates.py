@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import textwrap
+from pprint import pformat
 from typing import Any
 
 from alteryx2python.generator.config_extractor import ConfigSpec
@@ -120,7 +121,7 @@ def render_runner_py(spec: ConfigSpec, io_helpers: list[str], operation_helpers:
         "",
         "    audit.start_pipeline(parameters=parameters)",
         "    try:",
-        f"        result = _transform(read_table, parameters, operations, audit=audit{sink})",
+        f"        result = _transform(read_table, parameters, operations, run_stage=audit.run_stage, audit=audit{sink})",
         "    except Exception as exc:",
         "        audit.fail_pipeline(exc)",
         "        raise",
@@ -154,7 +155,7 @@ def render_main_py() -> str:
     ).lstrip()
 
 
-def render_audit_utils_py() -> str:
+def render_audit_utils_py(stage_audit: dict[str, tuple[str, str]]) -> str:
     """Emit a framework-free stdlib logging module for step-by-step pipeline auditing."""
     return textwrap.dedent(
         '''
@@ -181,6 +182,9 @@ def render_audit_utils_py() -> str:
             "WARN": logging.WARNING,
             "ERROR": logging.ERROR,
         }
+
+
+        __STAGE_AUDIT__
 
 
         def _redact_params(params: dict | None) -> dict:
@@ -338,6 +342,16 @@ def render_audit_utils_py() -> str:
                     f"[Step {self._step_counter}] {kind.upper()} {key}{tool_part} | {shape['rows']} rows x {shape['cols']} cols {col_str} {direction} {artifact_name} ({duration_ms:.2f} ms)",
                     payload,
                 )
+
+            def run_stage(self, func, /, *args, **kwargs):
+                name = func.__name__
+                label, description = _STAGE_AUDIT[name]
+                return self.run_step(name, label, description, func, *args, **kwargs)
+
+            def skip_stage(self, func):
+                name = func.__name__
+                label, description = _STAGE_AUDIT[name]
+                self.skip_step(name, label, description)
 
             def run_step(self, step_name: str, tool_label: str, description: str, func, /, *args, **kwargs):
                 self._step_counter += 1
@@ -507,7 +521,7 @@ def render_audit_utils_py() -> str:
                 scope=scope,
             )
         '''
-    ).lstrip()
+    ).lstrip().replace("__STAGE_AUDIT__", "_STAGE_AUDIT = " + pformat(stage_audit))
 
 
 def render_io_utils_py(

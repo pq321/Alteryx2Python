@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from datetime import datetime
 import json
+import re
 from pathlib import Path, PureWindowsPath
 from shutil import copyfile
 import subprocess
@@ -163,11 +164,11 @@ def _project_dynamic_probes(native, manifest):
                 native[key] = [probe for probe in native[key] if probe["node_id"] != adapter_id]
 
 
-def _workbook_detail(expected, actual):
+def _workbook_detail(expected, actual, *, allow_excel_roundoff=False):
     if not expected or not actual or expected.suffix.lower() != ".xlsx":
         return None
     try:
-        return first_workbook_difference(expected, actual)
+        return first_workbook_difference(expected, actual, allow_excel_roundoff=allow_excel_roundoff)
     except (OSError, ValueError, BadZipFile, InvalidFileException) as error:
         return {"dimension": "unreadable_workbook", "reason": str(error)}
 
@@ -199,6 +200,13 @@ def _describe_native_artifacts(findings, manifest, native_directory, phase_one_d
             item["phase_one_file"] = actual.relative_to(phase_one_directory).as_posix()
         if item["status"] == "different" and (detail := _workbook_detail(expected, actual)):
             item["detail"] = detail
+            if detail["dimension"] == "cell":
+                material = _workbook_detail(expected, actual, allow_excel_roundoff=True)
+                if material is None:
+                    item.update(status="coarse_match", reason="excel_numeric_roundoff")
+                elif material != detail:
+                    item["detail"] = material
+                    item["first_exact_difference"] = detail
 
 
 def _build_case_overrides(
@@ -284,6 +292,8 @@ def _run_package_subprocess(
         [
             sys.executable,
             "-I",
+            "-X",
+            "utf8",
             str(pkg_dir),
             "--config",
             str(config_path),
@@ -577,8 +587,18 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             files = native["capture_files"].get(node_id, {}).get(direction, {})
             if anchor in files:
                 item["designer_file"] = files[anchor]
-    _describe_native_artifacts(native_result["artifact_differences"], manifest, native_directory,
+    artifacts = native_result["artifact_differences"]
+    _describe_native_artifacts(artifacts, manifest, native_directory,
                                destination / "phase-one-output", first, sink_names)
+    coarse_groups = {item["group"] for item in artifacts if item["status"] == "coarse_match"}
+    exact_groups = {item["group"] for item in artifacts if item["status"] != "coarse_match"}
+    coarse_issues = {f"{group}_mismatch" for group in coarse_groups - exact_groups}
+    if native_result["status"] == "mismatch" and coarse_issues == set(native_result["issues"]) and coarse_issues:
+        comparisons = native_result["comparisons"]
+        if all(item["status"] != "mismatch" for item in comparisons):
+            native_result["status"] = "incomplete" if native_result["incomplete_evidence"] or any(
+                item["status"] == "incomplete" for item in comparisons
+            ) else "coarse_match"
     if table_selection is not None:
         try:
             write_table_reports(destination, native, {**first, "report_snapshots": report_snapshots},
@@ -621,6 +641,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         write_json(case_config_path, case_overrides)
 
         delivery_events = delivery_dir / "events" if commands else delivery_dir
+        audit_path = destination / "phase-two-audit.jsonl"
         process = _run_package_subprocess(
             pkg_dir,
             config_path=case_config_path,
@@ -628,7 +649,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             output_dir=delivery_dir,
             events_dir=delivery_events,
             commands=commands,
-            log_args=log_args,
+            log_args=[*log_args, "--audit-log", str(audit_path)],
             as_of=as_of,
             timeout=timeout,
         )
@@ -637,6 +658,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         stderr_lines = process.stderr.decode("utf-8", errors="replace").strip().splitlines()
         failure_kind = stderr_lines[-1].partition(":")[0].rsplit(".", 1)[-1] if stderr_lines else None
         observed_files = _delivery_artifacts(delivery_dir, xlsx_sinks)
+        if process.returncode and (stage_failure := _failed_stage(
+            audit_path, pkg_artifact.manifest["nodes"], pkg_dir / "pipeline.py", stderr_lines,
+        )):
+            report["phase_two_stage_failure"] = stage_failure
 
         workbook_result = {}
         file_differences = []
@@ -703,6 +728,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
             "returncode": process.returncode,
             "phase_one_outcome": first["status"],
             "phase_two_failure_type": failure_kind if process.returncode else None,
+            **({"phase_two_stage_failure": stage_failure} if report.get("phase_two_stage_failure") else {}),
             "phase_one_files": expected_files,
             "phase_two_files": observed_files,
             "file_differences": file_differences,
@@ -732,6 +758,36 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     report["timings_seconds"] = timings
     write_json(destination / "acceptance.json", report)
     return report
+
+
+def _failed_stage(audit_path, nodes, pipeline_path, stderr_lines):
+    if not audit_path.is_file():
+        return None
+    failed = None
+    try:
+        with audit_path.open(encoding="utf-8") as stream:
+            for line in stream:
+                record = json.loads(line)
+                if record.get("kind") == "transform" and record.get("status") == "failed":
+                    failed = record
+    except (OSError, ValueError):
+        return None
+    if failed is None:
+        return None
+    matching = [node for node in nodes if node.get("function") == failed["step"] and not node.get("optimization")]
+    node_ids = [node["node_id"] for node in matching]
+    code_line = matching[0]["line"] if matching else None
+    for trace_line in reversed(stderr_lines):
+        location = re.match(r'^\s*File "([^"]+)", line (\d+), in (.+)$', trace_line)
+        if location and Path(location[1]) == pipeline_path and location[3] == failed["step"]:
+            code_line = int(location[2])
+            break
+    return {
+        "function": failed["step"], "step_index": failed["step_index"], "tool": failed["tool"],
+        "type": failed["error_type"], "message": failed["error"], "node_ids": node_ids,
+        **({"node_id": node_ids[0]} if len(node_ids) == 1 else {}),
+        **({"line": code_line} if code_line else {}),
+    }
 
 
 def _match_logging_events(evidence, phase_two_log, first):

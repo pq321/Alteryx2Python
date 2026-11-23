@@ -12,6 +12,7 @@ import keyword
 from pathlib import Path
 import re
 import textwrap
+import unicodedata
 from typing import Any
 
 import pandas as pd
@@ -58,10 +59,11 @@ IO_BOUNDARY_TOOLS = frozenset({
 
 
 def _ident(value: str, default: str = "step") -> str:
-    cleaned = re.sub(r"[^a-zA-Z0-9_]+", "_", str(value)).strip("_").lower() or default
-    if cleaned[0].isdigit() or keyword.iskeyword(cleaned):
-        return f"{default}_{cleaned}"
-    return cleaned
+    normalized = unicodedata.normalize("NFKC", str(value)).lower()
+    cleaned = re.sub(r"[\W_]+", "_", normalized).strip("_") or default
+    if not cleaned.isidentifier() or keyword.iskeyword(cleaned):
+        cleaned = f"{default}_{cleaned}"
+    return cleaned if cleaned.isidentifier() else default
 
 
 def _annotation_name(node: NodeIR) -> str:
@@ -148,6 +150,7 @@ class _SubgraphEmitter:
         self.is_macro = is_macro
         self.pipeline_imports: set[str] = {"from __future__ import annotations", "import pandas as pd"}
         self.stage_defs: list[tuple[str, list[str], str]] = []  # (func_name, source_node_ids, code)
+        self.stage_audit: dict[str, tuple[str, str]] = {}
         self.has_messages = False
         self.needs_commands = False
         self.needs_render_html = False
@@ -443,6 +446,7 @@ class _SubgraphEmitter:
                     param_meta=self.config_spec.parameter_meta,
                     static_constants=static_consts,
                     known_column_kinds=out_kinds,
+                    link=self.linker.function,
                 )
                 if lowered is not None:
                     imps |= lowered.imports
@@ -479,6 +483,7 @@ class _SubgraphEmitter:
                 param_meta=self.config_spec.parameter_meta,
                 static_constants=static_consts,
                 known_column_kinds=in_kinds,
+                link=self.linker.function,
             )
             if lowered is not None:
                 imps |= lowered.imports
@@ -1182,8 +1187,8 @@ class _SubgraphEmitter:
             if k not in param_names
         }
 
-        used_func_names = {"run_pipeline", "transform", "_transform", "_run_step"}
-        used_var_names: set[str] = {"audit", "config", "params", "results", "read_table", "write_result", "operations"} | set(param_names.values())
+        used_func_names = {"run_pipeline", "transform", "_transform", "_call_stage", "run_stage"}
+        used_var_names: set[str] = {"audit", "config", "params", "results", "read_table", "write_result", "operations", "run_stage"} | set(param_names.values())
         var_by_anchor: dict[tuple[str, str], str] = {}
         orchestration_lines: list[str] = []
         mapping_entries: list[dict[str, Any]] = []
@@ -1426,7 +1431,11 @@ class _SubgraphEmitter:
         if not self.is_macro:
             has_sinks = "write_output_table" in used_io_helpers
             run_lines = [
-                "def _transform(read_table, params, operations, *, audit=None, write_result=None):",
+                "def _call_stage(func, /, *args, **kwargs):",
+                "    return func(*args, **kwargs)",
+                "",
+                "",
+                "def _transform(read_table, params, operations, *, run_stage=_call_stage, audit=None, write_result=None):",
                 *(["    results = {}"] if has_sinks else []),
                 *orchestration_lines,
             ]
@@ -1449,16 +1458,6 @@ class _SubgraphEmitter:
                 "    results = _transform(read_table, parameters or {}, operations or {})",
                 f"    return {return_expr}",
             ]
-            if compiled_ops:
-                run_lines = [
-                    "def _run_step(audit, name, tool, description, func, *args, **kwargs):",
-                    "    if audit is None:",
-                    "        return func(*args, **kwargs)",
-                    "    return audit.run_step(name, tool, description, func, *args, **kwargs)",
-                    "",
-                    "",
-                    *run_lines,
-                ]
             io_block = ""
         else:
             run_lines = [
@@ -1641,8 +1640,8 @@ class _SubgraphEmitter:
             group = [first_op]
             idx += 1
 
-            # Group cohesive linear business derivation (Formula -> Filter -> Select)
-            # OR Summarize -> Sort pairs! Keep input preparation Selects standalone for clarity.
+            # Keep branching, guarded, and I/O stages explicit. Combine compatible
+            # operations along a single-consumer stream in their original order.
             while idx < len(raw_orchestration) and raw_orchestration[idx].startswith("    __OP__:"):
                 next_id = raw_orchestration[idx].split(":", 1)[1]
                 cand = compiled_ops[next_id]
@@ -1663,12 +1662,11 @@ class _SubgraphEmitter:
                     idx += 1
                     break
 
-                # Rule B: Derivation + Filter + terminal Select block (keep initial input Select separate!)
                 if (
                     prev.can_inline_linear
                     and cand.can_inline_linear
-                    and prev.tool_type in {"Formula", "Filter"}
-                    and cand.tool_type in {"Formula", "Filter", "Select"}
+                    and prev.tool_type in {"Select", "Formula", "Filter", "DataCleansing"}
+                    and cand.tool_type in {"Select", "Formula", "Filter", "DataCleansing"}
                     and sum(len(g.body_lines) for g in group) + len(cand.body_lines) <= 28
                 ):
                     group.append(cand)
@@ -1792,7 +1790,8 @@ class _SubgraphEmitter:
             call_expr = f"{op.func_name}({', '.join(all_args)})"
         else:
             arg_tail = (", " + ", ".join(all_args)) if all_args else ""
-            call_expr = f"_run_step(audit, {op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r}, {op.func_name}{arg_tail})"
+            self.stage_audit[op.func_name] = (op.audit_label, op.audit_summary)
+            call_expr = f"run_stage({op.func_name}{arg_tail})"
         lhs = ", ".join(op.output_vars)
         stmt = f"{lhs} = {call_expr}" if lhs else call_expr
         if not op.guards:
@@ -1802,7 +1801,7 @@ class _SubgraphEmitter:
             lines.append("    else:")
             if not self.is_macro:
                 lines.append("        if audit is not None:")
-                lines.append(f"            audit.skip_step({op.func_name!r}, {op.audit_label!r}, {op.audit_summary!r})")
+                lines.append(f"            audit.skip_stage({op.func_name})")
             if op.output_vars:
                 fallback_src = next(iter(op.input_vars.values()), None)
                 for v in op.output_vars:
@@ -1900,7 +1899,7 @@ class ModularPackageGenerator:
             "__init__.py": render_init_py(),
             "__main__.py": render_main_py(),
             "config.toml": config_spec.to_toml(),
-            "audit_utils.py": render_audit_utils_py(),
+            "audit_utils.py": render_audit_utils_py(emitter.stage_audit),
             "pipeline.py": pipeline_py,
             "runner.py": emitter.runner_source,
             "cli.py": render_cli_py(config_spec, has_messages=emitter.has_messages),

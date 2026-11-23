@@ -387,7 +387,9 @@ def _compare(args, case):
     aligned = [item for item in comparisons if item["status"] == "match" and item.get("order_differences")]
     missing = [*parity.get("missing_native_outputs", []), *parity.get("unreadable_native_outputs", [])]
     tools = {node["node_id"]: node["tool_type"] for node in manifest["nodes"]}
-    artifacts = parity.get("artifact_differences", [])
+    artifact_findings = parity.get("artifact_differences", [])
+    artifacts = [item for item in artifact_findings if item["status"] != "coarse_match"]
+    coarse_artifacts = [item for item in artifact_findings if item["status"] == "coarse_match"]
     outcomes = parity.get("outcome_differences", [])
     phase_two_report = delivery / "phase-one-vs-phase-two.json"
     native_status, phase_two_status = result["native_vs_phase_one"], result["phase_one_vs_phase_two"]
@@ -411,10 +413,15 @@ def _compare(args, case):
         f'Designer / Phase 1: {len(mismatches)} anchor mismatches, {len(incomplete)} incomplete anchors, '
         f'{len(artifacts)} output differences.',
     ]
+    if failed_stage := result.get("phase_two_stage_failure"):
+        overview.append(f'Phase 2 execution failed in {failed_stage["function"]} ({failed_stage["tool"]}).')
+    if coarse_artifacts:
+        overview.append(f"{len(coarse_artifacts)} workbook differences were limited to Excel numeric precision.")
     if aligned:
-        overview[-1] += f" {len(aligned)} matched after reordering."
+        # The outcome summary occupies the second line.
+        overview[1] += f" {len(aligned)} matched after reordering."
     if coarse:
-        overview[-1] += f" {len(coarse)} coarse {'match' if len(coarse) == 1 else 'matches'}."
+        overview[1] += f" {len(coarse)} coarse {'match' if len(coarse) == 1 else 'matches'}."
     native_count = _mismatch_total(native_status, [*mismatches, *outcomes], artifacts)
     phase_two_count = _mismatch_total(phase_two_status, phase_two_findings, phase_two_files)
     phase_two_label = "[Phase 1 / Phase 2](phase-one-vs-phase-two.json)" if has_phase_two_report else "Phase 1 / Phase 2"
@@ -505,6 +512,12 @@ def _compare(args, case):
     report_lines.append("")
     if result.get("phase_two_package"):
         report_lines.append("- [Phase 2 package](package/pipeline.py)")
+    if failed_stage:
+        site = f' ({failed_stage["tool"]})'
+        link = _report_link("Phase 2 failure", delivery / "package/pipeline.py", delivery, failed_stage.get("line"))
+        report_lines.append(f'- {link}{site}. {failed_stage["type"]}')
+    if coarse_artifacts:
+        report_lines.append("- Excel numeric precision differences are recorded in the Designer / Phase 1 evidence.")
     if result.get("phase_two_comparison_scope") == "failure_behavior":
         report_lines.append("- The Phase 1 / Phase 2 result covers failure behavior.")
     if result.get("failure") or result.get("phase_one_failure"):
@@ -565,10 +578,11 @@ def _deliver(args, case):
         script = directory / "phase_two.py"
         manifest_path = directory / "phase_two.manifest.json"
     has_script = script.is_file() and manifest_path.is_file()
-    node_id = args.node or selection.get("node")
+    failure = result.get("phase_two_stage_failure") or {}
+    node_id = args.node or (failure.get("node_id") if failure.get("line") else selection.get("node"))
     nodes = _read(manifest_path)["nodes"] if has_script else []
     entry = next((item for item in nodes if item["node_id"] == node_id and item.get("line")), None)
-    line = entry["line"] if entry else None
+    line = failure["line"] if not args.node and failure.get("line") else (entry["line"] if entry else None)
     output_dir = directory / "delivery-output"
     outputs = sorted((path for path in output_dir.rglob("*") if path.is_file()),
                      key=lambda path: (len(path.relative_to(output_dir).parts), path))
@@ -578,8 +592,9 @@ def _deliver(args, case):
     pairs = build_output_comparison(native, directory) if (native / "manifest.json").is_file() else []
     lines = [
         f'Overall: {result["status"]} | Standalone: {result["standalone_execution"]}',
-        (f'Phase 2: {script}' + (f':{line} (node {node_id})' if line else "")) if has_script else 'Phase 2 code unavailable.',
+        (f'Phase 2: {script}' + (f':{line}' + (f' (node {node_id})' if node_id else "") if line else "")) if has_script else 'Phase 2 code unavailable.',
         *([f"Config: {pkg_config}"] if pkg_config.is_file() else []),
+        *([f'Run: python -I -X utf8 "{pkg_script.parent}"'] if pkg_script.is_file() else []),
         f'Acceptance report: {report_path}',
     ]
     if pairs:

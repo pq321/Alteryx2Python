@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 import math
-from typing import Any
+from typing import Any, Callable
 
 from alteryx2python.expressions.ast import (
     BinaryExpression,
@@ -15,6 +15,7 @@ from alteryx2python.expressions.ast import (
     LiteralExpression,
     UnaryExpression,
 )
+from alteryx2python.expressions.numeric import as_formula_series
 from alteryx2python.generator.parameters import ParameterExpression
 
 
@@ -101,12 +102,18 @@ def try_lower_vectorized(
     static_constants: dict[str, Any] | None = None,
     known_column_kinds: dict[str, str] | None = None,
     casefold_comparisons: bool = False,
+    link: Callable | None = None,
 ) -> LoweredExpr | None:
     """Lower ExpressionNode to vectorized Pandas / clean scalar Python, or None if unsupported."""
     param_names = param_names or {}
     param_meta = param_meta or {}
     static_constants = static_constants or {}
     known_column_kinds = {k.casefold(): v for k, v in (known_column_kinds or {}).items()}
+
+    def arithmetic_code(operand: LoweredExpr) -> str:
+        if link is not None and operand.is_series and operand.kind == "any":
+            return f"{link(as_formula_series)}({operand.code})"
+        return operand.code
 
     def lower(node: ExpressionNode) -> LoweredExpr | None:
         if isinstance(node, LiteralExpression):
@@ -206,10 +213,9 @@ def try_lower_vectorized(
                         kind="string",
                         imports=imps,
                     )
-                return LoweredExpr(f"({left.code} + {right.code})", is_series=either_series, kind="numeric", imports=imps)
-
-            if op in {"-", "*", "/"}:
-                return LoweredExpr(f"({left.code} {op} {right.code})", is_series=either_series, kind="numeric", imports=imps)
+            if op in {"+", "-", "*", "/"}:
+                code = f"({arithmetic_code(left)} {op} {arithmetic_code(right)})"
+                return LoweredExpr(code, is_series=either_series, kind="numeric", imports=imps)
 
             if op in {"=", "==", "!=", "<", "<=", ">", ">="}:
                 py_cmp = "==" if op == "=" else op

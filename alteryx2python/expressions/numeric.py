@@ -8,6 +8,18 @@ def as_formula_value(value):
     return float(value) if isinstance(value, Decimal) else value
 
 
+def as_formula_series(series):
+    """Apply FixedDecimal promotion when a column is stored as Python objects."""
+    if series.dtype != object:
+        return series
+    decimal_cells = series.map(lambda value: isinstance(value, Decimal))
+    if not decimal_cells.any():
+        return series
+    result = series.copy()
+    result.loc[decimal_cells] = series.loc[decimal_cells].map(as_formula_value)
+    return result
+
+
 def arithmetic_operand(value):
     return float('nan') if value is None else as_formula_value(value)
 

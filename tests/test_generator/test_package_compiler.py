@@ -1083,7 +1083,9 @@ def test_step_auditing_logs_text_jsonl_skip_redaction_and_failures(tmp_path: Pat
     artifact = ModularPackageGenerator().generate(workflow)
     assert "audit_utils.py" in artifact.files
     assert "[logging]" in artifact.files["config.toml"]
-    assert "audit.run_step(" in artifact.files["pipeline.py"]
+    assert "run_stage(" in artifact.files["pipeline.py"]
+    assert "audit.run_step(" not in artifact.files["pipeline.py"]
+    assert "_STAGE_AUDIT" in artifact.files["audit_utils.py"]
 
     pkg_dir = tmp_path / "audited_pkg"
     artifact.write(pkg_dir)
@@ -1125,22 +1127,21 @@ def test_step_auditing_logs_text_jsonl_skip_redaction_and_failures(tmp_path: Pat
 
     assert "START pipeline" in proc.stderr
     assert "[Step 1] INPUT input_1 (DbFileInput #1) | 3 rows x 4 cols" in proc.stderr
-    assert "[Step 2] STEP select_trade_id_and_region (Select #2)" in proc.stderr
-    assert "[Step 3] STEP compute_include_flag_and_report_date (Formula->Filter->Select #5,6,7)" in proc.stderr
+    assert "[Step 2] STEP select_trade_id_and_region (Select->Formula->Filter->Select #2,5,6,7)" in proc.stderr
     assert "3x4 -> 1x6 (rows -2" in proc.stderr
-    assert "[Step 4] OUTPUT output_8 (DbFileOutput #8) | 1 rows x 6 cols" in proc.stderr
+    assert "[Step 3] OUTPUT output_8 (DbFileOutput #8) | 1 rows x 6 cols" in proc.stderr
     assert "-> report.csv" in proc.stderr
-    assert "DONE pipeline | steps=4 | outputs=1" in proc.stderr
+    assert "DONE pipeline | steps=3 | outputs=1" in proc.stderr
     assert "super-secret-token-123" not in proc.stderr
     assert "***REDACTED***" in proc.stderr
     assert "T001" not in proc.stderr
 
     records = [json.loads(line) for line in audit_jsonl.read_text(encoding="utf-8").splitlines()]
-    assert [r["kind"] for r in records] == ["pipeline_start", "input", "transform", "transform", "output", "pipeline_end"]
+    assert [r["kind"] for r in records] == ["pipeline_start", "input", "transform", "output", "pipeline_end"]
     assert records[0]["parameters"]["api_token"] == "***REDACTED***"
-    assert records[3]["row_delta"] == -2
-    assert "display_amount" in records[3]["columns_added"]
-    assert "status" in records[3]["columns_removed"]
+    assert records[2]["row_delta"] == -2
+    assert "display_amount" in records[2]["columns_added"]
+    assert "status" in records[2]["columns_removed"]
 
     # 2. --log-level OFF silences stderr completely while preserving normal execution
     out_off = tmp_path / "out_off"
@@ -1197,3 +1198,38 @@ def test_step_auditing_logs_text_jsonl_skip_redaction_and_failures(tmp_path: Pat
 
 
 
+
+
+def test_standalone_formula_promotes_decimal_after_append(tmp_path):
+    builder = WorkflowBuilder()
+    targets = builder.add_text_input(["lots", "price"], [["3", "0.1"], ["2", ""]])
+    source = builder.add_text_input(["value"], [["1.25"]])
+    decimal = builder.add_formula([("Multiplier", "FixedDecimal", "19.2", "[value]")])
+    append = builder._node("AppendFields", "<CartesianMode>Error</CartesianMode>", (320, 200))
+    amount = builder.add_formula([("金額", "Double", "8", "[lots] * [price] * [Multiplier]")])
+    builder.connect(source, decimal)
+    builder.connect(targets, append, target_anchor="Targets")
+    builder.connect(decimal, append, target_anchor="Source")
+    builder.connect(append, amount)
+    builder.connect(amount, builder.add_csv_output("amount.csv"))
+    workflow_path = tmp_path / "mixed.yxmd"
+    xml = builder.render().replace("<CodePage>28591</CodePage>", "<CodePage>65001</CodePage>")
+    workflow_path.write_text(xml, encoding="utf-8")
+    workflow = XmlWorkflowParser().parse(workflow_path)
+    baseline = run_workflow_graph(workflow, WorkflowContext())
+    expected = baseline.node_results[str(amount)].outputs["Output"]["金額"]
+    assert expected.iloc[0] == pytest.approx(0.375)
+    assert pd.isna(expected.iloc[1])
+
+    package = tmp_path / "package"
+    artifact = ModularPackageGenerator().generate(workflow)
+    artifact.write(package)
+    assert "def compute_金額(" in artifact.files["pipeline.py"]
+    assert "as_formula_series" in artifact.files["pipeline.py"]
+    output = tmp_path / "output"
+    run = subprocess.run(
+        [sys.executable, "-I", "-X", "utf8", str(package), "--output-dir", str(output)],
+        capture_output=True, encoding="utf-8",
+    )
+    assert run.returncode == 0, run.stderr
+    assert (output / "amount.csv").read_bytes() == (tmp_path / "amount.csv").read_bytes()

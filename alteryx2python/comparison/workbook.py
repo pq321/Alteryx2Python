@@ -1,5 +1,7 @@
 """Compare Excel sheet structure, cell values and formula text."""
 
+import math
+
 from openpyxl import load_workbook
 from openpyxl.utils import get_column_letter
 
@@ -26,7 +28,20 @@ def trim_workbook_padding(sheets):
     return sheets
 
 
-def first_workbook_difference(expected_path, actual_path):
+def _excel_numeric_roundoff(left, right):
+    if left[0] != "n" or right[0] != "n":
+        return False
+    a, b = left[1], right[1]
+    if not isinstance(a, float) and not isinstance(b, float):
+        return False
+    if not math.isfinite(a) or not math.isfinite(b):
+        return False
+    # Excel displays 15 significant digits. Limit equivalence to adjacent
+    # Double values that agree at that precision.
+    return abs(a - b) <= max(math.ulp(a), math.ulp(b)) and format(a, ".15g") == format(b, ".15g")
+
+
+def first_workbook_difference(expected_path, actual_path, *, allow_excel_roundoff=False):
     expected = trim_workbook_padding(workbook_snapshot(expected_path))
     actual = trim_workbook_padding(workbook_snapshot(actual_path))
     if list(expected) != list(actual):
@@ -41,7 +56,7 @@ def first_workbook_difference(expected_path, actual_path):
             for index in range(max(len(left), len(right))):
                 one = left[index] if index < len(left) else (None, None)
                 two = right[index] if index < len(right) else (None, None)
-                if one != two:
+                if one != two and not (allow_excel_roundoff and _excel_numeric_roundoff(one, two)):
                     return {
                         "dimension": "cell", "sheet": sheet,
                         "cell": f"{get_column_letter(index + 1)}{row_number}",

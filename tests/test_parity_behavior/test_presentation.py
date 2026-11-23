@@ -426,3 +426,38 @@ def test_summary_counts_distinct_failures_and_marks_missing_evidence():
     assert _mismatch_total("mismatch", []) == 1
     assert _mismatch_total("incomplete", []) == "—"
     assert _mismatch_total("match", []) == 0
+
+
+def test_designer_workbook_reports_binary_roundoff_and_preserves_material_differences(tmp_path):
+    from openpyxl import Workbook
+
+    from alteryx2python.parity.delivery import _describe_native_artifacts
+
+    native = tmp_path / "native"
+    python = tmp_path / "python"
+    native.mkdir()
+    python.mkdir()
+    expected, actual = native / "result.xlsx", python / "python-sink-source-82.xlsx"
+
+    def write_workbook(path, amount, text):
+        book = Workbook()
+        book.active.title = "Compare_F-02"
+        book.active["G35"] = amount
+        book.active["G36"] = text
+        book.save(path)
+
+    write_workbook(expected, 623700000, "original")
+    write_workbook(actual, 623699999.9999999, "original")
+    findings = [{"group": "sink_artifacts", "key": "82", "status": "different"}]
+    manifest = {"sink_files": {"82": "result.xlsx"}}
+    _describe_native_artifacts(findings, manifest, native, python, {}, {"82": "result.xlsx"})
+    assert findings[0]["status"] == "coarse_match"
+    assert findings[0]["detail"]["cell"] == "G35"
+    assert findings[0]["detail"]["actual"]["value"] == "623699999.9999999"
+
+    write_workbook(actual, 623699999.9999999, "changed")
+    findings = [{"group": "sink_artifacts", "key": "82", "status": "different"}]
+    _describe_native_artifacts(findings, manifest, native, python, {}, {"82": "result.xlsx"})
+    assert findings[0]["status"] == "different"
+    assert findings[0]["detail"]["cell"] == "G36"
+    assert findings[0]["first_exact_difference"]["cell"] == "G35"
