@@ -30,6 +30,9 @@ def test_migration_delivery_emits_unstaged_package_and_verifies_boundary_cases(t
     prepare_migration(source, case_dir, supplied={"report_date": "2026-11-20", "source_file": "selected.csv"})
     result = resume_migration(case_dir)
 
+    frozen = (case_dir / "phase_one.py").read_text(encoding="utf-8")
+    assert "selected.csv" not in frozen
+    assert "2026-11-20" not in frozen
     assert result["phase_one_vs_phase_two"] == "match"
     assert result["standalone_execution"] == "match"
 
@@ -78,7 +81,7 @@ def test_cli_readable_directory_emits_modular_package(tmp_path: Path, capsys):
     assert (out_pkg / "config.toml").is_file()
 
 
-def test_migration_does_not_compile_from_replay_when_original_is_missing(tmp_path: Path):
+def test_migration_uses_frozen_phase_one_when_original_is_missing(tmp_path: Path):
     builder = WorkflowBuilder()
     data = builder.add_text_input(["amount"], [["1"]])
     sink = builder.add_csv_output("out.csv")
@@ -91,9 +94,21 @@ def test_migration_does_not_compile_from_replay_when_original_is_missing(tmp_pat
 
     result = resume_migration(case_dir)
 
-    assert result["status"] == "blocked"
-    assert "original workflow is unavailable" in result["failure"]["message"]
-    assert not (case_dir / "delivery" / "package").exists()
+    delivery = case_dir / "delivery"
+    assert result["phase_one_vs_phase_two"] == "match"
+    assert (case_dir / "phase_one.py").read_bytes() == (delivery / "phase_one.py").read_bytes()
+    phase_one = json.loads((delivery / "phase-one-capture.json").read_text(encoding="utf-8"))
+    phase_two = json.loads((delivery / "package/manifest.json").read_text(encoding="utf-8"))
+    assert phase_one["phase_one_sha256"] == phase_two["phase_one_sha256"] == result["phase_one_sha256"]
+    assert str(data) in phase_one["nodes"]
+
+    with (case_dir / "phase_one.py").open("a", encoding="utf-8") as stream:
+        stream.write("# Corrupt the attested artifact")
+    blocked = resume_migration(case_dir)
+    assert blocked["status"] == "blocked"
+    assert "Phase 1 artifact changed" in blocked["failure"]["message"]
+    assert not (case_dir / "delivery-2/package").exists()
+
 
 
 @pytest.mark.skipif(os.name != "nt", reason="Windows preview associations")

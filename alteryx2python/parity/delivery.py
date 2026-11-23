@@ -6,7 +6,7 @@ from copy import deepcopy
 from datetime import datetime
 import json
 from pathlib import Path, PureWindowsPath
-import runpy
+from shutil import copyfile
 import subprocess
 import sys
 import tempfile
@@ -20,6 +20,7 @@ from alteryx2python.comparison.workbook import first_workbook_difference
 from alteryx2python.generator.package_compiler import ModularPackageGenerator, PackageArtifact
 from alteryx2python.generator.parameters import _alternate
 from alteryx2python.generator.python_generator import PythonGenerator
+from alteryx2python.generator.readable import read_phase_one
 from alteryx2python.generator.source_linker import UnsupportedLowering
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
 from alteryx2python.runtime.app_config import question_manifest
@@ -85,10 +86,80 @@ def _delivery_artifacts(directory, xlsx_sinks):
 def capture_generated_phase_one(workflow, destination, **options):
     script = destination / "phase_one.py"
     script.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
-    return capture_python(
-        Path(workflow.source_file), output_directory=destination / "phase-one-output",
-        generated_entry=runpy.run_path(str(script))["run_with_context"], **options,
-    )
+    frozen = read_phase_one(script)
+    return capture_python(Path(frozen.source_file), workflow=frozen,
+                          output_directory=destination / "phase-one-output", **options)
+
+
+def _load_phase_one(manifest, staged_source, script):
+    if filename := manifest.get("phase_one_file"):
+        if filename != "phase_one.py":
+            raise ValueError("Unexpected Phase 1 artifact filename")
+        saved = staged_source.parent / filename
+        copyfile(saved, script)
+        if file_hash(script) != manifest.get("phase_one_sha256"):
+            raise ValueError("Phase 1 artifact changed after preparation")
+    else:
+        # Older cases saved the original path and hash but have no frozen IR.
+        if not manifest.get("original_source") and (
+            "staged_input_nodes" in manifest or manifest.get("dynamic_inputs")
+            or (staged_source.parent / "migration.json").is_file()
+        ):
+            raise UnsupportedLowering("Phase 1 requires the original workflow for a legacy staged case")
+        original = Path(manifest.get("original_source") or staged_source)
+        if not original.is_file():
+            raise UnsupportedLowering(f"Phase 1 original workflow is unavailable: {original}")
+        parsed = XmlWorkflowParser().parse(original)
+        if manifest.get("original_source_sha256") and parsed.source_hash != manifest["original_source_sha256"]:
+            raise ValueError(f"Original workflow changed after preparation: {original}")
+        script.write_text(PythonGenerator().generate(parsed), encoding="utf-8", newline="")
+    workflow = read_phase_one(script)
+    if workflow.source_hash != manifest.get("original_source_sha256", manifest["source_sha256"]):
+        raise ValueError("Phase 1 IR does not match the workflow recorded at preparation")
+    return workflow
+
+
+def _case_runtime(manifest):
+    aliases = {
+        str(Path(entry["source"]).resolve()): snapshot
+        for snapshot, entry in manifest.get("input_origins", {}).items()
+    }
+    return {
+        "input_path_aliases": aliases,
+        "dynamic_input_templates": {
+            node_id: dynamic["template"]["snapshot"]
+            for node_id, dynamic in manifest.get("dynamic_inputs", {}).items()
+        },
+    }
+
+
+def _project_dynamic_probes(native, manifest):
+    """Compare original nodes against the Designer graph augmented for file isolation."""
+    for node_id, binding in manifest.get("dynamic_inputs", {}).items():
+        adapter_id = binding["isolation_tool"]
+        adapter = native["nodes"].pop(adapter_id, {})
+        node = native["nodes"].get(node_id, {})
+        for anchor, origins in native.get("input_sources", {}).get(node_id, {}).items():
+            if origins["node_id"] != adapter_id or anchor not in node.get("inputs", {}):
+                continue
+            snapshot = node["inputs"][anchor]
+            field = f"__a2p_path_{node_id}"
+            if field in snapshot["columns"]:
+                indices = [i for i, column in enumerate(snapshot["columns"]) if column != field]
+                node["inputs"][anchor] = {
+                    **snapshot,
+                    "columns": [snapshot["columns"][i] for i in indices],
+                    "rows": [[row[i] for i in indices] for row in snapshot["rows"]],
+                    "schema": [entry for entry in (snapshot.get("schema") or []) if entry["name"] != field],
+                }
+            if source := native.get("input_sources", {}).get(adapter_id, {}).get("Input"):
+                native["input_sources"][node_id][anchor] = source
+        # A failed isolation adapter prevented the original Dynamic Input from executing.
+        if adapter.get("status") == "failed" and node.get("status") in {"unknown", "not_run"}:
+            node["status"] = "failed"
+        for key in ("missing_native_outputs", "unreadable_native_outputs"):
+            if key in native:
+                native[key] = [probe for probe in native[key] if probe["node_id"] != adapter_id]
 
 
 def _workbook_detail(expected, actual):
@@ -159,24 +230,17 @@ def _build_case_overrides(
 
 
 def _compile_delivery_package(
+    workflow,
     manifest: dict,
     *,
     staged_dir: Path,
     answers: dict | None,
     log_event_ids: list[str],
     delivery_profile: str | None,
+    runtime: dict,
 ) -> tuple[PackageArtifact, dict]:
-    """Compile the original definition and bind recorded values only for verification."""
-    if not manifest.get("original_source") and (
-        "staged_input_nodes" in manifest or manifest.get("dynamic_inputs") or (staged_dir / "migration.json").is_file()
-    ):
-        raise UnsupportedLowering("Phase 2 requires the original workflow for a staged migration case")
-    original = Path(manifest.get("original_source") or manifest["source"])
-    if not original.is_file():
-        raise UnsupportedLowering(f"Phase 2 original workflow is unavailable: {original}")
-    if manifest.get("original_source_sha256") and file_hash(original) != manifest["original_source_sha256"]:
-        raise ValueError(f"Original workflow changed after preparation: {original}")
-    workflow = XmlWorkflowParser().parse(original)
+    """Compile the frozen Phase 1 IR and bind recorded values only for verification."""
+    original = Path(workflow.source_file)
     artifact = ModularPackageGenerator().generate(
         workflow, delivery_profile=delivery_profile, log_event_ids=log_event_ids,
     )
@@ -184,10 +248,7 @@ def _compile_delivery_package(
         artifact, staged_dir=staged_dir,
         staged_input_nodes=manifest.get("staged_input_nodes") or {}, answers=answers,
     )
-    aliases = {
-        str(Path(entry["source"]).resolve()): snapshot
-        for snapshot, entry in manifest.get("input_origins", {}).items()
-    }
+    aliases = runtime["input_path_aliases"]
     for node_id, dynamic in manifest.get("dynamic_inputs", {}).items():
         key = f"dynamic_input_{node_id}"
         if key in artifact.config_spec.operations:
@@ -246,6 +307,8 @@ def _run_package_subprocess(
 def _run_additional_boundary_cases(
     *,
     staged_source: Path,
+    workflow,
+    runtime: dict,
     pkg_dir: Path,
     artifact: PackageArtifact,
     base_overrides: dict,
@@ -262,7 +325,7 @@ def _run_additional_boundary_cases(
         return results
 
     if staged_source.suffix.lower() == ".yxwz" and staged_source.is_file():
-        questions = question_manifest(ET.fromstring(staged_source.read_bytes()))
+        questions = question_manifest(ET.fromstring(workflow.source_xml))
         scalar_qs = [
             q for q in questions
             if q.kind not in {"FileBrowse", "QuestionFileBrowse", "FolderBrowse"}
@@ -284,7 +347,7 @@ def _run_additional_boundary_cases(
                 with tempfile.TemporaryDirectory() as tmp:
                     tmp_root = Path(tmp)
                     p1_capture = capture_python(
-                        staged_source,
+                        staged_source, workflow=workflow, runtime_config=runtime,
                         output_directory=tmp_root / "p1_out",
                         answers=perturbed_answers,
                         event_commands=commands,
@@ -327,7 +390,7 @@ def _run_additional_boundary_cases(
             tmp_root = Path(tmp)
             empty_wf_dir = tmp_root / "wf"
             empty_wf_dir.mkdir()
-            wf_tree = ET.parse(staged_source)
+            empty_inputs = {}
             can_empty = True
             empty_overrides = deepcopy(base_overrides)
 
@@ -353,28 +416,22 @@ def _run_additional_boundary_cases(
                 header_file = empty_wf_dir / f"empty_{nid}.csv"
                 header_file.write_bytes(first_line if first_line.endswith((b"\n", b"\r")) else first_line + b"\n")
 
-                for el in wf_tree.iter("Node"):
-                    if el.get("ToolID") == str(nid):
-                        f_el = el.find("Properties/Configuration/File")
-                        if f_el is not None:
-                            f_el.text = str(header_file)
+                empty_inputs[nid] = str(header_file)
                 empty_overrides.setdefault("inputs", {})[in_key] = {"path": str(header_file)}
                 if param_key:
                     empty_overrides.setdefault("parameters", {})[param_key] = str(header_file)
 
             empty_answers = dict(answers) if answers else None
             if empty_answers:
-                for q in (question_manifest(wf_tree.getroot()) if staged_source.suffix.lower() == ".yxwz" else []):
+                for q in (question_manifest(ET.fromstring(workflow.source_xml)) if staged_source.suffix.lower() == ".yxwz" else []):
                     if q.kind in {"FileBrowse", "QuestionFileBrowse"} and q.name in artifact.config_spec.python_param_names:
                         py_n = artifact.config_spec.python_param_names[q.name]
                         if py_n in empty_overrides.get("parameters", {}):
                             empty_answers[q.name] = empty_overrides["parameters"][py_n]
 
             if can_empty:
-                empty_wf_path = empty_wf_dir / staged_source.name
-                wf_tree.write(empty_wf_path, encoding="utf-8", xml_declaration=True)
                 p1_empty = capture_python(
-                    empty_wf_path,
+                    staged_source, workflow=workflow, runtime_config={**runtime, "input_bindings": empty_inputs},
                     output_directory=tmp_root / "p1_empty",
                     answers=empty_answers,
                     as_of=as_of,
@@ -412,7 +469,6 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     manifest = verify_manifest(native_directory) if _verified_manifest is None else _verified_manifest
     timings = {"manifest_validation": round(perf_counter() - started, 3)}
     source = Path(manifest["source"])
-    workflow = XmlWorkflowParser().parse(source)
     answers = manifest.get("answers")
     commands = tuple(manifest.get("event_commands_sha256", {}))
     log_event_ids = manifest.get("log_event_ids", [])
@@ -420,6 +476,19 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     as_of = manifest.get("as_of") or datetime.now().isoformat(sep=" ", timespec="seconds")
     if render_folders:
         observable = True
+    destination.mkdir(parents=True, exist_ok=False)
+    phase_one = destination / "phase_one.py"
+    try:
+        workflow = _load_phase_one(manifest, source, phase_one)
+    except (ValueError, OSError) as error:
+        report = {
+            "status": "blocked", "native_vs_phase_one": "pending", "phase_one_vs_phase_two": "pending",
+            "standalone_execution": "pending", "failure": {"type": type(error).__name__, "message": str(error)},
+        }
+        write_json(destination / "acceptance.json", report)
+        return report
+    phase_one_sha256 = file_hash(phase_one)
+    runtime = _case_runtime(manifest)
     sink_names = {
         node.node_id: PureWindowsPath(node.config["normalized"]["file"].split("|||", 1)[0]).name
         for node in workflow.nodes if node.node_id in manifest.get("sink_files", {})
@@ -428,11 +497,14 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         raise ValueError("Delivery verification requires distinct output filenames")
     xlsx_sinks = {name for name in sink_names.values() if Path(name).suffix.lower() == ".xlsx"}
 
-    destination.mkdir(parents=True, exist_ok=False)
-    phase_one = destination / "phase_one.py"
     phase_started = perf_counter()
-    first = capture_generated_phase_one(workflow, destination, answers=answers, event_commands=commands,
-                                        log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of)
+    first = capture_python(
+        source, workflow=workflow, runtime_config=runtime, evidence_source_sha256=manifest["source_sha256"],
+        output_directory=destination / "phase-one-output", answers=answers, event_commands=commands,
+        log_event_ids=log_event_ids, render_folders=render_folders, as_of=as_of,
+    )
+    first["phase_one_sha256"] = phase_one_sha256
+    first["workflow_source_sha256"] = workflow.source_hash
     timings["phase_one_capture"] = round(perf_counter() - phase_started, 3)
     phase_started = perf_counter()
     report_snapshots = {}
@@ -459,6 +531,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         }
     native = collect_native(native_directory, manual=True, capture_report_fields=table_selection is not None,
                             _verified_manifest=manifest)
+    _project_dynamic_probes(native, manifest)
     timings["native_collection"] = round(perf_counter() - phase_started, 3)
     phase_started = perf_counter()
     native_result = compare_runs(native, first, align_checkpoints=table_selection is not None,
@@ -483,7 +556,7 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     timings["checkpoint_comparison_and_reports"] = round(perf_counter() - phase_started, 3)
     report = {
         "status": "blocked", "source": str(source), "source_sha256": manifest["source_sha256"],
-        "answers": answers, "phase_one_sha256": file_hash(phase_one),
+        "answers": answers, "phase_one_sha256": phase_one_sha256,
         "native_vs_phase_one": native_result["status"], "phase_one_outcome": first["status"],
         "phase_one_vs_phase_two": "pending", "standalone_execution": "pending",
     }
@@ -505,9 +578,10 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         expected_files = {sink_names[node_id]: digest for node_id, digest in first["sink_artifacts"].items()}
         expected_files.update({f"events/{name}": digest for name, digest in first.get("event_artifacts", {}).items()})
         pkg_artifact, case_overrides = _compile_delivery_package(
-            manifest, staged_dir=source.parent, answers=answers, log_event_ids=log_event_ids,
-            delivery_profile=delivery_profile,
+            workflow, manifest, staged_dir=source.parent, answers=answers, log_event_ids=log_event_ids,
+            delivery_profile=delivery_profile, runtime=runtime,
         )
+        pkg_artifact.manifest["phase_one_sha256"] = phase_one_sha256
         pkg_dir = destination / "package"
         pkg_artifact.write(pkg_dir)
         case_config_path = destination / "case_config.json"
@@ -564,6 +638,8 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         if first["status"] == "success" and outcome_matches and expected_files == observed_files and workbook_match and not delivery_profile:
             boundary_cases = _run_additional_boundary_cases(
                 staged_source=source,
+                workflow=workflow,
+                runtime=runtime,
                 pkg_dir=pkg_dir,
                 artifact=pkg_artifact,
                 base_overrides=case_overrides,

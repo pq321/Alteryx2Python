@@ -147,9 +147,12 @@ def dynamicinput_tool(
     input_frame = inputs.get("Input")
     if not isinstance(input_frame, pd.DataFrame):
         raise TypeError("Input anchor must contain a pandas DataFrame")
-    base = (context.runtime_config or {}).get("input_dir") or config.get("base_dir") or "."
+    runtime = context.runtime_config or {}
+    base = runtime.get("input_dir") or config.get("base_dir") or "."
+    schema_reference = runtime.get("dynamic_input_templates", {}).get(str(config.get("node_id")))
     output = read_file_list(input_frame, field, template, options, base, behaviour, context.record_warning,
-                            action=config["read_list_type"])
+                            action=config["read_list_type"], path_aliases=runtime.get("input_path_aliases"),
+                            schema_reference=schema_reference)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

@@ -11,6 +11,7 @@ import subprocess
 import sys
 from xml.etree import ElementTree as ET
 
+from alteryx2python.generator.python_generator import PythonGenerator
 from alteryx2python.generator.macro_sources import resolve_macro_path
 from alteryx2python.input_bindings import STAGEABLE_INPUT_SUFFIXES
 from alteryx2python.parser.xml_parser import XmlWorkflowParser
@@ -378,8 +379,12 @@ def prepare_migration(source, directory, *, supplied=None, interactive=False, al
         item["snapshot"]: {"source": item["source"], "consumers": item["consumers"]}
         for snapshots in (entries, templates) for item in snapshots.values()
     }
+    phase_one = directory / "phase_one.py"
+    phase_one.write_text(PythonGenerator().generate(workflow), encoding="utf-8", newline="")
+    manifest["phase_one_file"] = phase_one.name
+    manifest["phase_one_sha256"] = file_hash(phase_one)
     manifest["original_source"] = str(source)
-    manifest["original_source_sha256"] = file_hash(source)
+    manifest["original_source_sha256"] = workflow.source_hash
     manifest["staged_input_nodes"] = {
         consumer["node_id"]: item["snapshot"]
         for item in entries.values()

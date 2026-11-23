@@ -269,6 +269,12 @@ def test_dynamic_input_and_grouped_render_migration(tmp_path, excel):
     delivery = case / "delivery"
     package = delivery / "package"
     pipeline = (package / "pipeline.py").read_text(encoding="utf-8")
+    frozen = (delivery / "phase_one.py").read_text(encoding="utf-8")
+    assert "__a2p_path_" not in frozen
+    assert snapshot.as_posix() not in frozen
+    captured = json.loads((delivery / "phase-one-capture.json").read_text(encoding="utf-8"))
+    assert manifest["dynamic_inputs"]["2"]["isolation_tool"] not in captured["nodes"]
+    assert "Output" in captured["nodes"]["2"]["outputs"]
     assert "__a2p_path_" not in pipeline
     assert snapshot.as_posix() not in pipeline
     assert not (delivery / "phase_two.py").exists()

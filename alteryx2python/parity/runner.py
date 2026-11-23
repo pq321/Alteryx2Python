@@ -189,20 +189,26 @@ class CaptureContext(WorkflowContext):
 def capture_python(
     workflow_path: Path, *, output_directory: Path | None = None, answers: dict | None = None,
     event_commands: tuple[str, ...] = (), generated_entry=None, log_event_ids=(), render_folders=None, as_of=None,
+    workflow=None, runtime_config=None, evidence_source_sha256=None,
 ) -> dict:
+    workflow = XmlWorkflowParser().parse(workflow_path) if workflow is None else workflow
+    options = dict(
+        answers=answers, event_commands=event_commands, generated_entry=generated_entry, log_event_ids=log_event_ids,
+        render_folders=render_folders, as_of=as_of, runtime_config=runtime_config,
+        evidence_source_sha256=workflow.source_hash if evidence_source_sha256 is None else evidence_source_sha256,
+    )
     if output_directory is None:
         with tempfile.TemporaryDirectory(prefix="a2p-capture-") as directory:
-            return _capture_python(workflow_path, Path(directory), answers, event_commands, generated_entry, log_event_ids, render_folders, as_of)
+            return _capture_python(workflow, Path(directory), **options)
     output_directory.mkdir(parents=True, exist_ok=True)
-    return _capture_python(workflow_path, output_directory, answers, event_commands, generated_entry, log_event_ids, render_folders, as_of)
+    return _capture_python(workflow, output_directory, **options)
 
 
 def _capture_python(
-    workflow_path: Path, output_directory: Path, answers: dict | None, event_commands: tuple[str, ...],
-    generated_entry, log_event_ids, render_folders, as_of,
+    workflow, output_directory: Path, *, answers, event_commands, generated_entry, log_event_ids,
+    render_folders, as_of, runtime_config, evidence_source_sha256,
 ) -> dict:
-    workflow = XmlWorkflowParser().parse(workflow_path)
-    runtime = {"capture_output_dir": str(output_directory.resolve()), "answers": answers}
+    runtime = {**(runtime_config or {}), "capture_output_dir": str(output_directory.resolve()), "answers": answers}
     if as_of:
         runtime["as_of"] = as_of
     report_directory = output_directory / "render"
@@ -282,7 +288,7 @@ def _capture_python(
             for name in workbooks
         }
     return {
-        "source_sha256": file_hash(workflow_path),
+        "source_sha256": evidence_source_sha256,
         "producer": "python",
         "answers": answers,
         "runtime_sha256": runtime_hash(),

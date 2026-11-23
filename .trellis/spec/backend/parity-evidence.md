@@ -57,4 +57,6 @@ invocation number. Preserve the distinction between caller-boundary parity
 and parity inside a native macro body.
 
 ## 10. Phase 1 vs. Phase 2 boundary delivery
-Phase 1 (`phase_one.py` / `capture_python`) compares Designer probes node by node. Phase 2 delivery (`verify_delivery` in `alteryx2python/parity/delivery.py`) compiles the original workflow with dynamic bindings. For a staged migration, `native/manifest.json` must identify the original workflow. Run-specific snapshots and answers bind through `delivery/case_config.json`. The primary run and applicable alternate-parameter and empty-input checks execute the same package and compare final artifacts and observed outcomes.
+Preparation saves the original, unbound WorkflowIR in `phase_one.py` and records its hash. Phase 1 executes that IR with the case answers, input aliases, clock, and output locations supplied at runtime. It captures the original node IDs and anchors for comparison with Designer. Designer isolation nodes remain in the raw native evidence. The comparison projects away their synthetic fields and nodes.
+
+Phase 2 compiles the same frozen IR and records the same Phase 1 artifact hash. The primary run, parameter perturbation, and empty-input checks bind their run values externally and compare final artifacts and observed outcomes. Older prepared cases without a frozen artifact can capture one from their recorded original workflow.

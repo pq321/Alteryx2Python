@@ -204,8 +204,11 @@ def dbfileinput_tool(
         raise ValueError("DbFileInput config requires file")
 
     raw_path, selector = _split_alteryx_file_reference(file_value)
-    input_dir = (context.runtime_config or {}).get("input_dir")
+    runtime = context.runtime_config or {}
+    input_dir = runtime.get("input_dir")
     path = (Path(input_dir) / raw_path).resolve() if input_dir else _resolve_path(raw_path, config.get("base_dir"))
+    if aliases := runtime.get("input_path_aliases"):
+        path = Path(aliases.get(str(path), path))
     file_format = _file_attribute(config, "FileFormat")
 
     if path.suffix.lower() == ".yxdb" or file_format == "19":

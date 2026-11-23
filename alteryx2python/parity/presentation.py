@@ -369,6 +369,10 @@ def _compare(args, case):
                                   _verified_manifest=manifest if export_log is None and export_issue is None else None)
     delivery = Path(result["report"]).parent
     native_report = delivery / "native-vs-phase-one.json"
+    if not native_report.is_file() and result.get("failure"):
+        write_json(case / "presentation-result.json", {"report": result["report"], "node": args.node})
+        detail = result["failure"]["message"]
+        return {**result, "display": f"Phase 1 blocked: {detail}\nAcceptance report: {result['report']}"}, 1
     parity = _read(native_report)
     comparisons = parity["comparisons"]
     mismatches = [item for item in comparisons if item["status"] == "mismatch" and not item.get("duplicates_upstream")]
