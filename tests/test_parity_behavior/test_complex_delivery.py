@@ -201,3 +201,31 @@ def test_declared_datetime_coarse_comparison_preserves_timestamp_precision():
     assert result["exact_comparison"]["status"] == "mismatch"
     for different in ("2026-11-23 15:14:58", "2026-11-23 15:14:57.1", "2026-11-23 15:14:57+09:00"):
         assert _compare_checkpoint(expected, snapshot("string", different), *options)["status"] == "mismatch"
+
+
+@pytest.mark.parametrize(("locale", "ordered"), [
+    ("0", ["empty", "ten-first", "ten-second", "two"]),
+    ("1033", ["empty", "two", "ten-first", "ten-second"]),
+])
+def test_delivered_sort_preserves_nulls_dictionary_order_and_ties(tmp_path, locale, ordered):
+    if locale != "0":
+        import sys
+
+        if sys.platform != "win32":
+            pytest.skip("Windows collation is required for Alteryx Dictionary Sort")
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["Order", "Priority", "Label"], [
+        ["item10", "3", "ten-first"], ["item2", "3", "two"], ["", "2", "empty"],
+        ["item10", "3", "ten-second"],
+    ])
+    sort = builder.add_sort([("Order", "Ascending"), ("Priority", "Descending")])
+    builder.connect(source, sort)
+    builder.connect(sort, builder.add_csv_output("ordered.csv"))
+    workflow = tmp_path / "sort.yxmd"
+    workflow.write_text(builder.render().replace('locale="0"', f'locale="{locale}"'), encoding="utf-8")
+    case = tmp_path / "case"
+    prepare_migration(workflow, case)
+    result = resume_migration(case)
+    assert result["phase_one_vs_phase_two"] == "match", result
+    lines = (case / "delivery/delivery-output/ordered.csv").read_text().splitlines()
+    assert [line.split(",")[-1] for line in lines[1:]] == ordered

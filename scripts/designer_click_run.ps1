@@ -1163,6 +1163,20 @@ function Open-WorkflowFilePicker {
     $file
 }
 
+function Get-WorkflowOpeningDialog {
+    try {
+        $dialog = Get-SessionDialog
+        if (-not $dialog) { return }
+        if (-not [DesignerMouse]::IsWindowEnabled($script:sessionHandle)) { return $dialog }
+        $pattern = $null
+        if ($dialog.TryGetCurrentPattern([System.Windows.Automation.WindowPattern]::Pattern, [ref]$pattern) -and
+            $pattern.Current.IsModal) { return $dialog }
+    }
+    catch [System.Windows.Automation.ElementNotAvailableException] {
+        # The popup disappeared while Designer was loading the workflow.
+    }
+}
+
 function Open-WorkflowInSession([string]$Path) {
     $name = [IO.Path]::GetFileName($Path)
     Set-DesignerStage "open $name in Designer" 30
@@ -1188,9 +1202,10 @@ function Open-WorkflowInSession([string]$Path) {
         [DesignerMouse]::SelectFile($file, $script:sessionId, $Path)
     } 10
     if (-not $selected) { throw 'Designer file picker did not expose its filename and Open controls.' }
+    $seen = @{ handle = 0; since = [DateTime]::MinValue }
     $loaded = Wait-For {
         $process = Get-SessionWindow
-        $popup = Get-SessionDialog
+        $popup = Get-WorkflowOpeningDialog
         if ($popup -and $popup.Current.Name -eq 'Update Missing Macros') {
             $messages = @($popup.FindAll(
                 [System.Windows.Automation.TreeScope]::Descendants,
@@ -1199,13 +1214,35 @@ function Open-WorkflowInSession([string]$Path) {
             throw ('Designer rejected macro dependencies: ' + ($messages -join ' '))
         }
         if ($popup -and $popup.Current.Name -ne 'Alteryx - Open File') {
-            $message = @($popup.FindAll(
-                [System.Windows.Automation.TreeScope]::Descendants,
-                [System.Windows.Automation.Condition]::TrueCondition
-            ) | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text } |
-                ForEach-Object { $_.Current.Name })
-            throw "Designer dialog while opening ${name}: $($popup.Current.Name) $($message -join ' ')"
+            try {
+                $handle = $popup.Current.NativeWindowHandle
+                if ($seen.handle -ne $handle) {
+                    $seen.handle = $handle
+                    $seen.since = [DateTime]::UtcNow
+                }
+                if (([DateTime]::UtcNow - $seen.since).TotalMilliseconds -lt 1000) { return }
+                $title = $popup.Current.Name
+                $class = $popup.Current.ClassName
+                $message = @($popup.FindAll(
+                    [System.Windows.Automation.TreeScope]::Descendants,
+                    [System.Windows.Automation.Condition]::TrueCondition
+                ) | Where-Object { $_.Current.ControlType -eq [System.Windows.Automation.ControlType]::Text } |
+                    ForEach-Object { $_.Current.Name })
+            }
+            catch [System.Windows.Automation.ElementNotAvailableException] {
+                $seen.handle = 0
+                return
+            }
+            $detail = "Designer dialog while opening ${name}: [$class] $title $($message -join ' ')"
+            $capture = Join-Path (Split-Path -Parent $Path) "designer-open-dialog-$([guid]::NewGuid().ToString('N')).png"
+            try {
+                [DesignerMouse]::Save([IntPtr]$handle, $capture)
+                $detail += " Screenshot: $capture"
+            }
+            catch { Write-Host "Designer dialog screenshot unavailable: $($_.Exception.Message)" }
+            throw $detail
         }
+        $seen.handle = 0
         if ($process.MainWindowTitle.EndsWith($name, [StringComparison]::OrdinalIgnoreCase) -and
             -not $popup) { $true }
     } $TimeoutSeconds

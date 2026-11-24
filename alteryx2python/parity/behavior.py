@@ -80,18 +80,23 @@ def compare_behavior_runs(
         issues.append("invalid_producer")
     if python.get("runtime_sha256") != current_runtime_hash:
         issues.append("python_runtime_changed_or_unrecorded")
+    outcomes = (native.get("status"), python.get("status"))
     for key in ("event_artifacts", "sink_artifacts", "render_digests"):
         if key not in native:
             continue
         if native.get(key) is None or python.get(key) is None:
             incomplete.append(f"{key}_unverified")
         elif native[key] != python[key]:
-            issues.append(f"{key}_mismatch")
-            artifact_differences.extend(
-                {"group": key, "key": name, "status": status}
-                for name, status in changed_artifacts(native[key], python[key])
-            )
-    outcomes = (native.get("status"), python.get("status"))
+            differences = list(changed_artifacts(native[key], python[key]))
+            if outcomes[0] not in {"success", "failed"}:
+                if any(status == "unexpected" for _, status in differences):
+                    incomplete.append(f"{key}_unverified")
+                differences = [(name, status) for name, status in differences if status != "unexpected"]
+            if differences:
+                issues.append(f"{key}_mismatch")
+                artifact_differences.extend(
+                    {"group": key, "key": name, "status": status} for name, status in differences
+                )
     if all(status in {"success", "failed"} for status in outcomes):
         if outcomes[0] != outcomes[1]:
             issues.append("workflow_outcome_mismatch")

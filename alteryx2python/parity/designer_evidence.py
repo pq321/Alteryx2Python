@@ -22,14 +22,26 @@ def record_designer_evidence(directory, manifest, receipt, *, receipt_path=None)
     if evidence_path.exists():
         previous = json.loads(evidence_path.read_text(encoding="utf-8"))
         if previous.get("designer_receipt_sha256") != receipt_hash:
-            raise ValueError("Designer run receipt changed after evidence was recorded")
-        for filename, digest in previous["output_sha256"].items():
+            if previous.get("designer_status") != "blocked" or previous["output_sha256"]:
+                raise ValueError("Designer run receipt changed after evidence was recorded")
+            previous = {}
+        for filename, digest in previous.get("output_sha256", {}).items():
             if file_hash(directory / filename) != digest:
                 raise ValueError("Native output changed after Designer evidence was recorded")
     instrumented = instrumented_path(directory, manifest)
     if not receipt.get("workflow") or Path(receipt["workflow"]).resolve() != instrumented.resolve():
         raise ValueError("Designer run receipt belongs to another workflow")
     status = _outcome(instrumented, manifest, receipt)
+    if status == "blocked":
+        evidence = {
+            "method": "designer_automation", "status": status, "designer_status": receipt["status"],
+            "source_sha256": manifest["source_sha256"], "instrumented_sha256": manifest["instrumented_sha256"],
+            "answers": manifest.get("answers"), "output_sha256": {}, "node_outcomes": {}, "skipped_nodes": [],
+            "designer_receipt_sha256": receipt_hash,
+            **{key: receipt[key] for key in ("reason", "stage", "detail", "screenshot") if key in receipt},
+        }
+        write_json(evidence_path, evidence)
+        return evidence
     hashes, snapshots, emitted = {}, {}, set()
     expected = {node["node_id"]: set() for node in manifest["nodes"]}
     for probe in manifest["probes"]:
@@ -83,6 +95,8 @@ def record_designer_evidence(directory, manifest, receipt, *, receipt_path=None)
 
 def _outcome(instrumented, manifest, receipt):
     native_status = receipt["status"]
+    if native_status == "blocked":
+        return "blocked"
     if instrumented.suffix.lower() != ".yxwz":
         return "success" if native_status == "outputs_ready" else "incomplete"
     answers = manifest.get("answers") or {}

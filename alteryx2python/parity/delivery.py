@@ -614,6 +614,12 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
     write_json(destination / "native-vs-phase-one.json", native_result)
     timings["checkpoint_comparison_and_reports"] = round(perf_counter() - phase_started, 3)
     report.update(native_vs_phase_one=native_result["status"], phase_one_outcome=first["status"])
+    if native["status"] == "blocked":
+        native_run = native.get("run", {})
+        report["designer_blocker"] = {
+            key: native_run[key] for key in ("reason", "stage", "detail", "screenshot") if key in native_run
+        }
+        report["status"] = "blocked"
     if first["failure"]:
         report["phase_one_failure"] = first["failure"]
     if native_result["status"] == "mismatch":
@@ -781,8 +787,12 @@ def verify_delivery(native_directory: Path, destination: Path, *, timeout: float
         report["phase_two_comparison_scope"] = comparison_scope
         report["standalone_execution"] = p2_status
         status = report["native_vs_phase_one"]
-        report["status"] = (status if status in {"match", "coarse_match"} and p2_status == "match" and first["status"] == "success"
-                            else "mismatch" if "mismatch" in (status, p2_status) else "incomplete")
+        if "mismatch" in (status, p2_status):
+            report["status"] = "mismatch"
+        elif status == "blocked" or (p2_status == "match" and first["status"] == "success"):
+            report["status"] = status
+        else:
+            report["status"] = "incomplete"
 
     except (ValueError, OSError, RuntimeError, KeyError, subprocess.TimeoutExpired) as exc:
         report["failure"] = {"type": type(exc).__name__, "message": str(exc)}

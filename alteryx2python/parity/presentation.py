@@ -192,6 +192,8 @@ def _designer(args, state_file, state):
                 lines.append(f"Path diagnostics: {path_report}")
     if completed:
         lines.append("Next: demo compare")
+    elif receipt["status"] == "blocked":
+        lines.append(f'Retry this prepared case after clearing the Designer blocker: demo designer --case "{case}"')
     return {**result, "display": "\n".join(lines)}, 0 if completed else 1
 
 
@@ -444,6 +446,8 @@ def _compare(args, case):
         f'Designer / Phase 1: {len(mismatches)} anchor mismatches, {len(incomplete)} incomplete anchors, '
         f'{len(artifacts)} output differences.',
     ]
+    if blocker := result.get("designer_blocker"):
+        overview.append("Designer blocked: " + (blocker.get("detail") or blocker.get("stage") or blocker.get("reason", "")))
     if failed_stage := result.get("phase_two_stage_failure"):
         overview.append(f'Phase 2 execution failed in {failed_stage["function"]} ({failed_stage["tool"]}).')
     if coarse_artifacts:
@@ -463,6 +467,10 @@ def _compare(args, case):
         f"| [Designer / Phase 1](native-vs-phase-one.json) | {native_status} | {native_count} |",
         f"| {phase_two_label} | {phase_two_status} | {phase_two_count} |",
     ]
+
+    if blocker:
+        detail = blocker.get("detail") or blocker.get("stage") or blocker.get("reason", "")
+        report_lines.extend(["", f"Designer blocked. {_table_text(detail)}"])
 
     findings = {}
     for label, items in (

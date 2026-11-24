@@ -509,16 +509,17 @@ class _SubgraphEmitter:
             return lines, imps, params_used, [], False, dict(in_kinds)
 
         if kind == "Sort":
-            from alteryx2python.tools.sort import _is_ascending
+            from alteryx2python.tools.sort import _is_ascending, sort_frame, sort_locale_name
 
             s_fields = cfg.get("sort_fields", [])
             if not s_fields:
                 raise UnsupportedLowering("Sort requires fields")
             keys = [f["field"] for f in s_fields]
             dirs = [_is_ascending(f.get("order", "Ascending")) for f in s_fields]
-            asc = dirs[0] if all(d == dirs[0] for d in dirs) else dirs
+            locale = sort_locale_name(cfg.get("sort_locale"))
+            sort = self.linker.function(sort_frame)
             return (
-                [f'return {frame}.sort_values(by={keys!r}, ascending={asc!r}, kind="mergesort").reset_index(drop=True)'],
+                [f"return {sort}({frame}, {keys!r}, {dirs!r}, {locale!r})"],
                 imps,
                 params_used,
                 [],

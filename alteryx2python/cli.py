@@ -24,7 +24,14 @@ from alteryx2python.tools.registry import TOOL_REGISTRY
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = _build_parser()
+    try:
+        parser = _build_parser()
+    except SyntaxError as error:
+        if not (error.text or "").lstrip().startswith(("<<<<<<<", "=======", ">>>>>>>")):
+            raise
+        print(f"Unresolved Git conflict in {error.filename}:{error.lineno}. "
+              "Resolve the conflicting edits or run from a clean checkout of main.", file=sys.stderr)
+        return 2
     args = parser.parse_args(argv)
     try:
         report, exit_code = args.func(args)

@@ -461,3 +461,50 @@ def test_designer_workbook_reports_binary_roundoff_and_preserves_material_differ
     assert findings[0]["status"] == "different"
     assert findings[0]["detail"]["cell"] == "G36"
     assert findings[0]["first_exact_difference"]["cell"] == "G35"
+
+
+def test_compare_reports_designer_open_blocker_and_can_recheck_same_case(tmp_path, capsys):
+    from alteryx2python.parity.migration import prepare_migration
+    from alteryx2python.parity.runner import write_json
+
+    builder = WorkflowBuilder()
+    source = builder.add_text_input(["Name"], [["sample"]])
+    builder.connect(source, builder.add_csv_output("result.csv"))
+    workflow = tmp_path / "sample.yxmd"
+    workflow.write_text(builder.render(), encoding="utf-8")
+    case = tmp_path / "case"
+    launch = prepare_migration(workflow, case)
+    receipt = case / "designer-run.json"
+    write_json(receipt, [{
+        "status": "blocked", "workflow": launch["native_workflow"],
+        "stage": "select and load sample.yxmd in Designer", "detail": "Designer modal dialog",
+    }])
+    command = ["demo", "compare", "--case", str(case)]
+    assert main(command) == 1
+    display = capsys.readouterr().out
+    assert "Designer / Phase 1: blocked" in display
+    assert "Designer blocked: Designer modal dialog" in display
+    result = json.loads((case / "delivery/acceptance.json").read_text())
+    assert result["status"] == "blocked"
+    assert result["phase_one_vs_phase_two"] == "match"
+    assert result["designer_blocker"]["detail"] == "Designer modal dialog"
+    evidence = json.loads((case / "delivery/native-vs-phase-one.json").read_text())
+    assert not evidence["artifact_differences"]
+    assert evidence["incomplete_evidence"]
+
+    write_json(receipt, [{"status": "outputs_ready", "workflow": launch["native_workflow"]}])
+    assert main(command) == 1
+    result = json.loads((case / "delivery-2/acceptance.json").read_text())
+    assert result["native_vs_phase_one"] != "blocked"
+    assert result["phase_one_vs_phase_two"] == "match"
+
+
+def test_cli_reports_checkout_conflict_without_editing_source(monkeypatch, capsys):
+    from alteryx2python import cli
+
+    def parser_with_conflict():
+        compile("<<<<<<< Updated upstream", "package_compiler.py", "exec")
+
+    monkeypatch.setattr(cli, "_build_parser", parser_with_conflict)
+    assert cli.main(["demo", "inspect"]) == 2
+    assert "Unresolved Git conflict in package_compiler.py:1" in capsys.readouterr().err
