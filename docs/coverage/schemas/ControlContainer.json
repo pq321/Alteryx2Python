@@ -1,0 +1,94 @@
+{
+  "tool_type": "ControlContainer",
+  "category": "Developer",
+  "engine_tier": "amp_only",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Caption": {
+      "observed": [
+        "Basics",
+        "Collapsed Container",
+        "Configuration",
+        "Control Container",
+        "First",
+        "Group Tools",
+        "Log Output",
+        "Run if N",
+        "Run if Y",
+        "Second"
+      ],
+      "declared": []
+    },
+    "Configuration/Disabled": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Disabled/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Folded": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Folded/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Style/@BorderColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Style/@FillColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Style/@Margin": {
+      "observed": [
+        "10",
+        "25"
+      ],
+      "declared": []
+    },
+    "Configuration/Style/@TextColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Style/@Transparency": {
+      "observed": [
+        "1",
+        "25"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/ControlContainer.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxGuiToolkit.ControlContainer.ControlContainer": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxCtrlContainer"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

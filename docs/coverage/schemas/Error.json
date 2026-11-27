@@ -1,0 +1,38 @@
+{
+  "tool_type": "Error",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Error_Message.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/File_Browse.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Tree.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/02 Convert_file_formats.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/08 Using_a_tree_with_a_custom_file_database.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/09 Using_a_tree_file_system.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/10 Using_a_tree_with_custom_XML.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

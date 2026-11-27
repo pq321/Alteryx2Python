@@ -1,0 +1,95 @@
+{
+  "tool_type": "XMLParse",
+  "category": "Parse",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChildValues": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChildValues/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/IgnoreErrors": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/IgnoreErrors/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/OuterXML": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OuterXML/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseRoot": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseRoot/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/XMLElement": {
+      "observed": [
+        "batter",
+        "column-name",
+        "datum",
+        "topping",
+        "tr",
+        "transaction",
+        "transactions"
+      ],
+      "declared": []
+    },
+    "Configuration/XMLField": {
+      "observed": [
+        "batters_OuterXML",
+        "customer_xml",
+        "multiset_OuterXML",
+        "topping_OuterXML",
+        "zzzLegendField"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/XML_Parse.yxmd",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/04 Normalize_an_Unstructured_XML_File.yxmd",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.XMLParse.XMLParse": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxXMLParse"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

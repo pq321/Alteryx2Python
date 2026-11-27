@@ -1,0 +1,40 @@
+{
+  "tool_type": "DropDown",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/01 Tutorials/04 Intro to Applications/43 Adjust the App Interface.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Drop_Down.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/DateTimeNow.yxmc",
+    "bin/RuntimeData/Macros/Date_Filter.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/PearsonCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

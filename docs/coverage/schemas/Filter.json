@@ -1,0 +1,251 @@
+{
+  "tool_type": "Filter",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Expression": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/Mode": {
+      "observed": [
+        "Custom",
+        "Simple"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Simple/Field": {
+      "observed": [
+        "12mos_Created",
+        "ARR_HOUR",
+        "AnnualPopDiff90to00",
+        "Arrival Minutes - Accident",
+        "CountNonNull_Value",
+        "Country",
+        "CustomerID",
+        "DRUNK_DR",
+        "Field 1",
+        "Field1",
+        "Indicator",
+        "JSON_Name",
+        "JoinDate",
+        "LONGITUD",
+        "LastName",
+        "Month",
+        "NONUS_Number",
+        "PHONE_Matched",
+        "RecordID",
+        "Region",
+        "bin"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/DateType": {
+      "observed": [
+        "fixed",
+        "today",
+        "tomorrow"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/EndDate": {
+      "observed": [
+        "2017-12-29"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/IgnoreTimeInDateTime": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/Operand": {
+      "observed": [
+        "0",
+        "1",
+        "2017-12-29",
+        "30",
+        "4",
+        "5",
+        "99",
+        "December",
+        "North",
+        "Percent",
+        "US",
+        "Y",
+        "nextPageToken"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/PeriodCount": {
+      "observed": [
+        "0",
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/PeriodDate": {
+      "observed": [
+        "2017-12-29"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/PeriodType": {
+      "observed": [
+        "days"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operands/StartDate": {
+      "observed": [
+        "2017-12-29"
+      ],
+      "declared": []
+    },
+    "Configuration/Simple/Operator": {
+      "observed": [
+        "IsFalse",
+        "IsNotNull",
+        "IsTrue",
+        "NotContains",
+        "PeriodAfter"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "True",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "T"
+      },
+      {
+        "Name": "False",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "F"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/31 Joining Data Sources.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/32 Splitting a String Column.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/33 Analyzing Data Based on a Column.yxmd",
+    "Samples/en/01 Tutorials/04 Intro to Applications/42 Build an App.yxwz",
+    "Samples/en/01 Tutorials/04 Intro to Applications/43 Adjust the App Interface.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Filter.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/ControlParameter.yxmc",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Date.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Numeric_Up_Down.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Tree.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/ControlContainer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/PDF to Text.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/04 Basic/02 Normalize_phone_numbers.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/04 Basic/05 Analyze a sales pipeline.yxmd",
+    "Samples/en/04 Basic/06 Calculate_a_trend_and_sort_data.yxmd",
+    "Samples/en/04 Basic/09 Read_a_FLAT_File.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/08 Using_a_tree_with_a_custom_file_database.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/10 Using_a_tree_with_custom_XML.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_FileFinder.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/Iterative_Supply_and_Demand.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "Samples/en/05 Advanced/04 Report opioid epidemic trends by year.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/06 Calculate_a_trend_and_sort_data.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.Filter.Filter/AlteryxBasePluginsGui.Filter.FilterConfig.xml",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/Date_Filter.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/compare_E1vsAMP.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Social Media/Supporting_Macros/FoursquareDownloadWithRetries.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Build_Data_Table.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.HTTPQuery_iter.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/MarketoAppend.iterate.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTime.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.errorCheck.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Filter.Filter": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxFilter",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxFilter"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

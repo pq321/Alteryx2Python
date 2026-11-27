@@ -1,0 +1,314 @@
+{
+  "tool_type": "FuzzyMatch",
+  "category": "Join",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GenerateKeys": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GenerateKeys/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/FieldName": {
+      "observed": [
+        "ADD",
+        "ADD2",
+        "First",
+        "Last",
+        "Primary Phone No",
+        "ZIP",
+        "acct_holder"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/@Name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/IgnoreEmpty": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/IgnoreEmpty/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/IgnoreSingleLetterWords": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/IgnoreSingleLetterWords/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/IgnoreWords": {
+      "observed": [
+        "AND OF THE CO INC"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/KeyFunction": {
+      "observed": [
+        "DblMetaphone",
+        "DblMetaphoneDigits",
+        "Digits",
+        "DigitsReverse",
+        "None",
+        "Soundex",
+        "SoundexDigits",
+        "WholeField"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/MaxKeyLen": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/MaxKeyLen/@value": {
+      "observed": [
+        "1",
+        "10",
+        "2",
+        "25",
+        "4",
+        "5",
+        "6",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/UseWords": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/KeyGeneration/UseWords/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/AdditionalMatchFunction": {
+      "observed": [
+        "NoSpace"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/MatchFunction": {
+      "observed": [
+        "BestOf",
+        "BestOfTFIDF",
+        "BestOfTFIDF_Digits",
+        "JaroTFIDF",
+        "JaroTFIDF_Digits",
+        "None"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/MatchThreshold": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/MatchThreshold/@value": {
+      "observed": [
+        "0",
+        "45",
+        "50",
+        "60",
+        "70",
+        "80",
+        "85",
+        "90"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/MatchWeight": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/MatchWeight/@value": {
+      "observed": [
+        "100",
+        "90"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/NicknameFile": {
+      "observed": [
+        "Common Nicknames.yxdb"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/NicknamePenalty": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/NicknamePenalty/@value": {
+      "observed": [
+        "15",
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/Match/WordStats": {
+      "observed": [
+        "Name.yxdb",
+        "US Company.yxdb"
+      ],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/PreProcess": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/PreProcess/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/PreProcess/Replace": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchFields/MatchField/Style/PreProcess/Search": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchThreshold": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MatchThreshold/@value": {
+      "observed": [
+        "50",
+        "75",
+        "80",
+        "85"
+      ],
+      "declared": []
+    },
+    "Configuration/MergeMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MergeMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputKey": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputKey/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputMakeGroup": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputMakeGroup/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputScore": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputScore/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputUnmatched": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputUnmatched/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RecordIdField": {
+      "observed": [
+        "AccountID",
+        "RecordID",
+        "acct_holder",
+        "transaction_id"
+      ],
+      "declared": []
+    },
+    "Configuration/SourceIdField": {
+      "observed": [
+        "Source",
+        "source",
+        "transaction_id"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Fuzzy_Match.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Make_Group.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.FuzzyMatch.FuzzyMatch": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxFuzzyMatch"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

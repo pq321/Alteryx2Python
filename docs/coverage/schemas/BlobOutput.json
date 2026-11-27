@@ -1,0 +1,49 @@
+{
+  "tool_type": "BlobOutput",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BlobField": {
+      "observed": [
+        "Blob"
+      ],
+      "declared": []
+    },
+    "Configuration/FileName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ModifyFilename_Field": {
+      "observed": [
+        "FileName"
+      ],
+      "declared": []
+    },
+    "Configuration/ModifyMethod": {
+      "observed": [
+        "FileName"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Output.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.BlobOutput.BlobOutput": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxBlobOutput"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "tool_type": "RecordID",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FieldName": {
+      "observed": [
+        "CellId",
+        "CreateSamples_RecordID",
+        "DemandID",
+        "ExpectEqualRecordID",
+        "FieldID",
+        "Grouped Record ID",
+        "Heat_RecordID",
+        "MultiFieldBinRecordID",
+        "MultiFieldBinRecordID2",
+        "QueryId",
+        "RandomRecords_RecordID",
+        "Rank",
+        "Record ID",
+        "Record ID Last Column",
+        "RecordID",
+        "SupplyID",
+        "TextID",
+        "UniqueIdentifier",
+        "Variable1RANK",
+        "Variable2RANK",
+        "__RecordID__",
+        "__RecordNum",
+        "__RemovexRowsyReczID__",
+        "___RecordID___",
+        "_order",
+        "_runtimeID",
+        "bit_pattern",
+        "char_seq",
+        "order",
+        "oversample_field__OrigOrder",
+        "oversample_field__RecordID"
+      ],
+      "declared": []
+    },
+    "Configuration/FieldSize": {
+      "observed": [
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/FieldType": {
+      "observed": [
+        "Int32",
+        "Int64"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Position": {
+      "observed": [
+        "0",
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/StartValue": {
+      "observed": [
+        "-100",
+        "0",
+        "1",
+        "1000000",
+        "2000000"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Record_ID.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/ControlParameter.yxmc",
+    "Samples/en/02 Learn_one_tool_at_a_time/21 Calgary/CalgaryLoader.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/03 Assign_supply_to_demand.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/04 Map_customers_by_store.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.RecordID.RecordID/AlteryxBasePluginsGui.RecordID.RecordIDConfig.xml",
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Pipe_to_Table.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_unit-interval.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_z-score.yxmc",
+    "bin/RuntimeData/Macros/RandomRecords.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.RecordID.RecordID": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxRecordID",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxRecordID"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

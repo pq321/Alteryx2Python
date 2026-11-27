@@ -1,0 +1,41 @@
+{
+  "tool_type": "Base64Encoder",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Base64_Encoder.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Convert.yxmd",
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc": []
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": null
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "tool_type": "Email",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {},
+  "anchors": {},
+  "sources": [],
+  "engine_bindings": {
+    "PortfolioPluginsGui.Email.Email": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxComposerEmail"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "No configuration definitions or samples located",
+    "Configuration axes have not been enumerated"
+  ]
+}

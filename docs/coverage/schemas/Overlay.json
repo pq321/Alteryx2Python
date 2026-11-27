@@ -1,0 +1,110 @@
+{
+  "tool_type": "Overlay",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_Base": {
+      "observed": [
+        "Map"
+      ],
+      "declared": []
+    },
+    "Configuration/Field_LC": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_LL": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_LR": {
+      "observed": [
+        "Legend"
+      ],
+      "declared": []
+    },
+    "Configuration/Field_MC": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_ML": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_MR": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_TC": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_TL": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Field_TR": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Padding": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Padding/@Bottom": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/Padding/@Left": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/Padding/@Right": {
+      "observed": [
+        "0",
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/Padding/@Top": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/PreserveSourceFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PreserveSourceFields/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz"
+  ],
+  "engine_bindings": {
+    "PortfolioPluginsGui.ComposerOverlay.Overlay": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxComposerOverlayPlugin"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

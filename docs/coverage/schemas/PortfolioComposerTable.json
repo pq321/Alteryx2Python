@@ -1,0 +1,554 @@
+{
+  "tool_type": "PortfolioComposerTable",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BarGraphField": {
+      "observed": [
+        "Total Sales"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupingFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupingFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupingFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupingFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PivotMode": {
+      "observed": [
+        "MethodOverVar",
+        "PivotMethod",
+        "PivotVar",
+        "VarOverMethod"
+      ],
+      "declared": []
+    },
+    "Configuration/PivotTableFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/Field/@Places": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/Field/@Width": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PivotTableFields/Field/@selected": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ShowBarGraph": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ShowBarGraph/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ShowHeader": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ShowHeader/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/@Name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/ApplyTo": {
+      "observed": [
+        "Data"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Field": {
+      "observed": [
+        "County",
+        "PercentChange",
+        "Sum_Spend",
+        "Value2",
+        "ZIP"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Formula": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/HighPrecedence": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/HighPrecedence/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/PrettyName": {
+      "observed": [
+        "Bold All Locations",
+        "County  Rule 1",
+        "PercentChange Rule 1",
+        "Row Rule 1",
+        "Row Rule 2",
+        "Sum_Spend Rule 1",
+        "Value2 Rule 1",
+        "ZIP Rule 1"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/RowRule": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/RowRule/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/SimpleConst": {
+      "observed": [
+        "1",
+        "1000000",
+        "450000",
+        "Douglas County",
+        "TOTAL"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/SimpleOp": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/SimpleVar": {
+      "observed": [
+        "County",
+        "First_GroupDescGR",
+        "Location Type",
+        "Total Sales"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style/@BackColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style/@Font": {
+      "observed": [
+        "--Arial Black",
+        "-IArial",
+        "B-Arial"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style/@Prefix": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style/@Size": {
+      "observed": [
+        "10",
+        "11"
+      ],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Style/@TextColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StyleRules/Rule/Test": {
+      "observed": [
+        "Always",
+        "Formula",
+        "Simple"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableFields/@orderChanged": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Alias": {
+      "observed": [
+        "After",
+        "Avg Num Points",
+        "Before",
+        "County Name",
+        "Customer ID",
+        "Customer Latitude",
+        "Customer Longitude",
+        "Date",
+        "Demand After",
+        "English Description",
+        "File Path",
+        "Greek Description",
+        "Location",
+        "Longest Value",
+        "Magnitude",
+        "Max",
+        "Max Value Count",
+        "Mean",
+        "Median",
+        "Min",
+        "Min Value Count",
+        "Object Type",
+        "Plot",
+        "Rank",
+        "Shortest Value",
+        "Spending Sum",
+        "Std Dev",
+        "Store Number",
+        "Unique Values",
+        "Value",
+        "ZIP Name"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Alignment": {
+      "observed": [
+        "Center",
+        "Left",
+        "Right"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Borders": {
+      "observed": [
+        "None"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Places": {
+      "observed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Postfix": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Prefix": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@Width": {
+      "observed": [
+        "144",
+        "192",
+        "48",
+        "72",
+        "76",
+        "96"
+      ],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableFields/Field/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/TableMode": {
+      "observed": [
+        "Basic",
+        "Pivot"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@AltColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@AutoScale": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BackColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BarFormula": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BarPalette": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BaseValue": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BasicColBorder": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@BorderColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@CellPadding": {
+      "observed": [
+        "0",
+        "1",
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@ColBorder": {
+      "observed": [
+        "None"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@ColorMode": {
+      "observed": [
+        "Single"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@ColumnPadding": {
+      "observed": [
+        "0",
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@DataColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Font": {
+      "observed": [
+        "--Arial",
+        "--Arial Narrow",
+        "--Microsoft Sans Serif",
+        "--Tahoma",
+        "--Verdana",
+        "Arial",
+        "B-Arial",
+        "B-Tahoma",
+        "BIArial Narrow",
+        "Verdana"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@HeaderColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Height": {
+      "observed": [
+        "15"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@LabelBars": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Max": {
+      "observed": [
+        "100"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Min": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@OutlineBars": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@OutlineColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@RowBorder": {
+      "observed": [
+        "None",
+        "Per Row"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@RowGroup": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Size": {
+      "observed": [
+        "10",
+        "12",
+        "16",
+        "8",
+        "9"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@TableBorder": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@TextColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TableStyles/Style/@Width": {
+      "observed": [
+        "1",
+        "100",
+        "4",
+        "6",
+        "9"
+      ],
+      "declared": []
+    },
+    "Configuration/Width": {
+      "observed": [
+        "432"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Make Columns.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Table.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/File_Browse.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/07 Find_closest_customers_to_a_store.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/10 Create_tables_from_unicode_data.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc"
+  ],
+  "engine_bindings": {
+    "PortfolioPluginsGui.ComposerTable.PortfolioComposerTable": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxPortfolioComposerTablePlugin"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

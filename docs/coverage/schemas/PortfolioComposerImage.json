@@ -1,0 +1,199 @@
+{
+  "tool_type": "PortfolioComposerImage",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BlobField": {
+      "observed": [
+        "Image",
+        "PhotoBlob",
+        "image",
+        "image_processed",
+        "qr"
+      ],
+      "declared": []
+    },
+    "Configuration/EncodedImage": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Filename": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ImageMode": {
+      "observed": [
+        "Blob",
+        "File",
+        "Static"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ImageStyle/@BorderColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ImageStyle/@BorderWidth": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageStyle/@FixedWidth": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageStyle/@ImageWidth": {
+      "observed": [
+        "150",
+        "200",
+        "50"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageStyle/@ShowBorder": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ModifyField": {
+      "observed": [
+        "FullPath"
+      ],
+      "declared": []
+    },
+    "Configuration/ModifyFilename": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ModifyFilename/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ModifyMode": {
+      "observed": [
+        "ReplacePath"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticImage": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StaticImage/@Format": {
+      "observed": [
+        "JPEG",
+        "PNG"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticImage/@Height": {
+      "observed": [
+        "248",
+        "288",
+        "36",
+        "64",
+        "86"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticImage/@Width": {
+      "observed": [
+        "229",
+        "300",
+        "58",
+        "792",
+        "86"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticImage/@enclen": {
+      "observed": [
+        "1058",
+        "133926",
+        "3336",
+        "4268",
+        "51088"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticImage/@olen": {
+      "observed": [
+        "2438",
+        "3119",
+        "37333",
+        "772",
+        "97869"
+      ],
+      "declared": []
+    },
+    "Configuration/StaticMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StaticMode/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/StopIfNotFound": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/StopIfNotFound/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Thumbnail": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Image.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Barcode.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Processing.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Recognition.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/PDF to Text.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/10 Create_tables_from_unicode_data.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc"
+  ],
+  "engine_bindings": {
+    "PortfolioPluginsGui.ComposerImage.PortfolioComposerImage": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxPortfolioComposerImagePlugin"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

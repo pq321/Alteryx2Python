@@ -1,0 +1,190 @@
+{
+  "tool_type": "DynamicInput",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@FileFormat": {
+      "observed": [
+        "1",
+        "19"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@OutputFileName": {
+      "observed": [
+        "FileName"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@RecordLimit": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@SearchSubDirs": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/NoProgress": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/ReadUncommitted": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Mode": {
+      "observed": [
+        "ModifySQL",
+        "ReadList"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/@Action": {
+      "observed": [
+        "PassField",
+        "ReplaceString",
+        "ReplaceStringEx",
+        "Spatial"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/@Annotation": {
+      "observed": [
+        "Arvada",
+        "SpatialObj"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/CoordFieldX1M": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/CoordFieldX1M/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/Field": {
+      "observed": [
+        "City",
+        "SpatialObj"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/Field_Lat": {
+      "observed": [
+        "Lat",
+        "Latitude"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/Field_Lon": {
+      "observed": [
+        "Lon",
+        "Longitude"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/GroupForIn": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/GroupForIn/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/GroupForIn_Limit": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/GroupForIn_Limit/@value": {
+      "observed": [
+        "1000"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/ReplaceIn": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/ReplaceText": {
+      "observed": [
+        "Arvada"
+      ],
+      "declared": []
+    },
+    "Configuration/Modifications/Modify/ReplaceValueType": {
+      "observed": [
+        "String"
+      ],
+      "declared": []
+    },
+    "Configuration/ReadList_Field": {
+      "observed": [
+        "FullPath"
+      ],
+      "declared": []
+    },
+    "Configuration/ReadList_Type": {
+      "observed": [
+        "Path"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Dynamic_Input.yxmd",
+    "Samples/en/04 Basic/05 Infer_ZIP_codes_from_latitude_and_longitude.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.DynamicInput.DynamicInput": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDynamicInput"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

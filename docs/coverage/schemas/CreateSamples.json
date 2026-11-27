@@ -1,0 +1,38 @@
+{
+  "tool_type": "CreateSamples",
+  "category": "Preparation",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "1",
+        "20",
+        "42",
+        "50",
+        "70",
+        "80"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/CreateSamples.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Recognition.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/02_CFML_Sampling.yxmd"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "tool_type": "ListBox",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/List_Box.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_RemoveNullFields.yxmc",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "tool_type": "ControlParam",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/ControlParameter.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_FileFinder.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAllFieldMacro.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAndCompare.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldNumericMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTimeBatch.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

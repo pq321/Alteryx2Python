@@ -1,0 +1,230 @@
+{
+  "tool_type": "PortfolioComposerText",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/HeaderField": {
+      "observed": [
+        "Chart",
+        "Header",
+        "Image",
+        "Legend",
+        "Map",
+        "Overlay",
+        "Table",
+        "Text"
+      ],
+      "declared": []
+    },
+    "Configuration/HeaderMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/HeaderMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Images": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Images/Image": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Images/Image/@Format": {
+      "observed": [
+        "PNG"
+      ],
+      "declared": []
+    },
+    "Configuration/Images/Image/@Height": {
+      "observed": [
+        "40",
+        "64"
+      ],
+      "declared": []
+    },
+    "Configuration/Images/Image/@Width": {
+      "observed": [
+        "229",
+        "238"
+      ],
+      "declared": []
+    },
+    "Configuration/Images/Image/@enclen": {
+      "observed": [
+        "3336",
+        "4408"
+      ],
+      "declared": []
+    },
+    "Configuration/Images/Image/@key": {
+      "observed": [
+        "-162465435",
+        "-2051884859",
+        "-279425206",
+        "945315127"
+      ],
+      "declared": []
+    },
+    "Configuration/Images/Image/@olen": {
+      "observed": [
+        "2438",
+        "3222"
+      ],
+      "declared": []
+    },
+    "Configuration/Message": {
+      "observed": [
+        "Generalize then Smooth"
+      ],
+      "declared": []
+    },
+    "Configuration/Output": {
+      "observed": [
+        "Alteryx",
+        "Community",
+        "Footer",
+        "Header",
+        "Text",
+        "Title"
+      ],
+      "declared": []
+    },
+    "Configuration/Position": {
+      "observed": [
+        "Above",
+        "Below",
+        "Right"
+      ],
+      "declared": []
+    },
+    "Configuration/RawMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RawMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RichTextMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RichTextMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RichTextString": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Styles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Styles/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@BackColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@FontName": {
+      "observed": [
+        "Arial Black",
+        "Times New Roman"
+      ],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@FontSize": {
+      "observed": [
+        "14",
+        "26"
+      ],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@ForeColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@Justify": {
+      "observed": [
+        "Center",
+        "Left"
+      ],
+      "declared": []
+    },
+    "Configuration/Styles/Style/@Name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ValidatePCXML": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ValidatePCXML/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Render.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Footer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Header.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Text.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/07 Find_closest_customers_to_a_store.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/04 Map_customers_by_store.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/05 Create_a_heat_map_for_purchase_data.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "Samples/en/05 Advanced/04 Map_trade_areas_2.yxmd",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/07 Smooth_spatial_objects_on_a_map.yxmd",
+    "Samples/en/05 Advanced/10 Create_tables_from_unicode_data.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc"
+  ],
+  "engine_bindings": {
+    "PortfolioPluginsGui.ComposerText.PortfolioComposerText": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxPortfolioComposerTextPlugin"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

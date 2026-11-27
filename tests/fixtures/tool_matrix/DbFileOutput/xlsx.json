@@ -1,0 +1,19 @@
+{
+  "tool_type": "DbFileOutput",
+  "dataset_id": "D07",
+  "cases": [
+    {
+      "case_id": "DbFileOutput-xlsx-header",
+      "axis": "Configuration/FormatSpecificOptions/SkipFieldNames",
+      "scenario": "Write a named worksheet with headers",
+      "configuration_xml": "<Configuration><File FileFormat=\"25\">output.xlsx|||Data$</File><Passwords/><FormatSpecificOptions><SkipFieldNames>False</SkipFieldNames><OutputOption>OverwriteFile</OutputOption></FormatSpecificOptions><MultiFile value=\"False\"/></Configuration>"
+    },
+    {
+      "case_id": "DbFileOutput-xlsx-no-header",
+      "axis": "Configuration/FormatSpecificOptions/SkipFieldNames",
+      "scenario": "Write a named worksheet without headers",
+      "configuration_xml": "<Configuration><File FileFormat=\"25\">output.xlsx|||Data$</File><Passwords/><FormatSpecificOptions><SkipFieldNames>True</SkipFieldNames><OutputOption>OverwriteFile</OutputOption></FormatSpecificOptions><MultiFile value=\"False\"/></Configuration>"
+    }
+  ],
+  "sensitivity_pairs": [["DbFileOutput-xlsx-header", "DbFileOutput-xlsx-no-header"]]
+}

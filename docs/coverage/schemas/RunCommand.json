@@ -1,0 +1,235 @@
+{
+  "tool_type": "RunCommand",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Arguments": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@FileFormat": {
+      "observed": [
+        "0",
+        "19"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@OutputFileName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@RecordLimit": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/File/@SearchSubDirs": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/AllowShareWrite": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/CodePage": {
+      "observed": [
+        "28591"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/Delimeter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/FieldLen": {
+      "observed": [
+        "10000",
+        "254"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/HeaderRow": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/IgnoreErrors": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/IgnoreQuotes": {
+      "observed": [
+        "DoubleQuotes"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/ImportLine": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/QuoteRecordBreak": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/InputConfiguration/Configuration/FormatSpecificOptions/SingleThreadRead": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/File": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/File/@FileFormat": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/File/@MaxRecords": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/CodePage": {
+      "observed": [
+        "28591"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/Delimeter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/ForceQuotes": {
+      "observed": [
+        "False",
+        "Never"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/HeaderRow": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/LineEndStyle": {
+      "observed": [
+        "CRLF"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/FormatSpecificOptions/WriteBOM": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/MultiFile": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputConfiguration/Configuration/MultiFile/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/ProgramName": {
+      "observed": [
+        "cmd.exe",
+        "powershell.exe"
+      ],
+      "declared": []
+    },
+    "Configuration/RunMinimized": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RunMinimized/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RunSilent": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RunSilent/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/WorkingDir": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/RunCommand.yxmd",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/compare_E1vsAMP.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Google_Analytics.Prep_Query_String.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.RunCommand.RunCommand": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxRunCommand"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

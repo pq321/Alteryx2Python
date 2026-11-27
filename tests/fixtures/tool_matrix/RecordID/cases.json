@@ -1,0 +1,19 @@
+{
+  "tool_type": "RecordID",
+  "dataset_id": "D03",
+  "cases": [
+    {
+      "case_id": "RecordID-start-1",
+      "axis": "Configuration/StartValue",
+      "scenario": "Start at 1",
+      "configuration_xml": "<Configuration><FieldName>RecordID</FieldName><StartValue>1</StartValue><FieldType>Int64</FieldType><FieldSize>6</FieldSize><Position>0</Position></Configuration>"
+    },
+    {
+      "case_id": "RecordID-start-7",
+      "axis": "Configuration/StartValue",
+      "scenario": "Start at 7",
+      "configuration_xml": "<Configuration><FieldName>RecordID</FieldName><StartValue>7</StartValue><FieldType>Int64</FieldType><FieldSize>6</FieldSize><Position>0</Position></Configuration>"
+    }
+  ],
+  "sensitivity_pairs": [["RecordID-start-1", "RecordID-start-7"]]
+}

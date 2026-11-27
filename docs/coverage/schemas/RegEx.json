@@ -1,0 +1,265 @@
+{
+  "tool_type": "RegEx",
+  "category": "Parse",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CaseInsensitve": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CaseInsensitve/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Field": {
+      "observed": [
+        "Address",
+        "Field1",
+        "Field_1",
+        "ITEM",
+        "Image",
+        "JSON_Name",
+        "JSON_Summary1",
+        "Name",
+        "NewPhone",
+        "PHONE",
+        "Query",
+        "Text",
+        "ThemeBand",
+        "Value",
+        "WorkflowName",
+        "new",
+        "utf8_bin_val"
+      ],
+      "declared": []
+    },
+    "Configuration/Match": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Match/ErrorUnmatched": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Match/ErrorUnmatched/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Match/Field": {
+      "observed": [
+        "8-bit_bin_val_Matched",
+        "Address_Matched",
+        "DATE_Matched",
+        "Field1_Matched",
+        "Field_1_Matched",
+        "Image_Matched",
+        "JSON_Name_Matched",
+        "JSON_Summary1_Matched",
+        "NONUS_Number",
+        "Name_Matched",
+        "NewPhone_Matched",
+        "PHONE_Matched",
+        "Query_Matched",
+        "RecordID_Matched",
+        "Text_Matched",
+        "ThemeBand_Matched",
+        "Value_Matched",
+        "YES_NO",
+        "has_zip4"
+      ],
+      "declared": []
+    },
+    "Configuration/Method": {
+      "observed": [
+        "Match",
+        "ParseComplex",
+        "ParseSimple",
+        "Replace"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseComplex": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseComplex/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseComplex/Field/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseComplex/Field/@size": {
+      "observed": [
+        "1",
+        "100000",
+        "1073741823",
+        "128",
+        "14",
+        "22",
+        "254",
+        "256",
+        "4",
+        "508",
+        "536870911",
+        "6099",
+        "64",
+        "No Marked Groups Found"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseComplex/Field/@type": {
+      "observed": [
+        "Int32",
+        "No Marked Groups Found",
+        "String",
+        "V_String",
+        "V_WString"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseSimple": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseSimple/ErrorHandling": {
+      "observed": [
+        "Ignore",
+        "Warn"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseSimple/NumFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseSimple/NumFields/@value": {
+      "observed": [
+        "1",
+        "2",
+        "3",
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseSimple/RootName": {
+      "observed": [
+        "Address",
+        "Field1",
+        "Field_1",
+        "ITEM",
+        "Image",
+        "JSON_Name",
+        "JSON_Summary1",
+        "Name",
+        "NewPhone",
+        "PHONE",
+        "Query",
+        "Text",
+        "ThemeBand",
+        "Value",
+        "new"
+      ],
+      "declared": []
+    },
+    "Configuration/ParseSimple/SplitToRows": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ParseSimple/SplitToRows/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RegExExpression": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RegExExpression/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Replace": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Replace/@expression": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Replace/CopyUnmatched": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Replace/CopyUnmatched/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/RegEx.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/RunCommand.yxmd",
+    "Samples/en/04 Basic/01 Normalize_a_string_field.yxmd",
+    "Samples/en/04 Basic/02 Normalize_phone_numbers.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.RegEx.RegEx/AlteryxBasePluginsGui.RegEx.RegExConfig.xml",
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.RegEx.RegEx": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxRegEx",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxRegEx"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "tool_type": "DbFileOutput",
+  "category": "In/Out",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/@IsCachingOutput": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/File": {
+      "observed": [
+        "temp.yxdb"
+      ],
+      "declared": []
+    },
+    "Configuration/File/@FileFormat": {
+      "observed": [
+        "0",
+        "19",
+        "25",
+        "64"
+      ],
+      "declared": []
+    },
+    "Configuration/File/@MaxRecords": {
+      "observed": [
+        "10",
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/CodePage": {
+      "observed": [
+        "28591"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/Delimeter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/ForceQuotes": {
+      "observed": [
+        "False",
+        "Never"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/HeaderRow": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/LineEndStyle": {
+      "observed": [
+        "CRLF"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/NoSpatialIndex": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/OutputOption": {
+      "observed": [
+        "Create"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/SaveSource": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/SkipFieldNames": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/WriteBOM": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/WriteCompatibleVersion": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/KeepField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeepField/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiFile": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiFile/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiFileField": {
+      "observed": [
+        "Region",
+        "_fileName_",
+        "_file_name_",
+        "filename"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiFileType": {
+      "observed": [
+        "Path",
+        "Suffix"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Output_Data.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/File_Browse.yxwz",
+    "Samples/en/04 Basic/01 Combine 2 Spreadsheets Containing Customer Data.yxmd",
+    "Samples/en/04 Basic/05 Analyze a sales pipeline.yxmd",
+    "Samples/en/04 Basic/08 Create_an_XML_File.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/02 Convert_file_formats.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/02 Map a trade area around a store.yxmd",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.DbFileOutput.DbFileOutput": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDbFileOutput"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

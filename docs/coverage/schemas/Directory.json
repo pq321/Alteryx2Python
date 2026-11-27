@@ -1,0 +1,61 @@
+{
+  "tool_type": "Directory",
+  "category": "In/Out",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Directory": {
+      "observed": [
+        ".."
+      ],
+      "declared": []
+    },
+    "Configuration/FileSpec": {
+      "observed": [
+        "IFS.yxmc"
+      ],
+      "declared": []
+    },
+    "Configuration/IncludeSubDirs": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/IncludeSubDirs/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Directory.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Image.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/FolderBrowse.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Convert.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Input.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Output.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Dynamic_Input.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Input.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Recognition.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/06 Identify_tools_and_macros_used_in_a_workflow.yxmd",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Directory.Directory": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDirectory"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

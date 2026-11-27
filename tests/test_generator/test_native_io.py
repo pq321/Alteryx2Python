@@ -281,8 +281,6 @@ def test_output_scalar_formatting_matches_runtime(tmp_path, frame, header):
         ("DbFileInput", "input.yxdb", {"FileFormat": "0"}, "YXDB"),
         ("DbFileInput", "input.csv", {"FileFormat": "19"}, "YXDB"),
         ("DbFileInput", "input.json", {}, "Unsupported DbFileInput"),
-        ("DbFileInput", "input.xlsx|||`NamedRange`", {}, "Named ranges"),
-        ("DbFileInput", "input.xlsx|||<List of Sheet Names>", {}, "sheet-name list"),
         ("DbFileOutput", "output.xlsx|||Bad/Sheet", {}, "single worksheet"),
         ("DbFileOutput", "output.dat", {"FileFormat": "25"}, "Excel output"),
         ("DbFileOutput", "output.yxdb", {"FileFormat": "19"}, "Unsupported DbFileOutput"),

@@ -1,0 +1,96 @@
+tool_type,total,supported,gate2_pass,gate3_pass,gate4_pass,verified,completion_percent,pending_case_ids
+Action,9,9,0,0,0,0,0.00,Action-01 Action-02 Action-03 Action-04 Action-05 Action-06 Action-07 Action-08 Action-schema-gap-1
+AppendFields,6,6,0,0,0,0,0.00,AppendFields-01 AppendFields-02 AppendFields-03 AppendFields-04 AppendFields-05 AppendFields-schema-gap-1
+Arrange,5,5,0,0,0,0,0.00,Arrange-01 Arrange-02 Arrange-03 Arrange-04 Arrange-schema-gap-1
+AutoField,7,7,0,0,0,0,0.00,AutoField-01 AutoField-02 AutoField-03 AutoField-04 AutoField-05 AutoField-06 AutoField-schema-gap-1
+Base64Encoder,5,5,0,0,0,0,0.00,Base64Encoder-01 Base64Encoder-02 Base64Encoder-03 Base64Encoder-04 Base64Encoder-schema-gap-1
+BlobConvert,12,12,0,0,0,0,0.00,BlobConvert-01 BlobConvert-02 BlobConvert-03 BlobConvert-04 BlobConvert-05 BlobConvert-06 BlobConvert-07 BlobConvert-08 BlobConvert-09 BlobConvert-10 BlobConvert-11 BlobConvert-schema-gap-1
+BlobInput,11,11,0,0,0,0,0.00,BlobInput-01 BlobInput-02 BlobInput-03 BlobInput-04 BlobInput-05 BlobInput-06 BlobInput-07 BlobInput-08 BlobInput-09 BlobInput-10 BlobInput-schema-gap-1
+BlobOutput,9,9,0,0,0,0,0.00,BlobOutput-01 BlobOutput-02 BlobOutput-03 BlobOutput-04 BlobOutput-05 BlobOutput-06 BlobOutput-07 BlobOutput-08 BlobOutput-schema-gap-1
+BlockUntilDone,6,6,0,0,0,0,0.00,BlockUntilDone-01 BlockUntilDone-02 BlockUntilDone-03 BlockUntilDone-04 BlockUntilDone-05 BlockUntilDone-schema-gap-1
+BrowseV2,5,5,0,0,0,0,0.00,BrowseV2-01 BrowseV2-02 BrowseV2-03 BrowseV2-04 BrowseV2-schema-gap-1
+CheckBoxGroup,5,5,0,0,0,0,0.00,CheckBoxGroup-01 CheckBoxGroup-02 CheckBoxGroup-03 CheckBoxGroup-04 CheckBoxGroup-schema-gap-1
+Condition,5,5,0,0,0,0,0.00,Condition-01 Condition-02 Condition-03 Condition-04 Condition-schema-gap-1
+ControlContainer,8,8,0,0,0,0,0.00,ControlContainer-01 ControlContainer-02 ControlContainer-03 ControlContainer-04 ControlContainer-05 ControlContainer-06 ControlContainer-07 ControlContainer-schema-gap-1
+ControlParam,5,5,0,0,0,0,0.00,ControlParam-01 ControlParam-02 ControlParam-03 ControlParam-04 ControlParam-schema-gap-1
+CountRecords,5,5,0,0,0,0,0.00,CountRecords-01 CountRecords-02 CountRecords-03 CountRecords-04 CountRecords-schema-gap-1
+CreateSamples,7,7,0,0,0,0,0.00,CreateSamples-01 CreateSamples-02 CreateSamples-03 CreateSamples-04 CreateSamples-05 CreateSamples-06 CreateSamples-schema-gap-1
+CrossTab,22,22,0,0,0,0,0.00,CrossTab-01 CrossTab-02 CrossTab-03 CrossTab-04 CrossTab-05 CrossTab-06 CrossTab-07 CrossTab-08 CrossTab-09 CrossTab-10 CrossTab-11 CrossTab-12 CrossTab-13 CrossTab-14 CrossTab-15 CrossTab-16 CrossTab-17 CrossTab-18 CrossTab-19 CrossTab-20 CrossTab-21 CrossTab-schema-gap-1
+DataCleansePro,9,9,0,0,0,0,0.00,DataCleansePro-01 DataCleansePro-02 DataCleansePro-03 DataCleansePro-04 DataCleansePro-05 DataCleansePro-06 DataCleansePro-07 DataCleansePro-08 DataCleansePro-schema-gap-1
+DataCleansing,22,22,0,0,0,0,0.00,DataCleansing-01 DataCleansing-02 DataCleansing-03 DataCleansing-04 DataCleansing-05 DataCleansing-06 DataCleansing-07 DataCleansing-08 DataCleansing-09 DataCleansing-10 DataCleansing-11 DataCleansing-12 DataCleansing-13 DataCleansing-14 DataCleansing-15 DataCleansing-16 DataCleansing-17 DataCleansing-18 DataCleansing-19590418ee076b62 DataCleansing-2962748c40cb16a6 DataCleansing-b7ff44b0a7503618 DataCleansing-schema-gap-1
+Date,6,6,0,0,0,0,0.00,Date-01 Date-02 Date-03 Date-04 Date-05 Date-schema-gap-1
+DateTime,8,8,0,0,0,0,0.00,DateTime-01 DateTime-02 DateTime-03 DateTime-04 DateTime-05 DateTime-06 DateTime-07 DateTime-schema-gap-1
+DateTimeNow,7,7,0,0,0,0,0.00,DateTimeNow-01 DateTimeNow-02 DateTimeNow-03 DateTimeNow-04 DateTimeNow-05 DateTimeNow-06 DateTimeNow-schema-gap-1
+DbFileInput,33,33,0,0,0,0,0.00,DbFileInput-01 DbFileInput-02 DbFileInput-03 DbFileInput-04 DbFileInput-05 DbFileInput-06 DbFileInput-07 DbFileInput-08 DbFileInput-09 DbFileInput-10 DbFileInput-11 DbFileInput-12 DbFileInput-13 DbFileInput-14 DbFileInput-15 DbFileInput-16 DbFileInput-17 DbFileInput-18 DbFileInput-19 DbFileInput-20 DbFileInput-21 DbFileInput-22 DbFileInput-23 DbFileInput-24 DbFileInput-25 DbFileInput-26 DbFileInput-csv-limit-2 DbFileInput-csv-limit-5 DbFileInput-csv-limit-unlimited DbFileInput-schema-gap-1 DbFileInput-xlsx-cell-range DbFileInput-xlsx-named-range DbFileInput-xlsx-second-sheet
+DbFileOutput,71,71,0,0,0,0,0.00,DbFileOutput-01 DbFileOutput-02 DbFileOutput-03 DbFileOutput-04 DbFileOutput-05 DbFileOutput-06 DbFileOutput-07 DbFileOutput-08 DbFileOutput-09 DbFileOutput-10 DbFileOutput-11 DbFileOutput-12 DbFileOutput-13 DbFileOutput-14 DbFileOutput-15 DbFileOutput-16 DbFileOutput-17 DbFileOutput-18 DbFileOutput-19 DbFileOutput-20 DbFileOutput-21 DbFileOutput-22 DbFileOutput-23 DbFileOutput-24 DbFileOutput-25 DbFileOutput-26 DbFileOutput-27 DbFileOutput-28 DbFileOutput-29 DbFileOutput-30 DbFileOutput-31 DbFileOutput-32 DbFileOutput-33 DbFileOutput-34 DbFileOutput-35 DbFileOutput-36 DbFileOutput-37 DbFileOutput-38 DbFileOutput-39 DbFileOutput-40 DbFileOutput-41 DbFileOutput-42 DbFileOutput-43 DbFileOutput-44 DbFileOutput-45 DbFileOutput-46 DbFileOutput-47 DbFileOutput-48 DbFileOutput-49 DbFileOutput-50 DbFileOutput-51 DbFileOutput-52 DbFileOutput-53 DbFileOutput-54 DbFileOutput-55 DbFileOutput-56 DbFileOutput-57 DbFileOutput-58 DbFileOutput-59 DbFileOutput-60 DbFileOutput-61 DbFileOutput-62 DbFileOutput-63 DbFileOutput-64 DbFileOutput-65 DbFileOutput-66 DbFileOutput-csv-comma DbFileOutput-csv-pipe DbFileOutput-schema-gap-1 DbFileOutput-xlsx-header DbFileOutput-xlsx-no-header
+Detour,5,5,0,0,0,0,0.00,Detour-01 Detour-02 Detour-03 Detour-04 Detour-schema-gap-1
+DetourEnd,5,5,0,0,0,0,0.00,DetourEnd-01 DetourEnd-02 DetourEnd-03 DetourEnd-04 DetourEnd-schema-gap-1
+Directory,6,6,0,0,0,0,0.00,Directory-01 Directory-02 Directory-03 Directory-04 Directory-05 Directory-schema-gap-1
+Download,15,15,0,0,0,0,0.00,Download-01 Download-02 Download-03 Download-04 Download-05 Download-06 Download-07 Download-08 Download-09 Download-10 Download-11 Download-12 Download-13 Download-14 Download-schema-gap-1
+DropDown,7,7,0,0,0,0,0.00,DropDown-01 DropDown-02 DropDown-03 DropDown-04 DropDown-05 DropDown-06 DropDown-schema-gap-1
+DynamicInput,23,23,0,0,0,0,0.00,DynamicInput-01 DynamicInput-02 DynamicInput-03 DynamicInput-04 DynamicInput-05 DynamicInput-06 DynamicInput-07 DynamicInput-08 DynamicInput-09 DynamicInput-10 DynamicInput-11 DynamicInput-12 DynamicInput-13 DynamicInput-14 DynamicInput-15 DynamicInput-16 DynamicInput-17 DynamicInput-18 DynamicInput-19 DynamicInput-20 DynamicInput-21 DynamicInput-22 DynamicInput-schema-gap-1
+DynamicRename,13,13,0,0,0,0,0.00,DynamicRename-01 DynamicRename-02 DynamicRename-03 DynamicRename-04 DynamicRename-05 DynamicRename-06 DynamicRename-07 DynamicRename-08 DynamicRename-09 DynamicRename-10 DynamicRename-11 DynamicRename-12 DynamicRename-schema-gap-1
+DynamicReplace,6,6,0,0,0,0,0.00,DynamicReplace-01 DynamicReplace-02 DynamicReplace-03 DynamicReplace-04 DynamicReplace-05 DynamicReplace-schema-gap-1
+DynamicSelect,6,6,0,0,0,0,0.00,DynamicSelect-01 DynamicSelect-02 DynamicSelect-03 DynamicSelect-04 DynamicSelect-05 DynamicSelect-schema-gap-1
+Email,10,10,0,0,0,0,0.00,Email-01 Email-02 Email-03 Email-04 Email-05 Email-06 Email-07 Email-08 Email-schema-gap-1 Email-schema-gap-2
+Error,5,5,0,0,0,0,0.00,Error-01 Error-02 Error-03 Error-04 Error-schema-gap-1
+ExpectEqual,7,7,0,0,0,0,0.00,ExpectEqual-01 ExpectEqual-02 ExpectEqual-03 ExpectEqual-04 ExpectEqual-05 ExpectEqual-06 ExpectEqual-schema-gap-1
+FieldInfo,6,6,0,0,0,0,0.00,FieldInfo-01 FieldInfo-02 FieldInfo-03 FieldInfo-04 FieldInfo-05 FieldInfo-schema-gap-1
+Filter,9,9,0,0,0,0,0.00,Filter-01 Filter-02 Filter-03 Filter-04 Filter-05 Filter-06 Filter-07 Filter-08 Filter-schema-gap-1
+FindReplace,10,10,0,0,0,0,0.00,FindReplace-01 FindReplace-02 FindReplace-03 FindReplace-04 FindReplace-05 FindReplace-06 FindReplace-07 FindReplace-08 FindReplace-09 FindReplace-schema-gap-1
+FolderBrowse,5,5,0,0,0,0,0.00,FolderBrowse-01 FolderBrowse-02 FolderBrowse-03 FolderBrowse-04 FolderBrowse-schema-gap-1
+Formula,14,14,0,0,0,0,0.00,Formula-01 Formula-02 Formula-03 Formula-04 Formula-05 Formula-06 Formula-07 Formula-08 Formula-09 Formula-10 Formula-11 Formula-12 Formula-13 Formula-schema-gap-1
+FuzzyMatch,8,8,0,0,0,0,0.00,FuzzyMatch-01 FuzzyMatch-02 FuzzyMatch-03 FuzzyMatch-04 FuzzyMatch-05 FuzzyMatch-06 FuzzyMatch-07 FuzzyMatch-schema-gap-1
+GenerateRows,6,6,0,0,0,0,0.00,GenerateRows-01 GenerateRows-02 GenerateRows-03 GenerateRows-04 GenerateRows-05 GenerateRows-schema-gap-1
+Imputation,9,9,0,0,0,0,0.00,Imputation-01 Imputation-02 Imputation-03 Imputation-04 Imputation-05 Imputation-06 Imputation-07 Imputation-08 Imputation-schema-gap-1
+JSONParse,9,9,0,0,0,0,0.00,JSONParse-01 JSONParse-02 JSONParse-03 JSONParse-04 JSONParse-05 JSONParse-06 JSONParse-07 JSONParse-08 JSONParse-schema-gap-1
+Join,8,8,0,0,0,0,0.00,Join-01 Join-02 Join-03 Join-04 Join-05 Join-06 Join-07 Join-schema-gap-1
+JoinMultiple,7,7,0,0,0,0,0.00,JoinMultiple-01 JoinMultiple-02 JoinMultiple-03 JoinMultiple-04 JoinMultiple-05 JoinMultiple-06 JoinMultiple-schema-gap-1
+JupyterCode,6,6,0,0,0,0,0.00,JupyterCode-01 JupyterCode-02 JupyterCode-03 JupyterCode-04 JupyterCode-05 JupyterCode-schema-gap-1
+ListBox,9,9,0,0,0,0,0.00,ListBox-01 ListBox-02 ListBox-03 ListBox-04 ListBox-05 ListBox-06 ListBox-07 ListBox-08 ListBox-schema-gap-1
+MacroInput,7,7,0,0,0,0,0.00,MacroInput-01 MacroInput-02 MacroInput-03 MacroInput-04 MacroInput-05 MacroInput-06 MacroInput-schema-gap-1
+MacroOutput,5,5,0,0,0,0,0.00,MacroOutput-01 MacroOutput-02 MacroOutput-03 MacroOutput-04 MacroOutput-schema-gap-1
+MakeColumns,7,7,0,0,0,0,0.00,MakeColumns-01 MakeColumns-02 MakeColumns-03 MakeColumns-04 MakeColumns-05 MakeColumns-06 MakeColumns-schema-gap-1
+MakeGroup,6,6,0,0,0,0,0.00,MakeGroup-01 MakeGroup-02 MakeGroup-03 MakeGroup-04 MakeGroup-05 MakeGroup-schema-gap-1
+Message,10,10,0,0,0,0,0.00,Message-01 Message-02 Message-03 Message-04 Message-05 Message-06 Message-07 Message-08 Message-09 Message-schema-gap-1
+MultiFieldBinning,5,5,0,0,0,0,0.00,MultiFieldBinning-01 MultiFieldBinning-02 MultiFieldBinning-03 MultiFieldBinning-04 MultiFieldBinning-schema-gap-1
+MultiFieldFormula,7,7,0,0,0,0,0.00,MultiFieldFormula-01 MultiFieldFormula-02 MultiFieldFormula-03 MultiFieldFormula-04 MultiFieldFormula-05 MultiFieldFormula-06 MultiFieldFormula-schema-gap-1
+MultiRowFormula,9,9,0,0,0,0,0.00,MultiRowFormula-01 MultiRowFormula-02 MultiRowFormula-03 MultiRowFormula-04 MultiRowFormula-05 MultiRowFormula-06 MultiRowFormula-07 MultiRowFormula-08 MultiRowFormula-schema-gap-1
+NumericUpDown,7,7,0,0,0,0,0.00,NumericUpDown-01 NumericUpDown-02 NumericUpDown-03 NumericUpDown-04 NumericUpDown-05 NumericUpDown-06 NumericUpDown-schema-gap-1
+Overlay,5,5,0,0,0,0,0.00,Overlay-01 Overlay-02 Overlay-03 Overlay-04 Overlay-schema-gap-1
+OversampleField,6,6,0,0,0,0,0.00,OversampleField-01 OversampleField-02 OversampleField-03 OversampleField-04 OversampleField-05 OversampleField-schema-gap-1
+PlotlyCharting,8,8,0,0,0,0,0.00,PlotlyCharting-01 PlotlyCharting-02 PlotlyCharting-03 PlotlyCharting-04 PlotlyCharting-05 PlotlyCharting-06 PlotlyCharting-07 PlotlyCharting-schema-gap-1
+PortfolioComposerImage,6,6,0,0,0,0,0.00,PortfolioComposerImage-01 PortfolioComposerImage-02 PortfolioComposerImage-03 PortfolioComposerImage-04 PortfolioComposerImage-05 PortfolioComposerImage-schema-gap-1
+PortfolioComposerLayout,7,7,0,0,0,0,0.00,PortfolioComposerLayout-01 PortfolioComposerLayout-02 PortfolioComposerLayout-03 PortfolioComposerLayout-04 PortfolioComposerLayout-05 PortfolioComposerLayout-06 PortfolioComposerLayout-schema-gap-1
+PortfolioComposerRender,12,12,0,0,0,0,0.00,PortfolioComposerRender-01 PortfolioComposerRender-02 PortfolioComposerRender-03 PortfolioComposerRender-04 PortfolioComposerRender-05 PortfolioComposerRender-06 PortfolioComposerRender-07 PortfolioComposerRender-08 PortfolioComposerRender-09 PortfolioComposerRender-10 PortfolioComposerRender-11 PortfolioComposerRender-schema-gap-1
+PortfolioComposerTable,8,8,0,0,0,0,0.00,PortfolioComposerTable-01 PortfolioComposerTable-02 PortfolioComposerTable-03 PortfolioComposerTable-04 PortfolioComposerTable-05 PortfolioComposerTable-06 PortfolioComposerTable-07 PortfolioComposerTable-schema-gap-1
+PortfolioComposerText,6,6,0,0,0,0,0.00,PortfolioComposerText-01 PortfolioComposerText-02 PortfolioComposerText-03 PortfolioComposerText-04 PortfolioComposerText-05 PortfolioComposerText-schema-gap-1
+QuestionFileBrowse,6,6,0,0,0,0,0.00,QuestionFileBrowse-01 QuestionFileBrowse-02 QuestionFileBrowse-03 QuestionFileBrowse-04 QuestionFileBrowse-05 QuestionFileBrowse-schema-gap-1
+QuestionTextBox,6,6,0,0,0,0,0.00,QuestionTextBox-01 QuestionTextBox-02 QuestionTextBox-03 QuestionTextBox-04 QuestionTextBox-05 QuestionTextBox-schema-gap-1
+RadioButtonGroup,5,5,0,0,0,0,0.00,RadioButtonGroup-01 RadioButtonGroup-02 RadioButtonGroup-03 RadioButtonGroup-04 RadioButtonGroup-schema-gap-1
+RandomRecords,7,7,0,0,0,0,0.00,RandomRecords-01 RandomRecords-02 RandomRecords-03 RandomRecords-04 RandomRecords-05 RandomRecords-06 RandomRecords-schema-gap-1
+Rank,10,10,0,0,0,0,0.00,Rank-01 Rank-02 Rank-03 Rank-04 Rank-05 Rank-06 Rank-07 Rank-08 Rank-09 Rank-schema-gap-1
+RecordID,13,13,0,0,0,0,0.00,RecordID-01 RecordID-02 RecordID-03 RecordID-04 RecordID-05 RecordID-06 RecordID-07 RecordID-08 RecordID-09 RecordID-10 RecordID-schema-gap-1 RecordID-start-1 RecordID-start-7
+RegEx,10,10,0,0,0,0,0.00,RegEx-01 RegEx-02 RegEx-03 RegEx-04 RegEx-05 RegEx-06 RegEx-07 RegEx-08 RegEx-09 RegEx-schema-gap-1
+ReportFooter,4,4,0,0,0,0,0.00,ReportFooter-01 ReportFooter-02 ReportFooter-03 ReportFooter-schema-gap-1
+ReportHeader,28,28,0,0,0,0,0.00,ReportHeader-01 ReportHeader-02 ReportHeader-03 ReportHeader-04 ReportHeader-05 ReportHeader-1a1bddfb76d1a4e1 ReportHeader-2134fc187adaa074 ReportHeader-2544e03a003c45ad ReportHeader-363773db5ec8fc65 ReportHeader-36591c60883f91ae ReportHeader-52ad8a94ed5b335e ReportHeader-53be9c5260933214 ReportHeader-5414f15982bbf157 ReportHeader-5aac0fd12fcefe9b ReportHeader-6c6fc2998b9b9826 ReportHeader-75fe7a2ed1e30497 ReportHeader-7b8dc4ad2647bdb3 ReportHeader-84b68681bbe77f57 ReportHeader-8e2bcda58293ec23 ReportHeader-9b4df945d7039ad0 ReportHeader-a0ba0a1c02131d60 ReportHeader-b25c52c1dff8b6c9 ReportHeader-b6e32e54622d56df ReportHeader-b8e6f07ed861bc1d ReportHeader-c918d86a92ba04dc ReportHeader-ebe1561792ea0f0a ReportHeader-f86c780e0a9d62c6 ReportHeader-schema-gap-1
+ReportLegendBuilder,5,5,0,0,0,0,0.00,ReportLegendBuilder-01 ReportLegendBuilder-02 ReportLegendBuilder-03 ReportLegendBuilder-04 ReportLegendBuilder-schema-gap-1
+ReportLegendSplitter,5,5,0,0,0,0,0.00,ReportLegendSplitter-01 ReportLegendSplitter-02 ReportLegendSplitter-03 ReportLegendSplitter-04 ReportLegendSplitter-schema-gap-1
+ReportMap,5,5,0,0,0,0,0.00,ReportMap-01 ReportMap-02 ReportMap-03 ReportMap-04 ReportMap-schema-gap-1
+RunCommand,12,12,0,0,0,0,0.00,RunCommand-01 RunCommand-02 RunCommand-03 RunCommand-04 RunCommand-05 RunCommand-06 RunCommand-07 RunCommand-08 RunCommand-09 RunCommand-10 RunCommand-11 RunCommand-schema-gap-1
+RunningTotal,6,6,0,0,0,0,0.00,RunningTotal-01 RunningTotal-02 RunningTotal-03 RunningTotal-04 RunningTotal-05 RunningTotal-schema-gap-1
+Sample,10,10,0,0,0,0,0.00,Sample-01 Sample-02 Sample-03 Sample-04 Sample-05 Sample-06 Sample-07 Sample-08 Sample-09 Sample-schema-gap-1
+Select,11,11,0,0,0,0,0.00,Select-01 Select-02 Select-03 Select-04 Select-05 Select-06 Select-07 Select-08 Select-09 Select-10 Select-schema-gap-1
+SelectRecords,7,7,0,0,0,0,0.00,SelectRecords-01 SelectRecords-02 SelectRecords-03 SelectRecords-04 SelectRecords-05 SelectRecords-06 SelectRecords-schema-gap-1
+Sort,13,13,0,0,0,0,0.00,Sort-01 Sort-02 Sort-03 Sort-04 Sort-05 Sort-06 Sort-07 Sort-08 Sort-09 Sort-10 Sort-ascii-ascending Sort-ascii-descending Sort-schema-gap-1
+Summarize,32,32,0,0,0,0,0.00,Summarize-01 Summarize-02 Summarize-03 Summarize-04 Summarize-05 Summarize-06 Summarize-07 Summarize-08 Summarize-09 Summarize-10 Summarize-11 Summarize-12 Summarize-13 Summarize-14 Summarize-15 Summarize-16 Summarize-17 Summarize-18 Summarize-19 Summarize-20 Summarize-21 Summarize-22 Summarize-23 Summarize-24 Summarize-25 Summarize-26 Summarize-27 Summarize-28 Summarize-29 Summarize-30 Summarize-31 Summarize-schema-gap-1
+TextBox,4,4,0,0,0,0,0.00,TextBox-01 TextBox-02 TextBox-03 TextBox-schema-gap-1
+TextInput,7,7,0,0,0,0,0.00,TextInput-01 TextInput-02 TextInput-03 TextInput-04 TextInput-05 TextInput-06 TextInput-schema-gap-1
+TextToColumns,13,13,0,0,0,0,0.00,TextToColumns-01 TextToColumns-02 TextToColumns-03 TextToColumns-04 TextToColumns-05 TextToColumns-06 TextToColumns-07 TextToColumns-08 TextToColumns-09 TextToColumns-10 TextToColumns-11 TextToColumns-12 TextToColumns-schema-gap-1
+Tile,10,10,0,0,0,0,0.00,Tile-01 Tile-02 Tile-03 Tile-04 Tile-05 Tile-06 Tile-07 Tile-08 Tile-09 Tile-schema-gap-1
+ToolContainer,6,6,0,0,0,0,0.00,ToolContainer-01 ToolContainer-02 ToolContainer-03 ToolContainer-04 ToolContainer-05 ToolContainer-schema-gap-1
+Transpose,8,8,0,0,0,0,0.00,Transpose-01 Transpose-02 Transpose-03 Transpose-04 Transpose-05 Transpose-06 Transpose-07 Transpose-schema-gap-1
+Union,19,19,0,0,0,0,0.00,Union-01 Union-02 Union-03 Union-04 Union-05 Union-06 Union-07 Union-08 Union-09 Union-10 Union-11 Union-12 Union-13 Union-14 Union-15 Union-6d901f86cb7039b2 Union-7aa623018251100d Union-b0aac0a18c2c596c Union-schema-gap-1
+Unique,6,6,0,0,0,0,0.00,Unique-01 Unique-02 Unique-03 Unique-04 Unique-05 Unique-schema-gap-1
+WeightedAvg,6,6,0,0,0,0,0.00,WeightedAvg-01 WeightedAvg-02 WeightedAvg-03 WeightedAvg-04 WeightedAvg-05 WeightedAvg-schema-gap-1
+XMLParse,9,9,0,0,0,0,0.00,XMLParse-01 XMLParse-02 XMLParse-03 XMLParse-04 XMLParse-05 XMLParse-06 XMLParse-07 XMLParse-08 XMLParse-schema-gap-1

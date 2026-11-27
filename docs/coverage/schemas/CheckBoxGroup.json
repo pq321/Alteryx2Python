@@ -1,0 +1,44 @@
+{
+  "tool_type": "CheckBoxGroup",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Check_Box.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Error_Message.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityOptimizer.yxmc",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/compare_E1vsAMP.yxmc",
+    "bin/RuntimeData/Macros/PearsonCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/RandomRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

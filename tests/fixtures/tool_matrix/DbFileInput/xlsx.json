@@ -1,0 +1,31 @@
+{
+  "tool_type": "DbFileInput",
+  "dataset_id": "D07",
+  "cases": [
+    {
+      "case_id": "DbFileInput-xlsx-second-sheet",
+      "axis": "Configuration/File",
+      "scenario": "Read the second sheet by name",
+      "inputs": [],
+      "configuration_xml": "<Configuration><File FileFormat=\"25\">{dataset:input-workbook}|||Data$</File><Passwords/><FormatSpecificOptions><FirstRowData>False</FirstRowData></FormatSpecificOptions></Configuration>"
+    },
+    {
+      "case_id": "DbFileInput-xlsx-cell-range",
+      "axis": "Configuration/File",
+      "scenario": "Read an explicit cell range",
+      "inputs": [],
+      "configuration_xml": "<Configuration><File FileFormat=\"25\">{dataset:input-workbook}|||Data$A1:B4</File><Passwords/><FormatSpecificOptions><FirstRowData>False</FirstRowData></FormatSpecificOptions></Configuration>"
+    },
+    {
+      "case_id": "DbFileInput-xlsx-named-range",
+      "axis": "Configuration/File",
+      "scenario": "Read a named range",
+      "inputs": [],
+      "configuration_xml": "<Configuration><File FileFormat=\"25\">{dataset:input-workbook}|||CurrentSlice</File><Passwords/><FormatSpecificOptions><FirstRowData>False</FirstRowData></FormatSpecificOptions></Configuration>"
+    }
+  ],
+  "sensitivity_pairs": [
+    ["DbFileInput-xlsx-second-sheet", "DbFileInput-xlsx-cell-range"],
+    ["DbFileInput-xlsx-second-sheet", "DbFileInput-xlsx-named-range"]
+  ]
+}

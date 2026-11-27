@@ -1,0 +1,23 @@
+{
+  "tool_type": "Sort",
+  "dataset_id": "D03",
+  "cases": [
+    {
+      "case_id": "Sort-ascii-ascending",
+      "axis": "Configuration/SortInfo/Field/@order",
+      "scenario": "Ascending without locale collation",
+      "configuration_xml": "<Configuration><SortInfo locale=\"0\"><Field field=\"text\" order=\"Ascending\"/></SortInfo></Configuration>"
+    },
+    {
+      "case_id": "Sort-ascii-descending",
+      "axis": "Configuration/SortInfo/Field/@order",
+      "scenario": "Descending without locale collation",
+      "configuration_xml": "<Configuration><SortInfo locale=\"0\"><Field field=\"text\" order=\"Descending\"/></SortInfo></Configuration>"
+    }
+  ],
+  "sensitivity_pairs": [["Sort-ascii-ascending", "Sort-ascii-descending"]],
+  "negative_schema_failure": {
+    "message": "Compare the tool configuration with the input stream",
+    "failed_cases": ["Sort-ascii-ascending", "Sort-ascii-descending"]
+  }
+}

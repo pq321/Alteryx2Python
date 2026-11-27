@@ -1,0 +1,274 @@
+{
+  "tool_type": "MacroInput",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Abbrev": {
+      "observed": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F",
+        "I",
+        "N",
+        "New",
+        "P",
+        "S",
+        "c"
+      ],
+      "declared": []
+    },
+    "Configuration/FileInput": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/File": {
+      "observed": [
+        "M1Template.yxdb"
+      ],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/File/@FileFormat": {
+      "observed": [
+        "19"
+      ],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/File/@OutputFileName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/File/@RecordLimit": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/File/@SearchSubDirs": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FileInput/Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Name": {
+      "observed": [
+        "Actual",
+        "Competitor Locations",
+        "Credentials",
+        "Customers",
+        "Data",
+        "Demand",
+        "Demand Locations",
+        "Demand Surface",
+        "DemandSurface",
+        "Detail After",
+        "Detail Before",
+        "Existing Locations",
+        "Expected",
+        "Field Input",
+        "Field Selection",
+        "Fields",
+        "Input",
+        "Input Fields",
+        "Input1",
+        "Input11",
+        "Input111",
+        "Input120",
+        "Input125",
+        "Input14",
+        "Input19",
+        "Input2",
+        "Input24",
+        "Input28",
+        "Input47",
+        "Input5",
+        "Input58",
+        "Input75",
+        "Input8",
+        "Macro Input",
+        "New",
+        "NewLocations",
+        "Potential Locations",
+        "Report Layout",
+        "Stores",
+        "Supply",
+        "SupplyLocations"
+      ],
+      "declared": []
+    },
+    "Configuration/Optional": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Optional/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ShowFieldMap": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ShowFieldMap/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/TextInput": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration/Fields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration/Fields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration/Fields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration/NumRows": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/TextInput/Configuration/NumRows/@value": {
+      "observed": [
+        "0",
+        "1",
+        "10",
+        "100",
+        "101",
+        "11",
+        "12",
+        "15",
+        "16",
+        "1864",
+        "19",
+        "191",
+        "2",
+        "2191",
+        "3",
+        "3294",
+        "3295",
+        "501",
+        "6",
+        "7"
+      ],
+      "declared": []
+    },
+    "Configuration/UseFileInput": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UseFileInput/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/01 Tutorials/05 Intro to Macros/51 Understanding a Designer Standard Macro.yxmc",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/MacroInput_Output.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/Iterative_Supply_and_Demand.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityOptimizer.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinDistanceOptimizer.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_RemoveNullFields.yxmc",
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/CountRecords.yxmc",
+    "bin/RuntimeData/Macros/Date_Filter.yxmc",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAllFieldMacro.yxmc",
+    "bin/RuntimeData/Macros/PearsonCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Pipe_to_Table.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_unit-interval.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_z-score.yxmc",
+    "bin/RuntimeData/Macros/RandomRecords.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/Supporting_Macros/FoursquareDownloadWithRetries.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldNumericMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Build_Data_Table.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.HTTPQuery_iter.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Access_Token.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Google_Analytics.Prep_Query_String.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/MarketoAppend.iterate.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTime.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTimeBatch.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.errorCheck.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.MacroInput.MacroInput": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxMacroInput"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

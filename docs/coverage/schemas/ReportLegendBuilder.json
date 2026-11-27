@@ -1,0 +1,132 @@
+{
+  "tool_type": "ReportLegendBuilder",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "Image",
+        "ImageStyle",
+        "Legend",
+        "Text",
+        "TextStyle"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/Image Field": {
+      "observed": [
+        "Image"
+      ],
+      "declared": []
+    },
+    "Questions/Image Style Field": {
+      "observed": [
+        "ImageStyle"
+      ],
+      "declared": []
+    },
+    "Questions/Text Field": {
+      "observed": [
+        "Text"
+      ],
+      "declared": []
+    },
+    "Questions/Text Style Field": {
+      "observed": [
+        "TextStyle"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Map_Legend_Splitter_Builder.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc": [
+      {
+        "name": "Text Field",
+        "kind": "DropDown",
+        "default": "Text",
+        "required": false,
+        "choices": [],
+        "node_id": "57",
+        "minimum": "",
+        "maximum": "",
+        "description": "Text Field"
+      },
+      {
+        "name": "Image Field",
+        "kind": "DropDown",
+        "default": "Image",
+        "required": false,
+        "choices": [],
+        "node_id": "58",
+        "minimum": "",
+        "maximum": "",
+        "description": "Image Field"
+      },
+      {
+        "name": "Text Style Field",
+        "kind": "DropDown",
+        "default": "TextStyle",
+        "required": false,
+        "choices": [],
+        "node_id": "59",
+        "minimum": "",
+        "maximum": "",
+        "description": "Text Style Field"
+      },
+      {
+        "name": "Image Style Field",
+        "kind": "DropDown",
+        "default": "ImageStyle",
+        "required": false,
+        "choices": [],
+        "node_id": "60",
+        "minimum": "",
+        "maximum": "",
+        "description": "Image Style Field"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "10/FormulaFields/FormulaField[@field='zzzImage']/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "10/FormulaFields/FormulaField[@field='zzzText']/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "10/FormulaFields/FormulaField[@field='zzzImageStyle']/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "10/FormulaFields/FormulaField[@field='zzzTextStyle']/@expression"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

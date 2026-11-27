@@ -1,0 +1,37 @@
+{
+  "tool_type": "FieldInfo",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Field_Info.yxmd",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAndCompare.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAndCompare.yxmd",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTime.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.FieldInfo.FieldInfo": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxFieldInfo"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "tool_type": "AppendFields",
+  "category": "Join",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CartesianMode": {
+      "observed": [
+        "Allow",
+        "Error"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/@outputConnection": {
+      "observed": [
+        "Output"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/CommaDecimal": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/CommaDecimal/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/OrderChanged": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/OrderChanged/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@input": {
+      "observed": [
+        "Source_",
+        "Target_"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@rename": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@size": {
+      "observed": [
+        "255"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@type": {
+      "observed": [
+        "String"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Append.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/03 Assign_supply_to_demand.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_FileFinder.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/03 Measure_the_quality_of_data.yxmd",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/PearsonCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTime.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.AppendFields.AppendFields": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxAppendFields"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

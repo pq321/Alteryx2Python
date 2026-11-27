@@ -686,29 +686,23 @@ def render_io_utils_py(
         ).strip()
     )
 
+    from alteryx2python.tools.csv_input import read_delimited_file
+    from alteryx2python.tools.dbfileinput import read_excel_data
+    from alteryx2python.tools.dbfileoutput import write_delimited_table, write_xlsx
+    from alteryx2python.yxdb_file import read_yxdb_frame
+
+    io_linker = SourceLinker()
+    csv_reader = io_linker.function(read_delimited_file)
+    excel_reader = io_linker.function(read_excel_data)
+    yxdb_reader = io_linker.function(read_yxdb_frame)
+    csv_writer = io_linker.function(write_delimited_table)
+    excel_writer = io_linker.function(write_xlsx)
+    sections.append(io_linker.render().removeprefix("from __future__ import annotations\n").strip())
+
     # Delimited & Excel readers
     sections.append(
         textwrap.dedent(
             '''
-            def _detect_legacy_encoding(sample: bytes, decode_error: UnicodeDecodeError, source: Path) -> str:
-                from charset_normalizer import from_bytes
-
-                if len(sample) == 65536 and b"\\n" in sample:
-                    sample = sample.rsplit(b"\\n", 1)[0]
-                if sample.isascii():
-                    sample = decode_error.object[max(0, decode_error.start - 1024) : decode_error.start + 4096]
-                matches = list(from_bytes(sample, cp_isolation=["cp932", "gb18030", "big5", "cp949", "cp1251", "cp1252"]))
-                if matches:
-                    best = matches[0]
-                    ambiguous = any(
-                        str(m) != str(best) and m.chaos - best.chaos < 0.02 and (best.coherence - m.coherence < 0.1)
-                        for m in matches[1:]
-                    )
-                    if not ambiguous:
-                        return str(best.encoding)
-                raise ValueError(f"Cannot determine CSV encoding for {source}") from decode_error
-
-
             def read_input_table(config: dict, key: str, *, audit=None, tool_label: str = "") -> pd.DataFrame:
                 t0 = time.perf_counter()
                 entry = config["inputs"][key]
@@ -719,47 +713,21 @@ def render_io_utils_py(
                 skiprows = int(entry.get("skip_rows", 0))
                 nrows = entry.get("max_rows")
 
-                if fmt == "excel":
-                    kwargs: dict = {
-                        "header": header,
-                        "skiprows": skiprows,
-                        "dtype": object,
-                        "keep_default_na": False,
-                        "na_values": [""],
-                    }
-                    if nrows is not None:
-                        kwargs["nrows"] = int(nrows)
-                    if "sheet_name" in entry:
-                        kwargs["sheet_name"] = entry["sheet_name"]
-                    if "usecols" in entry:
-                        kwargs["usecols"] = entry["usecols"]
-                    df = pd.read_excel(path, **kwargs).infer_objects()
+                if fmt == "yxdb":
+                    df = _read_yxdb(path, limit=nrows)
+                elif fmt == "excel":
+                    df = _read_excel(
+                        path, header=header, skiprows=skiprows, nrows=nrows,
+                        sheet_name=entry.get("sheet_name", 0), usecols=entry.get("usecols"),
+                        defined_name=entry.get("defined_name"), sheet_list=entry.get("sheet_list", False),
+                    )
                 else:
-                    delimiter = str(entry.get("delimiter", ","))
-                    encoding = entry.get("encoding")
-                    csv_opts: dict = {"sep": delimiter, "header": header, "skiprows": skiprows}
-                    if nrows is not None:
-                        csv_opts["nrows"] = int(nrows)
-                    if encoding == "cp932":
-                        df = pd.read_csv(path, encoding=encoding, dtype=str, keep_default_na=False, na_values=[""], **csv_opts)
-                    elif encoding not in {None, "", "utf-8", "utf-8-sig", "utf8"}:
-                        df = pd.read_csv(path, encoding=encoding, **csv_opts)
-                    else:
-                        with open(path, "rb") as handle:
-                            prefix = handle.read(4)
-                        if prefix.startswith((codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)):
-                            df = pd.read_csv(path, encoding="utf-32", **csv_opts)
-                        elif prefix.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)):
-                            df = pd.read_csv(path, encoding="utf-16", **csv_opts)
-                        else:
-                            try:
-                                df = pd.read_csv(path, encoding="utf-8-sig", **csv_opts)
-                            except UnicodeDecodeError as err:
-                                with open(path, "rb") as handle:
-                                    detected = _detect_legacy_encoding(handle.read(65536), err, path)
-                                df = pd.read_csv(path, encoding=detected, dtype=str, keep_default_na=False, na_values=[""], **csv_opts)
+                    df = _read_csv(
+                        path, encoding=entry.get("encoding") or None, sep=entry.get("delimiter", ","),
+                        header=header, skiprows=skiprows, nrows=nrows,
+                    )
 
-                if not has_header:
+                if not has_header and not entry.get("sheet_list"):
                     df.columns = [f"F{idx}" for idx in range(1, len(df.columns) + 1)]
                 if audit is not None:
                     audit.record_io("input", key, tool_label, df, path, (time.perf_counter() - t0) * 1000.0)
@@ -820,18 +788,6 @@ def render_io_utils_py(
     # Output writer
     writer_code = textwrap.dedent(
         '''
-        def _format_compat_cell(value: object) -> str:
-            if value is None or (not isinstance(value, str) and pd.isna(value)):
-                return ""
-            if isinstance(value, pd.Timestamp):
-                if value.hour == 0 and value.minute == 0 and value.second == 0 and value.microsecond == 0:
-                    return value.date().isoformat()
-                return str(value)
-            if isinstance(value, float) and value == int(value) and abs(value) < 1e15:
-                return str(int(value))
-            return str(value)
-
-
         def _write_output_impl(out_df: pd.DataFrame, config: dict, entry: dict) -> Path:
             fmt = entry.get("format", "csv")
 
@@ -840,8 +796,7 @@ def render_io_utils_py(
                 path.parent.mkdir(parents=True, exist_ok=True)
                 sheet_name = str(entry.get("sheet_name") or "Sheet1")
                 has_header = bool(entry.get("has_header", True))
-                with pd.ExcelWriter(path, engine="openpyxl") as writer:
-                    out_df.to_excel(writer, sheet_name=sheet_name, index=False, header=has_header)
+                _write_excel(path, out_df, sheet_name, header=has_header)
                 return path
         '''
     ).strip()
@@ -898,21 +853,8 @@ def render_io_utils_py(
             encoding = str(entry.get("encoding", "utf-8"))
             has_header = bool(entry.get("has_header", True))
             line_terminator = str(entry.get("line_terminator", "\\n"))
-            rendered = out_df.astype(object)
-            for idx in range(len(rendered.columns)):
-                rendered.iloc[:, idx] = [_format_compat_cell(v) for v in rendered.iloc[:, idx]]
-            if not has_header and len(rendered.columns) == 1:
-                values = [str(v) for v in rendered.iloc[:, 0]]
-                path.write_text(line_terminator.join(values) + line_terminator, encoding=encoding, newline="")
-            else:
-                rendered.to_csv(
-                    path,
-                    index=False,
-                    header=has_header,
-                    sep=delimiter,
-                    lineterminator=line_terminator,
-                    encoding=encoding,
-                )
+            _write_csv(path, out_df, header=has_header, delimiter=delimiter,
+                       line_ending=line_terminator, encoding=encoding, midnight_as_date=True)
             return path
             '''
         ).strip(),
@@ -1162,7 +1104,11 @@ def render_io_utils_py(
             ).strip()
         )
 
-    return "\n\n\n".join(sections) + "\n"
+    return ("\n\n\n".join(sections) + "\n").replace(
+        "_read_yxdb(path", f"{yxdb_reader}(path",
+    ).replace("_read_excel(", f"{excel_reader}(").replace("_read_csv(", f"{csv_reader}(").replace(
+        "_write_csv(path", f"{csv_writer}(path",
+    ).replace("_write_excel(path", f"{excel_writer}(path")
 
 
 def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:

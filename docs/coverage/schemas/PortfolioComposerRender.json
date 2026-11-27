@@ -1,0 +1,311 @@
+{
+  "tool_type": "PortfolioComposerRender",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BatchMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BatchMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/DataField": {
+      "observed": [
+        "Chart",
+        "Community",
+        "Layout",
+        "Map",
+        "Table",
+        "Text",
+        "Value"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultStyles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@FontName": {
+      "observed": [
+        "Arial",
+        "Verdana"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@FontSize": {
+      "observed": [
+        "14"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@ForeColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@Justify": {
+      "observed": [
+        "Left"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@Locale": {
+      "observed": [
+        "1033"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultStyles/Style/@Name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EmbedDependencies": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EmbedDependencies/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FilenameModifier": {
+      "observed": [
+        "Prepend"
+      ],
+      "declared": []
+    },
+    "Configuration/FooterField": {
+      "observed": [
+        "Footer"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupField": {
+      "observed": [
+        "Name"
+      ],
+      "declared": []
+    },
+    "Configuration/HeaderField": {
+      "observed": [
+        "Header"
+      ],
+      "declared": []
+    },
+    "Configuration/HeaderFooterEdge": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/HeaderFooterEdge/@Distance": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/OnFirstPage": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OnFirstPage/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputFile": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PNGBackColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PNGBackColor/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PNGLargerAction": {
+      "observed": [
+        "squeeze"
+      ],
+      "declared": []
+    },
+    "Configuration/PNGLargerThanPageChoice": {
+      "observed": [
+        "ignore",
+        "warning"
+      ],
+      "declared": []
+    },
+    "Configuration/PNGResolution": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/PNGTransparentBG": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PNGTransparentBG/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PaperType/@Bottom": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType/@Height": {
+      "observed": [
+        "792"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType/@Left": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType/@Right": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType/@Top": {
+      "observed": [
+        "36"
+      ],
+      "declared": []
+    },
+    "Configuration/PaperType/@Width": {
+      "observed": [
+        "612"
+      ],
+      "declared": []
+    },
+    "Configuration/PdfCefOutput": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PdfCefOutput/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/PortraitMode": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/PortraitMode/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Separator": {
+      "observed": [
+        "Breaking",
+        "Continuous"
+      ],
+      "declared": []
+    },
+    "Configuration/ShowFooter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ShowFooter/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ShowHeader": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ShowHeader/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/TempFileType": {
+      "observed": [
+        "docx",
+        "html",
+        "pcxml",
+        "pdf",
+        "png"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Make Columns.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Render.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Footer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Header.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/File_Browse.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/07 Find_closest_customers_to_a_store.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/04 Map_customers_by_store.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/05 Create_a_heat_map_for_purchase_data.yxmd",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "Samples/en/05 Advanced/04 Map_trade_areas_2.yxmd",
+    "Samples/en/05 Advanced/04 Report opioid epidemic trends by year.yxmd",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/07 Smooth_spatial_objects_on_a_map.yxmd",
+    "Samples/en/05 Advanced/10 Create_tables_from_unicode_data.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd"
+  ],
+  "engine_bindings": {
+    "PortfolioPluginsGui.ComposerRender.PortfolioComposerRender": {
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "AlteryxPortfolioComposerRenderPlugin"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

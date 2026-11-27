@@ -79,14 +79,14 @@ def _line_ending(config: dict[str, Any]) -> str:
     return "\r\n"
 
 
-def _format_cell(value: Any, date_only: bool = False) -> str:
+def _format_cell(value: Any, date_only: bool = False) -> str | None:
     """Format a value the way the native CSV writer renders it.
 
     Alteryx writes integral doubles without a trailing ".0" (3.0 -> "3") and
     renders nulls as empty cells.
     """
     if value is None or (not isinstance(value, str) and pd.isna(value)):
-        return ""
+        return None
     if date_only and isinstance(value, pd.Timestamp):
         return value.date().isoformat()
     if isinstance(value, float) and value == int(value) and abs(value) < 1e15:
@@ -106,23 +106,41 @@ def delimited_output_options(config):
     delimiter = _format_option(config, "Delimeter", ",") or ","
     line_ending = _line_ending(config)
     code_page = _format_option(config, "CodePage", "28591")
-    encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
+    encoding = {"65001": "utf-8-sig" if _format_option(config, "WriteBOM", "False").lower() == "true" else "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
     return header, delimiter, line_ending, encoding
 
 
-def write_delimited_frame(path, output_frame, header, delimiter, line_ending, encoding):
-    date_columns = _date_columns(output_frame)
+def write_delimited_table(path, frame, *, header, delimiter, line_ending, encoding, midnight_as_date=False):
+    date_columns = _date_columns(frame)
     ensure_output_directory(path.parent)
-    if not header and len(output_frame.columns) == 1:
-        date_only = output_frame.columns[0] in date_columns
-        values = [_format_cell(value, date_only) for value in output_frame.iloc[:, 0]]
-        path.write_text(line_ending.join(values) + line_ending, encoding=encoding, newline="")
-        return
 
-    rendered = output_frame.astype(object)
-    for index, column in enumerate(rendered.columns):
-        rendered.iloc[:, index] = [_format_cell(value, column in date_columns) for value in rendered.iloc[:, index]]
-    rendered.to_csv(path, index=False, header=header, sep=delimiter, lineterminator=line_ending, encoding=encoding)
+    def format_value(value, column):
+        date_only = column in date_columns
+        if midnight_as_date and isinstance(value, pd.Timestamp) and value == value.normalize():
+            date_only = True
+        return _format_cell(value, date_only)
+
+    def csv_field(value):
+        if value is None:
+            return ""
+        if value == "" or delimiter in value or any(mark in value for mark in '"\r\n'):
+            return '"' + value.replace('"', '""') + '"'
+        return value
+
+    with path.open("w", encoding=encoding, newline="") as stream:
+        if header:
+            stream.write(delimiter.join(csv_field(str(column)) for column in frame.columns) + line_ending)
+        if not header and len(frame.columns) == 1:
+            values = (format_value(value, frame.columns[0]) or "" for value in frame.iloc[:, 0])
+            stream.write(line_ending.join(values) + line_ending)
+            return
+        for row in frame.itertuples(index=False, name=None):
+            fields = (csv_field(format_value(value, column)) for column, value in zip(frame.columns, row))
+            stream.write(delimiter.join(fields) + line_ending)
+
+
+def write_delimited_frame(path, output_frame, header, delimiter, line_ending, encoding):
+    write_delimited_table(path, output_frame, header=header, delimiter=delimiter, line_ending=line_ending, encoding=encoding)
 
 
 def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[str, Any]) -> None:
@@ -131,7 +149,9 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
 
 def write_xlsx(path, frame, sheet="Sheet1", *, header=True):
     ensure_output_directory(path.parent)
-    frame.to_excel(path, sheet_name=sheet, index=False, header=header, engine="openpyxl")
+    frame.map(lambda value: value.replace("\r\n", "\n") if isinstance(value, str) else value).to_excel(
+        path, sheet_name=sheet, index=False, header=header, engine="openpyxl",
+    )
 
 
 def xlsx_output_options(config, selector):

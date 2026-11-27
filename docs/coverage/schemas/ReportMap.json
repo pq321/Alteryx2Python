@@ -1,0 +1,684 @@
+{
+  "tool_type": "ReportMap",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/BackgroundColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataConnections": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/Connection": {
+      "observed": [
+        "Points",
+        "Trade Area"
+      ],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/ConnectionType": {
+      "observed": [
+        "IncomingConnection"
+      ],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/FileName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/GroupField": {
+      "observed": [
+        "Region"
+      ],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/LabelField": {
+      "observed": [
+        "Drunk Count",
+        "Label",
+        "MapLabelField",
+        "Store Num",
+        "Tile_Name"
+      ],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/SpatialObj": {
+      "observed": [
+        "Centroid",
+        "SpatialObj",
+        "SpatialObject_TradeArea",
+        "Store Point",
+        "TradeArea",
+        "ZIPSpatialObj"
+      ],
+      "declared": []
+    },
+    "Configuration/DataConnections/DataConnection/ThemeField": {
+      "observed": [
+        "County",
+        "Drunk Count",
+        "Location Type",
+        "Name",
+        "PetsInHH",
+        "StoreNum",
+        "Sum_Average FEMA Inspected Damage",
+        "Sum_Valid Registrations",
+        "Tile_Name",
+        "Tile_Num",
+        "Total Sales",
+        "mag",
+        "purchase_Sum"
+      ],
+      "declared": []
+    },
+    "Configuration/DropShadow": {
+      "observed": [
+        "False",
+        "Map"
+      ],
+      "declared": []
+    },
+    "Configuration/ExpandExtent": {
+      "observed": [
+        "0",
+        "10"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageHeight": {
+      "observed": [
+        "4",
+        "5",
+        "6",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageResolution": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/ImageWidth": {
+      "observed": [
+        "10",
+        "4",
+        "6",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/IsMetric": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/IsMetric/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/@order": {
+      "observed": [
+        "0",
+        "1",
+        "1001",
+        "1002",
+        "1003",
+        "1004",
+        "1005",
+        "1006",
+        "1007",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/DataConnection": {
+      "observed": [
+        "Points",
+        "Trade Area"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/Disable": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/Disable/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/DisplayName": {
+      "observed": [
+        "Above 8",
+        "Above Average",
+        "Above a",
+        "Adams County",
+        "Arapahoe County",
+        "Average",
+        "Base Layers - Lines",
+        "Base Layers - Points",
+        "Base Layers - Polygons",
+        "Below 2",
+        "Below Average",
+        "Below d",
+        "Boulder County",
+        "Broomfield County",
+        "Counties for background",
+        "Denver County",
+        "Douglas County",
+        "Drunk Drivers",
+        "FEMA Registrations",
+        "Fatalities",
+        "Heat",
+        "High",
+        "Jefferson County",
+        "Low",
+        "Magnitude",
+        "NJ Counties",
+        "Original",
+        "Points",
+        "Purchase Sum",
+        "Purchases",
+        "Result",
+        "Selected Counties",
+        "Store Location",
+        "Store Locations",
+        "Store Number",
+        "Store Point",
+        "Store Zips by Pets in HH",
+        "Stores",
+        "Theme Band 4",
+        "Total Customer Trade Area",
+        "Trade Area",
+        "ZIP Codes",
+        "b to a",
+        "c to b",
+        "d to c"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Angle": {
+      "observed": [
+        "45"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@BackgroundColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Buffer": {
+      "observed": [
+        "2",
+        "4"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Disabled": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Font": {
+      "observed": [
+        "Arial",
+        "Arial Bold"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@Force": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@OutlineColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@OutlineSize": {
+      "observed": [
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LabelStyle/@WrapCharacter": {
+      "observed": [
+        "-"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LayerType": {
+      "observed": [
+        "Lines",
+        "Placeholder",
+        "Points",
+        "Polygons"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@Color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@Opacity": {
+      "observed": [
+        "50"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@OverlayColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@OverlaySize": {
+      "observed": [
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@Size": {
+      "observed": [
+        "1",
+        "4"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/LineStyle/@UseOverlay": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ParentLayer": {
+      "observed": [
+        "1",
+        "3",
+        "6",
+        "7"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle/@Color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle/@OutlineColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle/@OutlineSize": {
+      "observed": [
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle/@Size": {
+      "observed": [
+        "10",
+        "12",
+        "14",
+        "6",
+        "7",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PointStyle/@StockPointStyle": {
+      "observed": [
+        "circle",
+        "diamond"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@FillColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@HatchColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@HatchStyle": {
+      "observed": [
+        "single"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@Hatched": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@Opacity": {
+      "observed": [
+        "100",
+        "50",
+        "75"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@OutlineColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@OutlineSize": {
+      "observed": [
+        "0",
+        "1",
+        "2",
+        "3"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/PolygonStyle/@UseFillColor": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ShowInLegend": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ShowInLegend/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ShowLabel": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ShowLabel/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeBandNumber": {
+      "observed": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@ColorMethod": {
+      "observed": [
+        "Map",
+        "Ramp"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@EndColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@ManualTiles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@NoneSpecificValuesAction": {
+      "observed": [
+        "Color",
+        "Hide"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@NumTiles": {
+      "observed": [
+        "3",
+        "5",
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@SpecificValues": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@StartColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@TileMethod": {
+      "observed": [
+        "EqualRecords",
+        "IndividualValue",
+        "ManualTile",
+        "SmartTile"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@UniqueColors": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@UpperCutoffIncludedExcluded": {
+      "observed": [
+        "Excluded",
+        "Included"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ThemeStyle/@UpperCuttoffIncludedExcluded": {
+      "observed": [
+        "Included"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ZoomToLayer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/ZoomToLayer/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/baseLabelOverriden": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/baseLabelOverriden/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isBaseLayer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isBaseLayer/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isReorderedBaseLayer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isReorderedBaseLayer/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isRestlyedBaseLayer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isRestlyedBaseLayer/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isThemeLayer": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Layers/Layer/isThemeLayer/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Legend": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Legend/LegendStyle": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Legend/LegendStyle/@BackgroundColor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Legend/LegendStyle/@Position": {
+      "observed": [
+        "Field",
+        "None",
+        "Right"
+      ],
+      "declared": []
+    },
+    "Configuration/Legend/LegendStyle/@UseCommaSeparators": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/MinimumWidth": {
+      "observed": [
+        "0.5"
+      ],
+      "declared": []
+    },
+    "Configuration/ReferenceMap": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ScaleUnits": {
+      "observed": [
+        "Miles"
+      ],
+      "declared": []
+    },
+    "Configuration/TemporaryFileLocationXML": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Make Columns.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Map_Legend_Splitter_Builder.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Map.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Heat_Map.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/04 Map_customers_by_store.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/05 Create_a_heat_map_for_purchase_data.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "Samples/en/05 Advanced/04 Map_trade_areas_2.yxmd",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "Samples/en/05 Advanced/05 Overlay_a_zip_code_map_1.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/07 Smooth_spatial_objects_on_a_map.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxSpatialPluginsGui.ReportMap.ReportMap": {
+      "dll": "bin/Plugins/AlteryxSpatialPluginsEngine.dll",
+      "sha256": "4d5be8c6bb1afbe24b82b028a601274a62ba4c76214fd6b83b32cf24652c95f3",
+      "entry_point": "AlteryxReportMap"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

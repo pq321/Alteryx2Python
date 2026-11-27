@@ -1,0 +1,92 @@
+{
+  "tool_type": "Message",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Filter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MessageExpression": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Priority": {
+      "observed": [
+        "High",
+        "Medium",
+        "Normal"
+      ],
+      "declared": []
+    },
+    "Configuration/Transient": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Type": {
+      "observed": [
+        "Error",
+        "ErrorStop",
+        "FileInput",
+        "Message",
+        "Warning"
+      ],
+      "declared": []
+    },
+    "Configuration/When": {
+      "observed": [
+        "All",
+        "Filter",
+        "First",
+        "Last"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/08 Documentation/Tool Container.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Block_Until_Done.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/ControlContainer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Message.yxmd",
+    "Samples/en/05 Advanced/03 Measure_the_quality_of_data.yxmd",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Social Media/Supporting_Macros/FoursquareDownloadWithRetries.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_1output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_2outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_3outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_4outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_5outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.errorCheck.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Message.Message": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxMessage"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,155 @@
+{
+  "tool_type": "MultiFieldBinning",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "2",
+        "3",
+        "5",
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/List Box (297)": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/Numeric Up Down (298)": {
+      "observed": [
+        "5"
+      ],
+      "declared": []
+    },
+    "Questions/Numeric Up Down (300)": {
+      "observed": [
+        "5"
+      ],
+      "declared": []
+    },
+    "Questions/Radio Button (299)": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/Radio Button (301)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Multi-Field_Binning.yxmd",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc": [
+      {
+        "name": "List Box (297)",
+        "kind": "ListBox",
+        "default": "",
+        "required": false,
+        "choices": [],
+        "node_id": "297",
+        "minimum": "",
+        "maximum": "",
+        "description": "Select fields for binning (only numeric fields are shown)"
+      },
+      {
+        "name": "Radio Button (299)",
+        "kind": "RadioGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "299",
+        "minimum": "",
+        "maximum": "",
+        "description": "Equal Records"
+      },
+      {
+        "name": "Numeric Up Down (298)",
+        "kind": "NumericUpDown",
+        "default": "5",
+        "required": false,
+        "choices": [],
+        "node_id": "298",
+        "minimum": "0",
+        "maximum": "1000",
+        "description": "Number of Tiles (max of 1,000)"
+      },
+      {
+        "name": "Radio Button (301)",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "301",
+        "minimum": "",
+        "maximum": "",
+        "description": "Equal Intervals"
+      },
+      {
+        "name": "Numeric Up Down (300)",
+        "kind": "NumericUpDown",
+        "default": "5",
+        "required": false,
+        "choices": [],
+        "node_id": "300",
+        "minimum": "0",
+        "maximum": "1000",
+        "description": "Number of Tiles (max of 1,000)"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": null
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": null
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "207/EqualRecords/NumTiles/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "215/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "215/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "327/FormulaFields/FormulaField[@field='Interval']/@expression"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

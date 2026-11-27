@@ -1,0 +1,45 @@
+{
+  "tool_type": "QuestionTextBox",
+  "category": "Interface",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Text_Box.yxwz",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/compare_E1vsAMP.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_1output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_2outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_3outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_4outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_5outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldNumericMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Prep_Date_Range.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.errorCheck.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

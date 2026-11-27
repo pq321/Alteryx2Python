@@ -1,0 +1,79 @@
+{
+  "tool_type": "Unique",
+  "category": "Preparation",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueFields/Field/@field": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Unique",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "U"
+      },
+      {
+        "Name": "Duplicates",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "D"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Unique.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.Unique.Unique/AlteryxBasePluginsGui.Unique.UniqueConfig.xml",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Unique.Unique": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxUnique",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxUnique"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

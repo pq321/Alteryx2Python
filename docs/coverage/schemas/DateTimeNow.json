@@ -1,0 +1,49 @@
+{
+  "tool_type": "DateTimeNow",
+  "category": "In/Out",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "English",
+        "yyyy-MM-dd"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Output": [
+      {
+        "Name": "DTN",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": ""
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/DateTimeNow.yxmd",
+    "bin/HtmlPlugins/DateTimeNow/DateTimeNowConfig.xml"
+  ],
+  "engine_bindings": {
+    "DateTimeNow": {
+      "EngineDllEntryPoint": "DateTimeNow\\Supporting_Macros\\DTNEngine.yxmc",
+      "EngineDll": "Macro",
+      "SDKVersion": "10.1"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

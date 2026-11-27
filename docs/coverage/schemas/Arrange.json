@@ -1,0 +1,74 @@
+{
+  "tool_type": "Arrange",
+  "category": "Transform",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeyFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeyFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/KeyFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeyFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputFields/Columns": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputFields/Columns/Column": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputFields/Columns/Column/@context": {
+      "observed": [
+        "Take from Descriptions"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputFields/Columns/Column/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputFields/Columns/Column/@type": {
+      "observed": [
+        "combobox",
+        "text"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Arrange.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Arrange.Arrange": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxArrange"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

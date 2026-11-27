@@ -1,0 +1,19 @@
+{
+  "tool_type": "DbFileOutput",
+  "dataset_id": "D07",
+  "cases": [
+    {
+      "case_id": "DbFileOutput-csv-comma",
+      "axis": "Configuration/FormatSpecificOptions/Delimeter",
+      "scenario": "Comma delimiter",
+      "configuration_xml": "<Configuration><File FileFormat=\"0\">output.csv</File><Passwords/><FormatSpecificOptions><LineEndStyle>CRLF</LineEndStyle><Delimeter>,</Delimeter><HeaderRow>True</HeaderRow><CodePage>65001</CodePage><WriteBOM>True</WriteBOM></FormatSpecificOptions><MultiFile value=\"False\"/></Configuration>"
+    },
+    {
+      "case_id": "DbFileOutput-csv-pipe",
+      "axis": "Configuration/FormatSpecificOptions/Delimeter",
+      "scenario": "Pipe delimiter",
+      "configuration_xml": "<Configuration><File FileFormat=\"0\">output.csv</File><Passwords/><FormatSpecificOptions><LineEndStyle>CRLF</LineEndStyle><Delimeter>|</Delimeter><HeaderRow>True</HeaderRow><CodePage>65001</CodePage><WriteBOM>True</WriteBOM></FormatSpecificOptions><MultiFile value=\"False\"/></Configuration>"
+    }
+  ],
+  "sensitivity_pairs": [["DbFileOutput-csv-comma", "DbFileOutput-csv-pipe"]]
+}

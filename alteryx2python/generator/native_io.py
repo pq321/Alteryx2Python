@@ -20,7 +20,7 @@ from alteryx2python.tools.dbfileinput import (
     excel_selection_options,
     read_excel_data,
 )
-from alteryx2python.tools.dbfileoutput import _date_columns, _format_cell, _format_option, _line_ending, _max_records, delivery_output_path, ensure_output_directory, write_xlsx, xlsx_output_options
+from alteryx2python.tools.dbfileoutput import write_delimited_table, delimited_output_options, _format_option, _line_ending, _max_records, delivery_output_path, ensure_output_directory, write_xlsx, xlsx_output_options
 from alteryx2python.tools.textinput import _infer_types, _normalize_row
 
 
@@ -148,42 +148,24 @@ def _output(config: dict, raw: str, selector: str | None, frame: str, compiler) 
         raise UnsupportedLowering(f"Unsupported DbFileOutput FileFormat: {file_format or path.suffix}")
     if not path.name:
         raise UnsupportedLowering("DbFileOutput requires a filename")
-    header = _format_option(config, "HeaderRow", "True").lower() == "true"
-    delimiter = _format_option(config, "Delimeter", ",") or ","
-    ending = _line_ending(config)
-    code_page = _format_option(config, "CodePage", "28591")
-    encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
+    header, delimiter, ending, encoding = delimited_output_options(config)
     limit = _max_records(config)
-    format_cell = compiler.linker.function(_format_cell)
-    date_columns = compiler.linker.function(_date_columns)
-    ensure_directory = compiler.linker.function(ensure_output_directory)
+    writer = compiler.linker.function(write_delimited_table)
     lines = [
         f"output = {frame}.head({limit!r})" if limit is not None else f"output = {frame}",
         f"path = {destination}",
-        f"{ensure_directory}(path.parent)",
-        f"date_columns = {date_columns}(output)",
     ]
-    if config.get('_file_parameter'):
-        parameter = config['_file_parameter']
-        lines[1:2] = [f'if Path({parameter}).suffix.lower() != {path.suffix.lower()!r}:', '    raise ValueError("File output parameter changes configured format")', f'path = {resolve_output}({parameter}, output_dir, input_dir, use_workflow_output_paths)']
-    write_csv = [
-        "rendered = output.astype(object)",
-        "for index, column in enumerate(rendered.columns):",
-        f"    rendered.iloc[:, index] = [{format_cell}(value, column in date_columns) for value in rendered.iloc[:, index]]",
-        f"rendered.to_csv(path, index=False, header={header!r}, sep={delimiter!r}, "
-        f"lineterminator={ending!r}, encoding={encoding!r})",
+    if config.get("_file_parameter"):
+        parameter = config["_file_parameter"]
+        lines[1:2] = [
+            f'if Path({parameter}).suffix.lower() != {path.suffix.lower()!r}:',
+            '    raise ValueError("File output parameter changes configured format")',
+            f'path = {resolve_output}({parameter}, output_dir, input_dir, use_workflow_output_paths)',
+        ]
+    return lines + [
+        f"{writer}(path, output, header={header!r}, delimiter={delimiter!r}, line_ending={ending!r}, encoding={encoding!r})",
+        "return None",
     ]
-    if not header:
-        lines += [
-            "if len(output.columns) == 1:",
-            "    date_only = output.columns[0] in date_columns",
-            f"    values = [{format_cell}(value, date_only) for value in output.iloc[:, 0]]",
-            f'    path.write_text({ending!r}.join(values) + {ending!r}, encoding={encoding!r}, newline="")',
-            "else:",
-        ] + ["    " + line for line in write_csv]
-    else:
-        lines += write_csv
-    return lines + ["return None"]
 
 
 def lower_io(kind: str, config: dict, frame: str | None, compiler=None) -> list[str] | None:

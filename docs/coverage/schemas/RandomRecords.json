@@ -1,0 +1,186 @@
+{
+  "tool_type": "RandomRecords",
+  "category": "Preparation",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "1",
+        "10",
+        "1000",
+        "15",
+        "458676342",
+        "5",
+        "500",
+        "5000",
+        "99",
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/Deterministic": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/NNumber": {
+      "observed": [
+        "1000"
+      ],
+      "declared": []
+    },
+    "Questions/NPercent": {
+      "observed": [
+        "10"
+      ],
+      "declared": []
+    },
+    "Questions/Number": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Percent": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/Seed": {
+      "observed": [
+        "458676342"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Random % Sample.yxmd",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/RandomRecords.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/RandomRecords.yxmc": [
+      {
+        "name": "Number",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "25",
+        "minimum": "",
+        "maximum": "",
+        "description": "Random N Records"
+      },
+      {
+        "name": "NNumber",
+        "kind": "NumericUpDown",
+        "default": "1000",
+        "required": false,
+        "choices": [],
+        "node_id": "24",
+        "minimum": "1",
+        "maximum": "1000000000",
+        "description": "Number of Records"
+      },
+      {
+        "name": "Percent",
+        "kind": "RadioGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "27",
+        "minimum": "",
+        "maximum": "",
+        "description": "Random N% of Records"
+      },
+      {
+        "name": "NPercent",
+        "kind": "NumericUpDown",
+        "default": "10",
+        "required": false,
+        "choices": [],
+        "node_id": "26",
+        "minimum": "1",
+        "maximum": "99",
+        "description": "Percent of Records"
+      },
+      {
+        "name": "Deterministic",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "29",
+        "minimum": "",
+        "maximum": "",
+        "description": "Deterministic Output"
+      },
+      {
+        "name": "Seed",
+        "kind": "NumericUpDown",
+        "default": "458676342",
+        "required": false,
+        "choices": [],
+        "node_id": "28",
+        "minimum": "1",
+        "maximum": "1000000000",
+        "description": "Random Seed"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/RandomRecords.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "4/N"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "4/Mode"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "4/Mode"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "4/N"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "14/FormulaFields/FormulaField/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "11/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "11/DetourRight/@value"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,86 @@
+{
+  "tool_type": "BlobConvert",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ToBlob": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ToBlob/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/from_Field": {
+      "observed": [
+        "Blob",
+        "FullPath",
+        "Value"
+      ],
+      "declared": []
+    },
+    "Configuration/from_Mode": {
+      "observed": [
+        "Base64",
+        "Hex",
+        "MD5",
+        "ReportSnippet",
+        "Text"
+      ],
+      "declared": []
+    },
+    "Configuration/from_textCodePage": {
+      "observed": [
+        "UTF16"
+      ],
+      "declared": []
+    },
+    "Configuration/to_Field": {
+      "observed": [
+        "Base64_encoded",
+        "Blob",
+        "Field1",
+        "FullPath"
+      ],
+      "declared": []
+    },
+    "Configuration/to_Mode": {
+      "observed": [
+        "Base64",
+        "HEX",
+        "Text"
+      ],
+      "declared": []
+    },
+    "Configuration/to_textCodePage": {
+      "observed": [
+        "UTF16"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Convert.yxmd",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.BlobConvert.BlobConvert": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxBlobConvert"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -108,6 +108,19 @@ def sink_digest(path: Path) -> str:
     return workbook_digest(path) if path.suffix.lower() == ".xlsx" else file_hash(path)
 
 
+def comparable_artifact(path: Path) -> str:
+    """Hash workbook cell contents or the bytes of other output formats."""
+    if path.suffix.lower() not in {".xlsx", ".xlsm"}:
+        return file_hash(path)
+    from alteryx2python.comparison.workbook import trim_workbook_padding, workbook_snapshot
+
+    sheets = [
+        [name, [[[dtype, encode_value(value)] for dtype, value in row] for row in rows]]
+        for name, rows in trim_workbook_padding(workbook_snapshot(path)).items()
+    ]
+    return hashlib.sha256(json.dumps(sheets, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
 def file_artifacts(directory: Path) -> dict:
     return {
         path.relative_to(directory).as_posix(): file_hash(path)

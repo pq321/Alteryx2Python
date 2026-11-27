@@ -1,0 +1,40 @@
+{
+  "tool_type": "CountRecords",
+  "category": "Transform",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Count_Records.yxmd",
+    "bin/RuntimeData/Macros/CountRecords.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Salesforce.dateTime.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/CountRecords.yxmc": []
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/CountRecords.yxmc": []
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

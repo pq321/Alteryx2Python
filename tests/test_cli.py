@@ -242,7 +242,7 @@ def test_cli_run_executes_w1_cleanse_macro_mapping(tmp_path):
     assert report["outputs"]["4"]["Output26"]["columns"] == ["rename_col2", "col1", "col3"]
     assert output_path.read_text(encoding="utf-8").splitlines() == [
         "rename_col2,col1,col3",
-        "3,1,",
+        '3,1,""',
         "4,2,ok",
         "5,3,okay",
     ]

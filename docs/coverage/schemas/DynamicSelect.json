@@ -1,0 +1,59 @@
+{
+  "tool_type": "DynamicSelect",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Expression": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FieldTypes": {
+      "observed": [
+        "Blob",
+        "SpatialObj"
+      ],
+      "declared": []
+    },
+    "Configuration/Mode": {
+      "observed": [
+        "FieldTypes",
+        "Formula"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Drop_Down.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/List_Box.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Dynamic_Select.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_RemoveNullFields.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.DynamicSelect.DynamicSelect": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDynamicSelect"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

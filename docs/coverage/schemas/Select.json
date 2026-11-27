@@ -1,0 +1,235 @@
+{
+  "tool_type": "Select",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CommaDecimal": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CommaDecimal/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/OrderChanged": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OrderChanged/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@description": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@forced": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@rename": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@size": {
+      "observed": [
+        "1",
+        "10",
+        "10.2",
+        "1000",
+        "1024",
+        "11",
+        "1500",
+        "19",
+        "19.2",
+        "2",
+        "20",
+        "2048",
+        "2147483647",
+        "255",
+        "256",
+        "3",
+        "4",
+        "40",
+        "44",
+        "5",
+        "5000",
+        "64",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectFields/SelectField/@type": {
+      "observed": [
+        "Bool",
+        "Date",
+        "DateTime",
+        "Double",
+        "FixedDecimal",
+        "Float",
+        "Int16",
+        "Int32",
+        "Int64",
+        "SpatialObj",
+        "String",
+        "V_String",
+        "V_WString"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/01 Tutorials/02 Transform Data/22 Cleansing Data.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/23 Adding a Column.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/24 Filtering Data.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/31 Joining Data Sources.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/32 Splitting a String Column.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/33 Analyzing Data Based on a Column.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Auto Insights Uploader.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Select.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/DateTime.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Map.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/08 Documentation/Tool Container.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Spatial_Process.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/List_Box.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/21 Calgary/CalgaryLoader.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Convert.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Input.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Blob_Output.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/ControlContainer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/RunCommand.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/26 Computer Vision/Image Recognition.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/10_CFML_Text_Mining.yxmd",
+    "Samples/en/04 Basic/01 Combine 2 Spreadsheets Containing Customer Data.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/04 Basic/02 Normalize_phone_numbers.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/04 Basic/06 Calculate_a_trend_and_sort_data.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/01 Create_service_boundaries.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/03 Assign_supply_to_demand.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_FileFinder.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/Iterative_Supply_and_Demand.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityOptimizer.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinDistanceOptimizer.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_RemoveNullFields.yxmc",
+    "Samples/en/05 Advanced/02 Map a trade area around a store.yxmd",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/03 Find_the_closest_stores_to_customers.yxmd",
+    "Samples/en/05 Advanced/04 Find_all_customers_within_30_miles_of_a_store.yxmd",
+    "Samples/en/05 Advanced/04 Map_trade_areas_2.yxmd",
+    "Samples/en/05 Advanced/04 Normalize_an_Unstructured_XML_File.yxmd",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/06 Calculate_a_trend_and_sort_data.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/07 Measure_the_Vverlap_of_Ad_Coverage.yxmd",
+    "bin/RuntimeData/Macros/Base64_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/DateTimeNow.yxmc",
+    "bin/RuntimeData/Macros/Date_Filter.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/PearsonCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Pipe_to_Table.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Create_Samples.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_unit-interval.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_z-score.yxmc",
+    "bin/RuntimeData/Macros/RandomRecords.yxmc",
+    "bin/RuntimeData/Macros/SelectRecords.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Social Media/Supporting_Macros/FoursquareDownloadWithRetries.yxmc",
+    "bin/RuntimeData/Macros/SpearmanCorrCoeff.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/DataCleansing.MultiFieldNumericMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Build_Data_Table.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.HTTPQuery_iter.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Prep_Date_Range.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Access_Token.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Google_Analytics.Prep_Query_String.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/MarketoAppend.iterate.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc",
+    "bin/RuntimeData/Macros/WeightedAvg.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.AlteryxSelect.AlteryxSelect": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxSelect"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

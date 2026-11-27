@@ -1,0 +1,326 @@
+{
+  "tool_type": "DbFileInput",
+  "category": "In/Out",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/File": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/File/@FileFormat": {
+      "observed": [
+        "0",
+        "14",
+        "15",
+        "19",
+        "2",
+        "21",
+        "25",
+        "37"
+      ],
+      "declared": []
+    },
+    "Configuration/File/@OutputFileName": {
+      "observed": [
+        "FileName",
+        "Path"
+      ],
+      "declared": []
+    },
+    "Configuration/File/@RecordLimit": {
+      "observed": [
+        "10",
+        "1000",
+        "50"
+      ],
+      "declared": []
+    },
+    "Configuration/File/@SearchSubDirs": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/AllStrings": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/AllowLongLines": {
+      "observed": [
+        "Unset"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/AllowShareWrite": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/AllowShortLines": {
+      "observed": [
+        "Unset"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/ChildValues": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/CodePage": {
+      "observed": [
+        "28591"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/Delimeter": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/FieldLen": {
+      "observed": [
+        "100000",
+        "1000000",
+        "1024",
+        "254"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/FirstRowData": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/HeaderRow": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/IgnoreErrors": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/IgnoreQuotes": {
+      "observed": [
+        "DoubleQuotes",
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/ImportLine": {
+      "observed": [
+        "1",
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/LineEndStyle": {
+      "observed": [
+        "Unset"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/NumWarnings": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/OuterXML": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/ParseRoot": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/Path": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/QuoteRecordBreak": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/ReadCentroids": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/SingleThreadRead": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/TrimWhiteSpace": {
+      "observed": [
+        "Unset"
+      ],
+      "declared": []
+    },
+    "Configuration/FormatSpecificOptions/XmlElement": {
+      "observed": [
+        "item"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/01 Tutorials/01 Input and View Data/12 Viewing Data.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/21 Modifying Columns.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/22 Cleansing Data.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/23 Adding a Column.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/24 Filtering Data.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/31 Joining Data Sources.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/32 Splitting a String Column.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/33 Analyzing Data Based on a Column.yxmd",
+    "Samples/en/01 Tutorials/04 Intro to Applications/41 Understanding a Designer Application.yxwz",
+    "Samples/en/01 Tutorials/04 Intro to Applications/42 Build an App.yxwz",
+    "Samples/en/01 Tutorials/04 Intro to Applications/43 Adjust the App Interface.yxwz",
+    "Samples/en/01 Tutorials/05 Intro to Macros/52 Using a Macro.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Browse.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/01 In Out/Input_Data.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Auto_Field.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Formula.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Multi-Field_Formula.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Random % Sample.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Sample.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Select.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Select_Records.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Tile.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Unique.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Append.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/RegEx.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/Text_To_Columns.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/04 Parse/XML_Parse.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Count_Records.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Cross_Tab.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Running_Total.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Summarize.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Map_Legend_Splitter_Builder.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Render.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Map.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Table.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Find_Nearest.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Poly-Split Build.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Spatial_Info.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/09 Spatial/Spatial_Match.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Action.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Drop_Down.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/File_Browse.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/List_Box.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Tree.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/11 Data Investigation/Field_Summary.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/21 Calgary/CalgaryCrossCountAppend.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/21 Calgary/CalgaryJoin.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/21 Calgary/CalgaryLoader.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Dynamic_Input.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Field_Info.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Test.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/01_CFML_SampleWorkflow.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/02_CFML_Sampling.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/03_CFML_LogisticRegression.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/04_CFML_DecisionTree.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/05_CFML_RandomForest.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/06_CFML_XGBoost.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/07_CFML_LinearRegression.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/08_CFML_DecisionTreeRegression.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/09_CFML_RandomForestRegression.yxmd",
+    "Samples/en/03 Learn_one_model_at_a_time/10_CFML_Text_Mining.yxmd",
+    "Samples/en/04 Basic/01 Combine 2 Spreadsheets Containing Customer Data.yxmd",
+    "Samples/en/04 Basic/01 Normalize_a_string_field.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/04 Basic/02 Normalize_phone_numbers.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/04 Basic/05 Analyze a sales pipeline.yxmd",
+    "Samples/en/04 Basic/05 Infer_ZIP_codes_from_latitude_and_longitude.yxmd",
+    "Samples/en/04 Basic/06 Calculate_a_trend_and_sort_data.yxmd",
+    "Samples/en/04 Basic/09 Read_a_FLAT_File.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/02 Convert_file_formats.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/07 Find_closest_customers_to_a_store.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/08 Using_a_tree_with_a_custom_file_database.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/09 Using_a_tree_file_system.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/10 Using_a_tree_with_custom_XML.yxwz",
+    "Samples/en/05 Advanced/01 Create_service_boundaries.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/03 Assign_supply_to_demand.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/04 Map_customers_by_store.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/05 Create_a_heat_map_for_purchase_data.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/08 Optimize_location_by_minimizing_distance.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/09 Optimize_location_with_a_gravity_model.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_FileFinder.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/02 Map a trade area around a store.yxmd",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/03 Find_the_closest_stores_to_customers.yxmd",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "Samples/en/05 Advanced/03 Measure_the_quality_of_data.yxmd",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "Samples/en/05 Advanced/04 Find_all_customers_within_30_miles_of_a_store.yxmd",
+    "Samples/en/05 Advanced/04 Map_trade_areas_2.yxmd",
+    "Samples/en/05 Advanced/04 Normalize_an_Unstructured_XML_File.yxmd",
+    "Samples/en/05 Advanced/04 Report opioid epidemic trends by year.yxmd",
+    "Samples/en/05 Advanced/05 Overlay_a_zip_code_map_1.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/06 Calculate_a_trend_and_sort_data.yxmd",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/06 Overlay_a_zip_code_map_2.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/07 Measure_the_Vverlap_of_Ad_Coverage.yxmd",
+    "Samples/en/05 Advanced/07 Smooth_spatial_objects_on_a_map.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAndCompare.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_SortAndCompare.yxmd",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_1output.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_2outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_3outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_4outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Caching_Input_5outputs.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.DbFileInput.DbFileInput": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDbFileInput"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

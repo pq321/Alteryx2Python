@@ -46,7 +46,6 @@ OBSERVABLE_SINK_TOOLS = frozenset({
     "PortfolioComposerRender",
     "Email",
     "RunCommand",
-    "Message",
     "MacroOutput",
 })
 
@@ -1138,7 +1137,7 @@ class _IROptimizer:
             roots: list[str] = [
                 n.node_id
                 for n in self.workflow.nodes
-                if n.tool_type in OBSERVABLE_SINK_TOOLS
+                if n.tool_type in OBSERVABLE_SINK_TOOLS or n.tool_type == "Message"
                 or (n.tool_type == "ControlContainer" and outgoing.get(n.node_id))
             ]
             # Preserve active containers that guard reachable nodes

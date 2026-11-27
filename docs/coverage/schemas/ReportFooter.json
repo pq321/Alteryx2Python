@@ -1,0 +1,111 @@
+{
+  "tool_type": "ReportFooter",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/CopyrightText": {
+      "observed": [
+        "© [CurrentYear] Alteryx, Inc.  All rights reserved. Alteryx is a registered trademark of Alteryx, Inc."
+      ],
+      "declared": []
+    },
+    "Questions/InfoText": {
+      "observed": [
+        "Alteryx, Inc. - info@alteryx.com - <Link www.alteryx.com|www.alteryx.com>  - 888 836 4274"
+      ],
+      "declared": []
+    },
+    "Questions/PageNumbers": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Render.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Footer.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/FooterMacro.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/FooterMacro.yxmc": [
+      {
+        "name": "CopyrightText",
+        "kind": "TextBox",
+        "default": "© [CurrentYear] Alteryx, Inc.  All rights reserved. Alteryx is a registered trademark of Alteryx, Inc.",
+        "required": false,
+        "choices": [],
+        "node_id": "53",
+        "minimum": "",
+        "maximum": "",
+        "description": "Copyright text:"
+      },
+      {
+        "name": "InfoText",
+        "kind": "TextBox",
+        "default": "Alteryx, Inc. - info@alteryx.com - <Link www.alteryx.com|www.alteryx.com>  - 888 836 4274",
+        "required": false,
+        "choices": [],
+        "node_id": "55",
+        "minimum": "",
+        "maximum": "",
+        "description": "Information text: (Will be shown on the bottom line of the footer, left aligned.)"
+      },
+      {
+        "name": "PageNumbers",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "56",
+        "minimum": "",
+        "maximum": "",
+        "description": "Include page numbers. (Will be shown on the bottom line of the footer, right aligned.)"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/FooterMacro.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "3/RichTextString"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "6/RichTextString"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "8/RichTextString"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

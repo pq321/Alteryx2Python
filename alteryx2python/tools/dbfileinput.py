@@ -121,11 +121,11 @@ def _read_csv(path: Path, config: dict[str, Any]) -> pd.DataFrame:
 def excel_selection_options(selector, options, *, allow_bare=False):
     selector = _clean_selector(selector) or ""
     if selector == "<List of Sheet Names>":
-        raise NotImplementedError("Excel sheet-name list input is not supported yet")
+        return {**options, "sheet_list": True}
     bounds = re.fullmatch(r"(.+?)\$\$?([A-Za-z]+)\$?([1-9]\d*):\$?([A-Za-z]+)\$?([1-9]\d*)", selector)
     if bounds is None:
         if selector and not selector.endswith("$") and not allow_bare:
-            raise NotImplementedError("Named ranges are not supported by DbFileInput yet")
+            return {**options, "defined_name": selector}
         name = selector.removesuffix("$")
         if not name and selector:
             raise ValueError(f"Excel selector requires a worksheet name: {selector!r}")
@@ -143,7 +143,26 @@ def excel_selection_options(selector, options, *, allow_bare=False):
             "skiprows": int(start) - 1 + offset, "nrows": rows if limit is None else min(rows, limit)}
 
 
-def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, **options):
+def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, defined_name=None, sheet_list=False, **options):
+    if defined_name is not None or sheet_list:
+        with pd.ExcelFile(path) as workbook:
+            if sheet_list:
+                return pd.DataFrame({"Sheet Names": workbook.sheet_names})
+            definition = workbook.book.defined_names.get(defined_name)
+            if definition is None:
+                raise ValueError(f"Excel named range does not exist: {defined_name}")
+            destinations = list(definition.destinations)
+            if len(destinations) != 1:
+                raise NotImplementedError("Excel named range must identify one cell range")
+            sheet, bounds = destinations[0]
+            if ":" not in bounds:
+                bounds = f"{bounds}:{bounds}"
+            selection = excel_selection_options(
+                sheet + "$$" + bounds.lstrip("$"),
+                {"header": header, "skiprows": skiprows, **options},
+            )
+        return read_excel_data(path, **selection)
+
     start, stop = 0, None
     if usecols is not None:
         from openpyxl.utils.cell import column_index_from_string
@@ -167,6 +186,8 @@ def read_excel_data(path, *, sheet_name=0, header=0, skiprows=0, usecols=None, *
         # A selected range can include cells beyond the last defined worksheet column.
         frame.columns = range(len(frame.columns))
         frame = frame.reindex(columns=range(start, stop))
+        if options.get("nrows") is not None:
+            frame = frame.reindex(range(options["nrows"]))
     if header == 0:
         frame.columns = fill_excel_blank_headers(frame.columns, labels, start)
     return frame.infer_objects() if "dtype" not in options else frame
@@ -221,7 +242,7 @@ def dbfileinput_tool(
         output.attrs["alteryx_schema"] = schema
     elif file_format == "0" or path.suffix.lower() == ".csv":
         output = _read_csv(path, config)
-    elif file_format == "25" or path.suffix.lower() in {".xlsx", ".xls"}:
+    elif file_format == "25" or path.suffix.lower() in {".xlsx", ".xlsm", ".xls"}:
         output = _read_excel(path, selector, config)
     else:
         raise NotImplementedError(f"Unsupported DbFileInput FileFormat: {file_format or path.suffix}")

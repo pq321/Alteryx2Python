@@ -29,6 +29,7 @@ from alteryx2python.tools.dbfileinput import (
 )
 from alteryx2python.tools.dbfileoutput import (
     _format_option,
+    delimited_output_options,
     _line_ending,
     _max_records,
     xlsx_output_options,
@@ -366,11 +367,12 @@ def extract_config(
             raw, selector = _split_alteryx_file_reference(file_val)
             suffix = _pure_path(raw).suffix.lower()
             file_fmt = _file_attribute(cfg, "FileFormat")
-            if suffix == ".yxdb" or file_fmt == "19":
-                raise UnsupportedLowering("YXDB input is not supported in Phase 2 native packages")
+            is_yxdb = suffix == ".yxdb" or file_fmt == "19"
+            if is_yxdb and selector:
+                raise UnsupportedLowering("YXDB input does not support a sheet or range selector")
             is_csv = file_fmt == "0" or suffix in {".csv", ".tsv", ".txt", ".data"}
-            is_excel = not is_csv and (file_fmt == "25" or suffix in {".xlsx", ".xls"})
-            if not is_csv and not is_excel:
+            is_excel = not is_csv and (file_fmt == "25" or suffix in {".xlsx", ".xlsm", ".xls"})
+            if not (is_csv or is_excel or is_yxdb):
                 raise UnsupportedLowering(f"Unsupported DbFileInput FileFormat: {file_fmt or suffix}")
 
             is_param_bound = node.node_id in file_param_by_node
@@ -392,7 +394,7 @@ def extract_config(
             limit = _record_limit(cfg)
             entry: dict[str, Any] = {
                 "path": portable,
-                "format": "csv" if is_csv else "excel",
+                "format": "yxdb" if is_yxdb else "csv" if is_csv else "excel",
                 "has_header": bool(has_header),
                 "skip_rows": int(skiprows),
             }
@@ -408,7 +410,7 @@ def extract_config(
                 enc = input_encoding(cfg)
                 if enc:
                     entry["encoding"] = enc
-            else:
+            elif is_excel:
                 excel_opts = excel_selection_options(
                     selector,
                     {"skiprows": skiprows, "nrows": limit, "header": 0 if has_header else None},
@@ -421,6 +423,9 @@ def extract_config(
                     entry["skip_rows"] = int(excel_opts["skiprows"])
                 if excel_opts.get("nrows") is not None:
                     entry["max_rows"] = int(excel_opts["nrows"])
+                for option in ("defined_name", "sheet_list"):
+                    if option in excel_opts:
+                        entry[option] = excel_opts[option]
             spec.inputs[key] = entry
 
         elif kind == "DynamicInput":
@@ -528,11 +533,7 @@ def extract_config(
             elif file_fmt == "0" or suffix in {".csv", ".eml", ".txt", ".tsv"}:
                 if not p.name:
                     raise UnsupportedLowering("DbFileOutput requires a filename")
-                has_header = _format_option(cfg, "HeaderRow", "True").lower() == "true"
-                delim = _format_option(cfg, "Delimeter", ",") or ","
-                ending = _line_ending(cfg)
-                code_page = _format_option(cfg, "CodePage", "28591")
-                encoding = {"65001": "utf-8", "1200": "utf-16", "28591": "latin-1"}.get(code_page, f"cp{code_page}")
+                has_header, delim, ending, encoding = delimited_output_options(cfg)
                 out_entry = {
                     "path": p.as_posix(),
                     "filename": p.name,
@@ -545,7 +546,7 @@ def extract_config(
                 if node.node_id in alteryx_csv_outputs:
                     out_entry["alteryx_Compat_format"] = True
             else:
-                if file_fmt == "25" or suffix in {".xlsx", ".xls"}:
+                if file_fmt == "25" or suffix in {".xlsx", ".xlsm", ".xls"}:
                     raise UnsupportedLowering("Excel output is not supported by DbFileOutput for this FileFormat")
                 raise UnsupportedLowering(f"Unsupported DbFileOutput FileFormat: {file_fmt or suffix}")
 

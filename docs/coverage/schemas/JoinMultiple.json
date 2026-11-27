@@ -1,0 +1,167 @@
+{
+  "tool_type": "JoinMultiple",
+  "category": "Join",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CartesianMode": {
+      "observed": [
+        "Error"
+      ],
+      "declared": []
+    },
+    "Configuration/JoinByRecPos": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/JoinByRecPos/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/JoinFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/JoinFields/JoinInfo": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/JoinFields/JoinInfo/@connection": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/JoinFields/JoinInfo/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/JoinFields/JoinInfo/Field/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputJoinOnly": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputJoinOnly/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/@outputConnection": {
+      "observed": [
+        "Output"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/CommaDecimal": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/CommaDecimal/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/OrderChanged": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/OrderChanged/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@rename": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@size": {
+      "observed": [
+        "1500"
+      ],
+      "declared": []
+    },
+    "Configuration/SelectConfiguration/Configuration/SelectFields/SelectField/@type": {
+      "observed": [
+        "V_String",
+        "V_WString"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Filter.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Join_Multiple.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Footer.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Header.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/06 Create_a_report_with_a_chart_and_a_table.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "Samples/en/05 Advanced/10 Create_tables_from_unicode_data.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Access_Token.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.JoinMultiple.JoinMultiple": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxJoinMultiple"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

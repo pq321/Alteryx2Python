@@ -1,0 +1,822 @@
+{
+  "tool_type": "PlotlyCharting",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Batch": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Batch/ColumnsToBatchBy": {
+      "observed": [
+        "Indicator",
+        "Name",
+        "Region"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Batch/ColumnsToBatchBy/@{http://james.newtonking.com/projects/json}Array": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Batch/TemplateString": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/@{http://james.newtonking.com/projects/json}Array": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/arrowcolor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/arrowwidth": {
+      "observed": [
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/ax": {
+      "observed": [
+        "61"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/ay": {
+      "observed": [
+        "-109"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/font": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/font/color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/font/size": {
+      "observed": [
+        "12"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/text": {
+      "observed": [
+        "Lowest Sales Figures"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/textangle": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/x": {
+      "observed": [
+        "2.1334792122538291"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/annotations/y": {
+      "observed": [
+        "132729.57567072686"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/autosize": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/dragmode": {
+      "observed": [
+        "zoom"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/font": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/font/family": {
+      "observed": [
+        "sans-serif"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/font/size": {
+      "observed": [
+        "12"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/height": {
+      "observed": [
+        "194",
+        "288",
+        "849"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/hovermode": {
+      "observed": [
+        "closest"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/legend": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/legend/bgcolor": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/legend/borderwidth": {
+      "observed": [
+        "0",
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/legend/font": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/legend/font/size": {
+      "observed": [
+        "12"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/margin": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/margin/b": {
+      "observed": [
+        "10",
+        "72",
+        "80"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/margin/l": {
+      "observed": [
+        "10",
+        "72",
+        "80"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/margin/pad": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/margin/t": {
+      "observed": [
+        "10",
+        "100",
+        "72"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/ppi": {
+      "observed": [
+        "72"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/showlegend": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/title": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/title/text": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/titlefont": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/titlefont/size": {
+      "observed": [
+        "17",
+        "22"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/width": {
+      "observed": [
+        "245",
+        "432",
+        "700"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/AyxArray": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/AyxArray/range": {
+      "observed": [
+        "0",
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/autorange": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/dtick": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/nticks": {
+      "observed": [
+        "0",
+        "4"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/range": {
+      "observed": [
+        "-0.5",
+        "-99295.952324195445",
+        "0",
+        "120",
+        "2",
+        "2014.5",
+        "2017.5",
+        "2744143.9523241953",
+        "6",
+        "6.5"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/showgrid": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/showline": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/showspikes": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/showticklabels": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/tick0": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/tickfont": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/tickfont/size": {
+      "observed": [
+        "10",
+        "12"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/tickmode": {
+      "observed": [
+        "auto"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/title": {
+      "observed": [
+        "Arrival Minutes - Accident Minutes",
+        "Weekday"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/title/text": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/titlefont": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/titlefont/color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/titlefont/size": {
+      "observed": [
+        "14",
+        "18"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/xaxis/type": {
+      "observed": [
+        "category",
+        "date",
+        "linear"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/AyxArray": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/AyxArray/range": {
+      "observed": [
+        "0",
+        "2715970.5792972459"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/autorange": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/dtick": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/nticks": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/range": {
+      "observed": [
+        "-2.1031941031940846",
+        "-5.0073680728896193",
+        "0",
+        "0.5",
+        "12.5",
+        "160",
+        "162",
+        "169.02049326420462",
+        "1906.103194103194",
+        "2715970.5792972459",
+        "2732187.2653451157",
+        "2901761.0526315789",
+        "33.944047721625395",
+        "993.48601556570577"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/showgrid": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/showline": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/showspikes": {
+      "observed": [
+        "false",
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/showticklabels": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/tick0": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/tickfont": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/tickfont/size": {
+      "observed": [
+        "10",
+        "12"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/tickmode": {
+      "observed": [
+        "auto"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/title": {
+      "observed": [
+        "Frequency",
+        "Month",
+        "Sales"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/title/text": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/titlefont": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/titlefont/color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/titlefont/size": {
+      "observed": [
+        "18"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Layout/yaxis/type": {
+      "observed": [
+        "linear"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/@{http://james.newtonking.com/projects/json}Array": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/colorbar": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/colorbar/title": {
+      "observed": [
+        "Medic Minutes Late",
+        "Weekday Count per Month"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/fill": {
+      "observed": [
+        "none",
+        "tozeroy"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/hoverinfo": {
+      "observed": [
+        "x+y",
+        "y"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/line": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/line/width": {
+      "observed": [
+        "2"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/cauto": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/cmax": {
+      "observed": [
+        "Jefferson County0.5"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/line": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/line/width": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/size": {
+      "observed": [
+        "12",
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/marker/symbol": {
+      "observed": [
+        "star-diamond"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/mode": {
+      "observed": [
+        "lines",
+        "lines+markers",
+        "markers"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/name": {
+      "observed": [
+        "Layer 0",
+        "Total Credit Sales",
+        "Total Sales",
+        "Total US Deaths",
+        "Traffic fatalities by date"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/orientation": {
+      "observed": [
+        "v"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/showlegend": {
+      "observed": [
+        "false"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/@{http://james.newtonking.com/projects/json}Array": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/groups": {
+      "observed": [
+        "Adams County",
+        "Arapahoe County",
+        "Boulder County",
+        "Broomfield County",
+        "Denver County",
+        "Douglas County",
+        "Jefferson County"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/groupssrc": {
+      "observed": [
+        "County"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/target": {
+      "observed": [
+        "Adams County",
+        "Arapahoe County",
+        "Boulder County",
+        "Broomfield County",
+        "Denver County",
+        "Douglas County",
+        "Jefferson County"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/hoverinfo": {
+      "observed": [
+        "name"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/marker": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/marker/color": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/marker/line": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/marker/line/width": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/styles/value/marker/size": {
+      "observed": [
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/transforms/type": {
+      "observed": [
+        "groupby"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/type": {
+      "observed": [
+        "bar",
+        "heatmap",
+        "scatter"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/xsrc": {
+      "observed": [
+        "Arrival Minutes - Accident",
+        "County",
+        "Date",
+        "RecordID",
+        "Total Sales",
+        "Weekday",
+        "Year"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/ysrc": {
+      "observed": [
+        "Count",
+        "MONTH",
+        "Sum_FATALS",
+        "Total Credit Sales",
+        "Total Customers",
+        "Total Sales",
+        "Total US Value",
+        "Value"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/zauto": {
+      "observed": [
+        "true"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/zmax": {
+      "observed": [
+        "136",
+        "210"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/zmin": {
+      "observed": [
+        "1",
+        "49"
+      ],
+      "declared": []
+    },
+    "Configuration/ChartingFields/Traces/zsrc": {
+      "observed": [
+        "Arrival Minutes - Accident",
+        "Count"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Interactive_Chart.yxmd",
+    "Samples/en/05 Advanced/04 Report opioid epidemic trends by year.yxmd",
+    "Samples/en/05 Advanced/06 Analyze and report on traffic fatalities.yxmd",
+    "Samples/en/05 Advanced/11 Create_a_report_layout.yxmd",
+    "bin/HtmlPlugins/PlotlyCharting/PlotlyChartingConfig.xml",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc"
+  ],
+  "engine_bindings": {
+    "PlotlyCharting": {
+      "EngineDll": "PortfolioPluginsEngine.dll",
+      "EngineDllEntryPoint": "ComposerInteractiveCharting",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/PortfolioPluginsEngine.dll",
+      "sha256": "5e18ecf30826b3af74b1b122d246901688b095ccd74f4e9f947f4ad037fced0e",
+      "entry_point": "ComposerInteractiveCharting"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

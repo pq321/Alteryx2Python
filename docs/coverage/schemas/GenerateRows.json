@@ -1,0 +1,149 @@
+{
+  "tool_type": "GenerateRows",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CreateField_Name": {
+      "observed": [
+        "Authorized_UserNo",
+        "Dates",
+        "GoalsGeneralFlag",
+        "JoinDate",
+        "MaxInterval",
+        "MinInterval",
+        "NewField",
+        "Numbers",
+        "QueryNo",
+        "RowCount",
+        "TargetColumn",
+        "TargetRow",
+        "Wedge",
+        "_RowCount",
+        "__QueryNo__",
+        "_day_count_",
+        "_rows",
+        "counter",
+        "date",
+        "wedgeLet",
+        "whatIfTestValue"
+      ],
+      "declared": []
+    },
+    "Configuration/CreateField_Size": {
+      "observed": [
+        "10",
+        "19",
+        "254",
+        "4",
+        "8"
+      ],
+      "declared": []
+    },
+    "Configuration/CreateField_Type": {
+      "observed": [
+        "Date",
+        "DateTime",
+        "Double",
+        "Float",
+        "Int32"
+      ],
+      "declared": []
+    },
+    "Configuration/Expression_Cond": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Expression_Init": {
+      "observed": [
+        "0",
+        "1",
+        "LeftColumn"
+      ],
+      "declared": []
+    },
+    "Configuration/Expression_Loop": {
+      "observed": [
+        "Authorized_UserNo + 1",
+        "GoalsGeneralFlag-1",
+        "Numbers + .25",
+        "QueryNo + 1",
+        "RowCount + 1",
+        "TargetColumn+1",
+        "TargetRow+1",
+        "Wedge+1",
+        "_RowCount + 1",
+        "counter+1",
+        "wedgeLet+1"
+      ],
+      "declared": []
+    },
+    "Configuration/RecordCount": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RecordCount/@value": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Configuration/UpdateField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UpdateField/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/UpdateField_Name": {
+      "observed": [
+        "CellId",
+        "Key",
+        "Name",
+        "Row",
+        "Tile_Num",
+        "_rows",
+        "accountName",
+        "start_date"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Filter.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Generate_Rows.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Date.yxwz",
+    "Samples/en/02 Learn_one_tool_at_a_time/10 Interface/Numeric_Up_Down.yxwz",
+    "bin/RuntimeData/Macros/DateTimeNow.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Prep_Date_Range.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.GenerateRows.GenerateRows": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxGenerateRows"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

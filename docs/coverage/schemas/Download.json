@@ -1,0 +1,179 @@
+{
+  "tool_type": "Download",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CodePage": {
+      "observed": [
+        "28591",
+        "65001"
+      ],
+      "declared": []
+    },
+    "Configuration/EncodeURLs": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EncodeURLs/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Headers": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Headers/Fields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Headers/Fields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Headers/Fields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Headers/Fields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Headers/Fields/Field/@selected": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Headers/NameValues": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputMode": {
+      "observed": [
+        "Blob",
+        "String"
+      ],
+      "declared": []
+    },
+    "Configuration/Password": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeFields/Field/@selected": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/Payload/ComposeNameValues": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Payload/ContentType": {
+      "observed": [
+        "Urlencoded"
+      ],
+      "declared": []
+    },
+    "Configuration/Payload/HTTPAction": {
+      "observed": [
+        "GET",
+        "POST"
+      ],
+      "declared": []
+    },
+    "Configuration/Payload/QueryStringBodyMode": {
+      "observed": [
+        "Compose"
+      ],
+      "declared": []
+    },
+    "Configuration/Timeout": {
+      "observed": [
+        "600"
+      ],
+      "declared": []
+    },
+    "Configuration/URLField": {
+      "observed": [
+        "DownloadRetrierURL",
+        "PhotoURLComplete",
+        "Query",
+        "URL",
+        "__Query__",
+        "endpoint",
+        "get_measures",
+        "get_multiple_leads_by_filter_type"
+      ],
+      "declared": []
+    },
+    "Configuration/UserName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/numConnections": {
+      "observed": [
+        "1",
+        "10"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/05 Advanced/01 Build_an_App/12 Download_data_from_the_internet.yxwz",
+    "Samples/en/05 Advanced/05 Download_and_parse_web_data.yxmd",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Social Media/Supporting_Macros/FoursquareDownloadWithRetries.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.HTTPQuery_iter.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Access_Token.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/MarketoAppend.iterate.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxConnectorGui.Download.Download": {
+      "dll": "bin/Plugins/AlteryxConnectorEngine.dll",
+      "sha256": "5d72a634c48b30d9b21c7af320d3ba424c2c19d459c62fe915d23864289c0f47",
+      "entry_point": "AlteryxDownload"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -50,6 +50,7 @@ def main(argv: list[str] | None = None) -> int:
         item.add_argument("--output-dir", type=Path, required=True)
         item.add_argument("--answers", type=Path, help="JSON object of analytic-app answers")
         item.add_argument("--allow-event-command", action="append", default=[])
+        item.add_argument("--instrumented-filename")
         if command == "run":
             item.add_argument("--engine", type=Path, required=True)
             item.add_argument("--timeout", type=float, default=120)
@@ -103,8 +104,64 @@ def main(argv: list[str] | None = None) -> int:
     matrix.add_argument("--samples", type=Path, required=True)
     matrix.add_argument("--output-dir", type=Path, required=True)
     matrix.add_argument("--limit", type=int)
+    schema_sync = commands.add_parser("schema-sync", help="Inventory installed configuration definitions")
+    schema_sync.add_argument("--alteryx-dir", type=Path, default=Path("D:/Alteryx"))
+    schema_sync.add_argument("--output-dir", type=Path, default=Path("docs/coverage/schemas"))
+    schema_sync.add_argument("--tool")
+    schema_sync.add_argument("--historical-csv", type=Path)
+    check_tool = commands.add_parser("check-tool", help="Check explicit configuration fixtures with strict compilation")
+    check_tool.add_argument("tool")
+    check_tool.add_argument("--cases", type=Path)
+    check_tool.add_argument("--data-runs", type=Path, help="Use content-checked Classic YXDB source probes as inputs")
+    check_tool.add_argument("--work-dir", type=Path, required=True)
+    check_tool.add_argument("--strict-scaffold", action="store_true", help="Strict checks are always enforced")
+    verify_tool = commands.add_parser("verify-tool", help="Execute checked cases in Designer and compare both stages")
+    verify_tool.add_argument("tool")
+    verify_tool.add_argument("--work-dir", type=Path, required=True)
+    source = verify_tool.add_mutually_exclusive_group(required=True)
+    source.add_argument("--designer-pid", type=int)
+    source.add_argument("--native-runs", type=Path, help="Recompare unchanged, previously attested Designer runs")
+    verify_tool.add_argument("--timeout", type=int, default=60)
+    verify_tool.add_argument("--strict-scaffold", action="store_true", help="Strict checks are always enforced")
+    update_ledger = commands.add_parser("update-ledger", help="Update coverage from intact strict verification receipts")
+    update_ledger.add_argument("--ledger-dir", type=Path, default=Path("docs/coverage"))
+    update_ledger.add_argument("--receipts", nargs="+", type=Path, default=[Path("reports")])
     args = parser.parse_args(argv)
     try:
+        if args.command == "update-ledger":
+            from .ledger import attest_ledger_from_receipts
+
+            report = attest_ledger_from_receipts(args.ledger_dir, args.receipts)
+            print(json.dumps(report, ensure_ascii=False))
+            return 0 if report["status"] == "updated" else 1
+        if args.command == "check-tool":
+            from .scaffold import check_tool
+
+            definition = args.cases or Path("tests/fixtures/tool_matrix") / args.tool / "cases.json"
+            report = check_tool(args.tool, definition, args.work_dir, data_runs=args.data_runs)
+            print(json.dumps({"status": report["status"], "workflows": len(report["checks"])}))
+            return 0
+        if args.command == "verify-tool":
+            from .scaffold import verify_tool
+
+            report = verify_tool(
+                args.tool, args.work_dir, args.designer_pid, timeout=args.timeout, native_directory=args.native_runs,
+            )
+            print(json.dumps({key: value for key, value in report.items() if key != "evidence"}, ensure_ascii=False))
+            return 0 if report["status"] == "match" else 1
+        if args.command == "schema-sync":
+            from .schema_registry import sync_schemas
+
+            report = sync_schemas(args.alteryx_dir, args.output_dir, tool_type=args.tool)
+            if args.historical_csv:
+                from .ledger import sync_ledger_from_schemas
+
+                report["ledger"] = sync_ledger_from_schemas(
+                    args.output_dir.parent,
+                    historical_csv=args.historical_csv.read_text(encoding="utf-8-sig"),
+                )
+            print(json.dumps(report, ensure_ascii=False))
+            return int(bool(report["unresolved_tools"]))
         if args.command == "prepare-record-id-demo":
             from .delivery import prepare_record_id_demo
 
@@ -208,7 +265,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.answers and not isinstance(answers, dict):
                 raise ValueError("App answers must be a JSON object")
             manifest = prepare(
-                args.workflow, args.output_dir, answers=answers, event_commands=tuple(args.allow_event_command)
+                args.workflow, args.output_dir, answers=answers, event_commands=tuple(args.allow_event_command),
+                instrumented_filename=args.instrumented_filename,
             )
             if args.command == "prepare":
                 print(

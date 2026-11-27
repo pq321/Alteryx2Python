@@ -1,0 +1,312 @@
+{
+  "tool_type": "DataCleansePro",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CheckBox_ModifyCase": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/CheckBox_ModifyCase/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Checkbox_ReplaceNumericColumns": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Checkbox_ReplaceNumericColumns/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Checkbox_ReplaceStringColumns": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Checkbox_ReplaceStringColumns/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Exceptions": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Exceptions/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Fields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Fields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Fields/Field/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Fields/Field/@value": {
+      "observed": [
+        "Birth Date",
+        "Country",
+        "CustomerID",
+        "First Name",
+        "FirstName",
+        "FirstPurchaseDate",
+        "Gender",
+        "JoinDate",
+        "Last Name",
+        "LastName",
+        "Prefix",
+        "Region",
+        "Registration Email",
+        "Score",
+        "Term",
+        "UserID"
+      ],
+      "declared": []
+    },
+    "Configuration/Letters": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Letters/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ModifyCase": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ModifyCase/@value": {
+      "observed": [
+        "none",
+        "title",
+        "upper"
+      ],
+      "declared": []
+    },
+    "Configuration/Numbers": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Numbers/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Punctuations": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Punctuations/@value": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveAllWhitespaces": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveAllWhitespaces/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveHTMLTags": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveHTMLTags/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveInvisibleCharacters": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveInvisibleCharacters/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveLeadingAndTrailingWhitespace": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveLeadingAndTrailingWhitespace/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveLetters": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveLetters/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveNullColumns": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveNullColumns/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveNullRows": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveNullRows/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveNumbers": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveNumbers/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/RemovePunctuation": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemovePunctuation/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/RemoveTabsLineBreaksAndDuplicates": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/RemoveTabsLineBreaksAndDuplicates/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/ReplaceWithBlanks": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ReplaceWithBlanks/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ReplaceWithZero": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/ReplaceWithZero/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceBlankswithNulls": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceBlankswithNulls/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceNullwithBlanks": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceNullwithBlanks/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceNullwithZero": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceNullwithZero/@value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceZerowithNulls": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/radioButton_ReplaceZerowithNulls/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/01 Tutorials/02 Transform Data/23 Adding a Column.yxmd",
+    "Samples/en/01 Tutorials/02 Transform Data/24 Filtering Data.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/31 Joining Data Sources.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/32 Splitting a String Column.yxmd",
+    "Samples/en/01 Tutorials/03 Blend and Analyze Data/33 Analyzing Data Based on a Column.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Data_CleansePro.yxmd"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.DataCleansePro.DataCleansePro": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxDataCleanse"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

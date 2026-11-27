@@ -14,9 +14,12 @@ collect - read every run's probes, compare node-by-node with the Python side,
 from __future__ import annotations
 
 import argparse
+from concurrent.futures import ProcessPoolExecutor
 import csv
+from functools import partial
 import hashlib
 import json
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -60,7 +63,11 @@ def cmd_plan(args: argparse.Namespace) -> int:
         if (run_dir / "manifest.json").is_file() and (run_dir / "python.json").is_file():
             rows.append({"workflow": str(workflow), "run_dir": str(run_dir), "status": "already_prepared"})
             continue
-        result = _sh(["prepare", str(workflow), "--output-dir", str(run_dir)])
+        suffix = ".yxwz" if workflow.suffix.lower() == ".yxwz" else ".yxmd"
+        result = _sh([
+            "prepare", str(workflow), "--output-dir", str(run_dir),
+            "--instrumented-filename", f"{run_dir.name}{suffix}",
+        ])
         if result.get("status") == "prepared":
             rows.append({"workflow": str(workflow), "run_dir": str(run_dir), "designer_file": result["workflow"], "status": "ready"})
         else:
@@ -105,6 +112,50 @@ def cmd_attest(args: argparse.Namespace) -> int:
     return int(bool(errors))
 
 
+def cmd_attest_designer(args: argparse.Namespace) -> int:
+    from alteryx2python.parity.manual import attest_native
+    from alteryx2python.parity.runner import write_json
+
+    root = args.root.resolve()
+    runs = json.loads(args.designer_report.read_text(encoding="utf-8-sig"))
+    ocr = {
+        row["run"]: " ".join(row["lines"])
+        for row in json.loads(args.ocr_report.read_text(encoding="utf-8-sig"))
+    }
+    expected_failures = (
+        json.loads(args.expected_failures.read_text(encoding="utf-8-sig")) if args.expected_failures else {}
+    )
+    rows = []
+    for run in runs:
+        folder = Path(run["workflow"]).resolve().parent
+        row = {"workflow": run["workflow"], "status": run["status"]}
+        rows.append(row)
+        if run["status"] not in {"outputs_ready", "completed_missing_outputs", "output_timeout"} or folder.parent != root:
+            continue
+        messages = ocr.get(folder.name, "")
+        manifest = json.loads((folder / "manifest.json").read_text(encoding="utf-8"))
+        expected = expected_failures.get(Path(manifest["source"]).name)
+        finished = re.search(r"\bFinished running\b", messages, re.I)
+        errors = re.search(r"\bwith [1-9]\d* errors?\b", messages, re.I)
+        failed_nodes = []
+        if expected and finished and errors and re.search(expected["message"], messages, re.I):
+            failed_nodes = expected["failed_nodes"]
+        elif expected or not finished or errors or run["status"] != "outputs_ready":
+            row["status"] = "needs_native_outcome"
+            continue
+        try:
+            attest_native(folder, "failed" if failed_nodes else "success", failed_nodes=failed_nodes,
+                          reviewer="Designer Results OCR",
+                          note=str(args.ocr_report.resolve()))
+        except (ValueError, OSError, TypeError, KeyError, RuntimeError) as exc:
+            row.update(status="blocked", detail=f"{type(exc).__name__}: {exc}")
+        else:
+            row["status"] = "attested"
+        print(f"{row['status']} {folder.name}", flush=True)
+    write_json(args.output, rows)
+    return int(not rows or any(row["status"] != "attested" for row in rows))
+
+
 def cmd_collect(args: argparse.Namespace) -> int:
     root: Path = args.root
     runs = [d for d in sorted(root.iterdir()) if (d / "python.json").is_file()]
@@ -113,7 +164,10 @@ def cmd_collect(args: argparse.Namespace) -> int:
         if not (run / "manual-review.json").exists():
             rows.append({"run": run.name, "status": "not_run_in_designer"})
             continue
-        result = _sh(["collect", str(run), "--manual"])
+        command = ["collect", str(run), "--manual"]
+        if args.refresh_python:
+            command.append("--refresh-python")
+        result = _sh(command)
         rows.append(
             {
                 "run": run.name,
@@ -149,6 +203,58 @@ def cmd_collect(args: argparse.Namespace) -> int:
     return int(not rows or summary["match"] != summary["total"])
 
 
+def cmd_plan_amp(args: argparse.Namespace) -> int:
+    from alteryx2python.parity.amp_export import EXPORT_DIR, _is_amp, prepare_amp_export
+    from alteryx2python.parity.runner import verify_manifest
+
+    entries = []
+    results = json.loads(args.designer_report.read_text(encoding="utf-8-sig"))
+    for result in results:
+        if result["status"] not in {"outputs_ready", "completed_missing_outputs", "output_timeout"}:
+            continue
+        run = Path(result["workflow"]).resolve().parent
+        if (run / EXPORT_DIR).exists():
+            continue
+        manifest = verify_manifest(run)
+        paths = [run / probe["file"] for probe in manifest["probes"]]
+        if any(path.is_file() and _is_amp(path) for path in paths):
+            entries.append(prepare_amp_export(run))
+    args.output_dir.mkdir(parents=True, exist_ok=False)
+    (args.output_dir / "plan.json").write_text(json.dumps(entries), encoding="utf-8")
+    plan = entries
+    print(json.dumps({"workflows": len(entries), "export_batches": len(plan)}))
+    return 0
+
+
+def _verify_delivery_run(run: Path, output: Path) -> dict:
+    from alteryx2python.expressions.errors import UnsupportedExpressionError
+    from alteryx2python.parity.delivery import verify_delivery
+
+    if not any((run / name).is_file() for name in ("manual-review.json", "native-run.json")):
+        return {"run": run.name, "status": "not_attested"}
+    try:
+        result = verify_delivery(run, output / run.name, observable=True)
+    except (ValueError, OSError, KeyError, TypeError, RuntimeError, UnsupportedExpressionError) as exc:
+        result = {"status": "blocked", "failure": str(exc)}
+    return {"run": run.name, **result}
+
+
+def cmd_verify_delivery(args: argparse.Namespace) -> int:
+    from alteryx2python.parity.runner import write_json
+
+    output = args.output_dir.resolve()
+    output.mkdir(parents=True, exist_ok=False)
+    runs = [run for run in sorted(args.root.resolve().iterdir()) if (run / "manifest.json").is_file()]
+    verify = partial(_verify_delivery_run, output=output)
+    rows = []
+    with ProcessPoolExecutor(max_workers=args.jobs) as workers:
+        for result in workers.map(verify, runs):
+            rows.append(result)
+            write_json(output / "summary.json", rows)
+            print(f"{result['status']} {result['run']}", flush=True)
+    return int(not rows or any(row["status"] != "match" for row in rows))
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
@@ -159,10 +265,27 @@ def main() -> int:
     attest.add_argument("root", type=Path)
     attest.add_argument("--outcomes", type=Path, required=True)
     attest.add_argument("--reviewer", default="manual")
+    designer = sub.add_parser("attest-designer")
+    designer.add_argument("root", type=Path)
+    designer.add_argument("--designer-report", type=Path, required=True)
+    designer.add_argument("--ocr-report", type=Path, required=True)
+    designer.add_argument("--output", type=Path, required=True)
+    designer.add_argument("--expected-failures", type=Path)
+    amp = sub.add_parser("plan-amp")
+    amp.add_argument("--designer-report", type=Path, required=True)
+    amp.add_argument("--output-dir", type=Path, required=True)
+    amp.add_argument("--batch-size", type=int, default=24)
     collect = sub.add_parser("collect")
     collect.add_argument("root", type=Path)
+    collect.add_argument("--refresh-python", action="store_true")
+    delivery = sub.add_parser("verify-delivery")
+    delivery.add_argument("root", type=Path)
+    delivery.add_argument("--output-dir", type=Path, required=True)
+    delivery.add_argument("--jobs", type=int, default=1, choices=range(1, 17), metavar="1-16")
     args = parser.parse_args()
-    return {"plan": cmd_plan, "attest": cmd_attest, "collect": cmd_collect}[args.command](args)
+    return {"plan": cmd_plan, "attest": cmd_attest, "attest-designer": cmd_attest_designer, "collect": cmd_collect,
+            "plan-amp": cmd_plan_amp,
+            "verify-delivery": cmd_verify_delivery}[args.command](args)
 
 
 if __name__ == "__main__":

@@ -115,20 +115,29 @@ def test_dbfileinput_reads_excel_sheet_without_header_row_as_f_fields(workflow_c
     assert output.iloc[0].to_dict() == {"F1": 2, "F2": 100, "F3": "Corporate", "F4": "No"}
 
 
-@pytest.mark.parametrize(
-    "file_value",
-    [
-        "tests/fixtures/input_data_basic.xlsx|||`NamedRangeExample`",
-        "tests/fixtures/input_data_basic.xlsx|||<List of Sheet Names>",
-    ],
-)
-def test_dbfileinput_rejects_deferred_sources(file_value, workflow_context):
-    with pytest.raises(NotImplementedError):
-        dbfileinput_tool(
-            {},
-            {"file": file_value, "file_attributes": {"FileFormat": "25"}, "format_specific_options": {}},
+def test_dbfileinput_excel_named_range_and_sheet_names(tmp_path, workflow_context):
+    from openpyxl import Workbook
+    from openpyxl.workbook.defined_name import DefinedName
+
+    workbook = Workbook()
+    workbook.active.title = "Sales"
+    workbook.active.append(["ignored", "name", "Amount"])
+    workbook.active.append(["ignored", "A", 10])
+    workbook.active.append(["outside range", "B", 20])
+    workbook.create_sheet("Archive")
+    workbook.defined_names.add(DefinedName("CurrentSales", attr_text="'Sales'!$B$1:$C$2"))
+    path = tmp_path / "sales.xlsx"
+    workbook.save(path)
+
+    for selector, expected in (
+        ("`CurrentSales`", [{"name": "A", "Amount": 10}]),
+        ("<List of Sheet Names>", [{"Sheet Names": "Sales"}, {"Sheet Names": "Archive"}]),
+    ):
+        result = dbfileinput_tool(
+            {}, {"file": f"{path}|||{selector}", "file_attributes": {"FileFormat": "25"}},
             workflow_context,
         )
+        assert result["Output"].to_dict("records") == expected
 
 
 def test_dbfileinput_reads_yxdb_schema_and_null_values(workflow_context):

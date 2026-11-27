@@ -1,0 +1,370 @@
+{
+  "tool_type": "DataCleansing",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "False",
+        "True",
+        "upper"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/Check Box (109)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (117)": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (122)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (135)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (136)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (15)": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (53)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (58)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (70)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (77)": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/Check Box (84)": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/Drop Down (81)": {
+      "observed": [],
+      "declared": [
+        "lower",
+        "title",
+        "upper"
+      ]
+    },
+    "Questions/List Box (11)": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Data_Cleansing.yxmd",
+    "bin/RuntimeData/Macros/Cleanse.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/Cleanse.yxmc": [
+      {
+        "name": "Check Box (135)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "135",
+        "minimum": "",
+        "maximum": "",
+        "description": "Remove null rows"
+      },
+      {
+        "name": "Check Box (136)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "136",
+        "minimum": "",
+        "maximum": "",
+        "description": "Remove null columns"
+      },
+      {
+        "name": "List Box (11)",
+        "kind": "ListBox",
+        "default": "",
+        "required": false,
+        "choices": [],
+        "node_id": "11",
+        "minimum": "",
+        "maximum": "",
+        "description": "Select Fields to Cleanse"
+      },
+      {
+        "name": "Check Box (84)",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "84",
+        "minimum": "",
+        "maximum": "",
+        "description": "Replace with Blanks (String Fields)"
+      },
+      {
+        "name": "Check Box (117)",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "117",
+        "minimum": "",
+        "maximum": "",
+        "description": "Replace with 0 (Numeric Fields)"
+      },
+      {
+        "name": "Check Box (15)",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "15",
+        "minimum": "",
+        "maximum": "",
+        "description": "Leading and Trailing Whitespace"
+      },
+      {
+        "name": "Check Box (109)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "109",
+        "minimum": "",
+        "maximum": "",
+        "description": "Tabs, Line Breaks, and Duplicate Whitespace"
+      },
+      {
+        "name": "Check Box (122)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "122",
+        "minimum": "",
+        "maximum": "",
+        "description": "All Whitespace"
+      },
+      {
+        "name": "Check Box (53)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "53",
+        "minimum": "",
+        "maximum": "",
+        "description": "Letters"
+      },
+      {
+        "name": "Check Box (58)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "58",
+        "minimum": "",
+        "maximum": "",
+        "description": "Numbers"
+      },
+      {
+        "name": "Check Box (70)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "70",
+        "minimum": "",
+        "maximum": "",
+        "description": "Punctuation"
+      },
+      {
+        "name": "Check Box (77)",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "77",
+        "minimum": "",
+        "maximum": "",
+        "description": "Modify Case"
+      },
+      {
+        "name": "Drop Down (81)",
+        "kind": "DropDown",
+        "default": "",
+        "required": false,
+        "choices": [
+          "upper",
+          "lower",
+          "title"
+        ],
+        "node_id": "81",
+        "minimum": "",
+        "maximum": "",
+        "description": ""
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/Cleanse.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "225/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "298/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "299/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "294/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "300/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "302/Value[@name='Text Box (3) - Expression']"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "132/Disabled/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "130/Disabled/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "126/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "158/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "162/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "166/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "170/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "174/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "178/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "182/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "186/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "190/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "203/Disabled/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "236/Disabled/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "278/Data"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

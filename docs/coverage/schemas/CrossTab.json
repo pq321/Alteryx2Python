@@ -1,0 +1,145 @@
+{
+  "tool_type": "CrossTab",
+  "category": "Transform",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataField/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/HeaderField": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/HeaderField/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Methods": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Methods/@type": {
+      "observed": [
+        "Number"
+      ],
+      "declared": []
+    },
+    "Configuration/Methods/FieldSize": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Methods/FieldSize/@value": {
+      "observed": [
+        "2048",
+        "5000"
+      ],
+      "declared": []
+    },
+    "Configuration/Methods/Method": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Methods/Method/@method": {
+      "observed": [
+        "Avg",
+        "Concat",
+        "Count",
+        "First",
+        "Sum",
+        "TotCol",
+        "TotRow",
+        "XCol",
+        "XRow"
+      ],
+      "declared": []
+    },
+    "Configuration/Methods/Separator": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Multi-Row_Formula.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Cross_Tab.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Transpose.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Table.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/04 Basic/05 Analyze a sales pipeline.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/04 Report opioid epidemic trends by year.yxmd",
+    "Samples/en/05 Advanced/07 Create_summary_tables_for_a_report.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.CrossTab.CrossTab/AlteryxBasePluginsGui.CrossTab.CrossTabConfig.xml",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/Pipe_to_Table.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_unit-interval.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_z-score.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Build_Data_Table.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Access_Token.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/UTCDateTimeConverterMacro.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.CrossTab.CrossTab": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxCrossTab",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxCrossTab"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

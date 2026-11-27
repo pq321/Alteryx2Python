@@ -1,0 +1,186 @@
+{
+  "tool_type": "Tile",
+  "category": "Preparation",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EqualRecords": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EqualRecords/EqualRecordsGroupField": {
+      "observed": [
+        "CITY",
+        "Value"
+      ],
+      "declared": []
+    },
+    "Configuration/EqualRecords/EqualRecordsSortField": {
+      "observed": [
+        "Value"
+      ],
+      "declared": []
+    },
+    "Configuration/EqualRecords/NumTiles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EqualRecords/NumTiles/@value": {
+      "observed": [
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/EqualSum": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EqualSum/NumTiles": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/EqualSum/NumTiles/@value": {
+      "observed": [
+        "5"
+      ],
+      "declared": []
+    },
+    "Configuration/EqualSum/SumField": {
+      "observed": [
+        "AVERAGE SALE"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/@orderChanged": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/GroupFields/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Manual": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Manual/Cutoffs": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Manual/Field": {
+      "observed": [
+        "AVERAGE SALE"
+      ],
+      "declared": []
+    },
+    "Configuration/Method": {
+      "observed": [
+        "EqualRecords",
+        "EqualSum",
+        "Manual",
+        "SmartTile",
+        "UniqueValue"
+      ],
+      "declared": []
+    },
+    "Configuration/SmartTile": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SmartTile/Field": {
+      "observed": [
+        "AVERAGE SALE",
+        "Sum_Heat"
+      ],
+      "declared": []
+    },
+    "Configuration/SmartTile/NameField": {
+      "observed": [
+        "Verbose"
+      ],
+      "declared": []
+    },
+    "Configuration/UniqueValue": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueValue/DontSort": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueValue/DontSort/@value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Configuration/UniqueValue/UniqueFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueValue/UniqueFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/UniqueValue/UniqueFields/Field/@field": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Tile.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/04 Define_trade_areas.yxwz",
+    "Samples/en/05 Advanced/03 Map_trade_areas_1.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.Tile.Tile/AlteryxBasePluginsGui.Tile.TileConfig.xml",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Tile.Tile": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxTile",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxTile"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

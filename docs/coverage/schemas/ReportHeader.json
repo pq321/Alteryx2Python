@@ -1,0 +1,267 @@
+{
+  "tool_type": "ReportHeader",
+  "category": "Reporting",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "Alteryx Report",
+        "Alteryx Thematic Map Report",
+        "Conversion Results",
+        "False",
+        "True",
+        "yyyy-MM-dd"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/AlteryxLogo": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/DateFormat": {
+      "observed": [
+        "Month dd, yyyy"
+      ],
+      "declared": [
+        "MM-dd-yy",
+        "MM-dd-yyyy",
+        "MM/dd/yy",
+        "MM/dd/yy hh:mm:ss",
+        "MM/dd/yyyy",
+        "MM/dd/yyyy hh:mm:ss",
+        "Mon dd           ",
+        "Month dd, yyyy",
+        "Month, yyyy        ",
+        "day, dd Month, yyyy",
+        "dd Month, yyyy",
+        "dd-MM-yy",
+        "dd-MM-yyyy",
+        "dd-Mon.-yy",
+        "dd/MM/yy",
+        "dd/MM/yy hh:mm:ss",
+        "dd/MM/yyyy",
+        "dd/MM/yyyy hh:mm:ss",
+        "dy., Month dd, yyyy",
+        "yyyy-MM-dd",
+        "yyyy-MM-dd hh:mm:ss",
+        "yyyyMMdd\t"
+      ]
+    },
+    "Questions/HeaderText": {
+      "observed": [
+        "Alteryx Report"
+      ],
+      "declared": []
+    },
+    "Questions/ImageFile": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/IncludeDate": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/IncludeImage": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/OwnLogo": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Report Layout",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": ""
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output13",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": ""
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Render.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/07 Reporting/Report_Header.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/05 View_FEMA_housing_data.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/13 Convert_metrics_and_publish_online.yxwz",
+    "Samples/en/05 Advanced/04 Create_a_report_with_a_thematic_map.yxmd",
+    "bin/HtmlPlugins/ReportHeader/ReportHeaderConfig.xml",
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc"
+  ],
+  "engine_bindings": {
+    "ReportHeader": {
+      "EngineDllEntryPoint": "ReportHeader\\Supporting_Macros\\RHEngine.yxmc",
+      "EngineDll": "Macro",
+      "SDKVersion": "10.1"
+    }
+  },
+  "macro_questions": {
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc": [
+      {
+        "name": "HeaderText",
+        "kind": "TextBox",
+        "default": "Alteryx Report",
+        "required": false,
+        "choices": [],
+        "node_id": "55",
+        "minimum": "",
+        "maximum": "",
+        "description": "Enter the report title:"
+      },
+      {
+        "name": "IncludeDate",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "57",
+        "minimum": "",
+        "maximum": "",
+        "description": "Include the date in your report header."
+      },
+      {
+        "name": "DateFormat",
+        "kind": "DropDown",
+        "default": "Month dd, yyyy",
+        "required": false,
+        "choices": [
+          "yyyy-MM-dd",
+          "yyyyMMdd\t",
+          "MM/dd/yy",
+          "MM/dd/yyyy",
+          "MM-dd-yy",
+          "MM-dd-yyyy",
+          "Month dd, yyyy",
+          "Month, yyyy        ",
+          "Mon dd           ",
+          "dd/MM/yy",
+          "dd/MM/yyyy",
+          "dd-MM-yy",
+          "dd-MM-yyyy",
+          "dd-Mon.-yy",
+          "dy., Month dd, yyyy",
+          "day, dd Month, yyyy",
+          "dd Month, yyyy",
+          "yyyy-MM-dd hh:mm:ss",
+          "MM/dd/yyyy hh:mm:ss",
+          "MM/dd/yy hh:mm:ss",
+          "dd/MM/yyyy hh:mm:ss",
+          "dd/MM/yy hh:mm:ss"
+        ],
+        "node_id": "56",
+        "minimum": "",
+        "maximum": "",
+        "description": "Specify the date format:"
+      },
+      {
+        "name": "IncludeImage",
+        "kind": "BooleanGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "62",
+        "minimum": "",
+        "maximum": "",
+        "description": "Include an image (logo) on your header."
+      },
+      {
+        "name": "AlteryxLogo",
+        "kind": "RadioGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "58",
+        "minimum": "",
+        "maximum": "",
+        "description": "Use the Alteryx logo"
+      },
+      {
+        "name": "OwnLogo",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "61",
+        "minimum": "",
+        "maximum": "",
+        "description": "Specify custom image:"
+      },
+      {
+        "name": "ImageFile",
+        "kind": "FileBrowse",
+        "default": "",
+        "required": false,
+        "choices": [],
+        "node_id": "59",
+        "minimum": "",
+        "maximum": "",
+        "description": "Browse to the image to use in the report header:"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/HeaderMacro.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "1/Value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "2/RichTextString"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "7/FormulaFields/FormulaField/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "3"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "18/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "18/DetourRight/@value"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "tool_type": "Imputation",
+  "category": "Preparation",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Value": {
+      "observed": [
+        "0.00000",
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/Value/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/checkbox Impute Indicator": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/checkbox Imputed Values Separate Field": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/listbox Select Incoming Fields": {
+      "observed": [],
+      "declared": []
+    },
+    "Questions/radio Mean": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/radio Median": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/radio Mode": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/radio Null Value": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Questions/radio User Specified Replace From Value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/radio User Specified Replace With Value": {
+      "observed": [
+        "False"
+      ],
+      "declared": []
+    },
+    "Questions/updown User Replace Value": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    },
+    "Questions/updown User Replace With Value": {
+      "observed": [
+        "0"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/02 Preparation/Imputation.yxmd",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc"
+  ],
+  "engine_bindings": {},
+  "macro_questions": {
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc": [
+      {
+        "name": "listbox Select Incoming Fields",
+        "kind": "ListBox",
+        "default": "",
+        "required": false,
+        "choices": [],
+        "node_id": "6",
+        "minimum": "",
+        "maximum": "",
+        "description": "Fields to impute"
+      },
+      {
+        "name": "radio Null Value",
+        "kind": "RadioGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "33",
+        "minimum": "",
+        "maximum": "",
+        "description": "Null()"
+      },
+      {
+        "name": "radio User Specified Replace From Value",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "34",
+        "minimum": "",
+        "maximum": "",
+        "description": "User specified value"
+      },
+      {
+        "name": "updown User Replace Value",
+        "kind": "NumericUpDown",
+        "default": "0",
+        "required": false,
+        "choices": [],
+        "node_id": "36",
+        "minimum": "-100000000",
+        "maximum": "100000000",
+        "description": ""
+      },
+      {
+        "name": "radio Mean",
+        "kind": "RadioGroup",
+        "default": "True",
+        "required": false,
+        "choices": [],
+        "node_id": "49",
+        "minimum": "",
+        "maximum": "",
+        "description": "Average"
+      },
+      {
+        "name": "radio Median",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "50",
+        "minimum": "",
+        "maximum": "",
+        "description": "Median"
+      },
+      {
+        "name": "radio Mode",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "51",
+        "minimum": "",
+        "maximum": "",
+        "description": "Mode"
+      },
+      {
+        "name": "radio User Specified Replace With Value",
+        "kind": "RadioGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "77",
+        "minimum": "",
+        "maximum": "",
+        "description": "User specified value"
+      },
+      {
+        "name": "updown User Replace With Value",
+        "kind": "NumericUpDown",
+        "default": "0",
+        "required": false,
+        "choices": [],
+        "node_id": "76",
+        "minimum": "0",
+        "maximum": "1E+20",
+        "description": ""
+      },
+      {
+        "name": "checkbox Impute Indicator",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "97",
+        "minimum": "",
+        "maximum": "",
+        "description": "Include imputed value indicator field"
+      },
+      {
+        "name": "checkbox Imputed Values Separate Field",
+        "kind": "BooleanGroup",
+        "default": "False",
+        "required": false,
+        "choices": [],
+        "node_id": "98",
+        "minimum": "",
+        "maximum": "",
+        "description": "Output imputed values as a separate field"
+      }
+    ]
+  },
+  "macro_actions": {
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc": [
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "150/Expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "153/Expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "158/Expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "159/FormulaFields/FormulaField/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "163/Expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "189/Expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "169/DetourRight/@value"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "171/FormulaFields/FormulaField/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "177/FormulaFields/FormulaField/@expression"
+      },
+      {
+        "kind": "Action",
+        "id": null,
+        "destination": "202/Expression"
+      }
+    ]
+  },
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

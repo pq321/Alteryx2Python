@@ -1,0 +1,112 @@
+{
+  "tool_type": "Transpose",
+  "category": "Transform",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataFields/Field/@field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/DataFields/Field/@selected": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/ErrorWarn": {
+      "observed": [
+        "Ignore",
+        "Warn"
+      ],
+      "declared": []
+    },
+    "Configuration/KeyFields": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeyFields/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/KeyFields/Field/@field": {
+      "observed": [],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Cross_Tab.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Transpose.yxmd",
+    "Samples/en/04 Basic/03 Normalize_an_Unstructured_TXT_File.yxmd",
+    "Samples/en/04 Basic/05 Analyze a sales pipeline.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/06 Calculate_a_mortgage_payment.yxwz",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_RemoveNullFields.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "Samples/en/05 Advanced/03 Measure_the_quality_of_data.yxmd",
+    "bin/HtmlPlugins/AlteryxBasePluginsGui.Transpose.Transpose/AlteryxBasePluginsGui.Transpose.TransposeConfig.xml",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning_v2.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_unit-interval.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/Standardize_z-score.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Prep_Date_Range.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullRows.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Transpose.Transpose": {
+      "EngineDll": "AlteryxBasePluginsEngine.dll",
+      "EngineDllEntryPoint": "AlteryxTranspose",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxTranspose"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

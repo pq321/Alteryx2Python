@@ -1,0 +1,199 @@
+{
+  "tool_type": "Union",
+  "category": "Join",
+  "engine_tier": "classic_and_amp",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/AutoResetMode": {
+      "observed": [
+        "ByName",
+        "Custom"
+      ],
+      "declared": [
+        "ByName",
+        "ByPos",
+        "Custom"
+      ]
+    },
+    "Configuration/ByName_ErrorMode": {
+      "observed": [
+        "Ignore",
+        "Warning"
+      ],
+      "declared": []
+    },
+    "Configuration/ByName_OutputMode": {
+      "observed": [
+        "All",
+        "Subset"
+      ],
+      "declared": []
+    },
+    "Configuration/Mode": {
+      "observed": [
+        "ByName",
+        "ByPos",
+        "Manual",
+        "ManualDelayed"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field/@column": {
+      "observed": [
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field/@name": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field/@size": {
+      "observed": [
+        "1073741823",
+        "11",
+        "18",
+        "2147483647",
+        "5",
+        "64",
+        "8",
+        "9"
+      ],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field/@source": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/MultiMetaInfo/MetaInfo/RecordInfo/Field/@type": {
+      "observed": [
+        "Byte",
+        "Double",
+        "Int32",
+        "Int64",
+        "SpatialObj",
+        "String",
+        "V_String",
+        "V_WString"
+      ],
+      "declared": []
+    },
+    "Configuration/OutputOrder": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/OutputOrder/Connection": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SetOutputOrder": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/SetOutputOrder/@value": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {},
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Join.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Join_Multiple.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/03 Join/Union.yxmd",
+    "Samples/en/02 Learn_one_tool_at_a_time/05 Transform/Make Columns.yxmd",
+    "Samples/en/04 Basic/02 Learn_frequently-used_tools.yxmd",
+    "Samples/en/04 Basic/08 Create_an_XML_File.yxmd",
+    "Samples/en/05 Advanced/01 Build_an_App/03 Clean_and_parse_phone_numbers.yxwz",
+    "Samples/en/05 Advanced/01 Build_an_App/14 Find a file in a directory.yxwz",
+    "Samples/en/05 Advanced/01 Create_service_boundaries.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/10 Merge_to_a_master_file_with_fuzzy_matching.yxmd",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/01 StrongADD_FuzzyFL.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/02 StrongADD_FuzzyLF.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/03 StrongFL_FuzzyADD.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Fuzzy_Match_Supporting_Macros/04 StrongADD_FuzzyFL_Char.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/BatchMacro_IndividualToolCount.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/Iterative_Supply_and_Demand.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GenerateReport.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityCreateDemandSurface.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_GravityModel.yxmc",
+    "Samples/en/05 Advanced/02 Build_a_Macro/Supporting_Macros/LocOpt_MinimizeDistance.yxmc",
+    "Samples/en/05 Advanced/03 Convert stock info from XML to a spreadsheet.yxmd",
+    "bin/Plugins/AlteryxBasePluginsGui.dll",
+    "bin/RuntimeData/Macros/Cleanse.yxmc",
+    "bin/RuntimeData/Macros/CountRecords.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v5.yxmc",
+    "bin/RuntimeData/Macros/Google_Analytics_v6.yxmc",
+    "bin/RuntimeData/Macros/HeatMap.yxmc",
+    "bin/RuntimeData/Macros/Imputation.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v2.yxmc",
+    "bin/RuntimeData/Macros/Imputation_v3.yxmc",
+    "bin/RuntimeData/Macros/Legend_Builder.yxmc",
+    "bin/RuntimeData/Macros/Legend_Splitter.yxmc",
+    "bin/RuntimeData/Macros/MultiFieldBinning.yxmc",
+    "bin/RuntimeData/Macros/ParityFramework/Supporting_Macros/_CReW_ExpectEqual.yxmc",
+    "bin/RuntimeData/Macros/PieWedgeTradeArea.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Field_Summary_Report.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Oversample_Field.yxmc",
+    "bin/RuntimeData/Macros/Predictive Tools/Supporting_Macros/IFS.yxmc",
+    "bin/RuntimeData/Macros/Social Media/FoursquareMacro.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.BuildDataTable_v4.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Build_Data_Table.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Percent_Encoder.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Reset_Measures.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.ResponseBuilder_TESTING.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v2.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/GoogleAnalytics.Retrieve_Custom_Parameters_v9.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/Google_Analytics.Prep_Query_String.yxmc",
+    "bin/RuntimeData/Macros/Supporting_Macros/removeNullColumns.yxmc"
+  ],
+  "engine_bindings": {
+    "AlteryxBasePluginsGui.Union.Union": {
+      "dll": "bin/Plugins/AlteryxBasePluginsEngine.dll",
+      "sha256": "5eb07b83e3ee955ecfb211fe59ba58b27ba7098c26fea1c3dc0ce2ce1da33000",
+      "entry_point": "AlteryxUnion"
+    },
+    "AlteryxBasePluginsGui.Union.Configure+E_AutoResetModes": {
+      "dll": "bin/Plugins/AlteryxBasePluginsGui.dll",
+      "sha256": "a61ada793a53f243425124d015f30463236153b266c76bdaa36f12c0a4ee2f56",
+      "xml_axis": "Configuration/AutoResetMode"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}

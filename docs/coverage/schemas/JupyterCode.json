@@ -1,0 +1,154 @@
+{
+  "tool_type": "JupyterCode",
+  "category": "Developer",
+  "engine_tier": "classic_primary",
+  "axes": {
+    "Configuration": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/AssetManaged": {
+      "observed": [
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/DefaultVenv": {
+      "observed": [
+        "1"
+      ],
+      "declared": []
+    },
+    "Configuration/GuidDir": {
+      "observed": [
+        "03b370ef-8abd-4d49-9104-f6953d953a71",
+        "4d0448d9-66cc-419d-a5c6-b272ee84976a",
+        "5feb65a5-2bbe-4da5-8a44-96e7124eef32",
+        "9dda5c14-afb3-4a8d-acd4-af398240611f",
+        "acedabd6-6358-4621-bd29-041ec287568e",
+        "f5b32f13-3853-43c8-b473-c848f25a07cf"
+      ],
+      "declared": []
+    },
+    "Configuration/JupyterGuidDir": {
+      "observed": [
+        "5c7c1f6fa03cca006416e9d2566f2664",
+        "b2708fd19d1b0083c9597e60fe7b44d4",
+        "c7b526e0685244f04882f997c54cca9b",
+        "f46c8351d9b65b76c61024910f3069fe",
+        "f53389a0aefb0e5615d710a15e7e763f",
+        "f6e79795e04607c4e3ecce3e4b7cc751"
+      ],
+      "declared": []
+    },
+    "Configuration/JupyterProduction": {
+      "observed": [
+        "False",
+        "True"
+      ],
+      "declared": []
+    },
+    "Configuration/LastExecutedByEngineVersion": {
+      "observed": [
+        "2022.1.0.62859"
+      ],
+      "declared": []
+    },
+    "Configuration/Notebook": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/Port": {
+      "observed": [
+        "52165",
+        "61870"
+      ],
+      "declared": []
+    },
+    "Configuration/WorkflowName": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/productionModeScript": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/specialCellMetadata": {
+      "observed": [],
+      "declared": []
+    },
+    "Configuration/vEnvName": {
+      "observed": [
+        "designerbasetools_venv"
+      ],
+      "declared": []
+    }
+  },
+  "anchors": {
+    "Input": [
+      {
+        "Name": "Input",
+        "AllowMultiple": "True",
+        "Optional": "True",
+        "Type": "Connection",
+        "Label": ""
+      }
+    ],
+    "Output": [
+      {
+        "Name": "Output1",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "1"
+      },
+      {
+        "Name": "Output2",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "2"
+      },
+      {
+        "Name": "Output3",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "3"
+      },
+      {
+        "Name": "Output4",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "4"
+      },
+      {
+        "Name": "Output5",
+        "AllowMultiple": "False",
+        "Optional": "False",
+        "Type": "Connection",
+        "Label": "5"
+      }
+    ]
+  },
+  "sources": [
+    "Samples/en/02 Learn_one_tool_at_a_time/22 Developer/Python.yxmd",
+    "bin/HtmlPlugins/JupyterCode/JupyterCodeConfig.xml"
+  ],
+  "engine_bindings": {
+    "JupyterCode": {
+      "EngineDll": "AlteryxJupyterPluginEngine.dll",
+      "EngineDllEntryPoint": "AlteryxJupyter",
+      "SDKVersion": "10.1",
+      "dll": "bin/Plugins/AlteryxJupyterPluginEngine.dll",
+      "sha256": "13dcd5bfcbf550ba9a4accf17e8c860862034ff20e195252ea332c1833b76420",
+      "entry_point": "AlteryxJupyter"
+    }
+  },
+  "macro_questions": {},
+  "macro_actions": {},
+  "unresolved": [
+    "Some XML paths lack a declared value domain"
+  ]
+}
