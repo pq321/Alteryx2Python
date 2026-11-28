@@ -93,7 +93,8 @@ def _encoding(config: dict[str, Any]) -> str | None:
     if code_page in {"", "0", "auto", "automatic"}:
         return None
     return {"28591": "iso-8859-1", "65001": "utf-8-sig", "1200": "utf-16",
-            "1201": "utf-16-be", "shift-jis": "cp932", "shift_jis": "cp932"}.get(
+            "1201": "utf-16-be", "950": "big5", "54936": "gb18030",
+            "shift-jis": "cp932", "shift_jis": "cp932"}.get(
                 code_page, f"cp{code_page}" if code_page.isdecimal() else code_page)
 
 

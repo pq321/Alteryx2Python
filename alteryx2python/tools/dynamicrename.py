@@ -53,26 +53,30 @@ def _rename_fields(inputs, fields, mode, config, options, context):
     if mode == "formula":
         expression = parse_expression(config["expression"])
         return {name: evaluate_expression(expression, {"_CurrentField_": name}) for name in fields}
+    return rename_fields(inputs, fields, mode, options, context.record_warning)
+
+
+def rename_fields(inputs, fields, mode, options, warn):
     if mode in {"add", "remove"}:
-        return _affix_renames(fields, mode, options, context)
+        return _affix_renames(fields, mode, options, warn)
     if mode == "firstrow":
         frame = inputs["Targets"]
-        return {} if frame.empty else _paired_renames(fields, frame.iloc[0][fields], options, context)
+        return {} if frame.empty else _paired_renames(fields, frame.iloc[0][fields], options, warn)
     if mode == "rightinputmetadata":
         if options.get("ChangeFields", "False").lower() == "true":
             raise NotImplementedError("DynamicRename metadata type changes are unsupported")
-        return _paired_renames(fields, inputs["Source"].columns, options, context)
+        return _paired_renames(fields, inputs["Source"].columns, options, warn)
     if mode == "rightinputrows":
         source = inputs["Source"]
         names = source[options["NewName"]]
         if options.get("InputMode", "Positional").lower() == "mapped":
             mapping = dict(zip(source[options["OldName"]], names))
-            return _paired_renames(fields, [mapping.get(name, name) for name in fields], options, context)
-        return _paired_renames(fields, names, options, context)
+            return _paired_renames(fields, [mapping.get(name, name) for name in fields], options, warn)
+        return _paired_renames(fields, names, options, warn)
     raise NotImplementedError(f"Unsupported DynamicRename mode: {mode}")
 
 
-def _affix_renames(fields, mode, options, context):
+def _affix_renames(fields, mode, options, warn):
     prefix = options.get("Type", "Prefix").lower() == "prefix"
     affix = options.get("Text", "")
     rename_map = {}
@@ -82,28 +86,28 @@ def _affix_renames(fields, mode, options, context):
         elif (name.startswith(affix) if prefix else name.endswith(affix)):
             rename_map[name] = name.removeprefix(affix) if prefix else name.removesuffix(affix)
         else:
-            _handle_rename_issue(options, context, f"Field {name!r} does not have {affix!r}")
+            _handle_rename_issue(options, warn, f"Field {name!r} does not have {affix!r}")
     return rename_map
 
 
-def _paired_renames(fields, names, options, context):
+def _paired_renames(fields, names, options, warn):
     if len(fields) != len(names):
-        _handle_rename_issue(options, context, "DynamicRename name count differs from selected field count")
+        _handle_rename_issue(options, warn, "DynamicRename name count differs from selected field count")
     rename_map = {}
     for old, new in zip(fields, names):
         if pd.isna(new) or not str(new):
-            _handle_rename_issue(options, context, f"Missing new name for {old!r}")
+            _handle_rename_issue(options, warn, f"Missing new name for {old!r}")
         else:
             rename_map[old] = str(new)
     return rename_map
 
 
-def _handle_rename_issue(options, context, message):
+def _handle_rename_issue(options, warn, message):
     policy = options.get("OnError", "Error").lower()
     if policy == "error":
         raise ValueError(message)
     if policy in {"warn", "warning"}:
-        context.record_warning(message)
+        warn(message)
 
 
 class DynamicRenameTool(BaseTool):

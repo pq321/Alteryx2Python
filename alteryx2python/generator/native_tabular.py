@@ -5,6 +5,75 @@ from alteryx2python.tools.field_contracts import field_contract
 
 
 def lower_tabular(compiler, kind, config, frame):
+    if kind == 'DataCleansing':
+        from alteryx2python.tools.datacleansing import PUNCTUATION_TRANSLATION
+
+        selected = [str(field) for field in config.get('selected_fields', [])]
+        lines = [f'out = {frame}.copy()']
+        if selected:
+            lines.append(f'fields = [field for field in {selected!r} if field in out] or list(out)')
+        else:
+            lines.append('fields = list(out)')
+        if config.get('remove_null_rows') or config.get('remove_null_columns'):
+            lines.extend(['values = out[fields]', 'empty = values.isna() | values.eq("").fillna(False)'])
+        if config.get('remove_null_rows'):
+            lines += ['if fields:', '    keep = ~empty.all(axis=1)', '    out = out.loc[keep].copy()', '    empty = empty.loc[keep]']
+        if config.get('remove_null_columns'):
+            lines += ['out = out.drop(columns=empty.columns[empty.all()])', 'fields = [field for field in fields if field in out]']
+        transformations = []
+        if config.get('replace_string_nulls'):
+            transformations.append('series = series.fillna("")')
+        if config.get('remove_tabs_line_breaks_duplicate_whitespace'):
+            transformations.append(r'series = series.str.replace(r"\s+", " ", regex=True)')
+        if config.get('remove_all_whitespace'):
+            transformations.append(r'series = series.str.replace(r"\s+", "", regex=True)')
+        if config.get('remove_letters'):
+            transformations.append('series = series.map(lambda value: "".join(c for c in value if not c.isalpha()), na_action="ignore")')
+        if config.get('remove_numbers'):
+            transformations.append('series = series.str.replace(r"[0-9０-９]", "", regex=True)')
+        if config.get('remove_punctuation'):
+            from pprint import pformat
+
+            transformations.append(f'series = series.str.translate({pformat(PUNCTUATION_TRANSLATION, width=72)})')
+        if config.get('remove_leading_trailing_whitespace'):
+            transformations.append(r'series = series.str.strip(" \t\n\r\u00a0")')
+        case = config.get('case_mode')
+        if config.get('modify_case') and case in {'upper', 'lower', 'title'}:
+            transformations.append(f'series = series.str.{case}()')
+        if any('.str.' in line or '.map(' in line for line in transformations):
+            transformations.append('series = pd.Series(series.to_numpy(), index=series.index)')
+        if transformations or config.get('replace_numeric_nulls'):
+            lines += ['for field in fields:', '    series = out[field]']
+        if transformations:
+            lines += [
+                '    if isinstance(series.dtype, pd.StringDtype) or pd.api.types.infer_dtype(series, skipna=True) in {"string", "empty"}:',
+                '        if not isinstance(series.dtype, pd.StringDtype):',
+                '            series = series.astype("string")',
+                *['        ' + line.replace('\n', '\n        ') for line in transformations],
+                '        out[field] = series',
+            ]
+        if config.get('replace_numeric_nulls'):
+            lines += ['    if pd.api.types.is_numeric_dtype(series):', '        out[field] = series.fillna(0)']
+        return lines + ['return out']
+    if kind == 'BlobConvert':
+        from alteryx2python.tools.blobconvert import convert_blob_field
+
+        field = config.get('field')
+        mode = config.get('mode', '').upper()
+        to_blob = config.get('to_blob', False)
+        supported = {'BASE64', 'HEX', 'TEXT'}
+        if not to_blob:
+            supported.add('MD5')
+        if not field or mode not in supported:
+            raise UnsupportedLowering(f'Unsupported BlobConvert field or mode: {field!r}, {mode!r}')
+        function = compiler.linker.function(convert_blob_field)
+        code_page = config.get('text_code_page', '')
+        return [f'return {function}({frame}, {field!r}, {mode!r}, {to_blob!r}, {code_page!r})']
+    if kind == 'MultiFieldBinning' and 'binning_method' in config:
+        from alteryx2python.tools.local_macros import bin_selected_fields
+
+        function = compiler.linker.function(bin_selected_fields)
+        return [f'return {function}({frame}, {config["fields"]!r}, {config["bins"]!r}, {config["binning_method"]!r})']
     if kind == 'Select':
         from alteryx2python.tools.select import _normalize_select_fields, _expected_output_columns
         fields = _normalize_select_fields(config)
@@ -54,7 +123,7 @@ def lower_tabular(compiler, kind, config, frame):
                       'output.attrs["alteryx_schema"] = schema']
         return lines + ['return output']
     if kind == 'Sort':
-        from alteryx2python.tools.sort import _is_ascending, sort_frame, sort_locale_name
+        from alteryx2python.tools.sort import _is_ascending, sort_binary_frame, sort_frame, sort_locale_name
         fields = config.get('sort_fields', [])
         if not fields:
             raise UnsupportedLowering('Sort requires fields')
@@ -64,8 +133,11 @@ def lower_tabular(compiler, kind, config, frame):
             locale = sort_locale_name(config.get('sort_locale'))
         except ValueError as error:
             raise UnsupportedLowering(str(error)) from error
-        sort = compiler.linker.function(sort_frame)
-        return [f'return {sort}({frame}, {keys}, {directions!r}, {locale!r})']
+        if locale:
+            sort = compiler.linker.function(sort_frame)
+            return [f'return {sort}({frame}, {keys}, {directions!r}, {locale!r})']
+        sort = compiler.linker.function(sort_binary_frame)
+        return [f'return {sort}({frame}, {keys}, {directions!r})']
     if kind == 'Unique':
         fields = config.get('unique_fields')
         subset = repr(fields) if fields else f'list({frame}.columns)'

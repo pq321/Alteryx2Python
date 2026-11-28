@@ -7,6 +7,8 @@ from dataclasses import dataclass, field
 from email import policy
 from email.parser import BytesParser
 import hashlib
+import json
+from typing import Callable
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from socketserver import StreamRequestHandler, ThreadingTCPServer
@@ -41,7 +43,7 @@ class HttpResponse:
 
 
 class LocalHttpTestServer(_LoopbackServer):
-    def __init__(self, routes: dict[tuple[str, str], HttpResponse]):
+    def __init__(self, routes: dict[tuple[str, str], HttpResponse | Callable[[dict], HttpResponse]]):
         self.requests: list[dict] = []
         self._routes = dict(routes)
         owner = self
@@ -53,11 +55,14 @@ class LocalHttpTestServer(_LoopbackServer):
                     self.send_error(413)
                     return
                 self.connection.settimeout(2)
-                owner.requests.append({
+                request = {
                     "method": self.command, "path": self.path, "headers": dict(self.headers),
                     "body": self.rfile.read(size),
-                })
+                }
+                owner.requests.append(request)
                 response = owner._routes.get((self.command, self.path), HttpResponse(status=404))
+                if callable(response):
+                    response = response(request)
                 sleep(response.delay)
                 self.send_response(response.status)
                 for header, value in response.headers.items():

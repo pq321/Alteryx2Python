@@ -96,6 +96,33 @@ def _transport_for(config: dict[str, Any], context: WorkflowContext) -> Download
     raise RuntimeError("Download requires an injected transport or allow_network_downloads=True")
 
 
+def download_frame(input_frame, config, transport=None):
+    url_field = config["url_field"]
+    ensure_fields_exist(input_frame, [url_field, *config.get("header_fields", [])])
+    headers = _configured_headers(config)
+    payload = config.get("payload") or {}
+    method = str(payload.get("http_action") or "GET").upper()
+    timeout = int(config.get("timeout") or 30)
+    output_rows = []
+    for row in input_frame.to_dict("records"):
+        request_headers = dict(headers)
+        for field in config.get("header_fields", ()):
+            if not pd.isna(row[field]):
+                request_headers[field] = str(row[field])
+        response = (transport or _default_transport)({
+            "method": method,
+            "url": _encode_url_if_requested(str(row[url_field]), config),
+            "headers": request_headers,
+            "body": _payload_body(row, config),
+            "timeout": timeout,
+        })
+        output_rows.append({
+            **row, "DownloadData": _response_body(response.get("body")),
+            "DownloadHeaders": _response_headers(response.get("headers")),
+        })
+    return pd.DataFrame(output_rows, columns=[*input_frame.columns, "DownloadData", "DownloadHeaders"])
+
+
 def download_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],
@@ -112,31 +139,10 @@ def download_tool(
         raise ValueError("Download config requires url_field")
     if str(config.get("output_mode", "String")).lower() != "string":
         raise NotImplementedError("Download currently supports only String output mode")
-    ensure_fields_exist(input_frame, [url_field])
-
     transport = _transport_for(config, context)
-    headers = _configured_headers(config)
     payload = config.get("payload") if isinstance(config.get("payload"), dict) else {}
-    method = str(payload.get("http_action", "GET") or "GET").upper()
     timeout = int(config.get("timeout", 30) or 30)
-
-    output_rows: list[dict[str, Any]] = []
-    for row in input_frame.to_dict("records"):
-        url = _encode_url_if_requested(str(row[url_field]), config)
-        request = {
-            "method": method,
-            "url": url,
-            "headers": headers,
-            "body": _payload_body(row, config),
-            "timeout": timeout,
-        }
-        response = transport(request)
-        output_row = dict(row)
-        output_row["DownloadData"] = _response_body(response.get("body"))
-        output_row["DownloadHeaders"] = _response_headers(response.get("headers"))
-        output_rows.append(output_row)
-
-    output = pd.DataFrame(output_rows, columns=[*input_frame.columns, "DownloadData", "DownloadHeaders"])
+    output = download_frame(input_frame, config, transport)
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),
@@ -150,7 +156,7 @@ def download_tool(
             "source_tool_id": config.get("source_tool_id"),
             "url_field": url_field,
             "output_mode": config.get("output_mode", "String"),
-            "headers": headers,
+            "headers": _configured_headers(config),
             "payload": payload,
             "timeout": timeout,
             "input_schema": snapshot_schema(input_frame),

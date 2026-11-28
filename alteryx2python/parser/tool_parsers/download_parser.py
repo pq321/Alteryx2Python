@@ -21,6 +21,7 @@ def _int_text(node: Any, default: int) -> int:
 
 def parse_download_config(raw_config: dict[str, Any]) -> ToolParserResult:
     headers_node = child(child(raw_config, "Headers"), "NameValues")
+    header_fields = child(child(raw_config, "Headers"), "Fields")
     payload_node = child(raw_config, "Payload")
     normalized = {
         "url_field": text(child(raw_config, "URLField")),
@@ -42,4 +43,12 @@ def parse_download_config(raw_config: dict[str, Any]) -> ToolParserResult:
         "timeout": _int_text(child(raw_config, "Timeout"), 30),
         "num_connections": _int_text(child(raw_config, "numConnections"), 1),
     }
+    selected = [
+        str(attributes(field)["name"])
+        for field in as_list(child(header_fields, "Field"))
+        if attributes(field).get("name") not in (None, "*Unknown")
+        and str(attributes(field).get("selected", "True")).lower() == "true"
+    ]
+    if selected:
+        normalized["header_fields"] = selected
     return ToolParserResult(normalized_config=normalized)

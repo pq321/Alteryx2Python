@@ -11,6 +11,7 @@ from alteryx2python.expressions.ast import (
     UnaryExpression,
 )
 from alteryx2python.expressions.errors import UnsupportedExpressionError
+from alteryx2python.expressions.fields import field_value
 from alteryx2python.expressions.functions import call_function
 from alteryx2python.expressions.numeric import add_nullable, arithmetic_operand, as_formula_value
 
@@ -23,7 +24,7 @@ def evaluate_expression(node, row: dict[str, Any], constants: dict[str, Any] | N
             from alteryx2python.runtime.variables import ACTIVE_VARIABLES
             constants = ACTIVE_VARIABLES.get()
         try:
-            return row[node.name]
+            return field_value(row, node.name)
         except KeyError:
             # Engine constants ([Engine.WorkflowDirectory] and friends) are
             # valid field references outside the record context.

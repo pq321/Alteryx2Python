@@ -9,6 +9,7 @@ param(
     [string]$DesignerLauncher,
     [ValidateSet('auto', 'wand', 'options')][string]$AppLaunch = 'auto',
     [switch]$ManualAppInputs,
+    [switch]$UseAppDefaults,
     [Parameter(DontShow)][switch]$Worker
 )
 
@@ -894,6 +895,7 @@ function Get-PreparedCase($Entry) {
     $numeric = $null
     $answers = @()
     $questionCount = 0
+    $remainingDefaults = $false
     if ($app) {
         [xml]$workflow = Get-Content -LiteralPath $path -Raw
         $questions = @($workflow.SelectNodes('/AlteryxDocument/Properties/RuntimeProperties/Questions//Question[Type != "Tab"]'))
@@ -913,6 +915,17 @@ function Get-PreparedCase($Entry) {
                 @{ name = $key; label = $label; kind = $kind; value = $value }
             }
         )
+        if ($UseAppDefaults -and $manifest.answers -and $manifest.answers.Count -eq $questionCount) {
+            $editableNames = @($answers | ForEach-Object name)
+            $remaining = @($questions | Where-Object { $_.SelectSingleNode('Name').InnerText -notin $editableNames })
+            $remainingDefaults = -not @($remaining | Where-Object {
+                $name = $_.SelectSingleNode('Name').InnerText
+                $default = $_.SelectSingleNode('Default')
+                $value = if ($default -and $default.HasAttribute('value')) { $default.GetAttribute('value') }
+                    elseif ($default) { $default.InnerText }
+                -not $default -or [string]$manifest.answers[$name] -cne [string]$value
+            }).Count
+        }
         if ($questions.Count -eq 1 -and $questions[0].SelectSingleNode('Type').InnerText -eq 'NumericUpDown') {
             $question = $questions[0]
             $key = $question.SelectSingleNode('Name').InnerText
@@ -932,6 +945,8 @@ function Get-PreparedCase($Entry) {
     @{
         path = $path; artifacts = $artifacts; renderFolders = $renderFolders; app = $app
         numeric = $numeric; answers = $answers; questionCount = $questionCount; folder = $folder
+        remainingDefaults = $remainingDefaults
+        useDefaults = [bool]($app -and $UseAppDefaults -and -not $manifest.answers)
     }
 }
 
@@ -1468,6 +1483,9 @@ function Run-AnalyticApp($Case) {
         }
         $finish = $true
         $answerReview = 'numeric_readback'
+    } elseif ($Case.useDefaults) {
+        $finish = $true
+        $answerReview = 'designer_defaults'
     } elseif ($Case.answers.Count) {
         foreach ($answer in $Case.answers) {
             Set-DesignerStage "locate App control for '$($answer.name)'" 10
@@ -1491,8 +1509,9 @@ function Run-AnalyticApp($Case) {
             }
             $verifiedAnswers[$answer.name] = $answer.value
         }
-        $finish = $verifiedAnswers.Count -eq $Case.questionCount
-        $answerReview = if ($finish) { 'verified_controls' } else { 'operator_with_verified_controls' }
+        $finish = $verifiedAnswers.Count -eq $Case.questionCount -or $Case.remainingDefaults
+        $answerReview = if ($Case.remainingDefaults) { 'verified_controls_and_designer_defaults' }
+            elseif ($finish) { 'verified_controls' } else { 'operator_with_verified_controls' }
     }
     if (-not $finish) {
         if (-not $ManualAppInputs) { throw 'The app contains questions requiring operator input.' }
@@ -1577,6 +1596,7 @@ function Test-RenderFolders($Case) {
 
 function Run-Case($Case) {
     if ($Case.app -and -not $Case.numeric -and -not $ManualAppInputs -and
+        -not $Case.remainingDefaults -and -not $Case.useDefaults -and
         (-not $Case.answers.Count -or $Case.answers.Count -ne $Case.questionCount)) {
         return @{ status = 'requires_app_inputs'; workflow = $Case.path }
     }

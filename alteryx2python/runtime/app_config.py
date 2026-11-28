@@ -327,6 +327,19 @@ def apply_actions(root, values):
             tool = _value(
                 action, "InputTool" if mode == "UpdateInput" else "OutputTool"
             )
+            if tool == "-1":
+                action_id = _value(action, "ToolId")
+                targets = [
+                    connection.find("Destination").get("ToolID")
+                    for connection in root.findall("./Connections/Connection")
+                    if connection.find("Origin") is not None
+                    and connection.find("Destination") is not None
+                    and connection.find("Origin").get("ToolID") == action_id
+                    and connection.find("Origin").get("Connection") == "Action"
+                    and connection.find("Destination").get("Connection") == "Action"
+                ]
+                if len(targets) == 1:
+                    tool = targets[0]
             if variable not in values or not tool.isdigit() or int(tool) < 1:
                 raise ToolUnavailableError(
                     "File Action requires an explicit question variable and target tool ID"

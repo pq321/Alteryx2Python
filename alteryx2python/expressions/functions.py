@@ -60,6 +60,17 @@ def _to_string(value: Any) -> str:
     return str(value)
 
 
+def to_string_series(values: pd.Series) -> pd.Series:
+    text = values.astype("string").fillna("")
+    if pd.api.types.is_float_dtype(values):
+        text = text.str.replace(r"^(-?[0-9]+)\.0$", r"\1", regex=True)
+        large_integers = values.abs().ge(1e16) & values.mod(1).eq(0)
+        text.loc[large_integers] = values.loc[large_integers].map(_to_string)
+    elif pd.api.types.infer_dtype(values, skipna=True) in {"mixed", "mixed-integer", "mixed-integer-float", "floating"}:
+        text = values.map(_to_string).astype("string")
+    return text
+
+
 def _pad_left(value: Any, width: Any, fill: Any = " ") -> str:
     fill_text = str(fill)
     if len(fill_text) != 1:
@@ -175,7 +186,20 @@ def _null() -> None:
     return None
 
 
+def _absolute(value):
+    return abs(float(value))
+
+
+def _pad_right(value, width, fill=" "):
+    fill = str(fill)
+    if len(fill) != 1:
+        raise UnsupportedExpressionError("PadRight fill argument must be one character")
+    return str(value).ljust(int(width), fill)
+
+
 FUNCTION_REGISTRY = {
+    "ABS": _absolute,
+    "PADRIGHT": _pad_right,
     **VERIFIED_FUNCTIONS,
     "CONTAINS": _contains,
     "DATETIMEADD": _datetime_add,

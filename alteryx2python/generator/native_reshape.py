@@ -1,17 +1,25 @@
 """Static configurations for parsing and reshaping become explicit Python."""
+from pprint import pformat
+
 from alteryx2python.generator.source_linker import UnsupportedLowering
 
 
 def lower_reshape(compiler, kind, config, frame):
     if kind == 'Transpose':
+        from alteryx2python.comparison.schema_diff import ensure_fields_exist
+        from alteryx2python.tools.transpose import transpose_fields, transpose_frame
+
         keys = config.get('key_fields', [])
-        fields = [field['field'] for field in config.get('data_fields', []) if field.get('selected')]
-        lines = [f'{frame}[{keys!r}]']
-        if str(config.get('error_warn', '')).lower() != 'warn':
-            lines += [f'{frame}[{fields!r}]']
-        lines += [f'data_fields = [name for name in {frame}.columns if name in {fields!r}]',
-                  f'rows = [{{**{{name: row[name] for name in {keys!r}}}, "Name": field, "Value": row[field]}} for row in {frame}.to_dict("records") for field in data_fields]',
-                  f'return pd.DataFrame(rows, columns={keys + ["Name", "Value"]!r})']
+        configured = config.get('data_fields', [])
+        fields = [field['field'] for field in configured if field.get('selected') and field['field'] != '*Unknown']
+        required = keys if str(config.get('error_warn', '')).lower() == 'warn' else [*keys, *fields]
+        validate = compiler.linker.function(ensure_fields_exist)
+        lines = [f'{validate}({frame}, {pformat(required, width=75)})'] if required else []
+        select_fields = compiler.linker.function(transpose_fields)
+        function = compiler.linker.function(transpose_frame)
+        lines += [f'selections = {pformat(configured, width=75, sort_dicts=False)}',
+                  f'data_fields = {select_fields}({frame}.columns, {keys!r}, selections)',
+                  f'return {function}({frame}, {keys!r}, data_fields)']
         return lines
     if kind == 'AutoField':
         from alteryx2python.tools.autofield import _auto_convert

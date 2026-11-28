@@ -16,9 +16,9 @@ def _is_row_order_mismatch(result):
     )
 
 
-def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, policy):
+def _compare_checkpoint(expected, actual, node_id, tool_type, direction, align, policy, *, unordered=False):
     ordered = tool_type == "Sort" if direction == "outputs" else tool_type in _ORDER_SENSITIVE_INPUTS
-    options = {"align_columns": align, "align_rows": align and not ordered}
+    options = {"align_columns": align, "align_rows": align and not ordered, "unordered": unordered}
     exact = compare_snapshots(expected, actual, **options)
     if policy is None:
         return exact
@@ -62,6 +62,7 @@ def _mark_repeated_inputs(native, python, comparisons):
                 break
         else:
             item["duplicates_upstream"] = source
+AMP_UNORDERED_TOOLS = {"Join", "JoinMultiple", "Union"}
 
 
 def compare_behavior_runs(
@@ -166,8 +167,10 @@ def compare_behavior_runs(
                     diff = {"status": "incomplete", "reason": "missing_anchor",
                             "missing_from": "Designer" if anchor not in a else "Phase 1"}
                 else:
+                    amp_unordered = (direction == "outputs" and native.get("engine_mode") == "amp"
+                                     and left["tool_type"] in AMP_UNORDERED_TOOLS)
                     diff = _compare_checkpoint(a[anchor], b[anchor], node_id, left["tool_type"], direction,
-                                               align_checkpoints, presentation_policy)
+                                               align_checkpoints, presentation_policy, unordered=amp_unordered)
                 comparisons.append(
                     {
                         "node_id": node_id,

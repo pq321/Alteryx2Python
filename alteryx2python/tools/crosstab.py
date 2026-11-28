@@ -6,7 +6,8 @@ from typing import Any
 
 import pandas as pd
 
-from alteryx2python.comparison.schema_diff import ensure_fields_exist, snapshot_schema
+from alteryx2python.comparison.schema_diff import snapshot_schema
+from alteryx2python.expressions.fields import field_value
 from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
 
@@ -57,6 +58,7 @@ def _pivot_sum(values):
 
 
 def pivot_crosstab(frame, groups, header, data, methods, separator, field_size):
+    frame = pd.DataFrame({name: field_value(frame, name) for name in [*groups, header, data]})
     single_method = len(methods) == 1
     total_column = ("TotCol", "total_column") in methods
     total_row = ("TotRow", "total_row") in methods
@@ -146,16 +148,17 @@ def crosstab_tool(
     method = str(config.get("method", "First"))
     if not header_field or not data_field:
         raise ValueError("CrossTab config requires header_field and data_field")
-    ensure_fields_exist(input_frame, [*group_fields, header_field, data_field])
+    keys = [*group_fields, header_field, data_field]
+    input_values = pd.DataFrame({name: field_value(input_frame, name) for name in keys})
 
     methods = config.get("methods")
     if methods:
         output = pivot_crosstab(
-            input_frame, group_fields, header_field, data_field, crosstab_methods(methods),
+            input_values, group_fields, header_field, data_field, crosstab_methods(methods),
             config.get("separator", ","), config.get("field_size"),
         )
     else:
-        output = _legacy_pivot(input_frame, group_fields, header_field, data_field, method, config.get("separator", ","))
+        output = _legacy_pivot(input_values, group_fields, header_field, data_field, method, config.get("separator", ","))
     outputs = {"Output": output}
     context.record_node(
         node_id=str(config.get("node_id", "unknown")),

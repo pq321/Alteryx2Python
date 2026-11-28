@@ -6,6 +6,7 @@ import csv
 import importlib
 import json
 from pathlib import Path
+import re
 import subprocess
 import sys
 
@@ -26,6 +27,47 @@ def _read_csv(path: Path) -> list[list[str]]:
         return list(csv.reader(f))
 
 
+def test_ubs_packages_keep_host_metadata_out_of_generated_python():
+    root = Path(__file__).resolve().parents[2] / "examples" / "ubs_trading_benchmarks"
+    for case in sorted(root.glob("0*")):
+        source = next(case.glob("*.yx*"))
+        answers = None
+        if case.name.startswith("02"):
+            answers = {"desk": "ALL", "trade_date": "2026-11-27", "threshold": 2000000}
+        elif case.name.startswith("04"):
+            answers = {
+                "File Browse (10)": str(next(case.glob("ROB*.xlsx"))),
+                "Text Box (57)": "ubs-local",
+            }
+        package = ModularPackageGenerator().generate(
+            XmlWorkflowParser().parse(source), answers=answers,
+            delivery_profile=None if case.name.startswith("04") else "html-draft-v1",
+        )
+        assert not package.manifest.get("migration_gaps")
+        for path, code in package.files.items():
+            if not path.endswith(".py"):
+                continue
+            assert re.search(r"(?i)[a-z]:[/\\]|\bbase_dir\b|expected_output_schema|OneDrive", code) is None, path
+            assert "positions.index(" not in code, path
+            if path in {"pipeline.py", "helpers.py"}:
+                assert not re.search(r"(?m)^import (?:ctypes|os)\b", code), path
+                assert "_sort_dictionary_key" not in code, path
+        pipeline = package.files["pipeline.py"]
+        if case.name.startswith("02"):
+            assert "def compute_is_wash_suspect(" in pipeline
+            assert "def compute_rolling_split_notional(" in pipeline
+            assert ".shift(1)" in pipeline
+            assert "for pos, idx in enumerate(positions):" in pipeline
+            assert pipeline.count("rel = pos - 1") == 1
+        if case.name.startswith("04"):
+            assert "def join_name_to_source_field(" in pipeline
+            assert ".str.rjust(3" in pipeline
+            assert "regex=True" in pipeline
+            assert "for row in out.to_dict('records')" not in pipeline
+
+
+def test_fuzzy_match_package_specializes_configuration_checks(tmp_path, monkeypatch):
+    from alteryx2python.parity.samples import generate_fuzzy_key_samples
 @pytest.mark.parametrize("append", [False, True])
 def test_optional_date_action_updates_text_input_cell_at_runtime(tmp_path, monkeypatch, append):
     from xml.etree import ElementTree as ET

@@ -9,6 +9,26 @@ from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
 
 
+def transpose_frame(frame, key_fields, data_fields):
+    text_types = {"string", "unicode"}
+    as_text = any(pd.api.types.infer_dtype(frame[field], skipna=True) in text_types for field in data_fields)
+    rows = []
+    for source_row in frame.to_dict("records"):
+        keys = [source_row[field] for field in key_fields]
+        for field in data_fields:
+            value = source_row[field]
+            if as_text and not pd.isna(value):
+                value = str(value)
+            rows.append([*keys, field, value])
+    return pd.DataFrame(rows, columns=[*key_fields, "Name", "Value"])
+
+
+def transpose_fields(columns, keys, configured):
+    selected = {field["field"]: field.get("selected", False) for field in configured if isinstance(field, dict)}
+    keep_unknown = selected.get("*Unknown", False)
+    return [column for column in columns if column not in keys and selected.get(column, keep_unknown)]
+
+
 def transpose_tool(
     inputs: dict[str, pd.DataFrame],
     config: dict[str, Any],

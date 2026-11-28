@@ -13,6 +13,7 @@ from typing import Any
 
 import pandas as pd
 
+FLOAT_TOLERANCE = 1e-12
 
 class SnapshotEncodingError(TypeError):
     """Capture/representation failure is not a user workflow's semantic error."""
@@ -82,6 +83,7 @@ def frame_snapshot(frame: pd.DataFrame) -> dict[str, Any]:
 def compare_snapshots(
     expected: dict[str, Any], actual: dict[str, Any], *, profile: str = "behavioral",
     align_columns: bool = False, align_rows: bool = False,
+    unordered: bool = False,
 ) -> dict[str, Any]:
     differences: list[dict[str, Any]] = []
     order_differences = []
@@ -101,6 +103,9 @@ def compare_snapshots(
         differences.append({
             "dimension": "columns", "expected": left_columns, "actual": right_columns,
         })
+    if unordered:
+        left_rows = sorted(left_rows, key=lambda row: _row_key(row, profile))
+        right_rows = sorted(right_rows, key=lambda row: _row_key(row, profile))
     rows_equal = left_rows == right_rows
     if not rows_equal and len(left_rows) == len(right_rows):
         rows_equal = all(
@@ -166,23 +171,35 @@ def compare_snapshots(
         **({"order_differences": order_differences} if order_differences else {}),
         "expected_row_count": len(expected.get("rows", [])),
         "actual_row_count": len(actual.get("rows", [])),
+        **({"row_order": "multiset"} if unordered else {}),
     }
 
 
 _NUMERIC_KINDS = {"int", "float", "decimal"}
 
 
-def cell_comparison_key(cell: dict[str, Any], *, profile: str = "behavioral") -> str:
+def cell_comparison_key(cell: dict[str, Any], *, profile: str = "behavioral", normalize_float=False) -> str:
     if profile != "strict" and cell.get("kind") in _NUMERIC_KINDS:
         try:
             value = float.fromhex(cell["value"]) if cell["kind"] == "float" else Decimal(cell["value"])
+            if normalize_float and cell["kind"] == "float":
+                value = "0" if abs(value) <= FLOAT_TOLERANCE else format(value, ".12g")
             return f"numeric:{Fraction(value)}"
         except (ValueError, OverflowError):
             pass
     return json.dumps(cell, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
 
 
+def _row_key(row, profile):
+    return tuple(
+        cell_comparison_key(cell, profile=profile, normalize_float=True) for cell in row
+    )
+
+
 def _equal_cell(left: dict[str, Any], right: dict[str, Any], profile: str) -> bool:
+    if profile != "strict" and left.get("kind") == right.get("kind") == "float" and left != right:
+        return math.isclose(float.fromhex(left["value"]), float.fromhex(right["value"]),
+                            rel_tol=FLOAT_TOLERANCE, abs_tol=FLOAT_TOLERANCE)
     return left == right or (
         profile != "strict"
         and left.get("kind") in _NUMERIC_KINDS

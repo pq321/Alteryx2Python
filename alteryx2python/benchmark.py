@@ -25,6 +25,76 @@ def _write_xml(path, root):
     ET.ElementTree(root).write(path, encoding='utf-8', xml_declaration=True)
 
 
+def _add_interface_node(nodes, tool_id, plugin, x, y):
+    node = ET.SubElement(nodes, 'Node', ToolID=tool_id)
+    gui = ET.SubElement(node, 'GuiSettings', Plugin=plugin)
+    ET.SubElement(gui, 'Position', x=x, y=y, width='59', height='59')
+    ET.SubElement(ET.SubElement(node, 'Properties'), 'Configuration')
+
+
+def _add_question(questions, tool_type, tool_id, name, description):
+    question = ET.SubElement(questions, 'Question')
+    ET.SubElement(question, 'Type').text = tool_type
+    ET.SubElement(question, 'Description').text = description
+    ET.SubElement(question, 'Name').text = name
+    ET.SubElement(question, 'ToolId', value=tool_id)
+    return question
+
+
+def _add_interface_tab(root, *, macro=False):
+    nodes = root.find('Nodes')
+    runtime = root.find('Properties/RuntimeProperties')
+    tab_id = str(max(int(node.get('ToolID')) for node in nodes.iter('Node')) + 1)
+    _add_interface_node(nodes, tab_id, 'AlteryxGuiToolkit.Questions.Tab.Tab', '0', '0')
+    tab = _add_question(runtime.find('Questions'), 'Tab', tab_id, f'Tab ({tab_id})', 'Parameters')
+    questions = ET.SubElement(tab, 'Questions')
+    for node in nodes:
+        tool_type = node.find('GuiSettings').get('Plugin', '').split('.')[-1]
+        if tool_type in {'MacroInput', 'MacroOutput'}:
+            port_id = node.get('ToolID')
+            port_label = f'{tool_type.replace("Macro", "Macro ")} ({port_id})'
+            _add_question(questions, tool_type, port_id, port_label, port_label)
+    ET.SubElement(runtime, 'ModuleType').text = 'Macro' if macro else 'Wizard'
+    if macro:
+        ET.SubElement(runtime, 'MacroInputs')
+        ET.SubElement(runtime, 'MacroOutputs')
+    return questions, int(tab_id) + 1
+
+
+def _add_numeric_interface(root, questions, first_id, *, target, destination, name, description, default, maximum, token):
+    nodes = root.find('Nodes')
+    connections = root.find('Connections')
+    question_id, action_id = str(first_id), str(first_id + 1)
+    _add_interface_node(nodes, question_id, 'AlteryxGuiToolkit.Questions.NumericUpDown.NumericUpDown', '250', '40')
+    _add_interface_node(nodes, action_id, 'AlteryxGuiToolkit.Action.Action', '360', '40')
+    for source, target_id, anchor in (
+        (question_id, action_id, 'Question'), (action_id, str(target), 'Action'),
+    ):
+        connection = ET.SubElement(connections, 'Connection')
+        ET.SubElement(connection, 'Origin', ToolID=source, Connection=anchor)
+        ET.SubElement(connection, 'Destination', ToolID=target_id, Connection=anchor)
+
+    runtime = root.find('Properties/RuntimeProperties')
+    question = _add_question(questions, 'NumericUpDown', question_id, name, description)
+    for tag, value in (
+        ('Default', default), ('Minimum', '0'), ('Maximum', maximum),
+        ('Increment', '0.1'), ('Decimals', '1'),
+    ):
+        ET.SubElement(question, tag, value=value)
+    group = ET.SubElement(runtime.find('Actions'), 'NoCondition')
+    ET.SubElement(group, 'Type').text = 'NoCondition'
+    action = ET.SubElement(ET.SubElement(group, 'True'), 'Action')
+    ET.SubElement(action, 'Type').text = 'UpdateValue'
+    ET.SubElement(action, 'Description').text = description
+    ET.SubElement(action, 'Variable').text = name
+    ET.SubElement(action, 'Replace', value='True')
+    ET.SubElement(action, 'ReplaceText').text = token
+    ET.SubElement(action, 'Destination').text = destination
+    ET.SubElement(action, 'ToolId', value=action_id)
+    ET.SubElement(action, 'Mode').text = 'Simple'
+    ET.SubElement(group, 'Description').text = '(Always Run)'
+
+
 def build_benchmark(destination, data_path):
     """Create an original, connected analytic app and local macro from public data."""
     destination = Path(destination)

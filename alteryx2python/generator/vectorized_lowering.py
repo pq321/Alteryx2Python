@@ -21,7 +21,8 @@ from alteryx2python.generator.parameters import ParameterExpression
 
 STRING_RETURNING_FUNCS = frozenset({
     "TRIM", "TRIMLEFT", "TRIMRIGHT", "UPPERCASE", "LOWERCASE", "TITLECASE",
-    "LEFT", "RIGHT", "SUBSTRING", "REPLACE", "TOSTRING", "DATETIMEFORMAT", "FILEADDPATHS",
+    "LEFT", "RIGHT", "SUBSTRING", "REPLACE", "REGEX_REPLACE", "PADLEFT", "PADRIGHT",
+    "TOSTRING", "DATETIMEFORMAT", "FILEADDPATHS",
 })
 BOOL_RETURNING_FUNCS = frozenset({
     "ISNULL", "ISEMPTY", "CONTAINS", "STARTSWITH", "ENDSWITH",
@@ -101,14 +102,18 @@ def try_lower_vectorized(
     param_meta: dict[str, dict[str, Any]] | None = None,
     static_constants: dict[str, Any] | None = None,
     known_column_kinds: dict[str, str] | None = None,
+    resolve_field: Callable[[], str] | None = None,
     casefold_comparisons: bool = False,
     link: Callable | None = None,
+    row_references: dict[str, LoweredExpr] | None = None,
+    stringify: Callable[[], str] | None = None,
 ) -> LoweredExpr | None:
     """Lower ExpressionNode to vectorized Pandas / clean scalar Python, or None if unsupported."""
     param_names = param_names or {}
     param_meta = param_meta or {}
     static_constants = static_constants or {}
-    known_column_kinds = {k.casefold(): v for k, v in (known_column_kinds or {}).items()}
+    known_column_kinds = known_column_kinds or {}
+    folded_kinds = {column.casefold(): kind for column, kind in known_column_kinds.items()}
 
     def arithmetic_code(operand: LoweredExpr) -> str:
         if link is not None and operand.is_series and operand.kind == "any":
@@ -133,6 +138,8 @@ def try_lower_vectorized(
             return LoweredExpr(py_name, is_series=False, kind=_infer_param_kind(py_name, param_meta))
 
         if isinstance(node, FieldReference):
+            if row_references and node.name in row_references:
+                return row_references[node.name]
             special = _resolve_special_ref(node, param_names, static_constants)
             if special is not None:
                 code, s_kind = special
@@ -142,11 +149,14 @@ def try_lower_vectorized(
             # Row-offset references (MultiRowFormula) cannot lower as plain column Series
             if node.name.startswith(("Row-", "Row+")) or node.name == "_CurrentField_":
                 return None
-            c_kind = known_column_kinds.get(node.name.casefold(), "any")
+            c_kind = folded_kinds.get(node.name.casefold(), "any")
             if c_kind == "decimal":
                 return None
+            code = f"{frame_var}[{node.name!r}]"
+            if resolve_field and node.name not in known_column_kinds:
+                code = f"{resolve_field()}({frame_var}, {node.name!r})"
             return LoweredExpr(
-                f"{frame_var}[{node.name!r}]",
+                code,
                 is_series=True,
                 kind=c_kind,
                 nullable_bool=(c_kind == "bool"),
@@ -213,6 +223,14 @@ def try_lower_vectorized(
                         kind="string",
                         imports=imps,
                     )
+                if row_references and left.is_series and right.is_series:
+                    code = f"{left.code}.add({right.code}, fill_value=0)" if left.kind == right.kind == "numeric" else (
+                        f'({left.code}.add({right.code}, fill_value=0) '
+                        f'if pd.api.types.is_numeric_dtype({left.code}) and pd.api.types.is_numeric_dtype({right.code}) '
+                        f'else {left.code} + {right.code})'
+                    )
+                    return LoweredExpr(code, is_series=True, kind="numeric", imports=imps)
+
             if op in {"+", "-", "*", "/"}:
                 code = f"({arithmetic_code(left)} {op} {arithmetic_code(right)})"
                 return LoweredExpr(code, is_series=either_series, kind="numeric", imports=imps)
@@ -463,8 +481,36 @@ def try_lower_vectorized(
             if fn == "TOSTRING" and len(args) == 1:
                 a0 = args[0]
                 if a0.is_series:
-                    return LoweredExpr(f'{a0.code}.astype("string")', is_series=True, kind="string", imports=imps)
-                return LoweredExpr(f"str({a0.code})", is_series=False, kind="string", imports=imps)
+                    code = f'{a0.code}.astype("string").fillna("")'
+                    if a0.kind != "string" and stringify is not None:
+                        code = f"{stringify()}({a0.code})"
+                    return LoweredExpr(code, is_series=True, kind="string", imports=imps)
+                return None
+
+            if fn == "REGEX_REPLACE" and len(args) == 3 and args[0].is_series and not any(
+                arg.is_series for arg in args[1:]
+            ):
+                value, pattern, replacement = args
+                text = value.code if value.kind == "string" else f'{value.code}.astype("string")'
+                return LoweredExpr(
+                    f'{text}.fillna("").str.replace({pattern.code}, {replacement.code}, regex=True)',
+                    is_series=True, kind="string", imports=imps,
+                )
+
+            if fn in {"PADLEFT", "PADRIGHT"} and len(args) in {2, 3} and args[0].is_series and all(
+                isinstance(arg, LiteralExpression) for arg in node.args[1:]
+            ):
+                width = node.args[1].value
+                fill = str(node.args[2].value) if len(args) == 3 else " "
+                if type(width) is not int or len(fill) != 1:
+                    return None
+                method = "rjust" if fn == "PADLEFT" else "ljust"
+                value = args[0]
+                text = value.code if value.kind == "string" else f'{value.code}.astype("string")'
+                return LoweredExpr(
+                    f'{text}.fillna("None").str.{method}({width}, {fill!r})',
+                    is_series=True, kind="string", imports=imps,
+                )
 
             if fn == "ABS" and len(args) == 1:
                 a0 = args[0]

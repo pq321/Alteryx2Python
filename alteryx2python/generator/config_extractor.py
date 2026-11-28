@@ -267,6 +267,7 @@ def extract_config(
     source_wf = original_workflow or workflow
     spec = ConfigSpec()
     alteryx_csv_outputs = alteryx_csv_outputs or set()
+    sink_bindings = attachment_bindings(workflow, redirect_sinks=True)
 
     used_param_py: set[str] = {"config", "df", "input_dir", "output_dir"}
     # 1. Register Analytic App Questions & folded 1-row TextInput parameters
@@ -401,7 +402,7 @@ def extract_config(
             if limit is not None:
                 entry["max_rows"] = int(limit)
             if node.node_id in file_param_by_node:
-                if selector:
+                if selector and not is_excel:
                     raise UnsupportedLowering("File parameters with worksheet/range selectors require a binding template")
                 entry["parameter"] = file_param_by_node[node.node_id]
                 entry["expected_suffix"] = suffix
@@ -529,6 +530,7 @@ def extract_config(
                     "format": "excel",
                     "sheet_name": sheet,
                     "has_header": bool(header),
+                    "replace_sheet": _format_option(cfg, "OutputOption", "") in {"Overwrite", "Create"},
                 }
             elif file_fmt == "0" or suffix in {".csv", ".eml", ".txt", ".tsv"}:
                 if not p.name:
@@ -605,8 +607,16 @@ def extract_config(
                 "recipient": str(cfg.get("to", "")),
                 "subject": str(cfg.get("subject", "")),
                 "body_field": str(cfg.get("body") or "Report"),
-                "attachments": [Path(v).name for v in cfg.get("attachments", [])],
+                "attachments": [
+                    f"output:{produced}" if (produced := attachment_output(path, sink_bindings)) else path
+                    for path in cfg.get("attachments", [])
+                ],
             }
+            if cfg.get("plain_body"):
+                spec.outputs[key].update(
+                    plain_body=str(cfg.get("body", "")),
+                    smtp_server=cfg.get("smtp_server", ""), smtp_port=cfg.get("smtp_port", "25"),
+                )
 
     # 4. Extract Workflow Events into [[events.hooks]]
     if source_wf.source_xml:
@@ -615,7 +625,6 @@ def extract_config(
         except (ValueError, NotImplementedError) as exc:
             raise UnsupportedLowering(str(exc)) from exc
         event_consts = workflow.metadata.get("workflow_constants", {})
-        sink_bindings = attachment_bindings(workflow, redirect_sinks=True)
 
         from alteryx2python.runtime.variables import TOKEN, resolve_variable_tokens
 

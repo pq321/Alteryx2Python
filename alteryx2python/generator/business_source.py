@@ -113,6 +113,11 @@ class _Delivery(ast.NodeTransformer):
         node.keywords = [item for item in node.keywords if item.arg != 'checkpoints']
         return node
 
+    def visit_ClassDef(self, node):
+        node = self.generic_visit(node)
+        node.body = node.body or [ast.Pass()]
+        return node
+
     def visit_If(self, node):
         if _checkpoint(node) is not None:
             return None

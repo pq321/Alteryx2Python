@@ -10,6 +10,7 @@ import inspect
 import json
 import keyword
 from pathlib import Path
+from pprint import pformat
 import re
 import textwrap
 import unicodedata
@@ -18,6 +19,7 @@ from typing import Any
 import pandas as pd
 
 from alteryx2python.expressions.errors import UnsupportedExpressionError
+from alteryx2python.expressions.functions import to_string_series
 from alteryx2python.expressions.parser import parse_expression
 from alteryx2python.generator.config_extractor import ConfigSpec, extract_config
 from alteryx2python.generator.ir_optimizer import (
@@ -42,7 +44,8 @@ from alteryx2python.generator.source_linker import (
     simplify_template,
     strip_annotations,
 )
-from alteryx2python.generator.vectorized_lowering import _ensure_bool_mask, try_lower_vectorized
+from alteryx2python.generator.vectorized_lowering import LoweredExpr, _ensure_bool_mask, try_lower_vectorized
+from alteryx2python.expressions.fields import field_value as resolve_record_field
 from alteryx2python.ir.models import NodeIR, WorkflowIR
 from alteryx2python.tools.field_contracts import INTEGER_BYTES, STRING_TYPES, field_contract
 
@@ -64,6 +67,11 @@ def _ident(value: str, default: str = "step") -> str:
     if not cleaned.isidentifier() or keyword.iskeyword(cleaned):
         cleaned = f"{default}_{cleaned}"
     return cleaned if cleaned.isidentifier() else default
+
+
+def _field_name(value: str) -> str:
+    value = re.sub(r"([A-Z]+)([A-Z][a-z])", r"\1_\2", value)
+    return _ident(re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", value))
 
 
 def _annotation_name(node: NodeIR) -> str:
@@ -188,7 +196,7 @@ class _SubgraphEmitter:
                         return f"row.get({node.name!r}, {param_names[clean[9:]]})"
                     if clean in static_consts:
                         return f"row.get({node.name!r}, {static_consts[clean]!r})"
-                return f"row[{node.name!r}]"
+                return f"{self.linker.function(resolve_record_field)}(row, {node.name!r})"
             if isinstance(node, ConditionalExpression):
                 return f"({render(node.true_value)} if bool({render(node.condition)}) else {render(node.false_value)})"
             if isinstance(node, UnaryExpression) and node.operator == "!":
@@ -447,6 +455,8 @@ class _SubgraphEmitter:
                     static_constants=static_consts,
                     known_column_kinds=out_kinds,
                     link=self.linker.function,
+                    resolve_field=lambda: self.linker.function(resolve_record_field),
+                    stringify=lambda: self.linker.function(to_string_series),
                 )
                 if lowered is not None:
                     imps |= lowered.imports
@@ -484,6 +494,8 @@ class _SubgraphEmitter:
                 static_constants=static_consts,
                 known_column_kinds=in_kinds,
                 link=self.linker.function,
+                resolve_field=lambda: self.linker.function(resolve_record_field),
+                stringify=lambda: self.linker.function(to_string_series),
             )
             if lowered is not None:
                 imps |= lowered.imports
@@ -508,24 +520,11 @@ class _SubgraphEmitter:
             lines.append(f"return {frame}.loc[mask].copy(), {frame}.loc[~mask].copy()")
             return lines, imps, params_used, [], False, dict(in_kinds)
 
-        if kind == "Sort":
-            from alteryx2python.tools.sort import _is_ascending, sort_frame, sort_locale_name
+        if kind in {"Sort", "DataCleansing"}:
+            from alteryx2python.generator.native_tabular import lower_tabular
 
-            s_fields = cfg.get("sort_fields", [])
-            if not s_fields:
-                raise UnsupportedLowering("Sort requires fields")
-            keys = [f["field"] for f in s_fields]
-            dirs = [_is_ascending(f.get("order", "Ascending")) for f in s_fields]
-            locale = sort_locale_name(cfg.get("sort_locale"))
-            sort = self.linker.function(sort_frame)
-            return (
-                [f"return {sort}({frame}, {keys!r}, {dirs!r}, {locale!r})"],
-                imps,
-                params_used,
-                [],
-                True,
-                dict(in_kinds),
-            )
+            body = lower_tabular(self, kind, cfg, frame)
+            return body, imps, params_used, [], True, dict(in_kinds)
 
         if kind == "Summarize":
             s_fields = cfg.get("summarize_fields", [])
@@ -725,6 +724,136 @@ class _SubgraphEmitter:
         if kind in {"MacroInput", "MacroBoundaryInput", "MacroOutput"}:
             return ([f"return {frame}.copy()"] if arg_names else ["return pd.DataFrame()"]), imps, params_used, [], bool(arg_names), dict(in_kinds)
 
+        if kind == "Download":
+            from alteryx2python.tools.download import download_frame
+
+            if str(cfg.get("output_mode", "String")).lower() != "string":
+                raise UnsupportedLowering("Download supports String output")
+            keys = ("url_field", "encode_urls", "headers", "header_fields", "payload", "timeout")
+            request = {key: cfg[key] for key in keys if key in cfg}
+            helper = self.linker.function(download_frame)
+            return [f"return {helper}({frame}, {request!r})"], imps, params_used, [], False, {}
+
+        if kind == "DynamicRename":
+            from alteryx2python.tools.dynamicrename import rename_fields
+
+            target = arg_names["Targets"]
+            selections = cfg.get("selected_fields", {"*Unknown": True})
+            mode = str(cfg.get("rename_mode", "")).lower()
+            body = [
+                f"selections = {pformat(selections, width=78, sort_dicts=False)}",
+                f"fields = [name for name in {target} if selections.get(name, selections.get('*Unknown', False))]",
+            ]
+            if mode == "formula":
+                expression = parse_expression(cfg["expression"])
+                params_used |= self._collect_expr_params(expression, param_names)
+                formula = self._scalar_expression(expression, param_names, static_consts)
+                body += [
+                    "renames = {}",
+                    "for name in fields:",
+                    "    row = {'_CurrentField_': name}",
+                    f"    renames[name] = {formula}",
+                ]
+            else:
+                helper = self.linker.function(rename_fields)
+                inputs = ", ".join(f"{name!r}: {argument}" for name, argument in arg_names.items())
+                imps.add("import warnings")
+                body.append(f"renames = {helper}({{{inputs}}}, fields, {mode!r}, {cfg.get('options', {})!r}, warnings.warn)")
+            body += [
+                f"names = [renames.get(field, field) for field in {target}]",
+                "if len(set(names)) != len(names):",
+                '    raise ValueError("DynamicRename produced duplicate output field names")',
+                f"output = {target}.rename(columns=renames)",
+                "return output.iloc[1:].reset_index(drop=True)" if mode == "firstrow" else "return output",
+            ]
+            return body, imps, params_used, [], False, {}
+
+        if kind == "DynamicSelect":
+            from alteryx2python.tools.dynamicselect import _is_selected, _schema_row, _select_by_field_types
+
+            if cfg.get("mode") == "FieldTypes":
+                selector = self.linker.function(_select_by_field_types)
+                body = [
+                    f"columns = {selector}({frame}, {cfg.get('field_types', [])!r})",
+                    f"return {frame}.loc[:, columns].copy()",
+                ]
+            elif cfg.get("mode") == "Formula":
+                expression = parse_expression(cfg.get("expression", "").replace("&&", " AND ").replace("||", " OR "))
+                params_used |= self._collect_expr_params(expression, param_names)
+                predicate = self._scalar_expression(expression, param_names, static_consts)
+                schema_row = self.linker.function(_schema_row)
+                is_selected = self.linker.function(_is_selected)
+                body = [
+                    "columns = []",
+                    f"for position, column in enumerate({frame}.columns, start=1):",
+                    f"    row = {schema_row}({frame}, column, position)",
+                    f"    if {is_selected}({predicate}):",
+                    "        columns.append(column)",
+                    f"return {frame}.loc[:, columns].copy()",
+                ]
+            else:
+                raise UnsupportedLowering(f"Unsupported Dynamic Select mode: {cfg.get('mode')}")
+            return body, imps, params_used, [], False, {}
+
+        if kind == "DynamicReplace":
+            from alteryx2python.runtime.executor import _normalized_config
+            from alteryx2python.tools.dynamicreplace import apply_replacement_rules
+            from alteryx2python.tools.textinput import _infer_types
+
+            source_id = next(
+                (edge.source_node_id for edge in self.workflow.edges
+                 if edge.target_node_id == node.node_id and edge.target_anchor == "Expressions"), None,
+            )
+            source = next((item for item in self.workflow.nodes if item.node_id == source_id), None)
+            if source is None or source.tool_type != "TextInput" or any(
+                str(binding.get("node_id")) == source_id for binding in self.opt.parameter_bindings
+            ):
+                raise UnsupportedLowering("Dynamic Replace requires a fixed workflow-defined expression table")
+            source_config = _normalized_config(source)
+            rules = _infer_types(pd.DataFrame(source_config["rows"], columns=source_config["fields"], dtype=object))
+            wanted = [cfg.get(key) for key in ("field_field_name", "field_output_value", "field_expression")]
+            field_name, field_value, expression_field = wanted
+            expected = rules[[name for name in wanted if name]].astype("string").fillna("").to_numpy().tolist()
+            body = [
+                f"rules_table = {arg_names['Expressions']}[{[name for name in wanted if name]!r}]",
+                f"if rules_table.astype('string').fillna('').to_numpy().tolist() != {expected!r}:",
+                "    raise ValueError('Dynamic Replace rules changed since compilation')",
+                "rules = {}",
+            ]
+            for field, group in rules.groupby(field_name, sort=False):
+                body.append(f"rules[{field!r}] = [")
+                for record in group.to_dict("records"):
+                    value = record[field_value]
+                    condition = record.get(expression_field)
+                    sources = (condition, value if cfg.get("value_is_expression") else None)
+                    lowered = []
+                    for index, expression in enumerate(sources):
+                        if expression is None or (index == 0 and str(expression).strip() in {"", "-1"}):
+                            lowered.append("None")
+                        else:
+                            parsed = parse_expression(str(expression))
+                            params_used |= self._collect_expr_params(parsed, param_names)
+                            lowered.append("lambda row: " + self._scalar_expression(parsed, param_names, static_consts))
+                    body.append(f"    ({value!r}, {lowered[0]}, {lowered[1]}),")
+                body.append("]")
+            helper = self.linker.function(apply_replacement_rules)
+            body.append(f"output, counts = {helper}({arg_names['Input']}, rules)")
+            behavior = str(cfg.get("unmatched_behavior") or "").lower()
+            if behavior in {"warn", "error"}:
+                body += [
+                    "for field, _, count in counts.groupby('FieldName', sort=False).tail(1).itertuples(index=False, name=None):",
+                    "    if count:",
+                    "        message = f'Dynamic Replace found {count} unmatched values for {field!r}'",
+                ]
+                if behavior == "error":
+                    body.append("        raise ValueError(message)")
+                else:
+                    imps.add("import warnings")
+                    body.append("        warnings.warn(message, RuntimeWarning)")
+            names = {"Output": "output", "Counts": "counts"}
+            body.append("return " + ", ".join(names[anchor] for anchor in outputs))
+            return body, imps, params_used, [], False, {}
+
         if kind == "DateTimeNow":
             from alteryx2python.tools.datetimenow import FORMAT_MAP, date_time_frame
 
@@ -798,7 +927,7 @@ class _SubgraphEmitter:
                 return [f"return {h_fn}({frame}, {cfg.get('layout_fields', [])!r})"], imps, params_used, [], False, {}
 
         if kind in {"GenerateRows", "MultiFieldFormula", "MultiRowFormula", "Message", "ControlContainer"}:
-            return self._lower_special_stateful(node, cfg, arg_names, outputs, param_names, static_consts)
+            return self._lower_special_stateful(node, cfg, arg_names, outputs, param_names, static_consts, in_kinds)
 
         if kind == "JupyterCode":
             from alteryx2python.generator.python_tool import lower_python_script, saved_python_script
@@ -854,6 +983,7 @@ class _SubgraphEmitter:
         outputs: tuple[str, ...],
         param_names: dict[str, str],
         static_consts: dict[str, Any],
+        in_kinds: dict[str, str],
     ) -> tuple[list[str], set[str], set[str], list[str], bool, dict[str, str]]:
         kind = node.tool_type
         frame = next(iter(arg_names.values()), None)
@@ -970,7 +1100,6 @@ class _SubgraphEmitter:
             target = _target_field(cfg)
             p_ast = parse_expression(cfg["expression"])
             params_used |= self._collect_expr_params(p_ast, param_names)
-            expr_c = self._scalar_expression(p_ast, param_names, static_consts)
             groups, dtype = cfg.get("group_by_fields", []), cfg.get("create_field_type", "")
             refs: dict[str, tuple[int, str]] = {}
 
@@ -987,8 +1116,37 @@ class _SubgraphEmitter:
                         collect_refs(item)
 
             collect_refs(p_ast)
+            nearest = str(cfg.get("other_rows", "Empty")).lower() == "nearest"
+            if not nearest and all(offset < 0 and fld.casefold() != target.casefold() for offset, fld in refs.values()):
+                aliases = {ref: f"lag_{i}" for i, ref in enumerate(refs, 1)}
+                lowered = try_lower_vectorized(
+                    p_ast, "out", param_names=param_names, param_meta=self.config_spec.parameter_meta,
+                    static_constants=static_consts, known_column_kinds=in_kinds,
+                    stringify=lambda: self.linker.function(to_string_series),
+                    row_references={
+                        ref: LoweredExpr(aliases[ref], True, in_kinds.get(fld, "any"))
+                        for ref, (_, fld) in refs.items()
+                    },
+                )
+                if lowered is not None:
+                    lines = [f"out = {frame}.copy()"]
+                    if groups and refs:
+                        lines.append(f"grouped = out.groupby({groups!r}, sort=False, dropna=False)")
+                    source = "grouped" if groups else "out"
+                    for ref, (offset, fld) in refs.items():
+                        lines.append(f"{aliases[ref]} = {source}[{fld!r}].shift({-offset})")
+                    lines.append(f"out[{target!r}] = {lowered.code}")
+                    kind_out = lowered.kind
+                    if dtype:
+                        size = cfg.get("create_field_size") if dtype in STRING_TYPES | {"FixedDecimal"} else None
+                        cast, kind_out = self._native_cast_expr(f"out[{target!r}]", dtype, size)
+                        lines.append(f"out[{target!r}] = {cast}")
+                    return lines + ["return out.reset_index(drop=True)"], lowered.imports, params_used, [], False, {
+                        **in_kinds, target: kind_out,
+                    }
+
+            expr_c = self._scalar_expression(p_ast, param_names, static_consts)
             g_key = f"tuple(row.get(f) for f in {groups!r})" if groups else "()"
-            r_key = f"tuple(rec.get(f) for f in {groups!r})" if groups else "()"
             lines = [f"rows = {frame}.copy().to_dict('records')"]
             if not cfg.get("update_field"):
                 lines.extend(["for row in rows:", f"    row[{target!r}] = {_empty_value_for(target, target, dtype)!r}"])
@@ -996,18 +1154,23 @@ class _SubgraphEmitter:
                 "pos_by_group = {}",
                 "for idx, row in enumerate(rows):",
                 f"    pos_by_group.setdefault({g_key}, []).append(idx)",
-                "for idx, rec in enumerate(rows):",
-                "    row = dict(rec)",
-                f"    positions = pos_by_group[{r_key}]",
-                "    pos = positions.index(idx)",
             ])
+            loop = [
+                "    rec = rows[idx]",
+                "    row = dict(rec)",
+            ]
+            neighbors = {}
             for ref_name, (offset, fld) in refs.items():
-                fb = "(positions[0] if rel < 0 else positions[-1])" if str(cfg.get("other_rows", "Empty")).lower() == "nearest" else "None"
-                lines.extend([
-                    f"    rel = pos + {offset}",
-                    f"    nbr = positions[rel] if 0 <= rel < len(positions) else {fb}",
-                    f"    row[{ref_name!r}] = {_empty_value_for(fld, target, dtype)!r} if nbr is None else rows[nbr].get({fld!r})",
-                ])
+                if offset not in neighbors:
+                    neighbor = f"neighbor_{len(neighbors) + 1}"
+                    neighbors[offset] = neighbor
+                    fb = "(positions[0] if rel < 0 else positions[-1])" if nearest else "None"
+                    loop.extend([
+                        f"    rel = pos {'-' if offset < 0 else '+'} {abs(offset)}",
+                        f"    {neighbor} = positions[rel] if 0 <= rel < len(positions) else {fb}",
+                    ])
+                neighbor = neighbors[offset]
+                loop.append(f"    row[{ref_name!r}] = {_empty_value_for(fld, target, dtype)!r} if {neighbor} is None else rows[{neighbor}].get({fld!r})")
             conv = (
                 "bool" if dtype.lower() == "bool" else (
                     "int" if dtype.lower() in {"byte", "int16", "int32", "int64"} else (
@@ -1016,14 +1179,22 @@ class _SubgraphEmitter:
                 )
             )
             comp = f"val if val is None or pd.isna(val) else {conv}(val)" if conv else "val"
-            lines.extend([
+            if dtype.lower() == "fixeddecimal":
+                converter = self.linker.function(_coerce_value)
+                comp = f"{converter}(val, {dtype!r}, {cfg.get('create_field_size', '')!r})"
+            loop.extend([
                 "    try:",
                 f"        val = {expr_c}",
                 "    except TypeError:",
                 "        val = None",
                 f"    rec[{target!r}] = {comp}",
-                "return pd.DataFrame(rows)",
             ])
+            lines += [
+                "for positions in pos_by_group.values():",
+                "    for pos, idx in enumerate(positions):",
+                *["    " + line for line in loop],
+                "return pd.DataFrame(rows)",
+            ]
             return lines, imps, params_used, [], False, {}
 
         raise UnsupportedLowering(f"Unhandled stateful tool: {kind}")
@@ -1035,7 +1206,7 @@ class _SubgraphEmitter:
         arg_names: dict[str, str],
         outputs: tuple[str, ...],
     ) -> list[str]:
-        """Fallback AST specialization for other audited tools (DataCleansing, FindReplace, JSONParse, etc.)."""
+        """Fallback AST specialization for other audited tools (FindReplace, JSONParse, etc.)."""
         from alteryx2python.generator.readable import _ReturnFrames, _Specialize
         from alteryx2python.tools.registry import TOOL_REGISTRY
 
@@ -1058,6 +1229,10 @@ class _SubgraphEmitter:
             kwarg=None,
         )
         tree = RemoveTracing().visit(tree)
+        if node.tool_type == "Tile":
+            keys = ("method", "group_fields", "num_tiles", "sort_field", "sum_field", "field",
+                    "cutoffs", "unique_fields", "dont_sort", "name_field")
+            cfg = {key: cfg[key] for key in keys if key in cfg}
         tree = _Specialize(cfg, arg_names, {}).visit(tree)
         tree = _ReturnFrames(outputs).visit(tree)
         tree = simplify_template(tree)
@@ -1576,7 +1751,21 @@ class _SubgraphEmitter:
             cols = [f["field"] for f in cfg.get("sort_fields", [])]
             return "sort_by_" + "_and_".join(cols[:2]) if cols else "sort_rows"
         if kind == "Join":
-            return "join_streams"
+            from alteryx2python.tools.join import join_keys
+
+            left = "_and_".join(map(_field_name, join_keys(cfg, "Left")))
+            right = "_and_".join(map(_field_name, join_keys(cfg, "Right")))
+            if not left or not right or cfg.get("by_position"):
+                return "join_by_position"
+            return f"join_on_{left}" if left == right else f"join_{left}_to_{right}"
+        if kind == "MultiRowFormula":
+            from alteryx2python.tools.multirowformula import _target_field
+
+            return "compute_" + _field_name(_target_field(cfg))
+        if kind == "CrossTab":
+            return f"crosstab_{_field_name(cfg.get('data_field') or 'values')}_by_{_field_name(cfg.get('header_field') or 'category')}"
+        if kind == "DynamicRename":
+            return "rename_fields_by_" + _field_name(cfg.get("rename_mode") or "configuration")
         if kind == "Union":
             return "union_streams"
         if kind == "Unique":

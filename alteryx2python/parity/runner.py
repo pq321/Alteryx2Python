@@ -340,7 +340,7 @@ def prepare(
     event_commands: tuple[str, ...] = (),
     capture_reference: bool = True, allow_missing_inputs: bool = False,
     instrumented_filename: str | None = None, log_event_ids=(),
-    dynamic_inputs: dict | None = None, isolate_xlsx_render: bool = False, as_of=None,
+    dynamic_inputs: dict | None = None, isolate_xlsx_render: bool = False, as_of=None, best_effort=False,
 ) -> dict:
     workflow_path = workflow_path.resolve()
     workflow = XmlWorkflowParser().parse(workflow_path)
@@ -369,6 +369,15 @@ def prepare(
             if program not in allowed or not program.is_file():
                 raise ValueError(f"Event executable is not allowed: {program}")
             programs[int(event["id"])] = program
+    guard_workflow = workflow if not is_app else None
+    if is_app and best_effort and answers is not None:
+        from alteryx2python.runtime.app_config import prepare_workflow
+
+        try:
+            guard_workflow = prepare_workflow(workflow, answers)
+        except (ValueError, KeyError, NotImplementedError):
+            # Retain the probes if App actions cannot be resolved up front.
+            pass
     if is_app:
         workflow.nodes = [node for node in workflow.nodes if node.tool_type not in INTERFACE]
     # Canvas annotation tools (catalog gui_only entries) carry no data flow;
@@ -378,10 +387,13 @@ def prepare(
     _gui_only = {entry.tool_type for entry in _CATALOG if entry.gui_only}
     _local_tools = _dynamic_local_tools()
     by_id = {node.node_id: node for node in workflow.nodes}
-    static_skips = set() if is_app else {
-        node.node_id for node in workflow.nodes if None in container_guards(node, by_id, ())
-    }
-    inactive_detours, detour_skips = (set(), set()) if is_app else detour_exclusions(workflow.nodes, workflow.edges)
+    static_skips, inactive_detours, detour_skips = set(), set(), set()
+    if guard_workflow is not None:
+        guard_nodes = {node.node_id: node for node in guard_workflow.nodes}
+        static_skips = {
+            node_id for node_id, node in guard_nodes.items() if None in container_guards(node, guard_nodes, ())
+        }
+        inactive_detours, detour_skips = detour_exclusions(guard_workflow.nodes, guard_workflow.edges)
     skip_reasons = {node_id: "container_disabled" for node_id in static_skips}
     skip_reasons.update({node_id: "detour_inactive" for node_id in detour_skips})
     static_skips = set(skip_reasons)
@@ -405,7 +417,9 @@ def prepare(
             and not node.tool_type.startswith("Macro_")
         }
     )
-    if unsupported:
+    skipped_probes = {node.node_id: {"tool_type": node.tool_type, "reason": "No local probe adapter"}
+                      for node in workflow.nodes if best_effort and node.tool_type in unsupported}
+    if unsupported and not best_effort:
         raise ValueError(
             "Automatic node capture has no local adapter for: " + ", ".join(unsupported)
         )
@@ -490,7 +504,7 @@ def prepare(
                 if settings is None:
                     raise ValueError("Macro node has no native EngineSettings")
                 settings.set("Macro", str(resolved))
-        if node.tool_type in _gui_only or node.node_id in static_skips:
+        if node.tool_type in _gui_only or node.node_id in static_skips or node.node_id in skipped_probes:
             continue
         metadata = _metadata_for_node(node, WorkflowContext())
         if node.tool_type == "Directory":
@@ -604,6 +618,17 @@ def prepare(
     for flag in (amp, e2):
         flag.set("value", str(use_amp))
     instrumented = destination / instrumented_name
+    if best_effort and sink_files:
+        attachment_paths = {
+            str(node.config["normalized"]["file"]).partition("|||")[0]: str(destination / sink_files[node.node_id])
+            for node in workflow.nodes if node.tool_type == "DbFileOutput" and node.node_id in sink_files
+        }
+        for node in workflow.nodes:
+            if node.tool_type != "Email":
+                continue
+            for value in placement[node.node_id][1].findall("./Properties/Configuration/Attachments/Attachment/Value"):
+                if value.text in attachment_paths:
+                    value.text = attachment_paths[value.text]
     tree.write(instrumented, encoding="utf-8", xml_declaration=True)
     manifest = {
         "source": str(workflow_path),
@@ -621,6 +646,7 @@ def prepare(
         "engine_mode": "amp" if use_amp else "original",
         "macro_dependencies_sha256": {},
         "probes": probes,
+        "skipped_probes": skipped_probes,
         "nodes": [
             {
                 "node_id": node.node_id,
@@ -943,6 +969,7 @@ def collect_native(directory: Path, *, manual: bool = False, capture_report_fiel
     } if manifest.get("sink_files") and "sink_artifacts" in run else None
     return {
         "producer": "alteryx",
+        "engine_mode": manifest["engine_mode"],
         "source_sha256": manifest["source_sha256"],
         "answers": manifest.get("answers"),
         **({"event_artifacts": run.get("event_artifacts")} if manifest.get("event_commands_sha256") else {}),

@@ -147,11 +147,18 @@ def _write_delimited_text(path: Path, output_frame: pd.DataFrame, config: dict[s
     write_delimited_frame(path, output_frame, *delimited_output_options(config))
 
 
-def write_xlsx(path, frame, sheet="Sheet1", *, header=True):
+def write_xlsx(path, frame, sheet="Sheet1", *, header=True, replace_sheet=False, sheet_index=None):
     ensure_output_directory(path.parent)
-    frame.map(lambda value: value.replace("\r\n", "\n") if isinstance(value, str) else value).to_excel(
-        path, sheet_name=sheet, index=False, header=header, engine="openpyxl",
-    )
+    frame = frame.map(lambda value: value.replace("\r\n", "\n") if isinstance(value, str) else value)
+    if replace_sheet and path.is_file():
+        with pd.ExcelWriter(path, engine="openpyxl", mode="a", if_sheet_exists="replace") as workbook:
+            frame.to_excel(workbook, sheet_name=sheet, index=False, header=header)
+            if sheet_index is not None:
+                book = workbook.book
+                current_index = book.sheetnames.index(sheet)
+                book.move_sheet(sheet, offset=min(sheet_index, len(book.sheetnames) - 1) - current_index)
+    else:
+        frame.to_excel(path, sheet_name=sheet, index=False, header=header, engine="openpyxl")
 
 
 def xlsx_output_options(config, selector):
@@ -160,7 +167,7 @@ def xlsx_output_options(config, selector):
         raise NotImplementedError("Excel output requires a single worksheet name")
     options = config.get("format_specific_options") or {}
     mode = _format_option(config, "OutputOption", "")
-    if mode not in {"", "RemoveFile", "OverwriteFile"}:
+    if mode not in {"", "RemoveFile", "OverwriteFile", "Overwrite", "Create"}:
         raise NotImplementedError(f"Excel output mode is unsupported: {mode!r}. Use Overwrite File (Remove)")
     defaults = {
         "PreserveFormat": {"", "false", "0"},
@@ -204,7 +211,8 @@ def dbfileoutput_tool(
         _write_delimited_text(path, output_frame, config)
     elif path.suffix.lower() == ".xlsx":
         sheet, header = xlsx_output_options(config, selector)
-        write_xlsx(path, output_frame, sheet, header=header)
+        write_xlsx(path, output_frame, sheet, header=header,
+                   replace_sheet=_format_option(config, "OutputOption", "") in {"Overwrite", "Create"})
     else:
         raise NotImplementedError(f"Unsupported DbFileOutput FileFormat: {file_format or path.suffix}")
     context.record_node(

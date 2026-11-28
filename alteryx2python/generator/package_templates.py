@@ -628,16 +628,16 @@ def render_io_utils_py(
                 config = _parse_config_file(default_toml) if default_toml.is_file() else {
                     "inputs": {}, "outputs": {}, "parameters": {},
                 }
-                base_dir = PACKAGE_DIR
+                config_dir = PACKAGE_DIR
                 if config_path is not None:
                     cfg_file = Path(config_path).resolve()
                     config = _deep_merge(config, _parse_config_file(cfg_file))
-                    base_dir = cfg_file.parent
+                    config_dir = cfg_file.parent
                 if overrides:
                     config = _deep_merge(config, overrides)
                 runtime = config.setdefault("runtime", {})
-                resolved_in = Path(input_dir or runtime.get("input_dir") or base_dir).resolve()
-                resolved_out = Path(output_dir or runtime.get("output_dir") or (base_dir / "output")).resolve()
+                resolved_in = Path(input_dir or runtime.get("input_dir") or config_dir).resolve()
+                resolved_out = Path(output_dir or runtime.get("output_dir") or (config_dir / "output")).resolve()
                 use_wf_paths = bool(use_workflow_output_paths or runtime.get("use_workflow_output_paths", False))
                 runtime["input_dir"] = str(resolved_in)
                 runtime["output_dir"] = str(resolved_out)
@@ -658,6 +658,8 @@ def render_io_utils_py(
                 input_dir = Path(config.get("runtime", {}).get("input_dir") or PACKAGE_DIR)
                 param_key = entry.get("parameter")
                 raw = str(config.get("parameters", {}).get(param_key) or entry["path"]) if param_key else str(entry["path"])
+                if entry.get("format") == "excel":
+                    raw = raw.partition("|||")[0]
                 expected_suffix = entry.get("expected_suffix")
                 if param_key and expected_suffix and Path(raw).suffix.lower() != str(expected_suffix).lower():
                     raise ValueError(f"Input file parameter {param_key!r} must have {expected_suffix} extension")
@@ -796,7 +798,10 @@ def render_io_utils_py(
                 path.parent.mkdir(parents=True, exist_ok=True)
                 sheet_name = str(entry.get("sheet_name") or "Sheet1")
                 has_header = bool(entry.get("has_header", True))
-                _write_excel(path, out_df, sheet_name, header=has_header)
+                _write_excel(
+                    path, out_df, sheet_name, header=has_header,
+                    replace_sheet=bool(entry.get("replace_sheet")), sheet_index=entry.get("sheet_index"),
+                )
                 return path
         '''
     ).strip()
@@ -824,11 +829,25 @@ def render_io_utils_py(
                 '''
                 if fmt in {"email_draft", "email_smtp"}:
                     output_dir = Path(config.get("runtime", {}).get("output_dir") or (PACKAGE_DIR / "output"))
+                    input_dir = Path(config.get("runtime", {}).get("input_dir") or PACKAGE_DIR)
+                    attachments = [
+                        output_dir / name[7:] if name.startswith("output:") else input_dir / name
+                        for name in entry.get("attachments", [])
+                    ]
+                    dest = resolve_output_path(config, entry) if fmt == "email_draft" else None
+                    if "plain_body" in entry:
+                        if len(out_df) != 1:
+                            raise ValueError("Email profile requires exactly one message record")
+                        _deliver_email_message(
+                            str(entry.get("sender", "")), str(entry.get("recipient", "")),
+                            str(entry.get("subject", "")), str(entry["plain_body"]),
+                            attachments, dest,
+                            host=entry.get("smtp_server", ""), port=entry.get("smtp_port", "25"), security="plain",
+                        )
+                        return dest or output_dir
                     body_field = str(entry.get("body_field") or "Report")
                     fragments = [str(v) for v in out_df.get(body_field, pd.Series(dtype=object)) if v is not None and not pd.isna(v)]
                     html_body = "<html><body>" + "\\n".join(fragments) + "</body></html>"
-                    attachments = [output_dir / name for name in entry.get("attachments", [])]
-                    dest = resolve_output_path(config, entry) if fmt == "email_draft" else None
                     _deliver_email_message(
                         str(entry.get("sender", "")),
                         str(entry.get("recipient", "")),
@@ -1108,7 +1127,7 @@ def render_io_utils_py(
         "_read_yxdb(path", f"{yxdb_reader}(path",
     ).replace("_read_excel(", f"{excel_reader}(").replace("_read_csv(", f"{csv_reader}(").replace(
         "_write_csv(path", f"{csv_writer}(path",
-    ).replace("_write_excel(path", f"{excel_writer}(path")
+    ).replace("_write_excel(", f"{excel_writer}(")
 
 
 def render_cli_py(spec: ConfigSpec, *, has_messages: bool = False) -> str:

@@ -61,6 +61,13 @@ def _dictionary_key(value, collate):
                  for part in _DIGIT_RUN.split(value) if part)
 
 
+def sort_binary_frame(frame, fields, ascending):
+    for field, forward in reversed(list(zip(fields, ascending))):
+        frame = frame.sort_values(field, ascending=forward, kind="stable",
+                                  na_position="first" if forward else "last")
+    return frame.reset_index(drop=True)
+
+
 def sort_frame(frame, fields, ascending, locale=None):
     """Sort by the saved keys, leaving original fields and stable ties intact."""
     collate = None

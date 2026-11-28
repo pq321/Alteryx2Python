@@ -42,8 +42,9 @@ def _alternate(question, value):
         return (current + timedelta(days=-1 if current == date.max else 1)).isoformat()
     if question.kind in {'FileBrowse', 'QuestionFileBrowse', 'FolderBrowse'}:
         from pathlib import PurePath
-        path = PurePath(value or 'input.csv')
-        return str(path.with_name('__parameter_probe__' + path.suffix))
+        raw, delimiter, selector = (value or 'input.csv').partition('|||')
+        path = PurePath(raw)
+        return str(path.with_name('__parameter_probe__' + path.suffix)) + delimiter + selector
     return '__parameter_probe__'
 
 
@@ -135,7 +136,14 @@ def prepare_parameters(workflow, answers, constants=None):
                         raise UnsupportedLowering('Container actions must bind the complete Disabled value')
                     bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'disabled'})
                 elif node.tool_type in {'DbFileInput', 'DbFileOutput'} and path == ('file',):
-                    if str(base) != str(value) or str(changed) != str(alternate):
+                    base_path, marker, selector = str(base).partition('|||')
+                    changed_path, changed_marker, changed_selector = str(changed).partition('|||')
+                    workbook_only = (
+                        node.tool_type == 'DbFileInput' and marker == changed_marker == '|||'
+                        and selector == changed_selector and base_path == str(value)
+                        and changed_path == str(alternate)
+                    )
+                    if not workbook_only and (str(base) != str(value) or str(changed) != str(alternate)):
                         raise UnsupportedLowering('File parameters must replace the complete configured path')
                     bindings.append({'node_id': node_id, 'path': list(path), 'name': question.name, 'kind': 'file'})
                 elif node.tool_type == 'DynamicInput' and path == ('input_configuration', 'file'):

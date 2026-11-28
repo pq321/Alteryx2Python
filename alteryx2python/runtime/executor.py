@@ -259,13 +259,22 @@ def _run_workflow_graph(
             file, separator, sheet = str(config['file']).partition('|||')
             config['file'] = str(Path(runtime['output_dir']) / Path(file).name) + (separator + sheet if separator else '')
         capture_dir = (context.runtime_config or {}).get("capture_output_dir")
-        if capture_dir and node.tool_type == "DbFileOutput":
+        if capture_dir and node.tool_type in {"DbFileOutput", "Email"}:
             from pathlib import Path
             import hashlib
-            filename, separator, selector = str(config.get('file', 'output.csv')).partition('|||')
-            suffix = Path(filename).suffix
+
             identity = hashlib.sha256(workflow.source_file.encode()).hexdigest()[:12]
-            if not audit or config.get('file'):
+            if node.tool_type == "Email":
+                captured = {}
+                for sink in workflow.nodes:
+                    if sink.tool_type == "DbFileOutput":
+                        filename = str(_execution_config(sink).get("file", "")).partition("|||")[0]
+                        path = Path(capture_dir) / f"python-sink-{identity}-{sink.node_id}{Path(filename).suffix}"
+                        captured[filename] = str(path)
+                config["attachments"] = [captured.get(name, name) for name in config.get("attachments", [])]
+            elif not audit or config.get('file'):
+                filename, separator, selector = str(config.get('file', 'output.csv')).partition('|||')
+                suffix = Path(filename).suffix
                 config['file'] = str(Path(capture_dir) / f'python-sink-{identity}-{node_id}{suffix}')
                 if separator:
                     config['file'] += separator + selector

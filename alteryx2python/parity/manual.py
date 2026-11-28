@@ -43,6 +43,7 @@ def attest_native(
     reviewer: str = "manual",
     note: str = "",
     _verified_manifest: dict | None = None,
+    allow_incomplete: bool = False,
 ) -> dict[str, Any]:
     """Record the observed Designer outcome; never infer it from Python."""
     if status not in {"success", "failed"}:
@@ -61,6 +62,7 @@ def attest_native(
         node["node_id"] for node in manifest["nodes"] if node.get("may_skip")
     }:
         raise ValueError("Skipped nodes must be observed container members distinct from failed nodes")
+    incomplete = False
     hashes: dict[str, str] = {}
     available: dict[str, set[str]] = {node_id: set() for node_id in ids}
     for probe in manifest["probes"]:
@@ -75,9 +77,9 @@ def attest_native(
                 hashes[readable_path.relative_to(directory).as_posix()] = file_hash(readable_path)
             available[probe["node_id"]].add(probe["anchor"])
         elif status == "success" and probe["node_id"] not in skips:
-            raise ValueError(
-                f"Successful review is missing native output {probe['file']}"
-            )
+            if not allow_incomplete:
+                raise ValueError(f"Successful review is missing native output {probe['file']}")
+            incomplete = True
     outcomes = {}
     for node in manifest["nodes"]:
         node_id = node["node_id"]
@@ -100,15 +102,19 @@ def attest_native(
         if outcomes[node_id] == "skipped" and node_id in sink_artifacts:
             raise ValueError(f"Skipped node produced native sink {filename}")
         if status == "success" and outcomes[node_id] != "skipped" and node_id not in sink_artifacts:
-            raise ValueError(f"Successful review is missing native sink {filename}")
+            if not allow_incomplete:
+                raise ValueError(f"Successful review is missing native sink {filename}")
+            incomplete = True
     for node_id, folder in manifest.get("render_folders", {}).items():
         workbooks = workbook_artifacts(directory / folder)
         if outcomes[node_id] == "skipped" and workbooks:
             raise ValueError(f"Skipped Render {node_id} produced a workbook")
         if status == "success" and outcomes[node_id] != "skipped" and not workbooks:
-            raise ValueError(f"Successful review is missing an XLSX workbook from Render {node_id}")
+            if not allow_incomplete:
+                raise ValueError(f"Successful review is missing an XLSX workbook from Render {node_id}")
+            incomplete = True
     review = {
-        "status": status,
+        "status": "incomplete" if incomplete else status,
         "source_sha256": manifest["source_sha256"],
         "instrumented_sha256": manifest["instrumented_sha256"],
         "output_sha256": hashes,

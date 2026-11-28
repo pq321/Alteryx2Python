@@ -43,6 +43,6 @@ def test_join_overlapping_columns_preserves_multiplicity_and_positional_unmatche
     result = join_tool({"Left": left, "Right": right}, {"joins": [
         {"connection": "Left", "field": "key"}, {"connection": "Right", "field": "key"}]}, workflow_context)
     assert list(result["Join"].columns) == ["Left_key", "Left_label", "Right_key", "Right_label"]
-    assert result["Join"][["Left_label", "Right_label"]].values.tolist() == [["a", "x"], ["a", "y"], ["b", "x"], ["b", "y"]]
+    assert result["Join"][["Left_label", "Right_label"]].values.tolist() == [["a", "x"], ["b", "x"], ["a", "y"], ["b", "y"]]
     assert result["Left"].to_dict("records") == [{"key": 2, "label": "c"}]
     assert result["Right"].to_dict("records") == [{"key": 3, "label": "z"}]

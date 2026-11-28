@@ -9,6 +9,9 @@ from alteryx2python.runtime.context import WorkflowContext
 from alteryx2python.tools.base_tool import BaseTool
 
 
+from alteryx2python.tools.sort import sort_binary_frame
+
+
 def join_keys(config, connection):
     return [str(join["field"]) for join in config.get("joins", [])
             if isinstance(join, dict) and join.get("connection") == connection and join.get("field")]
@@ -58,6 +61,10 @@ def join_frames(left, right, left_keys, right_keys, fields, order_changed, by_po
         right_on=["__right_index"] if by_position else [f"Right_{key}" for key in right_keys],
         sort=True,  # Original engine emits key-sorted groups (native SortInfo).
     )
+    if not by_position:
+        # Classic sorts keys, including nulls before empty strings.
+        order = [f"Left_{key}" for key in left_keys] + ["__right_index", "__left_index"]
+        merged = sort_binary_frame(merged, order, [True] * len(order))
     left_matched = set(merged["__left_index"].tolist())
     right_matched = set(merged["__right_index"].tolist())
 

@@ -5,6 +5,7 @@ import json
 import subprocess
 from datetime import date
 from decimal import Decimal
+import math
 from pathlib import Path
 from unittest.mock import patch
 from xml.etree import ElementTree as ET
@@ -51,6 +52,31 @@ def test_unsupported_cell_is_not_stringified():
 @pytest.mark.parametrize("values", [("a", None, "a", ""), ("a", "a", "", ""), ("a", None, "")])
 def test_detects_order_null_empty_and_duplicate_loss(values):
     assert compare_snapshots(snapshot(), snapshot(values))["status"] == "mismatch"
+
+
+def test_behavioral_float_tolerance_preserves_exact_decimal_and_strict_values():
+    left = frame_snapshot(pd.DataFrame({"x": [1.0, 2.0]}))
+    right = frame_snapshot(pd.DataFrame({"x": [math.nextafter(2.0, math.inf), 1.0]}))
+    assert compare_snapshots(left, right, unordered=True)["status"] == "match"
+    assert compare_snapshots(left, right, profile="strict", unordered=True)["status"] == "mismatch"
+    too_far = frame_snapshot(pd.DataFrame({"x": [1.0, 2.00001]}))
+    assert compare_snapshots(left, too_far)["status"] == "mismatch"
+
+    exact = frame_snapshot(pd.DataFrame({"x": [Decimal("1.000000000000001")]}))
+    rounded = frame_snapshot(pd.DataFrame({"x": [Decimal("1")]}))
+    assert compare_snapshots(exact, rounded)["status"] == "mismatch"
+
+
+@pytest.mark.parametrize("tool", ["Join", "JoinMultiple", "Union"])
+def test_amp_native_hash_outputs_compare_as_multisets(tool):
+    native, python = runs()
+    native["nodes"]["1"]["tool_type"] = python["nodes"]["1"]["tool_type"] = tool
+    python["nodes"]["1"]["outputs"]["Output"] = snapshot((None, "a", "", "a"))
+    assert compare_runs(native, python)["status"] == "mismatch"
+    native["engine_mode"] = "amp"
+    assert compare_runs(native, python)["status"] == "match"
+    python["nodes"]["1"]["outputs"]["Output"] = snapshot((None, "a", "", ""))
+    assert compare_runs(native, python)["status"] == "mismatch"
 
 
 def test_schema_mismatch_and_missing_schema_never_pass():
